@@ -146,14 +146,7 @@ export default function Navbar(props) {
                                                 Voting
                                             </a>
                                         </li>
-                                        <li>
-                                            <a
-                                                href="/admin/voting"
-                                                className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                            >
-                                                Voting Dashboard
-                                            </a>
-                                        </li>
+
                                     </ul>
                                 )}
                             </li>
