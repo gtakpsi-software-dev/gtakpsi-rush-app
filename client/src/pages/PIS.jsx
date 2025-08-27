@@ -338,6 +338,14 @@ export default function PIS() {
                                     </p>
                                 </div>
                                 
+                                {/* Typing Restriction Message */}
+                                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-apple">
+                                    <p className="text-apple-footnote text-blue-800 font-light">
+                                        <span className="font-normal">Important:</span> Only one person should type in each text box at a time to avoid conflicts. 
+                                        You can see when others are typing in a field - please wait for them to finish before adding your input.
+                                    </p>
+                                </div>
+                                
                                 {/* Brother Information */}
                                 <div className="mb-8 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple">
                                     <h3 className="text-apple-title2 font-normal text-black mb-4">Brother Information</h3>
