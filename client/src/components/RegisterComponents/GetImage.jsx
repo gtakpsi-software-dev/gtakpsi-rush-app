@@ -5,10 +5,37 @@ export default function GetImage(props) {
 
     const [showPreview, setShowPreview] = useState(false)
 
+    // Video constraints for mirror-like experience
+    const videoConstraints = {
+        width: 1280,
+        height: 1280,
+        facingMode: "user", // Use front camera for mirror-like experience
+        aspectRatio: 1, // Square aspect ratio to match the container
+    };
+
     const capture = () => {
-        const screenshot = props.webcamRef.current.getScreenshot();
-        setShowPreview(true)
-        props.setImage(screenshot);
+        const webcam = props.webcamRef.current;
+        const video = webcam.video;
+        
+        // Create a canvas to manually flip the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = 1280;
+        canvas.height = 1280;
+        
+        // Flip the canvas horizontally to maintain mirror effect
+        ctx.scale(-1, 1);
+        ctx.translate(-canvas.width, 0);
+        
+        // Draw the video frame onto the flipped canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to base64 image
+        const mirroredScreenshot = canvas.toDataURL('image/jpeg', 0.95);
+        
+        setShowPreview(true);
+        props.setImage(mirroredScreenshot);
     };
 
     return (
@@ -39,6 +66,9 @@ export default function GetImage(props) {
                                 ref={props.webcamRef}
                                 audio={false}
                                 screenshotFormat="image/jpeg"
+                                screenshotQuality={0.95}
+                                videoConstraints={videoConstraints}
+                                mirrored={true} // Mirror the camera view like a mirror
                                 className="w-full h-full object-cover rounded-apple-2xl"
                             />
                         )}
