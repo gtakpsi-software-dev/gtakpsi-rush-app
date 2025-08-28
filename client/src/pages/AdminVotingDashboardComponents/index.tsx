@@ -6,6 +6,7 @@ import QuestionDisplay from "./QuestionDisplay";
 import RusheePreviewCard from "./RusheePreviewCard";
 import RusheeComments from "./RusheeComments";
 import VoteSummary from "./VoteSummary";
+import VotePieChart from "./VotePieChart";
 import BrotherList from "./BrotherList";
 import { Brother } from "./types";
 import NotFound from "../404";
@@ -92,8 +93,11 @@ function Content() {
                 </div>
             </div>
             <div className="w-[35%] h-full p-6 pt-24 bg-white border-r border-apple-gray-200">
-                <VoteSummary showBreakdown={true} />
-                <BrotherList/>
+                <div className="flex flex-col space-y-6">
+                    <VoteSummary showBreakdown={true} />
+                    <VotePieChart />
+                    <BrotherList/>
+                </div>
             </div>
         </div>
     )
