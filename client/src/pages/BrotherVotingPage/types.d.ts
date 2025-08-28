@@ -11,11 +11,6 @@ export interface Comment {
     night: Date | string;
 }
 
-export interface PisResponse {
-    question: string;
-    answer: string;
-}
-
 export interface Rushee {
     first_name: string;
     last_name: string;
@@ -25,7 +20,6 @@ export interface Rushee {
     image_url: string;
     comments: Comment[];
     ratings: Rating[];
-    pis?: PisResponse[];
 }
 
 export interface Brother {

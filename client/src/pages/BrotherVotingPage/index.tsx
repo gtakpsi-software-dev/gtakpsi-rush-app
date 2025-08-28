@@ -5,7 +5,6 @@ import { BrotherVotingContextProvider, useBrotherVotingContext } from "./Brother
 import QuestionBanner from "./QuestionBanner";
 import RusheePreviewCard from "./RusheePreviewCard";
 import RusheeComments from "./RusheeComments";
-import RusheePIS from "./RusheePIS";
 import NotFound from "../404";
 import { Brother } from "./types";
 
@@ -65,15 +64,10 @@ function Content() {
       </div>
 
       {/* Offset the height of the fixed navbar (adjust height if needed) */}
-      <div className="pt-20 sm:pt-24 px-6 w-full max-w-7xl mx-auto">
+      <div className="pt-20 sm:pt-24 px-6 w-full max-w-6xl mx-auto">
         <QuestionBanner />
         <RusheePreviewCard />
-        
-        {/* Two-column layout for comments and PIS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <RusheeComments />
-          <RusheePIS />
-        </div>
+        <RusheeComments />
       </div>
     </div>
   );
