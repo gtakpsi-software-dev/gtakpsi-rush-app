@@ -26,18 +26,18 @@ export default function RusheeComments() {
     if (!rushee || rushee.comments.length === 0) return null;
 
     return (
-        <div className="mt-6 space-y-4 h-[500px] w-full overflow-y-scroll scrollbar-hide">
+        <div className="space-y-4 max-h-[500px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-apple-gray-300 scrollbar-track-apple-gray-100">
             {rushee.comments.map((comment, idx) => (
                 <div
                     key={idx}
                     ref={(el) => (commentsRef.current[idx] = el!)}
-                    className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 scrollbar-hide rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
+                    className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
                 >
                     <div className="flex items-center gap-2 mb-3">
                         <Badges text={"hello"} />
                     </div>
 
-                    <p className="text-apple-body text-black font-light leading-relaxed">
+                    <p className="text-apple-body text-black font-light leading-relaxed break-words">
                         <span className="font-normal">{comment.brother_name}:</span> {comment.comment}
                     </p>
 
