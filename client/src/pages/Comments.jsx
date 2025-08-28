@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-// import Button from '../components/Button'; // Uncomment if you have a Button component
 
 const Comments = () => {
   const navigate = useNavigate();
@@ -76,21 +75,24 @@ const Comments = () => {
                       className="w-24 h-24 rounded-apple-2xl object-cover border border-apple-gray-200 shrink-0"
                     />
                     <div className="flex-1 w-full">
-                      <div className="flex flex-row gap-2 items-center mb-4">
+                      {/* Rushee name + Night badge */}
+                      <div className="flex flex-row items-center mb-4">
                         <h2 className="text-apple-title1 font-normal text-black">
                           {entry.rushee.first_name} {entry.rushee.last_name}
                         </h2>
+                        {entry.comments[0]?.night?.name && (
+                          <span className="ml-auto bg-apple-gray-100 text-apple-gray-700 text-apple-caption1 font-light px-2 py-1 rounded-apple whitespace-nowrap">
+                            {entry.comments[0].night.name}
+                          </span>
+                        )}
                       </div>
+
+                      {/* Comments */}
                       {entry.comments.map((comment, cidx) => (
                         <div key={cidx} className="mb-6 last:mb-4">
                           <div className="flex flex-col gap-3 mb-3">
                             <div className="flex items-start gap-3">
                               <p className="text-apple-body text-black font-light flex-1">{comment.comment}</p>
-                              {comment.night?.name && (
-                                <span className="bg-apple-gray-100 text-apple-gray-700 text-apple-caption1 font-light px-2 py-1 rounded-apple whitespace-nowrap">
-                                  {comment.night.name}
-                                </span>
-                              )}
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {comment.ratings && comment.ratings.map((rating, rIdx) => (
@@ -123,4 +125,4 @@ const Comments = () => {
   );
 };
 
-export default Comments; 
+export default Comments;
