@@ -9,10 +9,13 @@ export const useCollaboration = (roomId, currentUser) => {
     const [isConnected, setIsConnected] = useState(false);
     const [typingUsers, setTypingUsers] = useState(new Map());
     const [documentState, setDocumentState] = useState({});
+    const [documentVersions, setDocumentVersions] = useState({});
     
     const lastOperationRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
     const socketRef = useRef(null);
+    const knownVersionsRef = useRef({}); // field -> version number
+    const pendingUpdatesRef = useRef({}); // field -> { clientUpdateId, value }
 
     const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001';
 
@@ -83,7 +86,52 @@ export const useCollaboration = (roomId, currentUser) => {
             socketRef.current.on('text-update', (data) => {
                 // ignore own updates
                 if (data.userId === currentUser.id) return;
-                setRemoteUpdates(prev => [...prev, data].slice(-100));
+
+                const field = data.field;
+                const incomingVersion = typeof data.version === 'number'
+                    ? data.version
+                    : (knownVersionsRef.current[field] || 0) + 1; // backward compat
+
+                // Ignore stale or duplicate updates
+                if ((knownVersionsRef.current[field] || 0) >= incomingVersion) {
+                    return;
+                }
+
+                knownVersionsRef.current[field] = incomingVersion;
+                setRemoteUpdates(prev => [...prev, { ...data, version: incomingVersion }].slice(-100));
+            });
+
+            // Ack from server that our update committed
+            socketRef.current.on('text-ack', ({ field, version, clientUpdateId }) => {
+                const pending = pendingUpdatesRef.current[field];
+                if (pending && pending.clientUpdateId === clientUpdateId) {
+                    knownVersionsRef.current[field] = version;
+                    delete pendingUpdatesRef.current[field];
+                }
+            });
+
+            // Reject from server due to version mismatch. Replace with serverValue and rebase pending
+            socketRef.current.on('text-reject', ({ field, serverValue, serverVersion, clientUpdateId }) => {
+                knownVersionsRef.current[field] = serverVersion;
+
+                // Push server value as a remote update so UIs converge
+                setRemoteUpdates(prev => [...prev, { field, value: serverValue, version: serverVersion, userId: 'server' }].slice(-100));
+
+                const pending = pendingUpdatesRef.current[field];
+                if (pending && pending.clientUpdateId === clientUpdateId) {
+                    // Re-send pending value atop the latest server version
+                    const newId = Math.random().toString(36).substr(2, 9);
+                    pendingUpdatesRef.current[field] = { clientUpdateId: newId, value: pending.value };
+
+                    socketRef.current.emit('text-update', {
+                        field,
+                        value: pending.value,
+                        baseVersion: serverVersion,
+                        clientUpdateId: newId,
+                        userId: currentUser.id,
+                        userName: `${currentUser.firstName} ${currentUser.lastName}`
+                    });
+                }
             });
 
             socketRef.current.on('cursor-position', (data) => {
@@ -120,7 +168,24 @@ export const useCollaboration = (roomId, currentUser) => {
             });
 
             socketRef.current.on('document-state', (state) => {
-                setDocumentState(state);
+                // Normalize shape to { field: value } and capture versions separately
+                const values = {};
+                const versions = {};
+
+                for (const [field, payload] of Object.entries(state || {})) {
+                    if (payload && typeof payload === 'object' && 'value' in payload) {
+                        values[field] = payload.value ?? '';
+                        versions[field] = typeof payload.version === 'number' ? payload.version : 0;
+                    } else {
+                        // Backward compatibility for older server
+                        values[field] = payload ?? '';
+                        versions[field] = 0;
+                    }
+                }
+
+                setDocumentState(values);
+                setDocumentVersions(versions);
+                knownVersionsRef.current = versions;
             });
 
             setSocket(socketRef.current);
@@ -149,9 +214,15 @@ export const useCollaboration = (roomId, currentUser) => {
     // Send full text update after debounce
     const sendTextUpdate = useCallback((field, value) => {
         if (socket && isConnected) {
+            const baseVersion = knownVersionsRef.current[field] || 0;
+            const clientUpdateId = Math.random().toString(36).substr(2, 9);
+            pendingUpdatesRef.current[field] = { clientUpdateId, value };
+
             socket.emit('text-update', {
                 field,
                 value,
+                baseVersion,
+                clientUpdateId,
                 userId: currentUser.id,
                 userName: `${currentUser.firstName} ${currentUser.lastName}`
             });
@@ -209,6 +280,7 @@ export const useCollaboration = (roomId, currentUser) => {
         remoteUpdates,
         typingUsers: Array.from(typingUsers.values()),
         documentState,
+        documentVersions,
         sendTextOperation,
         sendTextUpdate,
         sendCursorPosition,

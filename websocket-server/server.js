@@ -97,6 +97,7 @@ io.on('connection', (socket) => {
                 users: new Map(),
                 operations: [],
                 document: new Map(), // Store document state per field
+                versions: new Map(), // Store per-field versions for conflict control
                 lastActivity: new Date().toISOString()
             });
         }
@@ -105,12 +106,12 @@ io.on('connection', (socket) => {
         room.users.set(userId, userInfo);
         room.lastActivity = new Date().toISOString();
 
-        // Send current document state to the new user
+        // Send current document state to the new user (include versions)
         const documentState = {};
         for (const [field, content] of room.document.entries()) {
-            documentState[field] = content;
+            const version = room.versions.get(field) || 0;
+            documentState[field] = { value: content, version };
         }
-        
         socket.emit('document-state', documentState);
 
         // Notify all users in the room about user list update
@@ -182,9 +183,9 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('text-operation', transformedOp);
     });
 
-    // New full-text synchronization mode
+    // New full-text synchronization mode with versioning + ack/reject
     socket.on('text-update', (payload) => {
-        /* payload = { field: string, value: string, userId: string, userName: string } */
+        /* payload = { field: string, value: string, userId: string, userName: string, baseVersion: number, clientUpdateId: string } */
         const userData = userSockets.get(socket.id);
         if (!userData) return;
 
@@ -192,22 +193,53 @@ io.on('connection', (socket) => {
         const room = rooms.get(roomId);
         if (!room) return;
 
-        const updateMessage = {
-            action: 'text-update',
-            data: {
-                field: payload.field,
-                value: payload.value,
-                userId: payload.userId,
-                userName: payload.userName,
+        // Basic payload validation
+        const field = payload?.field;
+        const value = typeof payload?.value === 'string' ? payload.value : '';
+        const baseVersion = typeof payload?.baseVersion === 'number' ? payload.baseVersion : undefined;
+        const clientUpdateId = typeof payload?.clientUpdateId === 'string' ? payload.clientUpdateId : undefined;
+
+        if (!field || baseVersion === undefined || !clientUpdateId) {
+            return; // ignore malformed payloads
+        }
+
+        const currentVersion = room.versions.get(field) || 0;
+
+        // Version mismatch → reject with server truth
+        if (baseVersion !== currentVersion) {
+            socket.emit('text-reject', {
+                field,
+                serverValue: room.document.get(field) || '',
+                serverVersion: currentVersion,
+                clientUpdateId,
                 timestamp: Date.now(),
-            }
-        };
+            });
+            return;
+        }
 
-        // Persist the new full text value for this field
-        room.document.set(payload.field, payload.value);
+        // Apply update and increment version
+        room.document.set(field, value);
+        const newVersion = currentVersion + 1;
+        room.versions.set(field, newVersion);
+        room.lastActivity = new Date().toISOString();
 
-        // Broadcast to all other users in the room
-        socket.to(roomId).emit('text-update', updateMessage.data);
+        // Ack to sender
+        socket.emit('text-ack', {
+            field,
+            version: newVersion,
+            clientUpdateId,
+            timestamp: Date.now(),
+        });
+
+        // Broadcast to others with the committed version
+        socket.to(roomId).emit('text-update', {
+            field,
+            value,
+            version: newVersion,
+            userId: payload.userId,
+            userName: payload.userName,
+            timestamp: Date.now(),
+        });
     });
 
     socket.on('cursor-position', (data) => {
@@ -258,9 +290,9 @@ io.on('connection', (socket) => {
 
         const documentState = {};
         for (const [field, content] of room.document.entries()) {
-            documentState[field] = content;
+            const version = room.versions.get(field) || 0;
+            documentState[field] = { value: content, version };
         }
-        
         socket.emit('document-state', documentState);
     });
 
