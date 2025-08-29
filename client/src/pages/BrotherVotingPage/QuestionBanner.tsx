@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import SplitText from "../../components/ReactBitsComponents/SplitText";
 import { Brother } from "./types";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
@@ -10,6 +10,8 @@ const votingOptions = ["Yes", "No", "Abstain"];
 
 export default function QuestionBanner() {
     const { question, setQuestion } = useBrotherVotingContext();
+    const [hasVoted, setHasVoted] = useState(false);
+    const [submittedVote, setSubmittedVote] = useState<string | null>(null);
 
     const storedUser: string | null = localStorage.getItem('user')
 
@@ -20,6 +22,12 @@ export default function QuestionBanner() {
     const user: Brother = JSON.parse(storedUser)
 
     const api = import.meta.env.VITE_API_PREFIX;
+
+    // Reset vote state when question changes
+    useEffect(() => {
+        setHasVoted(false);
+        setSubmittedVote(null);
+    }, [question]);
 
     const handleVote = async (vote: string) => {
 
@@ -51,6 +59,9 @@ export default function QuestionBanner() {
                     const code = response.data.status;
 
                     if (code === "duplicate") {
+                        // If they already voted, show the voted state
+                        setHasVoted(true);
+                        setSubmittedVote(vote);
                         throw new Error("You have already voted for this rushee.");
                     }
 
@@ -60,6 +71,9 @@ export default function QuestionBanner() {
                     throw new Error("Vote failed for unknown reason.");
                 }
 
+                // Vote was successful, update state
+                setHasVoted(true);
+                setSubmittedVote(vote);
                 return response;
             })(),
             {
@@ -108,17 +122,30 @@ export default function QuestionBanner() {
                     delay={60}
                 />
 
-                {/* Voting options */}
+                {/* Voting options or success indicator */}
                 <div className="flex gap-4 mt-2">
-                    {votingOptions.map((option) => (
-                        <button
-                            key={option}
-                            onClick={() => handleVote(option)}
-                            className="px-5 py-2 rounded-apple bg-apple-gray-200 hover:bg-apple-gray-300 active:scale-[0.97] transition text-apple-gray-800 font-light text-apple-body"
-                        >
-                            {option}
-                        </button>
-                    ))}
+                    {hasVoted ? (
+                        <div className="flex items-center gap-3 px-6 py-3 rounded-apple bg-green-100 border border-green-200">
+                            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <span className="text-green-800 font-medium text-apple-body">
+                                Vote submitted: {submittedVote}
+                            </span>
+                        </div>
+                    ) : (
+                        votingOptions.map((option) => (
+                            <button
+                                key={option}
+                                onClick={() => handleVote(option)}
+                                className="px-5 py-2 rounded-apple bg-apple-gray-200 hover:bg-apple-gray-300 active:scale-[0.97] transition text-apple-gray-800 font-light text-apple-body"
+                            >
+                                {option}
+                            </button>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

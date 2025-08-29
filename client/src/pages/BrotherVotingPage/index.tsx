@@ -5,12 +5,13 @@ import { BrotherVotingContextProvider, useBrotherVotingContext } from "./Brother
 import QuestionBanner from "./QuestionBanner";
 import RusheePreviewCard from "./RusheePreviewCard";
 import RusheeComments from "./RusheeComments";
+import RusheePISInfo from "./RusheePISInfo";
 import NotFound from "../404";
 import { Brother } from "./types";
 
 function Content() {
   const { rushee, question, setRushee, setQuestion } = useBrotherVotingContext();
-  const websocketAPI: string = import.meta.env.VITE_BROADCASTER_API_PREFIX;
+  const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
   const socketRef = useRef<WebSocket | null>(null);
   const navigate = useNavigate();
   const storedUser: string | null = localStorage.getItem('user')
@@ -64,10 +65,11 @@ function Content() {
       </div>
 
       {/* Offset the height of the fixed navbar (adjust height if needed) */}
-      <div className="pt-20 sm:pt-24 px-6 w-full max-w-6xl mx-auto">
+      <div className="pt-20 sm:pt-24 px-6 pb-24 w-full max-w-6xl mx-auto">
         <QuestionBanner />
         <RusheePreviewCard />
         <RusheeComments />
+        <RusheePISInfo />
       </div>
     </div>
   );

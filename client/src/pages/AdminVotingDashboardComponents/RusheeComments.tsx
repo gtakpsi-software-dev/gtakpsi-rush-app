@@ -26,7 +26,7 @@ export default function RusheeComments() {
   if (!rushee || rushee.comments.length === 0) return null;
 
   return (
-    <div className="mt-6 space-y-4 max-h-[400px] overflow-y-scroll scrollbar-hide">
+    <div className="mt-6 space-y-4">
       {rushee.comments.map((comment, idx) => (
         <div
           key={idx}
@@ -35,7 +35,16 @@ export default function RusheeComments() {
         >
           {/* Night Badge */}
           <div className="flex items-center gap-2 mb-3">
-            <Badges text={"hello"} />
+            <Badges text={comment.night ? (() => {
+              // Handle different night data formats
+              if (typeof comment.night === 'string') {
+                return comment.night;
+              } else if (comment.night && typeof comment.night === 'object') {
+                // If it's a date object or has a name property
+                return (comment.night as any).name || `Night ${new Date(comment.night).toLocaleDateString()}`;
+              }
+              return "Rush Event";
+            })() : "Rush Event"} />
           </div>
 
           {/* Comment Text */}

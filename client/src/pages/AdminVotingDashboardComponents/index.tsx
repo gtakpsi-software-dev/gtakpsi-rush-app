@@ -14,7 +14,7 @@ function Content() {
 
     const { votes, rushee, question, setVotes, setRushee, setQuestion } = useAdminVotingContext();
 
-    const websocketAPI: string = import.meta.env.VITE_BROADCASTER_API_PREFIX;
+    const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
     const socketRef = useRef<WebSocket | null>(null);
     const navigate = useNavigate();
 
@@ -84,16 +84,20 @@ function Content() {
     return (
         <div className="w-screen h-screen flex overflow-visible">
             <Navbar />
-            <div className="w-[65%] h-full p-6 pt-24 bg-white border-r border-apple-gray-200">
-                <div className="flex flex-col space-y-6">
-                    <QuestionDisplay />
-                    <RusheePreviewCard />
-                    <RusheeComments />
+            <div className="w-[65%] h-full pt-24 bg-white border-r border-apple-gray-200 overflow-y-auto">
+                <div className="max-w-4xl mx-auto px-8 py-6 pb-24">
+                    <div className="flex flex-col space-y-6">
+                        <QuestionDisplay />
+                        <RusheePreviewCard />
+                        <RusheeComments />
+                    </div>
                 </div>
             </div>
-            <div className="w-[35%] h-full p-6 pt-24 bg-white border-r border-apple-gray-200">
-                <VoteSummary showBreakdown={true} />
-                <BrotherList/>
+            <div className="w-[35%] h-full pt-24 bg-white border-r border-apple-gray-200 overflow-y-auto">
+                <div className="px-6 py-6 pb-24">
+                    <VoteSummary showBreakdown={true} />
+                    <BrotherList/>
+                </div>
             </div>
         </div>
     )

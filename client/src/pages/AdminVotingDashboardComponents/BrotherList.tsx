@@ -62,7 +62,7 @@ export default function BrotherList() {
   if (loading || !eligibilityMap) return <Loader />;
 
   return (
-    <div className="max-h-[70vh] pt-4 overflow-y-auto space-y-3 pr-1">
+    <div className="pt-4 space-y-3">
       {brothers.map((brother) => (
         <div
           className="card-apple p-4 border border-apple-gray-200 rounded-apple shadow-sm hover:shadow-md transition-all duration-150"

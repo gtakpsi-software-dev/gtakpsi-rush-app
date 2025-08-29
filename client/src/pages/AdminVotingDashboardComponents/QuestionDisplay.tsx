@@ -12,18 +12,24 @@ export default function QuestionDisplay() {
 
     const lambdaURL = import.meta.env.VITE_API_PREFIX;
 
-    const handleBlur = async () => {
-        setEditing(false);
-
+    const handleSendQuestion = async () => {
         if (inputValue.trim() !== question) {
             const payload = { question: inputValue };
 
             // Show loader → then success or error toast
             await toast.promise(
-                axios.post(`${lambdaURL}/admin/voting/post-question`, payload),
+                (async () => {
+                    // First, set the new question
+                    await axios.post(`${lambdaURL}/admin/voting/post-question`, payload);
+                    
+                    // Then, clear all existing votes since they're for the old question
+                    await axios.post(`${lambdaURL}/admin/voting/clear-votes`);
+                    
+                    return { success: true };
+                })(),
                 {
-                    pending: "Updating question...",
-                    success: "Question updated successfully! 🎉",
+                    pending: "Updating question and clearing votes...",
+                    success: "Question updated and votes cleared! 🎉",
                     error: "Failed to update question ❌",
                 },
                 {
@@ -31,6 +37,20 @@ export default function QuestionDisplay() {
                     theme: "light",
                 }
             );
+        }
+        setEditing(false);
+    };
+
+    const handleCancel = () => {
+        setInputValue(question || "");
+        setEditing(false);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSendQuestion();
+        } else if (e.key === 'Escape') {
+            handleCancel();
         }
     };
 
@@ -49,13 +69,34 @@ export default function QuestionDisplay() {
             </label>
 
             {editing ? (
-                <input
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onBlur={handleBlur}
-                    className="w-full text-apple-title1 text-black bg-transparent outline-none border-b border-apple-gray-300 focus:border-black transition-all duration-150"
-                />
+                <div className="space-y-4">
+                    <input
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        className="w-full text-apple-title1 text-black bg-transparent outline-none border-b border-apple-gray-300 focus:border-black transition-all duration-150"
+                        placeholder="Enter your question..."
+                    />
+                    <div className="flex gap-3">
+                        <button
+                            onClick={handleSendQuestion}
+                            className="px-4 py-2 bg-black text-white text-apple-body font-normal rounded-apple hover:bg-apple-gray-800 transition-colors duration-150"
+                        >
+                            Send Question
+                        </button>
+                        <button
+                            onClick={handleCancel}
+                            className="px-4 py-2 bg-apple-gray-200 text-apple-gray-700 text-apple-body font-normal rounded-apple hover:bg-apple-gray-300 transition-colors duration-150"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    <p className="text-apple-footnote text-apple-gray-500">
+                        Press Enter to send, Escape to cancel<br/>
+                        <span className="text-orange-600">Note: Setting a new question will clear all existing votes</span>
+                    </p>
+                </div>
             ) : (
                 <p className={`text-apple-title1 text-black ${!question && "text-apple-gray-400 italic"}`}>
                     {question || "Click to set question..."}
