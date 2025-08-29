@@ -145,6 +145,11 @@ export default function PIS() {
             [question]: answer,
         }));
         
+        // Send websocket update for real-time collaboration
+        if (collaboration.isConnected) {
+            collaboration.sendTextUpdate(question, answer);
+        }
+        
         // Validate answer for speculative language and rushee names
         if (rushee && answer) {
             const validationResult = validateComment(answer, rushee.first_name, rushee.last_name);

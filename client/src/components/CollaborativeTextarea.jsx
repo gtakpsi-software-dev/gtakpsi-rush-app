@@ -66,13 +66,25 @@ const CollaborativeTextarea = ({
     }, [collaboration, questionKey]);
 
     // Handle focus events for typing indicators
-    const handleFocus = useCallback(() => {
+    const handleFocus = useCallback((e) => {
+        // Prevent focus if another user is actively typing in this field
+        if (isFieldLocked) {
+            e.target.blur(); // Immediately remove focus
+            return;
+        }
         collaboration.sendTypingIndicator(questionKey, true);
-    }, [collaboration, questionKey]);
+    }, [collaboration, questionKey, isFieldLocked]);
 
     const handleBlur = useCallback(() => {
         collaboration.sendTypingIndicator(questionKey, false);
     }, [collaboration, questionKey]);
+
+    // Prevent mouse clicks from focusing when field is locked
+    const handleMouseDown = useCallback((e) => {
+        if (isFieldLocked) {
+            e.preventDefault();
+        }
+    }, [isFieldLocked]);
 
     // Sync with prop value changes (e.g., when another user updates or voice transcription adds text)
     useEffect(() => {
@@ -113,22 +125,35 @@ const CollaborativeTextarea = ({
     const otherUserCursors = collaboration.connectedUsers
         .filter(user => user.field === questionKey && typeof user.cursor === 'number')
         .slice(0, 3); // Limit to 3 cursors to avoid UI clutter
+    
+    // Check if field is locked due to another user actively typing
+    const isFieldLocked = typingInThisField.length > 0;
 
     return (
         <div className="relative">
             <textarea
                 ref={textareaRef}
-                className={`${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${isFieldLocked ? 'cursor-not-allowed' : ''}`}
                 placeholder={placeholder}
                 value={localValue}
                 onChange={handleTextChange}
                 onSelect={handleCursorChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                onMouseDown={handleMouseDown}
                 onCompositionStart={handleCompositionStart}
                 onCompositionEnd={handleCompositionEnd}
                 disabled={disabled}
             />
+            
+            {/* Field locked overlay */}
+            {isFieldLocked && (
+                <div className="absolute inset-0 bg-blue-50/30 border-2 border-blue-300 rounded-md pointer-events-none flex items-center justify-center">
+                    <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                        {typingInThisField[0]?.userName} is typing...
+                    </div>
+                </div>
+            )}
             
             {/* Connection status indicator */}
             {!collaboration.isConnected && (
