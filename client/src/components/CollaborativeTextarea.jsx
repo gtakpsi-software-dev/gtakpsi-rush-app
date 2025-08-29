@@ -42,7 +42,7 @@ const CollaborativeTextarea = ({
             debounceTimerRef.current = setTimeout(() => {
                 collaboration.sendTextUpdate(questionKey, newValue);
                 lastSentValue.current = newValue;
-            }, 200);
+            }, 450);
         }
     }, [questionKey, onChange, collaboration, isComposing]);
 
@@ -91,8 +91,14 @@ const CollaborativeTextarea = ({
     }, [collaboration, questionKey, isFieldLocked]);
 
     const handleBlur = useCallback(() => {
+        // stop typing indicator and flush any pending local value
         collaboration.sendTypingIndicator(questionKey, false);
-    }, [collaboration, questionKey]);
+        if (collaboration.isConnected) {
+            const valueToFlush = typeof textareaRef.current?.value === 'string' ? textareaRef.current.value : localValue;
+            collaboration.sendTextUpdate(questionKey, valueToFlush);
+            lastSentValue.current = valueToFlush;
+        }
+    }, [collaboration, questionKey, localValue]);
 
     // Prevent mouse clicks from focusing when field is locked
     const handleMouseDown = useCallback((e) => {
@@ -136,10 +142,10 @@ const CollaborativeTextarea = ({
         };
 
         const now = Date.now();
-        if (now - lastLocalInputTimeRef.current < 300) {
+        if (now - lastLocalInputTimeRef.current < 650) {
             const to = setTimeout(() => {
                 applyRemote();
-            }, 300);
+            }, 650);
             return () => clearTimeout(to);
         } else {
             applyRemote();

@@ -145,8 +145,8 @@ export default function PIS() {
             [question]: answer,
         }));
         
-        // Only send websocket update if this change originated from typing in the textarea
-        if (collaboration.isConnected && meta?.source === 'typing') {
+        // Only send websocket update for voice-originated changes; typing is handled inside the textarea component
+        if (collaboration.isConnected && meta?.source === 'voice') {
             collaboration.sendTextUpdate(question, answer);
         }
         
@@ -493,7 +493,7 @@ export default function PIS() {
                                                             questionKey={question.question}
                                                             currentValue={answers[question.question] || ""}
                                                             onTranscription={(newAnswer) => {
-                                                                handleAnswerChange(question.question, newAnswer);
+                                                                handleAnswerChange(question.question, newAnswer, { source: 'voice' });
                                                             }}
                                                             disabled={!collaboration.isConnected && collaboration.connectedUsers.length > 0}
                                                         />
