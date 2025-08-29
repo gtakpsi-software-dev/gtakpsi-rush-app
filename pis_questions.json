@@ -4,11 +4,11 @@
         "question_type": "MC"
     },
     {
-        "question": "Are you available on Saturday, February 8th from 9am to 4pm?",
+        "question": "Are you available on Saturday, September 20th from 9am to 4pm?",
         "question_type": "MC"
     },
     {
-        "question": "Are you available on Sunday, March 9th from 9am to 4pm?",
+        "question": "Are you available on Sunday, October 19th from 9am to 4pm?",
         "question_type": "MC"
     },
     {
@@ -16,7 +16,11 @@
         "question_type": "Long"
     },
     {
-        "question": "Why do you want to join AKPsi? ",
+        "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
+        "question_type": "Long"
+    },
+    {
+        "question": "Could you share an experience where you truly exemplified the value of service and understood the importance of it?",
         "question_type": "Long"
     },
     {
@@ -24,51 +28,11 @@
         "question_type": "Long"
     },
     {
-        "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
+        "question": "Why do you want to join AKPsi?",
         "question_type": "Long"
     },
     {
-        "question": "What is your biggest strength? How do you see that playing into Alpha Kappa Psi?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Can you provide an example of a time when you changed your actions in order to create a more inclusive environment? What was your biggest challenge in this and how did you grow from it?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Could you share an experience where you truly understood the importance of service?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Brotherhood is a core value of AKPsi. How would you contribute to strengthening this aspect of the organization?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Scenario question (pick ONE based on what you think we need more depth in OR what Miroboard says we need more on)\nSocial: If you could bring one unique tradition or value from your personal background to AKPsi, what would it be and why?\nProfessional: Describe a time when you worked to achieve a difficult goal. How do you see AKPsi helping you grow in your ability to lead in the future?",
-        "question_type": "Long"
-    },
-    {
-        "question": "(Fun one) What’s your go-to karaoke song? Why?",
-        "question_type": "Long"
-    },
-    {
-        "question": "If there was one thing you could change about Georgia Tech, what would it be?",
-        "question_type": "Long"
-    },
-    {
-        "question": "If there were 3 items you would take with you to a deserted island, what would you take and why?",
-        "question_type": "Long"
-    },
-    {
-        "question": "What’s the most adventurous or out-of-the-box thing you’ve ever done?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Name a person who inspires you and why?",
-        "question_type": "Long"
-    },
-    {
-        "question": "If you had 24 hours to live, what would be your ideal 24 hours?",
+        "question": "Could you describe a time when you took steps to promote and uphold diversity, equity and inclusion principles?",
         "question_type": "Long"
     },
     {
