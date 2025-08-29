@@ -139,14 +139,14 @@ export default function PIS() {
     }, [loading, api, gtid, navigate]);
 
     // Handle answer input changes
-    const handleAnswerChange = (question, answer) => {
+    const handleAnswerChange = (question, answer, meta = {}) => {
         setAnswers((prev) => ({
             ...prev,
             [question]: answer,
         }));
         
-        // Send websocket update for real-time collaboration
-        if (collaboration.isConnected) {
+        // Only send websocket update if this change originated from typing in the textarea
+        if (collaboration.isConnected && meta?.source === 'typing') {
             collaboration.sendTextUpdate(question, answer);
         }
         

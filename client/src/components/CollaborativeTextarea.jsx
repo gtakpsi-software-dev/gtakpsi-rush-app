@@ -22,6 +22,7 @@ const CollaborativeTextarea = ({
     const colorMapRef = useRef({});
     const pendingLocalChangeRef = useRef(false);
     const debounceTimerRef = useRef(null);
+    const lastLocalInputTimeRef = useRef(0);
     
     // Handle local text changes
     const handleTextChange = useCallback((e) => {
@@ -33,7 +34,8 @@ const CollaborativeTextarea = ({
         
         setLocalValue(newValue);
         pendingLocalChangeRef.current = true; // mark that this tab initiated a change
-        onChange(questionKey, newValue);
+        lastLocalInputTimeRef.current = Date.now();
+        onChange(questionKey, newValue, { source: 'typing' });
         
         if (!isComposing && collaboration.isConnected) {
             if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -73,17 +75,19 @@ const CollaborativeTextarea = ({
         .filter(user => user.field === questionKey && typeof user.cursor === 'number')
         .slice(0, 3); // Limit to 3 cursors to avoid UI clutter
     
-    // Check if field is locked due to another user actively typing
-    const isFieldLocked = typingInThisField.length > 0;
+    // Lock the field if any other user's cursor is in this field (strong lock)
+    const isFieldLocked = otherUserCursors.length > 0;
 
     // Handle focus events for typing indicators
     const handleFocus = useCallback((e) => {
-        // Prevent focus if another user is actively typing in this field
+        // Prevent focus if another user is actively in this field
         if (isFieldLocked) {
             e.target.blur(); // Immediately remove focus
             return;
         }
         collaboration.sendTypingIndicator(questionKey, true);
+        const pos = typeof e?.target?.selectionStart === 'number' ? e.target.selectionStart : 0;
+        collaboration.sendCursorPosition(questionKey, pos);
     }, [collaboration, questionKey, isFieldLocked]);
 
     const handleBlur = useCallback(() => {
@@ -117,16 +121,29 @@ const CollaborativeTextarea = ({
         }
     }, [value, collaboration, questionKey]);
 
-    // new effect listen remoteUpdates
+    // new effect listen remoteUpdates (defer if user typed very recently to reduce jitter)
     useEffect(() => {
         const latest = [...collaboration.remoteUpdates].reverse().find(u => u.field === questionKey);
         if (!latest) return;
         if (latest.value === localValue) return;
-        processingRemoteOp.current = true;
-        setLocalValue(latest.value);
-        onChange(questionKey, latest.value);
-        lastSentValue.current = latest.value;
-        setTimeout(() => processingRemoteOp.current = false, 0);
+
+        const applyRemote = () => {
+            processingRemoteOp.current = true;
+            setLocalValue(latest.value);
+            onChange(questionKey, latest.value, { source: 'remote' });
+            lastSentValue.current = latest.value;
+            setTimeout(() => processingRemoteOp.current = false, 0);
+        };
+
+        const now = Date.now();
+        if (now - lastLocalInputTimeRef.current < 300) {
+            const to = setTimeout(() => {
+                applyRemote();
+            }, 300);
+            return () => clearTimeout(to);
+        } else {
+            applyRemote();
+        }
     }, [collaboration.remoteUpdates, questionKey]);
 
     return (
@@ -138,6 +155,7 @@ const CollaborativeTextarea = ({
                 value={localValue}
                 onChange={handleTextChange}
                 onSelect={handleCursorChange}
+                onClick={handleCursorChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onMouseDown={handleMouseDown}
@@ -149,9 +167,7 @@ const CollaborativeTextarea = ({
             {/* Field locked overlay */}
             {isFieldLocked && (
                 <div className="absolute inset-0 bg-blue-50/30 border-2 border-blue-300 rounded-md pointer-events-none flex items-center justify-center">
-                    <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                        {typingInThisField[0]?.userName} is typing...
-                    </div>
+                    <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium shadow-sm">Field locked (another user's cursor is here)</div>
                 </div>
             )}
             
