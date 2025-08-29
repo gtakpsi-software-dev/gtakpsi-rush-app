@@ -65,6 +65,17 @@ const CollaborativeTextarea = ({
         }
     }, [collaboration, questionKey]);
 
+    // Get typing indicators for this field
+    const typingInThisField = collaboration.typingUsers.filter(user => user.field === questionKey);
+    
+    // Get cursor information for other users
+    const otherUserCursors = collaboration.connectedUsers
+        .filter(user => user.field === questionKey && typeof user.cursor === 'number')
+        .slice(0, 3); // Limit to 3 cursors to avoid UI clutter
+    
+    // Check if field is locked due to another user actively typing
+    const isFieldLocked = typingInThisField.length > 0;
+
     // Handle focus events for typing indicators
     const handleFocus = useCallback((e) => {
         // Prevent focus if another user is actively typing in this field
@@ -117,17 +128,6 @@ const CollaborativeTextarea = ({
         lastSentValue.current = latest.value;
         setTimeout(() => processingRemoteOp.current = false, 0);
     }, [collaboration.remoteUpdates, questionKey]);
-
-    // Get typing indicators for this field
-    const typingInThisField = collaboration.typingUsers.filter(user => user.field === questionKey);
-    
-    // Get cursor information for other users
-    const otherUserCursors = collaboration.connectedUsers
-        .filter(user => user.field === questionKey && typeof user.cursor === 'number')
-        .slice(0, 3); // Limit to 3 cursors to avoid UI clutter
-    
-    // Check if field is locked due to another user actively typing
-    const isFieldLocked = typingInThisField.length > 0;
 
     return (
         <div className="relative">
