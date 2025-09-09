@@ -248,7 +248,7 @@ pub async fn post_comment(
     match fetch_rush_nights {
         Ok(rush_nights) => {
             for rush_night in rush_nights.iter() {
-                if true {//same_day(&rush_night.time, &bson::DateTime::now()) {
+                if same_day(&rush_night.time, &bson::DateTime::now()) {
                     // found rush night
                     let attempt_bson_night = to_bson(&rush_night);
                     let mut bson_night;

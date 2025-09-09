@@ -612,7 +612,7 @@ export default function RusheeZoom() {
                                 </div>
 
                                 {/* Section: Brothers who wrote comments */}
-                                {hasUserPostedComment() && (
+                                {true && ( // Temporarily disabled: hasUserPostedComment() && (
                                     <div className="card-apple p-6 mb-6">
                                         <h2 className="text-apple-title1 font-light text-black mb-4">
                                             Brothers Who Commented
@@ -699,7 +699,7 @@ export default function RusheeZoom() {
                                     )}
                                     
                                     {/* Show comments only if user has posted their own comment */}
-                                    {hasUserPostedComment() && (
+                                    {true && ( // Temporarily disabled: hasUserPostedComment() && (
                                         <div className="mt-6 space-y-4">
                                             {rushee.comments.map((comment, idx) => (
                                                 <div
@@ -794,7 +794,7 @@ export default function RusheeZoom() {
                                     )}
 
                                     {/* Show message if user hasn't posted a comment yet */}
-                                    {!hasUserPostedComment() && (
+                                    {false && ( // Temporarily disabled: !hasUserPostedComment() && (
                                         <div className="mt-6 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple text-center">
                                             <p className="text-apple-body text-apple-gray-600 font-light">
                                                 Post your first comment to see other brothers' comments.
