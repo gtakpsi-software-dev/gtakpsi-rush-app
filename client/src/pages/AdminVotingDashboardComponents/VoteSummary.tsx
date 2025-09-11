@@ -8,51 +8,44 @@ interface VoteSummaryProps {
   showBreakdown?: boolean;
 }
 
-// Simple CSS-based Pie Chart Component
+// Simple CSS-based Pie Chart Component (Yes/No only)
 const PieChart = ({ yes, no, abstain, total }: { yes: number; no: number; abstain: number; total: number }) => {
-  if (total === 0) {
+  const yesNoTotal = yes + no;
+  
+  if (yesNoTotal === 0) {
     return (
       <div className="w-48 h-48 mx-auto flex items-center justify-center bg-apple-gray-100 rounded-full border">
-        <span className="text-apple-gray-500 text-apple-footnote">No votes yet</span>
+        <span className="text-apple-gray-500 text-apple-footnote">No Yes/No votes yet</span>
       </div>
     );
   }
 
-  const yesPercentage = (yes / total) * 100;
-  const noPercentage = (no / total) * 100;
-  const abstainPercentage = (abstain / total) * 100;
+  // Calculate percentages based on Yes/No votes only (excluding abstains)
+  const yesPercentage = (yes / yesNoTotal) * 100;
+  const noPercentage = (no / yesNoTotal) * 100;
 
   // Using conic-gradient for a simpler implementation
   const generateGradient = () => {
     let gradient = "conic-gradient(";
-    let currentPercentage = 0;
     
     if (yes > 0) {
       gradient += `#22c55e 0% ${yesPercentage}%`;
-      currentPercentage = yesPercentage;
     }
     
     if (no > 0) {
-      if (currentPercentage > 0) gradient += ", ";
-      gradient += `#ef4444 ${currentPercentage}% ${currentPercentage + noPercentage}%`;
-      currentPercentage += noPercentage;
-    }
-    
-    if (abstain > 0) {
-      if (currentPercentage > 0) gradient += ", ";
-      gradient += `#f59e0b ${currentPercentage}% 100%`;
+      if (yes > 0) gradient += ", ";
+      gradient += `#ef4444 ${yesPercentage}% 100%`;
     }
     
     gradient += ")";
     return gradient;
   };
 
-  const slices = [];
+  const slices: Array<{ label: string; count: number; percentage: number; color: string }> = [];
   if (yes > 0) slices.push({ label: "Yes", count: yes, percentage: yesPercentage, color: "#22c55e" });
   if (no > 0) slices.push({ label: "No", count: no, percentage: noPercentage, color: "#ef4444" });
-  if (abstain > 0) slices.push({ label: "Abstain", count: abstain, percentage: abstainPercentage, color: "#f59e0b" });
 
-  console.log("Pie chart data:", { yes, no, abstain, total, gradient: generateGradient() });
+  console.log("Pie chart data (Yes/No only):", { yes, no, yesNoTotal, gradient: generateGradient() });
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -75,6 +68,13 @@ const PieChart = ({ yes, no, abstain, total }: { yes: number; no: number; abstai
           </div>
         ))}
       </div>
+      
+      {/* Show abstain count separately if there are any */}
+      {abstain > 0 && (
+        <div className="text-apple-footnote text-apple-gray-500 mt-2">
+          Abstain votes: {abstain}
+        </div>
+      )}
     </div>
   );
 };
@@ -128,19 +128,33 @@ export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) 
       </div>
 
       {showBreakdown && (
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          <div className="bg-green-100 text-green-800 rounded-apple px-4 py-2 text-center">
-            <p className="text-apple-footnote font-medium">Yes</p>
-            <p className="text-apple-title3 font-semibold">{yes}</p>
+        <div className="mt-3 space-y-3">
+          {/* Yes/No breakdown - main focus */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-green-100 text-green-800 rounded-apple px-4 py-2 text-center">
+              <p className="text-apple-footnote font-medium">Yes</p>
+              <p className="text-apple-title3 font-semibold">{yes}</p>
+              <p className="text-apple-caption text-green-600">
+                {yes + no > 0 ? ((yes / (yes + no)) * 100).toFixed(1) : 0}%
+              </p>
+            </div>
+            <div className="bg-red-100 text-red-800 rounded-apple px-4 py-2 text-center">
+              <p className="text-apple-footnote font-medium">No</p>
+              <p className="text-apple-title3 font-semibold">{no}</p>
+              <p className="text-apple-caption text-red-600">
+                {yes + no > 0 ? ((no / (yes + no)) * 100).toFixed(1) : 0}%
+              </p>
+            </div>
           </div>
-          <div className="bg-red-100 text-red-800 rounded-apple px-4 py-2 text-center">
-            <p className="text-apple-footnote font-medium">No</p>
-            <p className="text-apple-title3 font-semibold">{no}</p>
-          </div>
-          <div className="bg-yellow-100 text-yellow-800 rounded-apple px-4 py-2 text-center">
-            <p className="text-apple-footnote font-medium">Abstain</p>
-            <p className="text-apple-title3 font-semibold">{abstain}</p>
-          </div>
+          
+          {/* Abstain count - separate and less prominent */}
+          {abstain > 0 && (
+            <div className="bg-yellow-50 text-yellow-700 rounded-apple px-4 py-2 text-center border border-yellow-200">
+              <p className="text-apple-footnote font-medium">Abstain</p>
+              <p className="text-apple-title3 font-semibold">{abstain}</p>
+              <p className="text-apple-caption text-yellow-600">Not included in percentages</p>
+            </div>
+          )}
         </div>
       )}
     </div>
