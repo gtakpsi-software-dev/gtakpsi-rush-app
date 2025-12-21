@@ -1,43 +1,74 @@
 # GT AKPsi Rush App
 
-A React + Rust full stack application using Amazon Lambas, Amazon S3, and MongoDB.
+A React + Rust full stack application using Railway (backend), Vercel (frontend), Firebase Storage (images), and MongoDB.
 
-## Databse Setup
+## Tech Stack
 
-```text
+- **Frontend**: React + Vite, hosted on Vercel
+- **Backend**: Rust + Axum, hosted on Railway
+- **Database**: MongoDB Atlas
+- **Image Storage**: Firebase Storage
+- **Real-time**: Redis (for voting)
 
-mongodb+srv://<username>:<password>@gtakpsi.bf6r1.mongodb.net/
+## Environment Variables
 
+### Client (.env in /client)
+
+```env
+VITE_API_PREFIX=https://your-railway-backend-url.railway.app
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
+
+### Server (.env in /server)
+
+```env
+MONGO_URL=mongodb+srv://...
+REDIS_URL=rediss://...
+```
+
+### Setup Script (.env in root)
+
+```env
+API=https://your-railway-backend-url.railway.app
+FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
 
 ## Deploy
 
-This script deploys the entire application. Note, if you do not have AWS credentials it will not work. See below for further instructions if this is the case.
+### Frontend (Vercel)
 
-### Deploy Full Application
+The frontend is deployed automatically via Vercel when you push to the main branch.
 
-`chmod +x deploy.sh`
-
-Then:
-
+Manual deploy:
 ```bash
-
-./deploy.sh
-
+cd client
+npm run build
+# Deploy to Vercel via CLI or dashboard
 ```
 
-### Deploy Frontend Only
+### Backend (Railway)
+
+The backend is deployed automatically via Railway when you push to the main branch.
+
+Railway will use the Dockerfile in the `/server` folder.
+
+## Setup Script
+
+Before each rush season, run the setup script to clear old data:
 
 ```bash
-
-./deploy.sh --frontend
-
+pip install pymongo python-dotenv tqdm firebase-admin
+python setup.py
 ```
 
-### Deploy Backend Only
-
-```bash
-
-./deploy.sh --backend
-
-```
+This will:
+- Clear all rushees from MongoDB
+- Clear all rush nights and PIS timeslots
+- Delete all profile pictures from Firebase Storage
+- Re-add rush nights, PIS timeslots, and questions from JSON files

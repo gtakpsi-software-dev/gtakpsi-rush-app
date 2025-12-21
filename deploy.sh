@@ -1,16 +1,22 @@
 #!/bin/bash
 
+# Deploy script for GT AKPsi Rush App
+# Frontend: Vercel (automatic via git push, or manual build)
+# Backend: Railway (automatic via git push)
+
 # List of commands
 frontend_commands=(
     "cd client"
-    "npm run deploy"
+    "npm run build"
+    "echo 'Frontend built! Deploy to Vercel via git push or Vercel CLI'"
     "cd ../"
 )
 
 backend_commands=(
     "cd server"
-    "cargo lambda build --release"
-    "cargo lambda deploy --enable-function-url server"
+    "cargo build --release"
+    "echo 'Backend built! Deploy to Railway via git push'"
+    "cd ../"
 )
 
 # Function to run commands
@@ -34,3 +40,12 @@ else
     run_commands "${frontend_commands[@]}"
     run_commands "${backend_commands[@]}"
 fi
+
+echo ""
+echo "============================================"
+echo "Deployment builds complete!"
+echo ""
+echo "To deploy:"
+echo "  - Frontend: Push to GitHub (Vercel auto-deploys)"
+echo "  - Backend: Push to GitHub (Railway auto-deploys)"
+echo "============================================"

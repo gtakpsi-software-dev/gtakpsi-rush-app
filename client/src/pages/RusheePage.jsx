@@ -13,7 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Button from "../components/Button";
 import { FaRegEdit } from "react-icons/fa";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
 import { verifyInfo } from "../js/verifications";
 
@@ -39,8 +40,6 @@ export default function RusheePage() {
     const navigate = useNavigate();
 
     const api = import.meta.env.VITE_API_PREFIX;
-    const aws_access_key_id = import.meta.env.VITE_AWS_ACCESS_KEY_ID
-    const aws_secret_access_key = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY
 
     useEffect(() => {
         async function fetch() {
@@ -77,33 +76,22 @@ export default function RusheePage() {
 
         setLoading(true)
 
-        const s3Client = new S3Client({
-            region: "us-east-2",
-            credentials: {
-                accessKeyId: aws_access_key_id,
-                secretAccessKey: aws_secret_access_key,
-            },
-        });
-
-        const s3Key = `${(gtid + new Date().toLocaleString()).replace(/\//g, "")}.jpg`;
-
-        // Prepare the upload parameters
-        const uploadParams = {
-            Bucket: "rush-app-pics", // S3 bucket name
-            Key: s3Key, // File name
-            Body: base64ToBlob(image), // File content
-            ContentType: image.type, // File MIME type (e.g., image/jpeg)
-        };
-
-        const command = new PutObjectCommand(uploadParams);
-
         try {
+            // Create a unique filename with timestamp
+            const fileName = `profile-pictures/${gtid}_${Date.now()}.jpg`;
+            const storageRef = ref(storage, fileName);
+            
+            // Convert base64 to blob and upload to Firebase Storage
+            const blob = base64ToBlob(image);
+            await uploadBytes(storageRef, blob);
+            
+            // Get the download URL
+            const imageUrl = await getDownloadURL(storageRef);
 
-            const response = await s3Client.send(command);
             const payload = [
                 {
                     "field": "image_url",
-                    "new_value": `https://rush-app-pics.s3.us-east-2.amazonaws.com/${s3Key}`,
+                    "new_value": imageUrl,
                 }
             ]
 
@@ -147,9 +135,8 @@ export default function RusheePage() {
 
         } catch (error) {
 
-            setErrorTitle("Uh Oh! Something Unexpected Occurred..")
-            setErrorDescription("There was an error uploading your image to the cloud.")
-            navigate(`/error/${errorTitle}/${errorDescription}`)
+            console.error("Error uploading image:", error);
+            navigate(`/error/${"Uh Oh! Something Unexpected Occurred.."}/${"There was an error uploading your image to the cloud."}`)
             return;
 
         }

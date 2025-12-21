@@ -10,11 +10,13 @@ import PisSignUp from "../components/RegisterComponents/PisSignUp"
 import SuccessPage from "../components/RegisterComponents/SuccessPage";
 import Loader from "../components/Loader";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { base64ToBlob } from "../js/image_processing";
 import Error from "../components/Error";
 import { useNavigate } from "react-router-dom";
 import { verifyInfo } from "../js/verifications";
+
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { base64ToBlob } from "../js/image_processing";
 
 export default function Register() {
 
@@ -44,9 +46,6 @@ export default function Register() {
     const [flexWindow, setFlexWindow] = useState(false);
 
     const [accessCode, setAccessCode] = useState()
-
-    const aws_access_key_id = import.meta.env.VITE_AWS_ACCESS_KEY_ID
-    const aws_secret_access_key = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY
 
     // references
     const firstname = useRef();
@@ -165,31 +164,19 @@ export default function Register() {
         setCurrLoading(true)
         setPage(3)
 
-        const s3Client = new S3Client({
-            region: "us-east-2",
-            credentials: {
-                accessKeyId: aws_access_key_id,
-                secretAccessKey: aws_secret_access_key,
-            },
-        });
-
-        let command;
-        let s3Key;
-        let uploadParams;
+        let imageUrl;
 
         try {
-
-            s3Key = `${gtidVal}.jpg`;
-
-            // Prepare the upload parameters
-            uploadParams = {
-                Bucket: "rush-app-pics", // S3 bucket name
-                Key: s3Key, // File name
-                Body: base64ToBlob(image), // File content
-                ContentType: image.type, // File MIME type (e.g., image/jpeg)
-            };
-
-            command = new PutObjectCommand(uploadParams);
+            // Create a reference to the file in Firebase Storage
+            const fileName = `profile-pictures/${gtidVal}.jpg`;
+            const storageRef = ref(storage, fileName);
+            
+            // Convert base64 to blob and upload
+            const blob = base64ToBlob(image);
+            await uploadBytes(storageRef, blob);
+            
+            // Get the download URL
+            imageUrl = await getDownloadURL(storageRef);
 
         } catch (error) {
 
@@ -197,22 +184,7 @@ export default function Register() {
 
             setErrorTitle("Uh Oh! Something Unexpected Occurred..")
             setErrorDescription("There was an error uploading your image to the cloud.")
-            navigate(`/error/${errorTitle}/${"There was man error uploading your image to the cloud."}`)
-            return;
-
-        }
-
-        try {
-
-            const response = await s3Client.send(command);
-
-        } catch (error) {
-
-            console.log(error)
-
-            setErrorTitle("Uh Oh! Something Unexpected Occurred..")
-            setErrorDescription("There was an error uploading your image to the cloud.")
-            navigate(`/error/${errorTitle}/${"There was an xerror uploading your image to the cloud."}`)
+            navigate(`/error/${errorTitle}/${"There was an error uploading your image to the cloud."}`)
             return;
 
         }
@@ -229,7 +201,7 @@ export default function Register() {
             major: majorVal,
             class: yearVal,
             pronouns: pronounsVal,
-            image_url: `https://rush-app-pics.s3.us-east-2.amazonaws.com/${s3Key}`,
+            image_url: imageUrl,
             exposure: exposureVal,
             pis_meeting_id: "meeting123",
             pis_timeslot: selectedSlot.time, // ISO 8601 format

@@ -8,14 +8,13 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "vite build && firebase deploy"
+    "deploy": "vite build"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.717.0",
     "@react-three/fiber": "^8.17.12",
     "@tsparticles/react": "^3.0.0",
-    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
+    "firebase": "^11.0.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
