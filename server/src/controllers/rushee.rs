@@ -169,6 +169,8 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
                     Ok(doc) => {
                         rushees.push(StrippedRushee {
                             name: format!("{} {}", doc.first_name, doc.last_name),
+                            first_name: doc.first_name.clone(),
+                            last_name: doc.last_name.clone(),
                             class: doc.class,
                             gtid: doc.gtid,
                             major: doc.major,
@@ -178,6 +180,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
                             pronouns: doc.pronouns,
                             attendance: doc.attendance,
                             registration_order: order,
+                            pis_timeslot: Some(doc.pis_timeslot),
                         });
                         order += 1;
                     },

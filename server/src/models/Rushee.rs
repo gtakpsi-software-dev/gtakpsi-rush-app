@@ -18,6 +18,8 @@ pub struct Rating {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrippedRushee {
     pub name: String,
+    pub first_name: String,
+    pub last_name: String,
     pub gtid: String,
     pub major: String,
     pub ratings: Vec<Rating>,
@@ -27,6 +29,7 @@ pub struct StrippedRushee {
     pub pronouns: String,
     pub attendance: Vec<RushNight>,
     pub registration_order: i32,  // Sequential number based on signup order
+    pub pis_timeslot: Option<bson::DateTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

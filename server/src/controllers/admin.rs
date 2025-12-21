@@ -514,6 +514,8 @@ pub async fn get_brother_pis(
 
                             rushees.push(StrippedRushee {
                                 name: format!("{} {}", doc.first_name, doc.last_name),
+                                first_name: doc.first_name.clone(),
+                                last_name: doc.last_name.clone(),
                                 class: doc.class,
                                 gtid: doc.gtid,
                                 major: doc.major,
@@ -523,6 +525,7 @@ pub async fn get_brother_pis(
                                 pronouns: doc.pronouns,
                                 attendance: doc.attendance,
                                 registration_order: 0,  // Not used in this context
+                                pis_timeslot: Some(doc.pis_timeslot),
                             });
 
                         }

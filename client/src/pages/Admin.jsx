@@ -81,7 +81,7 @@ export default function Admin() {
         }
         const search = rusheeSearch.toLowerCase();
         const filtered = rushees.filter(r => 
-            `${r.first_name} ${r.last_name}`.toLowerCase().includes(search) ||
+            r.name.toLowerCase().includes(search) ||
             r.gtid.includes(search)
         );
         setFilteredRushees(filtered.slice(0, 10)); // Limit to 10 results
@@ -169,7 +169,7 @@ export default function Admin() {
 
     const handleSelectRushee = (rushee) => {
         setSelectedRushee(rushee);
-        setRusheeSearch(`${rushee.first_name} ${rushee.last_name}`);
+        setRusheeSearch(rushee.name);
         setFilteredRushees([]);
     };
 
@@ -195,7 +195,7 @@ export default function Admin() {
             );
 
             if (response.data.status === "success") {
-                toast.success(`PIS rescheduled for ${selectedRushee.first_name} ${selectedRushee.last_name}`, {
+                toast.success(`PIS rescheduled for ${selectedRushee.name}`, {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
@@ -535,7 +535,7 @@ export default function Admin() {
                                             value={rusheeSearch}
                                             onChange={(e) => {
                                                 setRusheeSearch(e.target.value);
-                                                if (selectedRushee && e.target.value !== `${selectedRushee.first_name} ${selectedRushee.last_name}`) {
+                                                if (selectedRushee && e.target.value !== selectedRushee.name) {
                                                     setSelectedRushee(null);
                                                 }
                                             }}
@@ -551,7 +551,7 @@ export default function Admin() {
                                                         onClick={() => handleSelectRushee(rushee)}
                                                     >
                                                         <div className="text-apple-body font-normal text-black">
-                                                            {rushee.first_name} {rushee.last_name}
+                                                            {rushee.name}
                                                         </div>
                                                         <div className="text-apple-caption2 text-apple-gray-600">
                                                             GTID: {rushee.gtid}
@@ -568,7 +568,7 @@ export default function Admin() {
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <div className="text-apple-body font-medium text-black">
-                                                        {selectedRushee.first_name} {selectedRushee.last_name}
+                                                        {selectedRushee.name}
                                                     </div>
                                                     <div className="text-apple-caption2 text-apple-gray-600 mt-1">
                                                         GTID: {selectedRushee.gtid}
