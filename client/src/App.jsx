@@ -11,6 +11,8 @@ import Register from './pages/Register'
 import GetImage from './components/RegisterComponents/GetImage';
 import PisSignUp from './components/RegisterComponents/PisSignUp';
 import Login from './pages/Login';
+import CreateAccount from './pages/CreateAccount';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import BidCommitteeDashboard from './pages/BidCommitteeDashboard';
 import RusheeZoom from './pages/RusheeZoom';
@@ -44,6 +46,8 @@ function App() {
           <Route path='/' element={<Home />} index />
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login/>} />
+          <Route path='/create-account' element={<CreateAccount/>} />
+          <Route path='/forgot-password' element={<ForgotPassword/>} />
           <Route path='/dashboard' element={<Dashboard/>} />
           <Route path='/bid-committee' element={<BidCommitteeDashboard/>} />
           <Route path='/brother/rushee/:gtid' element={<RusheeZoom/>} />

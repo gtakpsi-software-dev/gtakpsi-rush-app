@@ -1,5 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  updateProfile
+} from "firebase/auth";
 
 // Your Firebase configuration
 // Replace these with your actual Firebase project config from Firebase Console
@@ -17,6 +26,19 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Storage and get a reference to the service
 export const storage = getStorage(app);
+
+// Initialize Firebase Auth
+export const auth = getAuth(app);
+
+// Auth helper functions
+export { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  updateProfile
+};
 
 export default app;
 

@@ -1,37 +1,42 @@
 import axios from "axios"
+import { auth } from "../firebase";
 
-const userapi = import.meta.env.VITE_LOGIN_API_PREFIX;
 const api = import.meta.env.VITE_API_PREFIX;
 
+/**
+ * Verify if user is logged in via Firebase Auth
+ */
 export async function verifyUser() {
-
-    let x = false
-
-    if (localStorage.getItem('token') != null) {
-
-        await axios.get(`${userapi}/users/verifytoken`, {
-            headers: {
-                'token': JSON.parse(localStorage.getItem('token'))
+    return new Promise((resolve) => {
+        // Check if there's a current user
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe(); // Stop listening after first check
+            
+            if (user) {
+                // User is signed in, update localStorage
+                const nameParts = user.displayName?.split(' ') || ['', ''];
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                
+                // Using both old field names (for voting compatibility) and new ones
+                localStorage.setItem('user', JSON.stringify({
+                    _id: user.uid,           // For voting system compatibility
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    firstname: firstName,     // lowercase for voting system
+                    lastname: lastName,       // lowercase for voting system
+                    firstName: firstName,     // camelCase for other uses
+                    lastName: lastName,       // camelCase for other uses
+                }));
+                resolve(true);
+            } else {
+                // User is not signed in
+                localStorage.removeItem('user');
+                resolve(false);
             }
-        })
-            .then((response) => {
-                if (response.data === "success") {
-                    x = true
-                } else {
-                    x = false
-                }
-            })
-            .catch((error) => {
-                x = false
-            })
-
-    } else {
-        x = false
-    }
-
-    Promise.resolve(x)
-    return x
-
+        });
+    });
 }
 
 export function verifyGTID(gtid) {

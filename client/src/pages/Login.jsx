@@ -40,6 +40,23 @@ export default function Login() {
     const email = useRef()
     const password = useRef()
 
+    const handleLogin = async () => {
+        const success = await login({
+            email: email.current?.value,
+            pwd: password.current?.value,
+        });
+        
+        if (success) {
+            navigate('/dashboard');
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    };
+
     return (
         <div className="bg-white min-h-screen">
             <Navbar/>
@@ -69,6 +86,7 @@ export default function Login() {
                                             id="email" 
                                             className="input-apple" 
                                             placeholder="name@gatech.edu" 
+                                            onKeyPress={handleKeyPress}
                                             required
                                         />
                                     </div>
@@ -81,30 +99,38 @@ export default function Login() {
                                             id="password" 
                                             placeholder="Enter your password" 
                                             className="input-apple" 
+                                            onKeyPress={handleKeyPress}
                                             required
                                         />
                                     </div>
                                     <div className="flex items-center justify-end">
-                                        <Link to='https://gtakpsi-points-tracker.web.app/user/recover'>
+                                        <Link to='/forgot-password'>
                                             <p className="text-apple-footnote font-normal text-black hover:text-apple-gray-600 transition-colors duration-200">Forgot Password?</p>
                                         </Link>
                                     </div>
                                     <button 
-                                        onClick={async () => {
-                                            const x = await login({
-                                                email: email.current?.value,
-                                                pwd: password.current?.value,
-                                            })
-                                            .then((response) => {
-                                                if (response == true) {
-                                                    navigate('/dashboard')
-                                                }
-                                            })
-                                        }} 
+                                        onClick={handleLogin} 
                                         className="btn-apple w-full"
                                     >
                                         Sign In
                                     </button>
+                                    
+                                    {/* Divider */}
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <div className="w-full border-t border-apple-gray-200"></div>
+                                        </div>
+                                        <div className="relative flex justify-center text-sm">
+                                            <span className="px-4 bg-white text-apple-gray-500">or</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Create Account Button */}
+                                    <Link to='/create-account'>
+                                        <button className="btn-apple-secondary w-full">
+                                            Create Account
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
