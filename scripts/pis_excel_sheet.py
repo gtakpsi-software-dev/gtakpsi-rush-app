@@ -31,8 +31,6 @@ def fetch_pis_signups():
                 "first_brother_last_name": 1,
                 "second_brother_first_name": 1,
                 "second_brother_last_name": 1,
-                "third_brother_first_name": 1,
-                "third_brother_last_name": 1,
             }
         }}
     ]
@@ -53,8 +51,6 @@ def create_excel(data):
                 "First Brother Last Name": item["pis_signup"].get("first_brother_last_name", ""),
                 "Second Brother First Name": item["pis_signup"].get("second_brother_first_name", ""),
                 "Second Brother Last Name": item["pis_signup"].get("second_brother_last_name", ""),
-                "Third Brother First Name": item["pis_signup"].get("third_brother_first_name", ""),
-                "Third Brother Last Name": item["pis_signup"].get("third_brother_last_name", ""),
             })
 
     # Create a DataFrame

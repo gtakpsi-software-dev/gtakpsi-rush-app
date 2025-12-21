@@ -9,6 +9,16 @@ import {
   onAuthStateChanged,
   updateProfile
 } from "firebase/auth";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  getDocs,
+  query,
+  orderBy
+} from "firebase/firestore";
 
 // Your Firebase configuration
 // Replace these with your actual Firebase project config from Firebase Console
@@ -30,6 +40,9 @@ export const storage = getStorage(app);
 // Initialize Firebase Auth
 export const auth = getAuth(app);
 
+// Initialize Firestore
+export const db = getFirestore(app);
+
 // Auth helper functions
 export { 
   signInWithEmailAndPassword, 
@@ -38,6 +51,17 @@ export {
   sendPasswordResetEmail,
   onAuthStateChanged,
   updateProfile
+};
+
+// Firestore helper functions
+export {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  query,
+  orderBy
 };
 
 export default app;

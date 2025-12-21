@@ -52,8 +52,6 @@ export default function BrotherPIS() {
                                     first_brother_last_name: response.data.payload[slot].first_brother_last_name,
                                     second_brother_first_name: response.data.payload[slot].second_brother_first_name,
                                     second_brother_last_name: response.data.payload[slot].second_brother_last_name,
-                                    third_brother_first_name: response.data.payload[slot].third_brother_first_name,
-                                    third_brother_last_name: response.data.payload[slot].third_brother_last_name,
                                 };
                             
                                 if (tempDays.has(day)) {

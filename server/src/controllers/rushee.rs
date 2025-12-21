@@ -121,8 +121,6 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
             first_brother_last_name: "none".to_string(),
             second_brother_first_name: "none".to_string(),
             second_brother_last_name: "none".to_string(),
-            third_brother_first_name: "none".to_string(),
-            third_brother_last_name: "none".to_string(),
             flex_window: payload.flex_window,
         },
         flex_window: payload.flex_window,
@@ -536,6 +534,62 @@ pub async fn post_pis(
         "status": "success",
         "message": "succesfully stored rushee's pis"
     })))
+}
+
+/**
+ * Autosave PIS - saves brothers and answers in one call
+ */
+#[derive(Deserialize, Serialize)]
+pub struct PISAutosavePayload {
+    pub pis_responses: Vec<PisResponse>,
+    pub brother_a_first_name: String,
+    pub brother_a_last_name: String,
+    pub brother_b_first_name: String,
+    pub brother_b_last_name: String,
+}
+
+pub async fn autosave_pis(
+    Path(id): Path<String>,
+    Json(payload): Json<PISAutosavePayload>,
+) -> Result<Json<Value>, StatusCode> {
+    let connection = db::get_rushee_client().await;
+
+    // Convert PIS responses to BSON array
+    let pis_bson_result = to_bson(&payload.pis_responses);
+    let pis_bson = match pis_bson_result {
+        Ok(b) => b,
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to convert PIS responses to BSON"
+            })))
+        }
+    };
+
+    // Update everything in one call
+    let filter = doc! {"gtid": id.clone()};
+    let update = doc! {
+        "$set": {
+            "pis": pis_bson,
+            "pis_signup.first_brother_first_name": if payload.brother_a_first_name.trim().is_empty() { "none".to_string() } else { payload.brother_a_first_name.trim().to_string() },
+            "pis_signup.first_brother_last_name": if payload.brother_a_last_name.trim().is_empty() { "none".to_string() } else { payload.brother_a_last_name.trim().to_string() },
+            "pis_signup.second_brother_first_name": if payload.brother_b_first_name.trim().is_empty() { "none".to_string() } else { payload.brother_b_first_name.trim().to_string() },
+            "pis_signup.second_brother_last_name": if payload.brother_b_last_name.trim().is_empty() { "none".to_string() } else { payload.brother_b_last_name.trim().to_string() },
+        }
+    };
+
+    let result = connection.update_one(filter, update).await;
+
+    match result {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "PIS autosaved successfully"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to autosave PIS"
+        }))),
+    }
 }
 
 /**

@@ -65,6 +65,7 @@ export default function BrotherList() {
     <div className="pt-4 space-y-3">
       {brothers.map((brother) => (
         <div
+          key={brother._id}
           className="card-apple p-4 border border-apple-gray-200 rounded-apple shadow-sm hover:shadow-md transition-all duration-150"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">

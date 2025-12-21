@@ -58,6 +58,7 @@ async fn main() {
         .route("/rushee/:id", get(controllers::rushee::get_rushee).options(|| async { StatusCode::OK }))
         .route("/rushee/post-comment/:id",post(controllers::rushee::post_comment).options(|| async { StatusCode::OK }))
         .route("/rushee/post-pis/:id", post(controllers::rushee::post_pis).options(|| async { StatusCode::OK }))
+        .route("/rushee/autosave-pis/:id", post(controllers::rushee::autosave_pis).options(|| async { StatusCode::OK }))
         .route("/rushee/update-attendance/:id",post(controllers::rushee::update_attendance).options(|| async { StatusCode::OK }))
         .route("/rushee/update-cloud/:id", post(controllers::rushee::update_cloud).options(|| async { StatusCode::OK }))
         .route("/rushee/update-rushee/:id", post(controllers::rushee::update_rushee).options(|| async { StatusCode::OK }))

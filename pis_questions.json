@@ -36,10 +36,6 @@
         "question_type": "Long"
     },
     {
-        "question": "[BROTHER A] Group Activity Comments",
-        "question_type": "Long"
-    },
-    {
         "question": "[BROTHER A] Would you extend this rushee a bid?",
         "question_type": "Long"
     },
@@ -48,27 +44,11 @@
         "question_type": "Long"
     },
     {
-        "question": "[Brother B] Group Activity Comments",
-        "question_type": "Long"
-    },
-    {
         "question": "[BROTHER B] Would you extend this rushee a bid?",
         "question_type": "Long"
     },
     {
         "question": "[BROTHER B] Why or Why Not?",
-        "question_type": "Long"
-    },
-    {
-        "question": "[BROTHER C] Group Activity Comments",
-        "question_type": "Long"
-    },
-    {
-        "question": "[BROTHER C] Would you extend this rushee a bid?",
-        "question_type": "Long"
-    },
-    {
-        "question": "[BROTHER C] Why or Why Not?",
         "question_type": "Long"
     }
 ]

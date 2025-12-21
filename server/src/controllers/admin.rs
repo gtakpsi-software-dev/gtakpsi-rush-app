@@ -450,68 +450,14 @@ pub async fn brother_pis_sign_up(
                             })))
                         }
                     }
-                } else if (rushee.pis_signup.third_brother_first_name == "none"
-                    && rushee.pis_signup.third_brother_last_name == "none")
-                {
-                    // check if duplicate brother
-                    if (rushee.pis_signup.first_brother_first_name == payload.brother_first_name
-                        && rushee.pis_signup.first_brother_last_name == payload.brother_last_name)
-                        || (rushee.pis_signup.second_brother_first_name == payload.brother_first_name
-                        && rushee.pis_signup.second_brother_last_name == payload.brother_last_name)
-                    {
-                        return Ok(Json(json!({
-                            "status": "error",
-                            "message": format!("Brother {} {} has already registered for this PIS.", payload.brother_first_name, payload.brother_last_name)
-                        })));
-                    }
-
-                    // update first and last name
-                    let update = doc! {"$set": {"pis_signup.third_brother_first_name": payload.brother_first_name}};
-                    let first_name_update = connection
-                        .update_one(doc! {"gtid": id.clone()}, update)
-                        .await;
-
-                    match first_name_update {
-                        Ok(_first_result) => {
-                            let last_update = doc! {"$set": {"pis_signup.third_brother_last_name": payload.brother_last_name}};
-                            let last_name_update = connection
-                                .update_one(doc! {"gtid": id.clone()}, last_update)
-                                .await;
-
-                            match last_name_update {
-                                Ok(_result) => {
-                                    return Ok(Json(json!({
-                                        "status": "success",
-                                        "message": "Successfully registered for PIS!"
-                                    })))
-                                }
-
-                                Err(_err) => {
-                                    return Ok(Json(json!({
-                                        "status": "error",
-                                        "message": "Couldn't update the PIS Signup for last name"
-                                    })))
-                                }
-                            }
-                        }
-
-                        Err(_err) => {
-                            return Ok(Json(json!({
-                                "status": "error",
-                                "message": "Couldn't update the PIS Signup for first name"
-                            })))
-                        }
-                    }
                 } else {
                     return Ok(Json(json!({
                         "status": "error",
-                        "message": format!("Three brothers ({} {}, {} {}, and {} {}) are already signed up",
+                        "message": format!("Two brothers ({} {} and {} {}) are already signed up",
                                             rushee.pis_signup.first_brother_first_name,
                                             rushee.pis_signup.first_brother_last_name,
                                             rushee.pis_signup.second_brother_first_name,
-                                            rushee.pis_signup.second_brother_last_name,
-                                            rushee.pis_signup.third_brother_first_name,
-                                            rushee.pis_signup.third_brother_last_name)
+                                            rushee.pis_signup.second_brother_last_name)
                     })));
                 }
             }
@@ -563,11 +509,6 @@ pub async fn get_brother_pis(
                                 && doc
                                     .pis_signup
                                     .second_brother_last_name
-                                    .eq(&payload.last_name)
-                            || (doc.pis_signup.third_brother_first_name).eq(&payload.first_name)
-                                && doc
-                                    .pis_signup
-                                    .third_brother_last_name
                                     .eq(&payload.last_name))
                         {
 

@@ -584,9 +584,6 @@ export default function RusheeZoom() {
                                         <p className="text-apple-gray-600 font-light">
                                             <span className="text-black font-normal">Brother 2:</span> {rushee.pis_signup.second_brother_first_name} {rushee.pis_signup.second_brother_last_name}
                                         </p>
-                                        <p className="text-apple-gray-600 font-light">
-                                            <span className="text-black font-normal">Brother 3:</span> {rushee.pis_signup.third_brother_first_name} {rushee.pis_signup.third_brother_last_name}
-                                        </p>
                                     </div>
 
                                     {/* PIS Responses Section */}

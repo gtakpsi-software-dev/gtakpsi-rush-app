@@ -2,11 +2,18 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { 
     auth, 
+    db,
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
-    updateProfile
+    updateProfile,
+    doc,
+    setDoc,
+    getDocs,
+    collection,
+    query,
+    orderBy
 } from "../firebase";
 import { isEmailAllowed } from "../data/allowedEmails";
 
@@ -90,6 +97,7 @@ export async function login(credentials) {
 /**
  * Create a new account
  * Only emails in the allowed list can create accounts
+ * Also creates a user document in Firestore
  */
 export async function createAccount(credentials) {
     // Check if email is in the allowed list
@@ -116,14 +124,25 @@ export async function createAccount(credentials) {
         const user = userCredential.user;
         
         // Update display name if provided
-        if (credentials.firstName || credentials.lastName) {
-            const displayName = `${credentials.firstName || ''} ${credentials.lastName || ''}`.trim();
+        const displayName = `${credentials.firstName || ''} ${credentials.lastName || ''}`.trim();
+        if (displayName) {
             await updateProfile(user, { displayName });
         }
         
+        // Create user document in Firestore
+        const userDoc = {
+            uid: user.uid,
+            email: user.email,
+            firstname: credentials.firstName || '',
+            lastname: credentials.lastName || '',
+            displayName: displayName,
+            createdAt: new Date().toISOString(),
+        };
+        
+        await setDoc(doc(db, "brothers", user.uid), userDoc);
+        
         // Store user info in localStorage
         // Using both old field names (for voting compatibility) and new ones
-        const displayName = user.displayName || `${credentials.firstName} ${credentials.lastName}`;
         localStorage.setItem('user', JSON.stringify({
             _id: user.uid,           // For voting system compatibility
             uid: user.uid,
@@ -174,6 +193,36 @@ export async function createAccount(credentials) {
         });
         
         return false;
+    }
+}
+
+/**
+ * Fetch all brothers from Firestore
+ * Returns array of brother objects with _id, firstname, lastname, email
+ */
+export async function getAllBrothers() {
+    try {
+        const brothersRef = collection(db, "brothers");
+        const q = query(brothersRef, orderBy("firstname"));
+        const querySnapshot = await getDocs(q);
+        
+        const brothers = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            brothers.push({
+                _id: doc.id,
+                uid: data.uid,
+                firstname: data.firstname,
+                lastname: data.lastname,
+                email: data.email,
+                displayName: data.displayName,
+            });
+        });
+        
+        return brothers;
+    } catch (error) {
+        console.error("Error fetching brothers:", error);
+        return [];
     }
 }
 

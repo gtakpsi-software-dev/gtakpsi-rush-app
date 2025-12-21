@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import VoiceRecorder from "../components/VoiceRecorder";
@@ -16,6 +16,14 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Badges from "../components/Badge";
+
+// Autosave status type
+const SAVE_STATUS = {
+    IDLE: 'idle',
+    SAVING: 'saving',
+    SAVED: 'saved',
+    ERROR: 'error',
+};
 
 // Helper to get or create a stable user ID for this browser tab
 const getStableUserId = (backendId) => {
@@ -41,10 +49,13 @@ export default function PIS() {
     const [answerWarnings, setAnswerWarnings] = useState({}); // Stores warnings for each answer
     const [brotherA, setBrotherA] = useState({ firstName: '', lastName: '' });
     const [brotherB, setBrotherB] = useState({ firstName: '', lastName: '' });
-    const [brotherC, setBrotherC] = useState({ firstName: '', lastName: '' });
     const [currentUser, setCurrentUser] = useState(null);
+    const [saveStatus, setSaveStatus] = useState(SAVE_STATUS.IDLE);
+    const [lastSaved, setLastSaved] = useState(null);
 
     const navigate = useNavigate();
+    const autosaveTimeoutRef = useRef(null);
+    const isInitialLoadRef = useRef(true);
 
     // Initialize WebSocket collaboration
     const collaboration = useCollaboration(`pis-${gtid}`, currentUser);
@@ -56,14 +67,35 @@ export default function PIS() {
         }
     }, [collaboration.isConnected]);
 
-    // Merge incoming document state into local answers so that late joiners see the latest text
+    // Merge incoming document state into local answers and brother fields so that late joiners see the latest
     useEffect(() => {
         const docState = collaboration.documentState;
         if (docState && Object.keys(docState).length > 0) {
+            // Handle brother fields
+            if (docState['_brotherA_firstName'] !== undefined) {
+                setBrotherA(prev => prev.firstName !== docState['_brotherA_firstName'] 
+                    ? { ...prev, firstName: docState['_brotherA_firstName'] } : prev);
+            }
+            if (docState['_brotherA_lastName'] !== undefined) {
+                setBrotherA(prev => prev.lastName !== docState['_brotherA_lastName'] 
+                    ? { ...prev, lastName: docState['_brotherA_lastName'] } : prev);
+            }
+            if (docState['_brotherB_firstName'] !== undefined) {
+                setBrotherB(prev => prev.firstName !== docState['_brotherB_firstName'] 
+                    ? { ...prev, firstName: docState['_brotherB_firstName'] } : prev);
+            }
+            if (docState['_brotherB_lastName'] !== undefined) {
+                setBrotherB(prev => prev.lastName !== docState['_brotherB_lastName'] 
+                    ? { ...prev, lastName: docState['_brotherB_lastName'] } : prev);
+            }
+
+            // Handle answers (both MC and text questions)
             setAnswers(prev => {
                 let changed = false;
                 const merged = { ...prev };
                 for (const [field, value] of Object.entries(docState)) {
+                    // Skip brother fields
+                    if (field.startsWith('_brother')) continue;
                     if (merged[field] !== value) {
                         merged[field] = value;
                         changed = true;
@@ -73,6 +105,34 @@ export default function PIS() {
             });
         }
     }, [collaboration.documentState]);
+
+    // Listen for remote updates and apply them to brother fields and MC questions
+    useEffect(() => {
+        const updates = collaboration.remoteUpdates;
+        if (updates && updates.length > 0) {
+            const latestUpdate = updates[updates.length - 1];
+            const { field, value } = latestUpdate;
+            
+            // Handle brother field updates
+            if (field === '_brotherA_firstName') {
+                setBrotherA(prev => prev.firstName !== value ? { ...prev, firstName: value } : prev);
+            } else if (field === '_brotherA_lastName') {
+                setBrotherA(prev => prev.lastName !== value ? { ...prev, lastName: value } : prev);
+            } else if (field === '_brotherB_firstName') {
+                setBrotherB(prev => prev.firstName !== value ? { ...prev, firstName: value } : prev);
+            } else if (field === '_brotherB_lastName') {
+                setBrotherB(prev => prev.lastName !== value ? { ...prev, lastName: value } : prev);
+            } else {
+                // Handle answer updates (MC and text questions)
+                setAnswers(prev => {
+                    if (prev[field] !== value) {
+                        return { ...prev, [field]: value };
+                    }
+                    return prev;
+                });
+            }
+        }
+    }, [collaboration.remoteUpdates]);
 
     const errorTitle = "Default Error Title";
     const errorDescription = "Default Error Description";
@@ -138,7 +198,7 @@ export default function PIS() {
         }
     }, [loading, api, gtid, navigate]);
 
-    // Handle answer input changes
+    // Handle answer input changes (for text areas - typing handled inside CollaborativeTextarea)
     const handleAnswerChange = (question, answer, meta = {}) => {
         setAnswers((prev) => ({
             ...prev,
@@ -169,96 +229,150 @@ export default function PIS() {
         }
     };
 
-    // Handle form submission
-    const handleSubmit = async () => {
-        // Validation: At least Brother A must be filled out
-        if (!brotherA.firstName.trim() || !brotherA.lastName.trim()) {
-            toast.error("Brother A information is required", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
+    // Handle MC (multiple choice) answer changes - sync immediately
+    const handleMCChange = (question, answer) => {
+        setAnswers((prev) => ({
+            ...prev,
+            [question]: answer,
+        }));
+        
+        // Send update via WebSocket for real-time sync
+        if (collaboration.isConnected) {
+            collaboration.sendTextUpdate(question, answer);
+        }
+    };
+
+    // Handle brother field changes with real-time sync
+    const handleBrotherAChange = (field, value) => {
+        setBrotherA(prev => ({ ...prev, [field]: value }));
+        
+        // Send update via WebSocket
+        if (collaboration.isConnected) {
+            collaboration.sendTextUpdate(`_brotherA_${field}`, value);
+        }
+    };
+
+    const handleBrotherBChange = (field, value) => {
+        setBrotherB(prev => ({ ...prev, [field]: value }));
+        
+        // Send update via WebSocket
+        if (collaboration.isConnected) {
+            collaboration.sendTextUpdate(`_brotherB_${field}`, value);
+        }
+    };
+
+    // Autosave function
+    const performAutosave = useCallback(async () => {
+        if (!questions.length || !gtid) return;
+        
+        setSaveStatus(SAVE_STATUS.SAVING);
+        
+        try {
+            // Prepare PIS responses
+            const pis_responses = questions.map((question) => ({
+                question: question.question,
+                answer: answers[question.question] || "",
+            }));
+
+            const payload = {
+                pis_responses,
+                brother_a_first_name: brotherA.firstName,
+                brother_a_last_name: brotherA.lastName,
+                brother_b_first_name: brotherB.firstName,
+                brother_b_last_name: brotherB.lastName,
+            };
+
+            await axios.post(`${api}/rushee/autosave-pis/${gtid}`, payload);
+            
+            setSaveStatus(SAVE_STATUS.SAVED);
+            setLastSaved(new Date());
+            
+            // Reset to idle after 2 seconds
+            setTimeout(() => {
+                setSaveStatus(SAVE_STATUS.IDLE);
+            }, 2000);
+        } catch (error) {
+            console.error("Autosave error:", error);
+            setSaveStatus(SAVE_STATUS.ERROR);
+            
+            // Reset to idle after 3 seconds
+            setTimeout(() => {
+                setSaveStatus(SAVE_STATUS.IDLE);
+            }, 3000);
+        }
+    }, [questions, answers, brotherA, brotherB, gtid, api]);
+
+    // Debounced autosave effect - triggers 2 seconds after last change
+    useEffect(() => {
+        // Skip autosave on initial load
+        if (isInitialLoadRef.current) {
             return;
         }
 
-        // Check for speculative language warnings
-        const hasWarnings = Object.values(answerWarnings).some(warnings => warnings && warnings.length > 0);
-        if (hasWarnings) {
-            toast.warning("Some answers contain potentially problematic language. Please review before submitting.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
+        // Clear existing timeout
+        if (autosaveTimeoutRef.current) {
+            clearTimeout(autosaveTimeoutRef.current);
         }
 
-        setLoading(true);
+        // Set new timeout for autosave (2 seconds after last change)
+        autosaveTimeoutRef.current = setTimeout(() => {
+            performAutosave();
+        }, 2000);
 
-        try {
-            // Register Brother A
-            await axios.post(`${api}/admin/pis-signup/${gtid}`, {
-                brother_first_name: brotherA.firstName.trim(),
-                brother_last_name: brotherA.lastName.trim()
-            });
-
-            // Register Brother B if provided
-            if (brotherB.firstName.trim() && brotherB.lastName.trim()) {
-                await axios.post(`${api}/admin/pis-signup/${gtid}`, {
-                    brother_first_name: brotherB.firstName.trim(),
-                    brother_last_name: brotherB.lastName.trim()
-                });
+        // Cleanup on unmount
+        return () => {
+            if (autosaveTimeoutRef.current) {
+                clearTimeout(autosaveTimeoutRef.current);
             }
+        };
+    }, [answers, brotherA, brotherB, performAutosave]);
 
-            // Register Brother C if provided
-            if (brotherC.firstName.trim() && brotherC.lastName.trim()) {
-                await axios.post(`${api}/admin/pis-signup/${gtid}`, {
-                    brother_first_name: brotherC.firstName.trim(),
-                    brother_last_name: brotherC.lastName.trim()
-                });
-            }
-
-            // Prepare the payload with all questions, including unanswered ones
-            const payload = questions.map((question) => ({
-                question: question.question,
-                answer: answers[question.question] || "", // Use an empty string for unanswered questions
-            }));
-
-            // Submit PIS responses
-            const response = await axios.post(`${api}/rushee/post-pis/${gtid}`, payload);
-            
-            if (response.data.status === "success") {
-                navigate(`/brother/rushee/${gtid}`);
-            } else {
-                toast.error(`${response.data.message}`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            console.error("Error submitting PIS:", error);
-            toast.error("An error occurred while submitting the PIS. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
+    // Mark initial load as complete after data is loaded
+    useEffect(() => {
+        if (!loading && questions.length > 0) {
+            // Small delay to prevent immediate autosave after load
+            const timer = setTimeout(() => {
+                isInitialLoadRef.current = false;
+            }, 1000);
+            return () => clearTimeout(timer);
         }
+    }, [loading, questions]);
 
-        setLoading(false);
+    // Get save status display
+    const getSaveStatusDisplay = () => {
+        switch (saveStatus) {
+            case SAVE_STATUS.SAVING:
+                return (
+                    <div className="flex items-center space-x-2 text-apple-gray-600">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm">Saving...</span>
+                    </div>
+                );
+            case SAVE_STATUS.SAVED:
+                return (
+                    <div className="flex items-center space-x-2 text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm">All changes saved</span>
+                    </div>
+                );
+            case SAVE_STATUS.ERROR:
+                return (
+                    <div className="flex items-center space-x-2 text-red-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span className="text-sm">Error saving</span>
+                    </div>
+                );
+            default:
+                return lastSaved ? (
+                    <div className="flex items-center space-x-2 text-apple-gray-500">
+                        <span className="text-sm">Last saved {lastSaved.toLocaleTimeString()}</span>
+                    </div>
+                ) : null;
+        }
     };
 
     return (
@@ -330,24 +444,29 @@ export default function PIS() {
                             <div className="card-apple p-6 mb-6">
                                 <h1 className="text-apple-title1 font-light text-black mb-6">PIS Questions</h1>
                                 
-                                {/* Disclaimer Message */}
-                                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-apple">
-                                    <p className="text-apple-footnote text-orange-800 font-light">
-                                        <span className="font-normal">Note:</span> Multiple people can now collaborate on this form in real-time! 
-                                        You'll see others' cursors and typing as they work. Only the main interviewer should submit when everyone is ready.
-                                        {!collaboration.isConnected && (
-                                            <span className="block mt-2 text-orange-600">
-                                                ⚠️ Real-time collaboration is currently offline. 
-                                            </span>
-                                        )}
-                                    </p>
+                                {/* Autosave & Collaboration Status */}
+                                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-apple">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-apple-footnote text-green-800 font-light">
+                                            <span className="font-normal">✨ Autosave Enabled:</span> All changes are automatically saved every few seconds, just like Google Docs. 
+                                            Multiple people can collaborate on this form in real-time!
+                                        </p>
+                                        <div className="ml-4 flex-shrink-0">
+                                            {getSaveStatusDisplay()}
+                                        </div>
+                                    </div>
+                                    {!collaboration.isConnected && (
+                                        <p className="mt-2 text-orange-600 text-apple-footnote">
+                                            ⚠️ Real-time collaboration is currently offline, but autosave is still working.
+                                        </p>
+                                    )}
                                 </div>
                                 
                                 {/* Typing Restriction Message */}
                                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-apple">
                                     <p className="text-apple-footnote text-blue-800 font-light">
-                                        <span className="font-normal">Important:</span> Only one person should type in each text box at a time to avoid conflicts. 
-                                        You can see when others are typing in a field - please wait for them to finish before adding your input.
+                                        <span className="font-normal">Tip:</span> Only one person should type in each text box at a time to avoid conflicts. 
+                                        You can see when others are typing in a field.
                                     </p>
                                 </div>
                                 
@@ -356,7 +475,7 @@ export default function PIS() {
                                     <h3 className="text-apple-title2 font-normal text-black mb-4">Brother Information</h3>
                                     
                                     {/* Show current assignments if they exist */}
-                                    {rushee.pis_signup && (rushee.pis_signup.first_brother_first_name !== "none" || rushee.pis_signup.second_brother_first_name !== "none" || rushee.pis_signup.third_brother_first_name !== "none") && (
+                                    {rushee.pis_signup && (rushee.pis_signup.first_brother_first_name !== "none" || rushee.pis_signup.second_brother_first_name !== "none") && (
                                         <div className="mb-6 p-4 bg-apple-gray-100 border border-apple-gray-200 rounded-apple">
                                             <h4 className="text-apple-body text-black font-normal mb-2">Currently Assigned:</h4>
                                             {rushee.pis_signup.first_brother_first_name !== "none" && (
@@ -369,23 +488,18 @@ export default function PIS() {
                                                     Brother 2: {rushee.pis_signup.second_brother_first_name} {rushee.pis_signup.second_brother_last_name}
                                                 </p>
                                             )}
-                                            {rushee.pis_signup.third_brother_first_name !== "none" && (
-                                                <p className="text-apple-body text-apple-gray-600 font-light">
-                                                    Brother 3: {rushee.pis_signup.third_brother_first_name} {rushee.pis_signup.third_brother_last_name}
-                                                </p>
-                                            )}
                                         </div>
                                     )}
                                     
                                     {/* Brother A */}
                                     <div className="mb-6">
-                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother A (Required):</label>
+                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother A:</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <input
                                                 type="text"
                                                 placeholder="First Name"
                                                 value={brotherA.firstName}
-                                                onChange={(e) => setBrotherA({...brotherA, firstName: e.target.value})}
+                                                onChange={(e) => handleBrotherAChange('firstName', e.target.value)}
                                                 className="input-apple text-apple-footnote"
                                                 required
                                             />
@@ -393,7 +507,7 @@ export default function PIS() {
                                                 type="text"
                                                 placeholder="Last Name"
                                                 value={brotherA.lastName}
-                                                onChange={(e) => setBrotherA({...brotherA, lastName: e.target.value})}
+                                                onChange={(e) => handleBrotherAChange('lastName', e.target.value)}
                                                 className="input-apple text-apple-footnote"
                                                 required
                                             />
@@ -401,42 +515,21 @@ export default function PIS() {
                                     </div>
                                     
                                     {/* Brother B */}
-                                    <div className="mb-6">
-                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother B (Optional):</label>
+                                    <div className="mb-0">
+                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother B:</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <input
                                                 type="text"
                                                 placeholder="First Name"
                                                 value={brotherB.firstName}
-                                                onChange={(e) => setBrotherB({...brotherB, firstName: e.target.value})}
+                                                onChange={(e) => handleBrotherBChange('firstName', e.target.value)}
                                                 className="input-apple text-apple-footnote"
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="Last Name"
                                                 value={brotherB.lastName}
-                                                onChange={(e) => setBrotherB({...brotherB, lastName: e.target.value})}
-                                                className="input-apple text-apple-footnote"
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Brother C */}
-                                    <div className="mb-0">
-                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother C (Optional):</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <input
-                                                type="text"
-                                                placeholder="First Name"
-                                                value={brotherC.firstName}
-                                                onChange={(e) => setBrotherC({...brotherC, firstName: e.target.value})}
-                                                className="input-apple text-apple-footnote"
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Last Name"
-                                                value={brotherC.lastName}
-                                                onChange={(e) => setBrotherC({...brotherC, lastName: e.target.value})}
+                                                onChange={(e) => handleBrotherBChange('lastName', e.target.value)}
                                                 className="input-apple text-apple-footnote"
                                             />
                                         </div>
@@ -458,7 +551,7 @@ export default function PIS() {
                                                             name={question.question}
                                                             value="Yes"
                                                             checked={answers[question.question] === "Yes"}
-                                                            onChange={(e) => handleAnswerChange(question.question, e.target.value)}
+                                                            onChange={(e) => handleMCChange(question.question, e.target.value)}
                                                             className="mr-3 w-4 h-4 text-black focus:ring-black focus:ring-2"
                                                         />
                                                         Yes
@@ -469,7 +562,7 @@ export default function PIS() {
                                                             name={question.question}
                                                             value="No"
                                                             checked={answers[question.question] === "No"}
-                                                            onChange={(e) => handleAnswerChange(question.question, e.target.value)}
+                                                            onChange={(e) => handleMCChange(question.question, e.target.value)}
                                                             className="mr-3 w-4 h-4 text-black focus:ring-black focus:ring-2"
                                                         />
                                                         No
@@ -522,17 +615,13 @@ export default function PIS() {
                                     <p className="text-apple-body text-apple-gray-600 font-light text-center py-8">No questions available.</p>
                                 )}
 
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={!brotherA.firstName.trim() || !brotherA.lastName.trim()}
-                                    className={`w-full py-4 px-6 text-apple-headline font-light rounded-apple-xl transition-all duration-200 ${
-                                        brotherA.firstName.trim() && brotherA.lastName.trim()
-                                            ? 'bg-black text-white hover:bg-apple-gray-800 cursor-pointer'
-                                            : 'bg-apple-gray-200 text-apple-gray-400 cursor-not-allowed'
-                                    }`}
-                                >
-                                    Submit Answers
-                                </button>
+                                {/* Save status footer */}
+                                <div className="mt-8 pt-6 border-t border-apple-gray-200 flex items-center justify-between">
+                                    <p className="text-apple-footnote text-apple-gray-500">
+                                        All changes are automatically saved
+                                    </p>
+                                    {getSaveStatusDisplay()}
+                                </div>
                             </div>
                         </div>
                     </div>

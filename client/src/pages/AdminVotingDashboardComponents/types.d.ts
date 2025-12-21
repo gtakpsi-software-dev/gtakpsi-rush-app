@@ -34,10 +34,12 @@ export interface Rushee {
 }
 
 export interface Brother {
+    _id: string;           // Firebase UID
+    uid: string;           // Firebase UID
     firstname: string;
     lastname: string;
-    gtid: string;
-    _id: string;
+    email: string;
+    displayName?: string;
 }
 
 export interface AdminVotingContextType {
