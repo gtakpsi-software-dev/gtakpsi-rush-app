@@ -25,7 +25,8 @@ pub struct StrippedRushee {
     pub class: String,
     pub email: String,
     pub pronouns: String,
-    pub attendance: Vec<RushNight>
+    pub attendance: Vec<RushNight>,
+    pub registration_order: i32,  // Sequential number based on signup order
 }
 
 #[derive(Debug, Serialize, Deserialize)]

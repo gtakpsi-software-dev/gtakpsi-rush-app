@@ -79,6 +79,7 @@ async fn main() {
         .route("/admin/delete_rush_night", post(controllers::admin::delete_rush_night).options(|| async { StatusCode::OK }))
         .route("/admin/pis-signup/:id", post(controllers::admin::brother_pis_sign_up).options(|| async { StatusCode::OK }))
         .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
+        .route("/admin/export-rushee-numbers", get(controllers::admin::export_rushee_numbers).options(|| async { StatusCode::OK }))
         
         .route("/rushee/vote", post(controllers::voting::handle_rushee_vote).options(|| async { StatusCode::OK }))
         .route("/admin/voting/change-rushee", post(controllers::voting::change_rushee).options(|| async { StatusCode::OK }))

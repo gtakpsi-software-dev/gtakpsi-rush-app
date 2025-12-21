@@ -48,10 +48,10 @@ export default function RusheeZoom() {
 
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // Function to assign rushee ID based on GTID
-    const getRusheeId = (gtid) => {
-        // Use the last 4 digits of GTID as the rushee ID, preserving leading zeros
-        return gtid.slice(-4);
+    // Get rushee number from URL query params (passed from bid committee dashboard)
+    const getRusheeNumber = () => {
+        const params = new URLSearchParams(location.search);
+        return params.get('rushee_num') || '---';
     };
 
     // Check if user is in bid committee mode
@@ -471,7 +471,7 @@ export default function RusheeZoom() {
                                             // Bid Committee Mode - Show numbered placeholder
                                             <div className="w-60 h-60 bg-apple-gray-100 rounded-apple-2xl border border-apple-gray-200 flex items-center justify-center shrink-0">
                                                 <span className="text-6xl font-light text-black">
-                                                    {getRusheeId(rushee.gtid)}
+                                                    {getRusheeNumber()}
                                                 </span>
                                             </div>
                                         ) : (
@@ -486,7 +486,7 @@ export default function RusheeZoom() {
                                             <div className="flex flex-col sm:flex-row gap-3 items-start mb-4">
                                                 {isBidCommitteeMode() ? (
                                                     <h1 className="text-apple-large font-light text-black">
-                                                        Rushee #{getRusheeId(rushee.gtid)}
+                                                        Rushee #{getRusheeNumber()}
                                                     </h1>
                                                 ) : (
                                                     <h1 className="text-apple-large font-light text-black">

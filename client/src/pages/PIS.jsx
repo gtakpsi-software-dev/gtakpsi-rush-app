@@ -448,7 +448,7 @@ export default function PIS() {
                                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-apple">
                                     <div className="flex items-center justify-between">
                                         <p className="text-apple-footnote text-green-800 font-light">
-                                            <span className="font-normal">✨ Autosave Enabled:</span> All changes are automatically saved every few seconds, just like Google Docs. 
+                                            <span className="font-normal">Autosave Enabled:</span> All changes are automatically saved every few seconds, just like Google Docs. 
                                             Multiple people can collaborate on this form in real-time!
                                         </p>
                                         <div className="ml-4 flex-shrink-0">

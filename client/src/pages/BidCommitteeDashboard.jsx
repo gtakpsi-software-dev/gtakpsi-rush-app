@@ -23,15 +23,14 @@ export default function BidCommitteeDashboard(props) {
     const [selectedMajor, setSelectedMajor] = useState("All");
     const [selectedClass, setSelectedClass] = useState("All");
     const [selectedSort, setSelectedSort] = useState("none");
-    const [showGTID, setShowGTID] = useState(false);
+    const [rusheeNumberMap, setRusheeNumberMap] = useState({});  // Map GTID -> formatted number
 
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // Function to assign rushee ID based on GTID
+    // Function to get rushee number from the map (formatted as 001, 002, etc.)
     const getRusheeId = (gtid) => {
-        // Use the last 4 digits of GTID as the rushee ID, preserving leading zeros
-        return gtid.slice(-4);
+        return rusheeNumberMap[gtid] || "---";
     };
 
     // Function to generate a placeholder image with number (Apple-themed)
@@ -77,7 +76,17 @@ export default function BidCommitteeDashboard(props) {
                         .then((response) => {
                             if (response.data.status === "success") {
                                 console.log(response.data.payload.length);
-                                const shuffledRushees = shuffleArray(response.data.payload);
+                                const fetchedRushees = response.data.payload;
+                                
+                                // Create the number map based on registration_order
+                                const numberMap = {};
+                                fetchedRushees.forEach((rushee) => {
+                                    // Format as 001, 002, etc.
+                                    numberMap[rushee.gtid] = String(rushee.registration_order).padStart(3, '0');
+                                });
+                                setRusheeNumberMap(numberMap);
+                                
+                                const shuffledRushees = shuffleArray(fetchedRushees);
                                 setRushees(shuffledRushees);
                                 setFilteredRushees(shuffledRushees);
                             } else {
@@ -150,7 +159,8 @@ export default function BidCommitteeDashboard(props) {
                 return aLastName.localeCompare(bLastName);
             });
         } else if (selectedSort === "rusheeId") {
-            filtered = [...filtered].sort((a, b) => getRusheeId(a.gtid) - getRusheeId(b.gtid));
+            // Sort by registration order (sequential number)
+            filtered = [...filtered].sort((a, b) => a.registration_order - b.registration_order);
         }
 
         console.log(filtered);
@@ -241,21 +251,10 @@ export default function BidCommitteeDashboard(props) {
                                                     </select>
                                                 </div>
 
-                                                {/* Toggle GTID Visibility */}
-                                                <button
-                                                    onClick={() => setShowGTID(!showGTID)}
-                                                    className={`px-4 py-3 rounded-apple-xl text-apple-body font-light transition-all duration-200 ${
-                                                        showGTID 
-                                                            ? 'bg-black text-white' 
-                                                            : 'bg-white border border-apple-gray-300 text-black hover:bg-apple-gray-50'
-                                                    }`}
-                                                >
-                                                    {showGTID ? 'Hide GTID' : 'Show GTID'}
-                                                </button>
                                             </div>
 
-                                            {/* Shuffle Button */}
-                                            <div className="mt-2 sm:mt-0">
+                                            {/* Shuffle and Export Buttons */}
+                                            <div className="mt-2 sm:mt-0 flex gap-3">
                                                 <button
                                                     onClick={() => {
                                                         const shuffled = shuffleArray(rushees);
@@ -277,7 +276,8 @@ export default function BidCommitteeDashboard(props) {
                                             return (
                                                 <div
                                                     onClick={() => {
-                                                        window.open(`/brother/rushee/${rushee.gtid}?bid_committee=true`, "_blank");
+                                                        const rusheeNum = getRusheeId(rushee.gtid);
+                                                        window.open(`/brother/rushee/${rushee.gtid}?bid_committee=true&rushee_num=${rusheeNum}`, "_blank");
                                                     }}
                                                     key={rushee.id}
                                                     className="card-apple cursor-pointer hover:border-apple-gray-300 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
@@ -299,12 +299,6 @@ export default function BidCommitteeDashboard(props) {
                                                                 <Badges text={event.name} key={idx} />
                                                             ))}
                                                         </div>
-                                                        
-                                                        {showGTID && (
-                                                            <p className="text-apple-footnote text-apple-gray-600 font-light mb-1">
-                                                                GTID: {rushee.gtid}
-                                                            </p>
-                                                        )}
                                                         
                                                         <p className="text-apple-footnote text-apple-gray-600 font-light mb-1 truncate">
                                                             {rushee.major}

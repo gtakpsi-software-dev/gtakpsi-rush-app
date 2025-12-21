@@ -162,20 +162,25 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
         Ok(mut cursor) => {
             // TODO: extract useful info only
             let mut rushees = Vec::<StrippedRushee>::new();
+            let mut order: i32 = 1;  // Start at 1 for registration order
 
             while let Some(rushee) = cursor.next().await {
                 match rushee {
-                    Ok(doc) => rushees.push(StrippedRushee {
-                        name: format!("{} {}", doc.first_name, doc.last_name),
-                        class: doc.class,
-                        gtid: doc.gtid,
-                        major: doc.major,
-                        ratings: doc.ratings,
-                        image_url: doc.image_url,
-                        email: doc.email,
-                        pronouns: doc.pronouns,
-                        attendance: doc.attendance,
-                    }),
+                    Ok(doc) => {
+                        rushees.push(StrippedRushee {
+                            name: format!("{} {}", doc.first_name, doc.last_name),
+                            class: doc.class,
+                            gtid: doc.gtid,
+                            major: doc.major,
+                            ratings: doc.ratings,
+                            image_url: doc.image_url,
+                            email: doc.email,
+                            pronouns: doc.pronouns,
+                            attendance: doc.attendance,
+                            registration_order: order,
+                        });
+                        order += 1;
+                    },
                     Err(err) => {
                         println!("{}", err.to_string());
                         return Ok(Json(json!({

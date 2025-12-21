@@ -65,6 +65,46 @@ export default function Admin() {
         }
       };
 
+    // Export Rushee Numbers CSV (for Bid Committee)
+    const exportRusheeNumbers = async () => {
+        try {
+            const response = await axios.get(`${apiBase}/export-rushee-numbers`);
+            
+            if (response.data.status === "success") {
+                const mappings = response.data.payload;
+                
+                // Create CSV content
+                const csvHeaders = ["Rushee Number", "Name", "GTID"];
+                const csvRows = [
+                    csvHeaders.join(","),
+                    ...mappings.map(m => `"${m.rushee_number}","${m.name}","${m.gtid}"`)
+                ];
+                
+                // Create and download CSV
+                const csvContent = csvRows.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `Rushee_Numbers_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                
+                setResults(`Successfully exported ${mappings.length} rushee number mappings to CSV`);
+            } else {
+                setResults("Error: Failed to fetch rushee numbers");
+            }
+        } catch (error) {
+            console.error("Export error:", error);
+            setResults(`Error exporting rushee numbers: ${error.message}`);
+        }
+    };
+
     const exportPISSchedule = async () => {
         try {
             const api = import.meta.env.VITE_API_PREFIX;
@@ -278,6 +318,18 @@ export default function Admin() {
                     className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition duration-200"
                 >
                     Export PIS Schedule
+                </button>
+            </div>
+
+            {/* Export Rushee Numbers (for Bid Committee) */}
+            <div className="mb-6">
+                <h2 className="text-xl font-semibold">Export Rushee Numbers (Bid Committee)</h2>
+                <p className="text-gray-600 mb-2">Download a CSV file mapping rushee numbers to names (001, 002, etc.)</p>
+                <button
+                    onClick={exportRusheeNumbers}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition duration-200"
+                >
+                    Export Rushee Numbers
                 </button>
             </div>
 
