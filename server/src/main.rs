@@ -1,24 +1,13 @@
-use axum::extract::Query;
-use axum::http::StatusCode;
+use axum::http::{Method, StatusCode};
 use axum::{
-    extract::Path,
-    response::Json,
     routing::{get, post},
     Router,
 };
-use controllers::admin::add_pis_question;
-use controllers::rushee;
-use lambda_http::{run, Error};
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use std::env::set_var;
-use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
-use axum::http::Method;
 use dotenv::dotenv;
 use std::env;
-
-use controllers::voting::ChangeRusheePayload;
+use std::net::SocketAddr;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod controllers;
 mod models;
@@ -37,28 +26,32 @@ async fn health_check() -> (StatusCode, String) {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
-    // If you use API Gateway stages, the Rust Runtime will include the stage name
-    // as part of the path that your application receives.
-    // Setting the following environment variable, you can remove the stage from the path.
-    // This variable only applies to API Gateway stages,
-    // you can remove it if you don't use them.
-    // i.e with: `GET /test-stage/todo/id/123` without: `GET /todo/id/123`
-    set_var("AWS_LAMBDA_HTTP_IGNORE_STAGE_IN_PATH", "true");
+async fn main() {
+    // Initialize tracing for logging
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "server=debug,tower_http=debug".into()),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
 
-    // start crypto runtime, required to connect to redis instance
+    // Start crypto runtime, required to connect to redis instance
     rustls::crypto::ring::default_provider()
         .install_default()
         .expect("install rustls crypto provider");
 
-    // required to enable CloudWatch error logging by the runtime 
-    // tracing::init_default_subscriber();
-
     dotenv().ok();
 
-    // let mongo_uri = env::var("MONGO_URI").expect("MONGO URI Must be Set");
+    // Get port from environment variable (Railway sets PORT automatically)
+    let port: u16 = env::var("PORT")
+        .unwrap_or_else(|_| "3000".to_string())
+        .parse()
+        .expect("PORT must be a valid number");
 
     let app = Router::new()
+        .route("/", get(health_check))
+        .route("/health", get(health_check))
 
         .route("/rushee/signup", post(controllers::rushee::signup).options(|| async { StatusCode::OK }))
         .route("/rushee/get-rushees", get(controllers::rushee::get_rushees).options(|| async { StatusCode::OK }))
@@ -98,14 +91,19 @@ async fn main() -> Result<(), Error> {
         
         .layer(
             CorsLayer::new()
-                .allow_origin(Any) // Allow requests from any origin``
+                .allow_origin(Any) // Allow requests from any origin
                 .allow_methods([Method::GET, Method::POST, Method::OPTIONS]) // Allow specific HTTP methods
                 .allow_headers(Any) // Allow any headers, including custom ones like `Authorization`
                 .expose_headers(Any), // Expose specific headers in the browser (optional)
         );
 
-    run(app).await
-
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    tracing::info!("🚀 Server starting on http://{}", addr);
+    
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .expect("Failed to start server");
 } 
 
 

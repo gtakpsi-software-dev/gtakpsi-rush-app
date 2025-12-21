@@ -1,23 +1,18 @@
-use axum::extract::Query;
 use axum::{
     extract::Path,
     http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::{get, post},
-    Router,
+    response::Json,
 };
-use bson::DateTime;
+use bson::Document;
 use futures::stream::StreamExt;
-use lambda_http::{run, Error};
 use mongodb::{
-    bson::{doc, to_bson, Document},
-    Client, Collection,
+    bson::{doc, to_bson},
+    Collection,
 };
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashSet;
-use std::env::set_var;
 
 use super::db;
 use crate::middlewares::timeHelpers::same_day;
