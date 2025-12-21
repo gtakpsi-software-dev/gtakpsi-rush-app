@@ -67,6 +67,7 @@ async fn main() {
         .route("/rushee/delete-comment/:id", post(controllers::rushee::delete_comment).options(|| async { StatusCode::OK }))
         .route("/rushee/does-rushee-exist/:id", get(controllers::rushee::does_rushee_exist))
         .route("/rushee/get-timeslots", get(controllers::rushee::get_signup_timeslots))
+        .route("/rushee/get-available-timeslots", get(controllers::rushee::get_available_timeslots))
         .route("/brother/comments/:brother_name", get(controllers::rushee::get_brother_comments).options(|| async { StatusCode::OK }))
 
         .route("/admin/add_pis_question", post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }))
