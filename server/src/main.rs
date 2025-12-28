@@ -132,7 +132,7 @@ async fn main() {
         .layer(
             CorsLayer::new()
                 .allow_origin(Any) // Allow requests from any origin
-                .allow_methods([Method::GET, Method::POST, Method::OPTIONS]) // Allow specific HTTP methods
+                .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS]) // Allow specific HTTP methods
                 .allow_headers(Any) // Allow any headers, including custom ones like `Authorization`
                 .expose_headers(Any), // Expose specific headers in the browser (optional)
         );

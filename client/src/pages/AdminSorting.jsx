@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
+import { adminGet, adminPut } from "../js/adminAxios";
 
 const STATUSES = [
     { key: "UNSORTED", label: "Unsorted" },
@@ -17,16 +17,19 @@ const STATUSES = [
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
 
+// Parse allowlist once at module level
+const ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => e.length > 0);
+
 export default function AdminSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
-    const allowlist = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
-        .split(",")
-        .map((e) => e.trim().toLowerCase())
-        .filter((e) => e.length > 0);
 
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
     const [columns, setColumns] = useState({
         UNSORTED: [],
         IN_CLOUD: [],
@@ -55,14 +58,13 @@ export default function AdminSorting() {
             const tokenResult = await current.getIdTokenResult(true);
             const isAdmin = tokenResult.claims?.admin === true;
             const email = current.email ? current.email.toLowerCase() : "";
-            const isAllowlisted = email && allowlist.includes(email);
+            const isAllowlisted = email && ALLOWLIST.includes(email);
             if (!(isAdmin || isAllowlisted)) {
                 navigate("/login");
                 return;
             }
-            axios.defaults.headers.common["Authorization"] = `Bearer ${tokenResult.token}`;
 
-            const response = await axios.get(`${apiBase}/rushees/sorting`);
+            const response = await adminGet(`${apiBase}/rushees/sorting`);
             if (response.data.status === "success") {
                 const grouped = {
                     UNSORTED: [],
@@ -90,12 +92,24 @@ export default function AdminSorting() {
             toast.error("Failed to load rushees");
         } finally {
             setLoading(false);
+            setAuthChecked(true);
         }
-    }, [apiBase, allowlist, navigate]);
+    }, [apiBase, navigate]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        // Only run once
+        if (authChecked) return;
+        
+        // Wait for auth to be ready
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                fetchData();
+            } else {
+                navigate("/login");
+            }
+        });
+        return () => unsubscribe();
+    }, [fetchData, authChecked, navigate]);
 
     const handleDragStart = (rushee, fromColumn, index) => {
         setDragging({ id: rushee.id, fromColumn, index });
@@ -116,7 +130,7 @@ export default function AdminSorting() {
             await Promise.all(
                 colsToUpdate.map((colKey) => {
                     const ids = updatedColumns[colKey].map((r) => r.id);
-                    return axios.put(`${apiBase}/rushees/reorder`, {
+                    return adminPut(`${apiBase}/rushees/reorder`, {
                         column: colKey,
                         orderedRusheeIds: ids,
                     });
@@ -179,7 +193,7 @@ export default function AdminSorting() {
         setSelectedRushee(rushee);
         setNotesStatus("loading");
         try {
-            const resp = await axios.get(`${apiBase}/rushees/${rushee.id}/notes`);
+            const resp = await adminGet(`${apiBase}/rushees/${rushee.id}/notes`);
             if (resp.data.status === "success") {
                 setNotes(resp.data.sortingNotes || "");
                 setNotesStatus("idle");
@@ -206,7 +220,7 @@ export default function AdminSorting() {
         if (!selectedRushee) return;
         setNotesStatus("saving");
         try {
-            const resp = await axios.put(`${apiBase}/rushees/${selectedRushee.id}/notes`, {
+            const resp = await adminPut(`${apiBase}/rushees/${selectedRushee.id}/notes`, {
                 sortingNotes: text,
             });
             if (resp.data.status === "success") {
@@ -229,17 +243,41 @@ export default function AdminSorting() {
         }, 500);
     };
 
-    // Pan + zoom handlers
-    const onWheel = (e) => {
-        if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            const delta = -e.deltaY * 0.001;
-            setScale((prev) => {
-                const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta));
-                return next;
-            });
-        }
+    // Zoom controls
+    const zoomIn = () => {
+        setScale((prev) => Math.min(MAX_SCALE, prev + 0.1));
     };
+
+    const zoomOut = () => {
+        setScale((prev) => Math.max(MIN_SCALE, prev - 0.1));
+    };
+
+    const resetView = () => {
+        setScale(1);
+        setTranslate({ x: 0, y: 0 });
+    };
+
+    // Canvas ref for wheel listener with passive: false
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const handleWheel = (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const delta = -e.deltaY * 0.001;
+                setScale((prev) => {
+                    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta));
+                    return next;
+                });
+            }
+        };
+
+        canvas.addEventListener("wheel", handleWheel, { passive: false });
+        return () => canvas.removeEventListener("wheel", handleWheel);
+    }, []);
 
     const onMouseDown = (e) => {
         if (e.target.closest("[data-card]")) return; // don't pan when grabbing card
@@ -320,21 +358,52 @@ export default function AdminSorting() {
 
     return (
         <div
+            ref={canvasRef}
             className="w-screen h-screen overflow-hidden bg-apple-gray-50"
-            onWheel={onWheel}
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
         >
             <Navbar />
-            <div className="p-4">
-                <h1 className="text-apple-title1 font-normal text-black mb-2">Rushee Sorting</h1>
-                <p className="text-apple-footnote text-apple-gray-600">
-                    Drag and drop rushees across clouds. Pan with drag; zoom with ctrl/cmd + scroll.
-                </p>
+            <div className="p-4 flex items-center justify-between">
+                <div>
+                    <h1 className="text-apple-title1 font-normal text-black mb-1">Rushee Sorting</h1>
+                    <p className="text-apple-footnote text-apple-gray-600">
+                        Drag and drop rushees across clouds. Pan with drag; zoom with buttons or ctrl/cmd + scroll.
+                    </p>
+                </div>
+                {/* Zoom Controls */}
+                <div className="flex items-center gap-2 bg-white border border-apple-gray-200 rounded-apple-lg px-3 py-2 shadow-sm">
+                    <button
+                        onClick={zoomOut}
+                        className="w-8 h-8 flex items-center justify-center text-apple-gray-600 hover:text-black hover:bg-apple-gray-100 rounded-apple transition-colors"
+                        title="Zoom out"
+                    >
+                        <span className="text-xl font-light">−</span>
+                    </button>
+                    <span className="text-apple-footnote text-apple-gray-600 w-14 text-center">
+                        {Math.round(scale * 100)}%
+                    </span>
+                    <button
+                        onClick={zoomIn}
+                        className="w-8 h-8 flex items-center justify-center text-apple-gray-600 hover:text-black hover:bg-apple-gray-100 rounded-apple transition-colors"
+                        title="Zoom in"
+                    >
+                        <span className="text-xl font-light">+</span>
+                    </button>
+                    <div className="w-px h-6 bg-apple-gray-200 mx-1"></div>
+                    <button
+                        onClick={resetView}
+                        className="px-2 h-8 flex items-center justify-center text-apple-footnote text-apple-gray-600 hover:text-black hover:bg-apple-gray-100 rounded-apple transition-colors"
+                        title="Reset view"
+                    >
+                        Reset
+                    </button>
+                </div>
             </div>
 
-            <div className="relative w-full h-[calc(100vh-120px)] overflow-hidden">
+            <div className="relative w-full h-[calc(100vh-140px)] overflow-hidden">
                 <div
                     className="absolute inset-0"
                     style={{
@@ -349,43 +418,60 @@ export default function AdminSorting() {
                 </div>
             </div>
 
+            {/* Notes Side Panel */}
             {selectedRushee && (
-                <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl border-l border-apple-gray-200 z-20 flex flex-col">
-                    <div className="p-4 border-b border-apple-gray-200 flex items-start justify-between">
-                        <div>
-                            <div className="text-apple-headline text-black font-medium">
-                                {selectedRushee.fullName}
+                <>
+                    {/* Backdrop overlay */}
+                    <div 
+                        className="fixed inset-0 bg-black/20 z-10"
+                        onClick={closeNotes}
+                    />
+                    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl border-l border-apple-gray-200 z-20 flex flex-col">
+                        <div className="p-4 border-b border-apple-gray-200 flex items-start justify-between">
+                            <div>
+                                <div className="text-apple-headline text-black font-medium">
+                                    {selectedRushee.fullName}
+                                </div>
+                                <div className="text-apple-caption2 text-apple-gray-600">
+                                    Rushee #{selectedRushee.rushNumber} • {selectedRushee.sortingStatus.replace("_", " ")}
+                                </div>
                             </div>
-                            <div className="text-apple-caption2 text-apple-gray-600">
-                                Rushee #{selectedRushee.rushNumber} • {selectedRushee.sortingStatus.replace("_", " ")}
-                            </div>
+                            <button
+                                onClick={closeNotes}
+                                className="w-8 h-8 flex items-center justify-center text-apple-gray-500 hover:text-black hover:bg-apple-gray-100 rounded-full text-2xl leading-none transition-colors"
+                                title="Close"
+                            >
+                                ×
+                            </button>
                         </div>
-                        <button
-                            onClick={closeNotes}
-                            className="text-apple-gray-500 hover:text-black text-xl leading-none"
-                        >
-                            ×
-                        </button>
+                        <div className="p-4 flex-1 overflow-auto">
+                            {notesStatus === "loading" ? (
+                                <div className="text-apple-body text-apple-gray-600">Loading notes...</div>
+                            ) : (
+                                <textarea
+                                    className="w-full h-full min-h-[200px] border border-apple-gray-200 rounded-apple-lg p-3 text-apple-body text-black outline-none focus:border-black resize-none"
+                                    value={notes}
+                                    onChange={onNotesChange}
+                                    placeholder="Add notes..."
+                                />
+                            )}
+                        </div>
+                        <div className="p-4 border-t border-apple-gray-200 flex justify-between items-center">
+                            <span className="text-apple-caption2 text-apple-gray-600">
+                                {notesStatus === "saving" && "Saving..."}
+                                {notesStatus === "saved" && "✓ Saved"}
+                                {notesStatus === "error" && "Error saving notes"}
+                                {notesStatus === "idle" && "Autosave enabled"}
+                            </span>
+                            <button
+                                onClick={closeNotes}
+                                className="px-4 py-2 bg-apple-gray-100 text-apple-body text-black rounded-apple hover:bg-apple-gray-200 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
-                    <div className="p-4 flex-1 overflow-auto">
-                        {notesStatus === "loading" ? (
-                            <div className="text-apple-body text-apple-gray-600">Loading notes...</div>
-                        ) : (
-                            <textarea
-                                className="w-full h-full border border-apple-gray-200 rounded-apple-lg p-3 text-apple-body text-black outline-none focus:border-black"
-                                value={notes}
-                                onChange={onNotesChange}
-                                placeholder="Add notes..."
-                            />
-                        )}
-                    </div>
-                    <div className="p-4 border-t border-apple-gray-200 text-apple-caption2 text-apple-gray-600">
-                        {notesStatus === "saving" && "Saving..."}
-                        {notesStatus === "saved" && "Saved"}
-                        {notesStatus === "error" && "Error saving notes"}
-                        {notesStatus === "idle" && "Autosave enabled"}
-                    </div>
-                </div>
+                </>
             )}
         </div>
     );
