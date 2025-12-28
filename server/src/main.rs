@@ -96,6 +96,17 @@ async fn main() {
         .route("/admin/get_pis_timeslots", get(controllers::admin::get_pis_timeslots).options(|| async { StatusCode::OK }))
         .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }));
 
+    // Routes accessible by both admin and bid committee
+    let bidcom_routes = Router::new()
+        .route("/bidcom/rushees/sorting", get(controllers::admin::get_sorting_rushees).options(|| async { StatusCode::OK }))
+        .route("/bidcom/rushees/:id/notes", get(controllers::admin::get_rushee_notes).put(controllers::admin::update_rushee_notes).options(|| async { StatusCode::OK }))
+        .route_layer(middleware::from_fn_with_state(
+            firebase_auth.clone(),
+            middlewares::auth::require_bidcom_or_admin,
+        ))
+        .with_state(firebase_auth.clone());
+
+    // Admin-only routes
     let admin_routes = Router::new()
         .route("/admin/add_pis_question", post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_question", post(controllers::admin::delete_pis_question).options(|| async { StatusCode::OK }))
@@ -114,6 +125,7 @@ async fn main() {
         .route("/admin/rushees/reorder", put(controllers::admin::bulk_reorder).options(|| async { StatusCode::OK }))
         .route("/admin/get-admin-status", post(controllers::admin::get_admin_status).options(|| async { StatusCode::OK }))
         .route("/admin/make-admin", post(controllers::admin::make_admin).options(|| async { StatusCode::OK }))
+        .route("/admin/make-bidcom", post(controllers::admin::make_bidcom).options(|| async { StatusCode::OK }))
         .route("/admin/voting/change-rushee", post(controllers::voting::change_rushee).options(|| async { StatusCode::OK }))
         .route("/admin/voting/clear-votes", post(controllers::voting::clear_votes).options(|| async { StatusCode::OK }))
         .route("/admin/voting/make-eligible", post(controllers::voting::make_eligible).options(|| async { StatusCode::OK }))
@@ -128,6 +140,7 @@ async fn main() {
         .with_state(firebase_auth.clone());
 
     let app = public_routes
+        .merge(bidcom_routes)
         .merge(admin_routes)
         .layer(
             CorsLayer::new()

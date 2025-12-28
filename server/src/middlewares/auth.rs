@@ -54,6 +54,7 @@ pub struct FirebaseUser {
     pub uid: String,
     pub email: Option<String>,
     pub is_admin: bool,
+    pub is_bidcom: bool,
 }
 
 #[derive(Debug)]
@@ -130,6 +131,12 @@ impl FirebaseAuth {
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
 
+        let is_bidcom = claims
+            .custom
+            .get("bidcom")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
         let email = claims.email.clone();
         let allowlist_ok = email
             .as_ref()
@@ -143,7 +150,8 @@ impl FirebaseAuth {
         Ok(FirebaseUser {
             uid: claims.sub,
             email,
-            is_admin: true,
+            is_admin: is_admin || allowlist_ok,
+            is_bidcom,
         })
     }
 
@@ -161,6 +169,63 @@ impl FirebaseAuth {
         }
     }
 
+    /// Verify token for bidcom access (allows both admin and bidcom users)
+    pub async fn verify_token_bidcom(&self, id_token: &str) -> Result<FirebaseUser, AuthError> {
+        let header = decode_header(id_token).map_err(|_| AuthError::InvalidToken)?;
+        let kid = header.kid.ok_or(AuthError::InvalidToken)?;
+
+        let certs = self.fetch_certs().await.map_err(|_| AuthError::Internal)?;
+        let cert_pem = certs.get(&kid).ok_or(AuthError::InvalidToken)?;
+
+        let decoding_key =
+            DecodingKey::from_rsa_pem(cert_pem.as_bytes()).map_err(|_| AuthError::InvalidToken)?;
+
+        let mut validation = Validation::new(Algorithm::RS256);
+        validation.set_audience(&[self.project_id.clone()]);
+        validation.set_issuer(&[format!(
+            "https://securetoken.google.com/{}",
+            self.project_id
+        )]);
+        validation.validate_exp = true;
+        validation.required_spec_claims.insert("sub".to_string());
+
+        let token_data =
+            decode::<FirebaseClaims>(id_token, &decoding_key, &validation).map_err(|_| {
+                AuthError::InvalidToken
+            })?;
+
+        let claims = token_data.claims;
+        let is_admin = claims
+            .custom
+            .get("admin")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        let is_bidcom = claims
+            .custom
+            .get("bidcom")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        let email = claims.email.clone();
+        let allowlist_ok = email
+            .as_ref()
+            .map(|e| self.allowlist.contains(&e.to_ascii_lowercase()))
+            .unwrap_or(false);
+
+        // Allow access if admin, bidcom, or on allowlist
+        if !(is_admin || is_bidcom || allowlist_ok) {
+            return Err(AuthError::NotAdmin);
+        }
+
+        Ok(FirebaseUser {
+            uid: claims.sub,
+            email,
+            is_admin: is_admin || allowlist_ok,
+            is_bidcom,
+        })
+    }
+
     pub fn is_allowlisted(&self, email: &str) -> bool {
         self.allowlist
             .iter()
@@ -171,52 +236,8 @@ impl FirebaseAuth {
         self.service_account.is_some()
     }
 
-    pub async fn set_admin_claim(&self, uid: &str, make_admin: bool) -> Result<(), AuthError> {
-        let sa = self
-            .service_account
-            .as_ref()
-            .ok_or(AuthError::ServiceAccountMissing)?;
-
-        let access_token = self
-            .fetch_access_token(sa)
-            .await
-            .map_err(|_| AuthError::Internal)?;
-
-        let url = format!(
-            "https://identitytoolkit.googleapis.com/v1/projects/{}/accounts:update",
-            sa.project_id
-                .clone()
-                .unwrap_or_else(|| self.project_id.clone())
-        );
-
-        #[derive(serde::Serialize)]
-        struct UpdateBody<'a> {
-            localId: &'a str,
-            customAttributes: String,
-        }
-
-        let body = UpdateBody {
-            localId: uid,
-            customAttributes: serde_json::json!({ "admin": make_admin }).to_string(),
-        };
-
-        let resp = self
-            .client
-            .post(url)
-            .bearer_auth(access_token)
-            .json(&body)
-            .send()
-            .await
-            .map_err(|_| AuthError::Internal)?;
-
-        if resp.status().is_success() {
-            Ok(())
-        } else {
-            Err(AuthError::Internal)
-        }
-    }
-
-    pub async fn get_admin_status(&self, uid: &str) -> Result<bool, AuthError> {
+    /// Get current custom claims for a user
+    async fn get_custom_claims(&self, uid: &str) -> Result<HashMap<String, Value>, AuthError> {
         let sa = self
             .service_account
             .as_ref()
@@ -271,11 +292,88 @@ impl FirebaseAuth {
 
         if let Some(json_str) = attrs {
             if let Ok(map) = serde_json::from_str::<HashMap<String, Value>>(&json_str) {
-                return Ok(map.get("admin").and_then(|v| v.as_bool()).unwrap_or(false));
+                return Ok(map);
             }
         }
 
-        Ok(false)
+        Ok(HashMap::new())
+    }
+
+    /// Update a specific custom claim while preserving others
+    async fn update_custom_claim(&self, uid: &str, claim_name: &str, claim_value: bool) -> Result<(), AuthError> {
+        let sa = self
+            .service_account
+            .as_ref()
+            .ok_or(AuthError::ServiceAccountMissing)?;
+
+        // Get existing claims
+        let mut claims = self.get_custom_claims(uid).await.unwrap_or_default();
+        
+        // Update the specific claim
+        claims.insert(claim_name.to_string(), Value::Bool(claim_value));
+
+        let access_token = self
+            .fetch_access_token(sa)
+            .await
+            .map_err(|_| AuthError::Internal)?;
+
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/projects/{}/accounts:update",
+            sa.project_id
+                .clone()
+                .unwrap_or_else(|| self.project_id.clone())
+        );
+
+        #[derive(serde::Serialize)]
+        struct UpdateBody<'a> {
+            localId: &'a str,
+            customAttributes: String,
+        }
+
+        let body = UpdateBody {
+            localId: uid,
+            customAttributes: serde_json::to_string(&claims).map_err(|_| AuthError::Internal)?,
+        };
+
+        let resp = self
+            .client
+            .post(url)
+            .bearer_auth(access_token)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|_| AuthError::Internal)?;
+
+        if resp.status().is_success() {
+            Ok(())
+        } else {
+            Err(AuthError::Internal)
+        }
+    }
+
+    pub async fn set_admin_claim(&self, uid: &str, make_admin: bool) -> Result<(), AuthError> {
+        self.update_custom_claim(uid, "admin", make_admin).await
+    }
+
+    pub async fn set_bidcom_claim(&self, uid: &str, make_bidcom: bool) -> Result<(), AuthError> {
+        self.update_custom_claim(uid, "bidcom", make_bidcom).await
+    }
+
+    pub async fn get_admin_status(&self, uid: &str) -> Result<bool, AuthError> {
+        let claims = self.get_custom_claims(uid).await?;
+        Ok(claims.get("admin").and_then(|v| v.as_bool()).unwrap_or(false))
+    }
+
+    pub async fn get_bidcom_status(&self, uid: &str) -> Result<bool, AuthError> {
+        let claims = self.get_custom_claims(uid).await?;
+        Ok(claims.get("bidcom").and_then(|v| v.as_bool()).unwrap_or(false))
+    }
+
+    pub async fn get_user_roles(&self, uid: &str) -> Result<(bool, bool), AuthError> {
+        let claims = self.get_custom_claims(uid).await?;
+        let is_admin = claims.get("admin").and_then(|v| v.as_bool()).unwrap_or(false);
+        let is_bidcom = claims.get("bidcom").and_then(|v| v.as_bool()).unwrap_or(false);
+        Ok((is_admin, is_bidcom))
     }
 
     async fn fetch_access_token(&self, sa: &ServiceAccount) -> Result<String, AuthError> {
@@ -388,6 +486,40 @@ where
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
     let user = auth.verify_token(&token).await.map_err(|err| match err {
+        AuthError::NotAdmin => StatusCode::FORBIDDEN,
+        _ => StatusCode::UNAUTHORIZED,
+    })?;
+
+    req.extensions_mut().insert(user);
+    Ok(next.run(req).await)
+}
+
+/// Middleware that allows both admin AND bid committee users
+pub async fn require_bidcom_or_admin<B>(
+    State(auth): State<Arc<FirebaseAuth>>,
+    mut req: axum::http::Request<B>,
+    next: Next<B>,
+) -> Result<axum::response::Response, StatusCode>
+where
+    B: Send + 'static,
+{
+    let token = req
+        .headers()
+        .get(axum::http::header::AUTHORIZATION)
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| {
+            if let Some(rest) = s.strip_prefix("Bearer ") {
+                Some(rest.to_string())
+            } else if let Some(rest) = s.strip_prefix("bearer ") {
+                Some(rest.to_string())
+            } else {
+                None
+            }
+        })
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    // Use the bidcom verification which allows both admin and bidcom
+    let user = auth.verify_token_bidcom(&token).await.map_err(|err| match err {
         AuthError::NotAdmin => StatusCode::FORBIDDEN,
         _ => StatusCode::UNAUTHORIZED,
     })?;

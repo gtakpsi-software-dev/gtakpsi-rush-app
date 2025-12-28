@@ -26,13 +26,14 @@ export default function Admin() {
     const [rushNightTime, setRushNightTime] = useState("");
     const [loading, setLoading] = useState(true);
 
-    // Admin promotion state
+    // Admin/Bidcom promotion state
     const [brothers, setBrothers] = useState([]);
     const [brotherSearch, setBrotherSearch] = useState("");
     const [filteredBrothers, setFilteredBrothers] = useState([]);
     const [selectedBrother, setSelectedBrother] = useState(null);
     const [isPromoting, setIsPromoting] = useState(false);
     const [brotherAdminStatus, setBrotherAdminStatus] = useState(null); // true/false/null
+    const [brotherBidcomStatus, setBrotherBidcomStatus] = useState(null); // true/false/null
 
     // Reschedule PIS state
     const [rusheeSearch, setRusheeSearch] = useState("");
@@ -246,17 +247,21 @@ export default function Admin() {
         const uid = brother?.uid || brother?.id || brother?._id;
         if (!uid) {
             setBrotherAdminStatus(null);
+            setBrotherBidcomStatus(null);
             return;
         }
         try {
             const response = await axios.post(`${apiBase}/get-admin-status`, { uid });
             if (response.data.status === "success") {
                 setBrotherAdminStatus(response.data.admin === true);
+                setBrotherBidcomStatus(response.data.bidcom === true);
             } else {
                 setBrotherAdminStatus(null);
+                setBrotherBidcomStatus(null);
             }
         } catch (_e) {
             setBrotherAdminStatus(null);
+            setBrotherBidcomStatus(null);
         }
     };
 
@@ -294,6 +299,49 @@ export default function Admin() {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update admin", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setIsPromoting(false);
+        }
+    };
+
+    const handleSetBidcom = async (makeBidcom) => {
+        if (!selectedBrother) {
+            toast.error("Select a brother first");
+            return;
+        }
+        const uid = selectedBrother.uid || selectedBrother.id || selectedBrother._id;
+        if (!uid) {
+            toast.error("No UID found for this brother");
+            return;
+        }
+        setIsPromoting(true);
+        try {
+            const response = await axios.post(`${apiBase}/make-bidcom`, { uid, make_bidcom: makeBidcom });
+            if (response.data.status === "success") {
+                setBrotherBidcomStatus(makeBidcom);
+                toast.success(
+                    makeBidcom
+                        ? `Granted bid committee access to ${selectedBrother.email || "brother"}`
+                        : `Removed bid committee access from ${selectedBrother.email || "brother"}`,
+                    {
+                        position: "top-center",
+                        autoClose: 3000,
+                        theme: "dark",
+                    }
+                );
+            } else {
+                toast.error(response.data.message || "Failed to update bid committee", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to update bid committee", {
                 position: "top-center",
                 autoClose: 3000,
                 theme: "dark",
@@ -585,36 +633,65 @@ export default function Admin() {
                                         <div className="text-apple-caption2 text-apple-gray-600">
                                             {selectedBrother.email}
                                         </div>
-                                        <div className="text-apple-caption2">
-                                            Status:{" "}
-                                            <span className="font-medium">
-                                                {brotherAdminStatus === null
-                                                    ? "Unknown"
-                                                    : brotherAdminStatus
-                                                    ? "Admin"
-                                                    : "Not admin"}
+                                        <div className="text-apple-caption2 flex gap-4 mt-2">
+                                            <span>
+                                                Admin:{" "}
+                                                <span className={`font-medium ${brotherAdminStatus ? "text-green-600" : "text-apple-gray-500"}`}>
+                                                    {brotherAdminStatus === null ? "..." : brotherAdminStatus ? "Yes" : "No"}
+                                                </span>
+                                            </span>
+                                            <span>
+                                                Bid Committee:{" "}
+                                                <span className={`font-medium ${brotherBidcomStatus ? "text-blue-600" : "text-apple-gray-500"}`}>
+                                                    {brotherBidcomStatus === null ? "..." : brotherBidcomStatus ? "Yes" : "No"}
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => handleSetAdmin(true)}
-                                        disabled={isPromoting || !selectedBrother}
-                                        className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
-                                    >
-                                        {isPromoting ? "Saving..." : "Make Admin"}
-                                    </button>
-                <button
-                                        onClick={() => handleSetAdmin(false)}
-                                        disabled={isPromoting || !selectedBrother}
-                                        className="flex-1 bg-white text-black py-3 px-4 rounded-apple-xl text-apple-body font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
-                                    >
-                                        {isPromoting ? "Saving..." : "Remove Admin"}
-                </button>
+                                {/* Admin Controls */}
+                                <div className="mb-3">
+                                    <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Admin Access</div>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => handleSetAdmin(true)}
+                                            disabled={isPromoting || !selectedBrother || brotherAdminStatus}
+                                            className="flex-1 bg-black text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {isPromoting ? "..." : "Grant Admin"}
+                                        </button>
+                                        <button
+                                            onClick={() => handleSetAdmin(false)}
+                                            disabled={isPromoting || !selectedBrother || !brotherAdminStatus}
+                                            className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {isPromoting ? "..." : "Remove Admin"}
+                                        </button>
+                                    </div>
                                 </div>
-            </div>
+
+                                {/* Bid Committee Controls */}
+                                <div>
+                                    <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Bid Committee Access</div>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => handleSetBidcom(true)}
+                                            disabled={isPromoting || !selectedBrother || brotherBidcomStatus}
+                                            className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-blue-700 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {isPromoting ? "..." : "Grant Bid Com"}
+                                        </button>
+                                        <button
+                                            onClick={() => handleSetBidcom(false)}
+                                            disabled={isPromoting || !selectedBrother || !brotherBidcomStatus}
+                                            className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {isPromoting ? "..." : "Remove Bid Com"}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

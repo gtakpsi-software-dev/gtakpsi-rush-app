@@ -33,6 +33,7 @@ import Comments from './pages/Comments';
 import AdminVotingDashboard from './pages/AdminVotingDashboardComponents';
 import BrotherVotingPage from './pages/BrotherVotingPage';
 import AdminSorting from './pages/AdminSorting';
+import BidComSorting from './pages/BidComSorting';
 
 function App() {
 
@@ -66,6 +67,7 @@ function App() {
           <Route path='/admin/addpis' element={<AddPIS/>} />
           <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
           <Route path='/admin/sorting' element={<AdminSorting/>} />
+          <Route path='/bidcom/sorting' element={<BidComSorting/>} />
           <Route path='/voting' element={<BrotherVotingPage/>} />
 
         </Routes>
