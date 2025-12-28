@@ -21,7 +21,7 @@ export default function MyError(props) {
         <div className="relative w-full h-screen bg-white flex flex-col items-center justify-center">
             <div className="text-center animate-fade-in">
                 {/* Error Icon */}
-                <div className="flex items-center justify-center w-24 h-24 bg-apple-gray-100 rounded-apple-2xl border border-apple-gray-200 mb-8 animate-slide-up">
+                <div className="flex items-center justify-center w-24 h-24 bg-apple-gray-100 rounded-apple-2xl border border-apple-gray-200 mb-8 animate-slide-up mx-auto">
                     <svg
                         className="w-12 h-12 text-apple-gray-600"
                         xmlns="http://www.w3.org/2000/svg"
