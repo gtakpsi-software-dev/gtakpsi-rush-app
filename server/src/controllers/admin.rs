@@ -618,6 +618,7 @@ pub struct SortingRushee {
     pub rushNumber: i32,
     pub sortingStatus: String,
     pub sortingOrder: i32,
+    pub sortingTags: Vec<String>,
 }
 
 #[derive(Deserialize)]
@@ -635,6 +636,8 @@ pub struct BulkReorderPayload {
 #[derive(Deserialize)]
 pub struct NotesPayload {
     pub sortingNotes: String,
+    #[serde(default)]
+    pub sortingTags: Vec<String>,
 }
 
 fn validate_status(status: &str) -> bool {
@@ -672,6 +675,7 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
                         rushNumber: rush_number,
                         sortingStatus: status,
                         sortingOrder: order,
+                        sortingTags: doc.sorting_tags.clone(),
                     });
                     order_counter += 1;
                 }
@@ -704,6 +708,7 @@ pub async fn get_rushee_notes(Path(id): Path<String>) -> Result<Json<Value>, Sta
         Ok(Some(doc)) => Ok(Json(json!({
             "status": "success",
             "sortingNotes": doc.sorting_notes,
+            "sortingTags": doc.sorting_tags,
             "notesUpdatedAt": doc.notes_updated_at,
             "notesUpdatedBy": doc.notes_updated_by,
             "sortingStatus": doc.sorting_status,
@@ -735,9 +740,18 @@ pub async fn update_rushee_notes(
         })));
     }
 
+    // Validate tags
+    let valid_tags = ["night_1", "night_2", "closed_night", "hard_no"];
+    let filtered_tags: Vec<&str> = payload.sortingTags
+        .iter()
+        .filter(|t| valid_tags.contains(&t.as_str()))
+        .map(|t| t.as_str())
+        .collect();
+
     let update = doc! {
         "$set": {
             "sorting_notes": &payload.sortingNotes,
+            "sorting_tags": &filtered_tags,
             "notes_updated_at": DateTime::now(),
             "notes_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
         }

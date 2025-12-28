@@ -95,6 +95,8 @@ pub struct RusheeModel {
     pub sorting_status: String,
     #[serde(default)]
     pub sorting_notes: String,
+    #[serde(default)]
+    pub sorting_tags: Vec<String>,
     #[serde(default = "default_sorting_order")]
     pub sorting_order: i32,
     #[serde(default)]
