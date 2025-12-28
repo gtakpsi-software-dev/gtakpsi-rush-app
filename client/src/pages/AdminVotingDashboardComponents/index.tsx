@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { AdminVotingContextProvider, useAdminVotingContext } from "./AdminVotingContext";
@@ -11,6 +11,12 @@ import { Brother } from "./types";
 import NotFound from "../404";
 import { auth } from "../../firebase";
 
+// Parse allowlist once at module level
+const ALLOWLIST = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
+    .split(",")
+    .map((e: string) => e.trim().toLowerCase())
+    .filter((e: string) => e.length > 0);
+
 function Content() {
 
     const { votes, rushee, question, setVotes, setRushee, setQuestion } = useAdminVotingContext();
@@ -20,17 +26,18 @@ function Content() {
     const navigate = useNavigate();
     const [authorized, setAuthorized] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
 
     const storedUser: string | null = localStorage.getItem('user')
-    const allowlist = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
-        .split(",")
-        .map((e: string) => e.trim().toLowerCase())
-        .filter((e: string) => e.length > 0);
 
     useEffect(() => {
+        // Only run auth check once
+        if (authChecked) return;
+
         const unsubscribe = auth.onAuthStateChanged(async (current) => {
             if (!storedUser || !current) {
                 setAuthLoading(false);
+                setAuthChecked(true);
                 navigate("/login");
                 return;
             }
@@ -38,21 +45,24 @@ function Content() {
                 const tokenResult = await current.getIdTokenResult(true);
                 const isAdmin = tokenResult.claims?.admin === true;
                 const email = current.email ? current.email.toLowerCase() : "";
-                const isAllowlisted = email && allowlist.includes(email);
+                const isAllowlisted = email && ALLOWLIST.includes(email);
                 if (!(isAdmin || isAllowlisted)) {
                     setAuthLoading(false);
+                    setAuthChecked(true);
                     navigate("/login");
                     return;
                 }
                 setAuthorized(true);
+                setAuthChecked(true);
             } catch (_err) {
+                setAuthChecked(true);
                 navigate("/login");
             } finally {
                 setAuthLoading(false);
             }
         });
         return () => unsubscribe();
-    }, [storedUser, navigate, allowlist]);
+    }, [storedUser, navigate, authChecked]);
 
     const user: Brother | null = storedUser ? JSON.parse(storedUser) : null;
 
