@@ -19,6 +19,7 @@ function Content() {
     const socketRef = useRef<WebSocket | null>(null);
     const navigate = useNavigate();
     const [authorized, setAuthorized] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
 
     const storedUser: string | null = localStorage.getItem('user')
     const allowlist = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
@@ -27,13 +28,9 @@ function Content() {
         .filter((e: string) => e.length > 0);
 
     useEffect(() => {
-        async function checkAdmin() {
-            if (!storedUser) {
-                navigate("/login");
-                return;
-            }
-            const current = auth.currentUser;
-            if (!current) {
+        const unsubscribe = auth.onAuthStateChanged(async (current) => {
+            if (!storedUser || !current) {
+                setAuthLoading(false);
                 navigate("/login");
                 return;
             }
@@ -43,24 +40,25 @@ function Content() {
                 const email = current.email ? current.email.toLowerCase() : "";
                 const isAllowlisted = email && allowlist.includes(email);
                 if (!(isAdmin || isAllowlisted)) {
+                    setAuthLoading(false);
                     navigate("/login");
                     return;
                 }
                 setAuthorized(true);
-            } catch (err) {
+            } catch (_err) {
                 navigate("/login");
+            } finally {
+                setAuthLoading(false);
             }
-        }
-        checkAdmin();
+        });
+        return () => unsubscribe();
     }, [storedUser, navigate, allowlist]);
 
-    if (!storedUser || !authorized) {
-        return null;
-    }
-
-    const user: Brother = JSON.parse(storedUser)
+    const user: Brother | null = storedUser ? JSON.parse(storedUser) : null;
 
     useEffect(() => {
+
+        if (!authorized || !user) return;
 
         const ws = new WebSocket(`${websocketAPI}/admin/${user._id}`);
         socketRef.current = ws;
@@ -97,7 +95,7 @@ function Content() {
         ws.onerror = (e) => console.error("WebSocket error", e);
 
         return () => ws.close();
-    }, [setVotes]);
+    }, [setVotes, authorized, user, websocketAPI]);
 
     const handleSetQuestion = (value: string) => {
         console.log("Set question to:", value);
@@ -107,6 +105,14 @@ function Content() {
         console.log("Set rushee to GTID:", gtid);
     };
 
+
+    if (!storedUser || authLoading) {
+        return null;
+    }
+
+    if (!authorized || !user) {
+        return null;
+    }
 
     return (
         <div className="w-screen h-screen flex overflow-visible">

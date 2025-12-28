@@ -216,6 +216,68 @@ impl FirebaseAuth {
         }
     }
 
+    pub async fn get_admin_status(&self, uid: &str) -> Result<bool, AuthError> {
+        let sa = self
+            .service_account
+            .as_ref()
+            .ok_or(AuthError::ServiceAccountMissing)?;
+
+        let access_token = self
+            .fetch_access_token(sa)
+            .await
+            .map_err(|_| AuthError::Internal)?;
+
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/projects/{}/accounts:lookup",
+            sa.project_id
+                .clone()
+                .unwrap_or_else(|| self.project_id.clone())
+        );
+
+        #[derive(serde::Serialize)]
+        struct LookupBody<'a> {
+            localId: Vec<&'a str>,
+        }
+
+        #[derive(Deserialize)]
+        struct LookupResponse {
+            users: Option<Vec<UserRecord>>,
+        }
+
+        #[derive(Deserialize)]
+        struct UserRecord {
+            #[serde(default)]
+            customAttributes: Option<String>,
+        }
+
+        let resp = self
+            .client
+            .post(url)
+            .bearer_auth(access_token)
+            .json(&LookupBody { localId: vec![uid] })
+            .send()
+            .await
+            .map_err(|_| AuthError::Internal)?;
+
+        if !resp.status().is_success() {
+            return Err(AuthError::Internal);
+        }
+
+        let data: LookupResponse = resp.json().await.map_err(|_| AuthError::Internal)?;
+        let attrs = data
+            .users
+            .and_then(|mut users| users.pop())
+            .and_then(|u| u.customAttributes);
+
+        if let Some(json_str) = attrs {
+            if let Ok(map) = serde_json::from_str::<HashMap<String, Value>>(&json_str) {
+                return Ok(map.get("admin").and_then(|v| v.as_bool()).unwrap_or(false));
+            }
+        }
+
+        Ok(false)
+    }
+
     async fn fetch_access_token(&self, sa: &ServiceAccount) -> Result<String, AuthError> {
         // JWT for OAuth2 client_credentials
         #[derive(serde::Serialize)]

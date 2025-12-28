@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
-import axios from "axios";
+import { adminPost } from "../../js/adminAxios";
 import { toast } from "react-toastify";
 
 export default function QuestionDisplay() {
@@ -20,10 +20,10 @@ export default function QuestionDisplay() {
             await toast.promise(
                 (async () => {
                     // First, set the new question
-                    await axios.post(`${lambdaURL}/admin/voting/post-question`, payload);
+                    await adminPost(`${lambdaURL}/admin/voting/post-question`, payload);
                     
                     // Then, clear all existing votes since they're for the old question
-                    await axios.post(`${lambdaURL}/admin/voting/clear-votes`);
+                    await adminPost(`${lambdaURL}/admin/voting/clear-votes`, {});
                     
                     return { success: true };
                 })(),

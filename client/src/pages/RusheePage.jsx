@@ -80,7 +80,7 @@ export default function RusheePage() {
             // Create a unique filename with timestamp
             const fileName = `profile-pictures/${gtid}_${Date.now()}.jpg`;
             const storageRef = ref(storage, fileName);
-            
+
             // Convert base64 to blob and upload to Firebase Storage
             const blob = base64ToBlob(image);
             await uploadBytes(storageRef, blob);

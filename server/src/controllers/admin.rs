@@ -4,8 +4,10 @@ use axum::{
     response::Json,
 };
 use futures::stream::StreamExt;
-use mongodb::bson::doc;
+use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
+use serde::{Deserialize, Serialize};
+use axum::extract::Extension;
 
 use crate::{
     middlewares::timeHelpers::{self, string_to_bson_datetime},
@@ -18,6 +20,14 @@ use crate::{
 };
 
 use super::db;
+
+const SORTING_STATUSES: [&str; 5] = [
+    "UNSORTED",
+    "IN_CLOUD",
+    "MID_CLOUD",
+    "OUT_CLOUD",
+    "INELIGIBLE",
+];
 
 /**
  * Add a PIS question
@@ -601,11 +611,233 @@ pub async fn export_rushee_numbers() -> Result<Json<Value>, StatusCode> {
     }
 }
 
+#[derive(Serialize)]
+pub struct SortingRushee {
+    pub id: String,
+    pub fullName: String,
+    pub rushNumber: i32,
+    pub sortingStatus: String,
+    pub sortingOrder: i32,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateSortingPayload {
+    pub sortingStatus: String,
+    pub sortingOrder: i32,
+}
+
+#[derive(Deserialize)]
+pub struct BulkReorderPayload {
+    pub column: String,
+    pub orderedRusheeIds: Vec<String>,
+}
+
+#[derive(Deserialize)]
+pub struct NotesPayload {
+    pub sortingNotes: String,
+}
+
+fn validate_status(status: &str) -> bool {
+    SORTING_STATUSES.iter().any(|s| s == &status)
+}
+
+/// Fetch all rushees for sorting board
+pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+
+    let cursor_result = collection.find(doc! {}).await;
+    match cursor_result {
+        Ok(mut cursor) => {
+            let mut list: Vec<SortingRushee> = Vec::new();
+            let mut order_counter: i32 = 1;
+            while let Some(item) = cursor.next().await {
+                if let Ok(doc) = item {
+                    let status = if validate_status(&doc.sorting_status) {
+                        doc.sorting_status.clone()
+                    } else {
+                        "UNSORTED".to_string()
+                    };
+
+                    let order = if doc.sorting_order > 0 {
+                        doc.sorting_order
+                    } else {
+                        order_counter
+                    };
+
+                    let rush_number = doc.rush_number.unwrap_or(order_counter);
+
+                    list.push(SortingRushee {
+                        id: doc.gtid.clone(), // use gtid as id for consistency
+                        fullName: format!("{} {}", doc.first_name, doc.last_name),
+                        rushNumber: rush_number,
+                        sortingStatus: status,
+                        sortingOrder: order,
+                    });
+                    order_counter += 1;
+                }
+            }
+
+            // Stable ordering by status then order
+            list.sort_by(|a, b| {
+                let ai = SORTING_STATUSES.iter().position(|s| *s == a.sortingStatus).unwrap_or(0);
+                let bi = SORTING_STATUSES.iter().position(|s| *s == b.sortingStatus).unwrap_or(0);
+                ai.cmp(&bi).then(a.sortingOrder.cmp(&b.sortingOrder))
+            });
+
+            Ok(Json(json!({
+                "status": "success",
+                "payload": list
+            })))
+        }
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to fetch rushees"
+        }))),
+    }
+}
+
+/// Get notes for rushee
+pub async fn get_rushee_notes(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let filter = doc! { "gtid": id.clone() };
+    match collection.find_one(filter).await {
+        Ok(Some(doc)) => Ok(Json(json!({
+            "status": "success",
+            "sortingNotes": doc.sorting_notes,
+            "notesUpdatedAt": doc.notes_updated_at,
+            "notesUpdatedBy": doc.notes_updated_by,
+            "sortingStatus": doc.sorting_status,
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "error",
+            "message": "Rushee not found"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to fetch notes"
+        }))),
+    }
+}
+
+/// Update rushee notes (autosave)
+pub async fn update_rushee_notes(
+    Path(id): Path<String>,
+    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
+    Json(payload): Json<NotesPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let filter = doc! { "gtid": id.clone() };
+
+    if payload.sortingNotes.len() > 5000 {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "Notes too long"
+        })));
+    }
+
+    let update = doc! {
+        "$set": {
+            "sorting_notes": &payload.sortingNotes,
+            "notes_updated_at": DateTime::now(),
+            "notes_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
+        }
+    };
+
+    match collection.update_one(filter, update).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to update notes"
+        }))),
+    }
+}
+
+/// Update sorting status and order for a single rushee (used on drop)
+pub async fn update_rushee_sorting(
+    Path(id): Path<String>,
+    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
+    Json(payload): Json<UpdateSortingPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    if !validate_status(&payload.sortingStatus) {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "Invalid sorting status"
+        })));
+    }
+
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let filter = doc! { "gtid": id.clone() };
+
+    let update = doc! {
+        "$set": {
+            "sorting_status": &payload.sortingStatus,
+            "sorting_order": payload.sortingOrder,
+            "status_updated_at": DateTime::now(),
+            "status_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
+        }
+    };
+
+    match collection.update_one(filter, update).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to update sorting status"
+        }))),
+    }
+}
+
+/// Bulk reorder a column (and set status)
+pub async fn bulk_reorder(
+    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
+    Json(payload): Json<BulkReorderPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    if !validate_status(&payload.column) {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "Invalid column"
+        })));
+    }
+
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+
+    for (idx, id_str) in payload.orderedRusheeIds.iter().enumerate() {
+        let filter = doc! { "gtid": id_str };
+        let update = doc! {
+            "$set": {
+                "sorting_status": &payload.column,
+                "sorting_order": (idx as i32) + 1,
+                "status_updated_at": DateTime::now(),
+                "status_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
+            }
+        };
+        if let Err(_) = collection.update_one(filter, update).await {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to reorder"
+            })));
+        }
+    }
+
+    Ok(Json(json!({
+        "status": "success"
+    })))
+}
+
+
 #[derive(serde::Deserialize)]
 pub struct AdminTogglePayload {
     pub uid: String,
     #[serde(default)]
     pub make_admin: Option<bool>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct AdminStatusPayload {
+    pub uid: String,
 }
 
 /// Promote/demote a brother to admin (protected by admin middleware)
@@ -627,6 +859,27 @@ pub async fn make_admin(
         Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "Failed to update admin claim"
+        }))),
+    }
+}
+
+/// Check admin status for a given uid
+pub async fn get_admin_status(
+    State(auth): State<std::sync::Arc<FirebaseAuth>>,
+    Json(payload): Json<AdminStatusPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    match auth.get_admin_status(&payload.uid).await {
+        Ok(is_admin) => Ok(Json(json!({
+            "status": "success",
+            "admin": is_admin
+        }))),
+        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
+            "status": "error",
+            "message": "Service account missing on server; cannot read admin status"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to read admin status"
         }))),
     }
 }

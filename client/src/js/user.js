@@ -81,14 +81,14 @@ export async function login(credentials) {
         }
         
         toast.error(errorMessage, {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "dark",
-        });
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "dark",
+                });
         
         return false;
     }
@@ -103,12 +103,12 @@ export async function createAccount(credentials) {
     // Check if email is in the allowed list
     if (!isEmailAllowed(credentials.email)) {
         toast.error('This email is not authorized to create an account. Only GT AKPsi brothers can register.', {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
             theme: "dark",
         });
         return false;
@@ -157,8 +157,8 @@ export async function createAccount(credentials) {
         toast.success('Account created successfully!', {
             position: "top-center",
             autoClose: 3000,
-            theme: "dark",
-        });
+                    theme: "dark",
+                });
         
         return true;
         
@@ -183,12 +183,12 @@ export async function createAccount(credentials) {
         }
         
         toast.error(errorMessage, {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
             theme: "dark",
         });
         
@@ -236,8 +236,8 @@ export async function resetPassword(email) {
         toast.success('Password reset email sent! Check your inbox.', {
             position: "top-center",
             autoClose: 5000,
-            theme: "dark",
-        });
+                    theme: "dark",
+                });
         
         return true;
         
@@ -256,15 +256,15 @@ export async function resetPassword(email) {
         }
         
         toast.error(errorMessage, {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "dark",
-        });
-        
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "dark",
+            });
+
         return false;
     }
 }

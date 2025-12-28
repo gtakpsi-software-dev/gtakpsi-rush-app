@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import Loader from "../../components/Loader";
-import axios from "axios";
+import { adminGet, adminPost } from "../../js/adminAxios";
 
 export default function BrotherList() {
   const { brothers, votes } = useAdminVotingContext();
@@ -14,7 +14,7 @@ export default function BrotherList() {
   useEffect(() => {
     const fetchEligibility = async () => {
       try {
-        const response = await axios.get(`${lambdaURL}/admin/voting/get-eligibility`);
+        const response = await adminGet(`${lambdaURL}/admin/voting/get-eligibility`);
         if (response.data.status === "success") {
           const ineligibleIds: string[] = response.data.ineligible_ids;
           const map: Record<string, boolean> = {};
@@ -43,7 +43,7 @@ export default function BrotherList() {
       const isCurrentlyEligible = eligibilityMap?.[gtid];
 
       const route = isCurrentlyEligible ? "make-ineligible" : "make-eligible";
-      await axios.post(`${lambdaURL}/admin/voting/${route}`, { gtid });
+      await adminPost(`${lambdaURL}/admin/voting/${route}`, { gtid });
 
       setEligibilityMap((prev) => {
         if (!prev) return prev;

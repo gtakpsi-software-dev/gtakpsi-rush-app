@@ -91,6 +91,22 @@ pub struct RusheeModel {
     pub pis_timeslot: DateTime,
     pub pis_link: String,
     pub cloud: String,
+    #[serde(default = "default_sorting_status")]
+    pub sorting_status: String,
+    #[serde(default)]
+    pub sorting_notes: String,
+    #[serde(default = "default_sorting_order")]
+    pub sorting_order: i32,
+    #[serde(default)]
+    pub notes_updated_at: Option<DateTime>,
+    #[serde(default)]
+    pub notes_updated_by: Option<String>,
+    #[serde(default)]
+    pub status_updated_at: Option<DateTime>,
+    #[serde(default)]
+    pub status_updated_by: Option<String>,
+    #[serde(default)]
+    pub rush_number: Option<i32>,
     pub pis: Vec<PisResponse>,
     pub comments: Vec<Comment>,
     pub attendance: Vec<RushNight>,
@@ -98,6 +114,14 @@ pub struct RusheeModel {
     pub access_code: String,
     pub pis_signup: PISSignup,
     pub flex_window: bool,
+}
+
+fn default_sorting_status() -> String {
+    "UNSORTED".to_string()
+}
+
+fn default_sorting_order() -> i32 {
+    0
 }
 
 #[derive(Debug, Serialize, Deserialize)]

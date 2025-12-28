@@ -124,6 +124,14 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
             flex_window: payload.flex_window,
         },
         flex_window: payload.flex_window,
+        sorting_status: "UNSORTED".to_string(),
+        sorting_notes: String::new(),
+        sorting_order: 0,
+        notes_updated_at: None,
+        notes_updated_by: None,
+        status_updated_at: None,
+        status_updated_by: None,
+        rush_number: None,
     };
 
     let result = collection.insert_one(new_rushee).await;

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import { verifyUser } from "../../js/verifications";
 import axios from "axios";
+import { adminPost } from "../../js/adminAxios";
 import Loader from "../../components/Loader";
 import { Rushee } from "./types";
 import { toast } from "react-toastify";
@@ -60,7 +61,7 @@ export default function RusheePreviewCard() {
         const payload = { gtid: selected.gtid };
 
         await toast.promise(
-            axios.post(`${api}/admin/voting/change-rushee`, payload),
+            adminPost(`${api}/admin/voting/change-rushee`, payload),
             {
                 pending: "Updating rushee...",
                 success: "Rushee updated successfully!",

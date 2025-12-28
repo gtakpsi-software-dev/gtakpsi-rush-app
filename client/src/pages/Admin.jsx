@@ -32,6 +32,7 @@ export default function Admin() {
     const [filteredBrothers, setFilteredBrothers] = useState([]);
     const [selectedBrother, setSelectedBrother] = useState(null);
     const [isPromoting, setIsPromoting] = useState(false);
+    const [brotherAdminStatus, setBrotherAdminStatus] = useState(null); // true/false/null
 
     // Reschedule PIS state
     const [rusheeSearch, setRusheeSearch] = useState("");
@@ -149,13 +150,13 @@ export default function Admin() {
 
     const handleRequest = async (endpoint, payload, method = "post", successMessage = "Success!") => {
         try {
-            const updatedPayload = { ...payload };
-
-            if (updatedPayload.time) {
-                updatedPayload.time = new Date(updatedPayload.time).toISOString();
-            }
-
-            const response = await axios[method](`${apiBase}/${endpoint}`, updatedPayload);
+          const updatedPayload = { ...payload };
+      
+          if (updatedPayload.time) {
+            updatedPayload.time = new Date(updatedPayload.time).toISOString();
+          }
+      
+          const response = await axios[method](`${apiBase}/${endpoint}`, updatedPayload);
             
             if (response.data.status === "success") {
                 toast.success(successMessage, {
@@ -238,9 +239,28 @@ export default function Admin() {
         const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
         setBrotherSearch(fullName || brother.email || "");
         setFilteredBrothers([]);
+        fetchBrotherAdminStatus(brother);
     };
 
-    const handleMakeAdmin = async () => {
+    const fetchBrotherAdminStatus = async (brother) => {
+        const uid = brother?.uid || brother?.id || brother?._id;
+        if (!uid) {
+            setBrotherAdminStatus(null);
+            return;
+        }
+        try {
+            const response = await axios.post(`${apiBase}/get-admin-status`, { uid });
+            if (response.data.status === "success") {
+                setBrotherAdminStatus(response.data.admin === true);
+            } else {
+                setBrotherAdminStatus(null);
+            }
+        } catch (_e) {
+            setBrotherAdminStatus(null);
+        }
+    };
+
+    const handleSetAdmin = async (makeAdmin) => {
         if (!selectedBrother) {
             toast.error("Select a brother first");
             return;
@@ -252,22 +272,28 @@ export default function Admin() {
         }
         setIsPromoting(true);
         try {
-            const response = await axios.post(`${apiBase}/make-admin`, { uid });
+            const response = await axios.post(`${apiBase}/make-admin`, { uid, make_admin: makeAdmin });
             if (response.data.status === "success") {
-                toast.success(`Granted admin to ${selectedBrother.email || "brother"}`, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
+                setBrotherAdminStatus(makeAdmin);
+                toast.success(
+                    makeAdmin
+                        ? `Granted admin to ${selectedBrother.email || "brother"}`
+                        : `Removed admin from ${selectedBrother.email || "brother"}`,
+                    {
+                        position: "top-center",
+                        autoClose: 3000,
+                        theme: "dark",
+                    }
+                );
             } else {
-                toast.error(response.data.message || "Failed to grant admin", {
+                toast.error(response.data.message || "Failed to update admin", {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to grant admin", {
+            toast.error(error.response?.data?.message || "Failed to update admin", {
                 position: "top-center",
                 autoClose: 3000,
                 theme: "dark",
@@ -363,42 +389,42 @@ export default function Admin() {
         } catch (e) {
             return "Not scheduled";
         }
-    };
+      };
 
     const exportPISSchedule = async () => {
         try {
             const api = import.meta.env.VITE_API_PREFIX;
             const response = await axios.get(`${api}/rushee/get-timeslots`);
-
+            
             if (response.data.status === "success") {
                 const timeslots = response.data.payload;
-
+                
                 const csvHeaders = ["Date", "Time", "Rushee Name", "Flexible"];
-
+                
                 const processedSlots = timeslots.map(slot => {
                     const jsDate = new Date(parseInt(slot.time.$date.$numberLong));
                     const date = jsDate.toLocaleDateString();
                     const time = jsDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const rusheeName = `${slot.rushee_first_name} ${slot.rushee_last_name}`;
                     const flexWindow = slot.flex_window ? "Yes" : "No";
-
+                    
                     const csvRow = [
                         `"${date}"`,
                         `"${time}"`,
                         `"${rusheeName}"`,
                         `"${flexWindow}"`
                     ].join(",");
-
+                    
                     return { originalDate: jsDate, csvRow };
                 });
-
+                
                 processedSlots.sort((a, b) => a.originalDate - b.originalDate);
-
+                
                 const csvRows = [csvHeaders.join(","), ...processedSlots.map(slot => slot.csvRow)];
                 const csvContent = csvRows.join("\n");
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
-
+                
                 if (link.download !== undefined) {
                     const url = URL.createObjectURL(blob);
                     link.setAttribute("href", url);
@@ -408,7 +434,7 @@ export default function Admin() {
                     link.click();
                     document.body.removeChild(link);
                 }
-
+                
                 toast.success(`Exported ${timeslots.length} PIS appointments`, {
                     position: "top-center",
                     autoClose: 3000,
@@ -516,8 +542,8 @@ export default function Admin() {
                                     Search a brother and grant admin access
                                 </p>
                                 <div className="relative mb-3">
-                                    <input
-                                        type="text"
+                <input
+                    type="text"
                                         placeholder="Search brother by name or email..."
                                         className="input-apple text-apple-body"
                                         value={brotherSearch}
@@ -552,24 +578,43 @@ export default function Admin() {
                                 </div>
 
                                 {selectedBrother && (
-                                    <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200 mb-3">
+                                    <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200 mb-3 space-y-1">
                                         <div className="text-apple-body font-medium text-black">
                                             {`${selectedBrother.firstname || selectedBrother.firstName || ""} ${selectedBrother.lastname || selectedBrother.lastName || ""}`.trim() || selectedBrother.email}
                                         </div>
-                                        <div className="text-apple-caption2 text-apple-gray-600 mt-1">
+                                        <div className="text-apple-caption2 text-apple-gray-600">
                                             {selectedBrother.email}
+                                        </div>
+                                        <div className="text-apple-caption2">
+                                            Status:{" "}
+                                            <span className="font-medium">
+                                                {brotherAdminStatus === null
+                                                    ? "Unknown"
+                                                    : brotherAdminStatus
+                                                    ? "Admin"
+                                                    : "Not admin"}
+                                            </span>
                                         </div>
                                     </div>
                                 )}
 
-                                <button
-                                    onClick={handleMakeAdmin}
-                                    disabled={isPromoting}
-                                    className="w-full bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
-                                >
-                                    {isPromoting ? "Granting..." : "Make Admin"}
-                                </button>
-                            </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleSetAdmin(true)}
+                                        disabled={isPromoting || !selectedBrother}
+                                        className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
+                                    >
+                                        {isPromoting ? "Saving..." : "Make Admin"}
+                                    </button>
+                <button
+                                        onClick={() => handleSetAdmin(false)}
+                                        disabled={isPromoting || !selectedBrother}
+                                        className="flex-1 bg-white text-black py-3 px-4 rounded-apple-xl text-apple-body font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
+                                    >
+                                        {isPromoting ? "Saving..." : "Remove Admin"}
+                </button>
+                                </div>
+            </div>
                         </div>
                     </div>
 
@@ -585,20 +630,20 @@ export default function Admin() {
                             <div className="card-apple p-6">
                                 <h3 className="text-apple-headline font-normal text-black mb-4">PIS Questions</h3>
                                 <div className="space-y-3 mb-4">
-                                    <input
-                                        type="text"
+                <input
+                    type="text"
                                         placeholder="Question text"
                                         className="input-apple text-apple-body"
-                                        value={question}
-                                        onChange={(e) => setQuestion(e.target.value)}
-                                    />
-                                    <input
-                                        type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                />
+                <input
+                    type="text"
                                         placeholder="Question type (e.g., FR, MC)"
                                         className="input-apple text-apple-body"
-                                        value={questionType}
-                                        onChange={(e) => setQuestionType(e.target.value)}
-                                    />
+                    value={questionType}
+                    onChange={(e) => setQuestionType(e.target.value)}
+                />
                                 </div>
                                 <div className="flex gap-3">
                                     <button
@@ -607,81 +652,81 @@ export default function Admin() {
                                     >
                                         Add Question
                                     </button>
-                                    <button
+                <button
                                         onClick={() => handleRequest("delete_pis_question", { question, question_type: questionType }, "post", "Question deleted!")}
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200"
-                                    >
-                                        Delete Question
-                                    </button>
-                                </div>
-                            </div>
+                >
+                    Delete Question
+                </button>
+            </div>
+            </div>
 
                             {/* PIS Timeslots */}
                             <div className="card-apple p-6">
                                 <h3 className="text-apple-headline font-normal text-black mb-4">PIS Timeslots</h3>
                                 <div className="space-y-3 mb-4">
-                                    <input
-                                        type="datetime-local"
+                <input
+                    type="datetime-local"
                                         className="input-apple text-apple-body"
-                                        value={timeslotTime}
-                                        onChange={(e) => setTimeslotTime(e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
+                    value={timeslotTime}
+                    onChange={(e) => setTimeslotTime(e.target.value)}
+                />
+                <input
+                    type="number"
                                         placeholder="Number of slots"
                                         className="input-apple text-apple-body"
-                                        value={timeslotChange}
-                                        onChange={(e) => setTimeslotChange(Number(e.target.value))}
-                                    />
+                    value={timeslotChange}
+                    onChange={(e) => setTimeslotChange(Number(e.target.value))}
+                />
                                 </div>
                                 <div className="flex gap-3">
-                                    <button
+                <button
                                         onClick={() => handleRequest("add_pis_timeslot", { time: timeslotTime, change: timeslotChange }, "post", "Timeslot added!")}
                                         className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
-                                    >
-                                        Add Timeslot
-                                    </button>
-                                    <button
+                >
+                    Add Timeslot
+                </button>
+                <button
                                         onClick={() => handleRequest("delete_pis_timeslot", { time: timeslotTime, change: timeslotChange }, "post", "Timeslot deleted!")}
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200"
-                                    >
-                                        Delete Timeslot
-                                    </button>
-                                </div>
-                            </div>
+                >
+                    Delete Timeslot
+                </button>
+            </div>
+            </div>
 
                             {/* Rush Nights */}
                             <div className="card-apple p-6">
                                 <h3 className="text-apple-headline font-normal text-black mb-4">Rush Nights</h3>
                                 <div className="space-y-3 mb-4">
-                                    <input
-                                        type="text"
+                <input
+                    type="text"
                                         placeholder="Rush night name"
                                         className="input-apple text-apple-body"
-                                        value={rushNightName}
-                                        onChange={(e) => setRushNightName(e.target.value)}
-                                    />
-                                    <input
-                                        type="datetime-local"
+                    value={rushNightName}
+                    onChange={(e) => setRushNightName(e.target.value)}
+                />
+                <input
+                    type="datetime-local"
                                         className="input-apple text-apple-body"
-                                        value={rushNightTime}
-                                        onChange={(e) => setRushNightTime(e.target.value)}
-                                    />
+                    value={rushNightTime}
+                    onChange={(e) => setRushNightTime(e.target.value)}
+                />
                                 </div>
                                 <div className="flex gap-3">
-                                    <button
+                <button
                                         onClick={() => handleRequest("add-rush-night", { name: rushNightName, time: rushNightTime }, "post", "Rush night added!")}
                                         className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
-                                    >
-                                        Add Rush Night
-                                    </button>
-                                    <button
+                >
+                    Add Rush Night
+                </button>
+                <button
                                         onClick={() => handleRequest("delete_rush_night", { time: rushNightTime }, "post", "Rush night deleted!")}
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200"
-                                    >
-                                        Delete Rush Night
-                                    </button>
-                                </div>
+                >
+                    Delete Rush Night
+                </button>
+            </div>
                             </div>
 
                             {/* Reschedule PIS */}
@@ -757,7 +802,7 @@ export default function Admin() {
                                     )}
 
                                     {/* New Timeslot Selection */}
-                                    <div>
+            <div>
                                         <label className="text-apple-footnote text-apple-gray-600 font-light mb-2 block">
                                             Select New Timeslot
                                         </label>

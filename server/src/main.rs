@@ -1,7 +1,7 @@
 use axum::http::{Method, StatusCode};
 use axum::{
     middleware,
-    routing::{get, post},
+    routing::{get, post, put},
     Router,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -90,20 +90,29 @@ async fn main() {
         .route("/rushee/get-available-timeslots", get(controllers::rushee::get_available_timeslots))
         .route("/brother/comments/:brother_name", get(controllers::rushee::get_brother_comments).options(|| async { StatusCode::OK }))
 
-        .route("/rushee/vote", post(controllers::voting::handle_rushee_vote).options(|| async { StatusCode::OK }));
+        .route("/rushee/vote", post(controllers::voting::handle_rushee_vote).options(|| async { StatusCode::OK }))
+
+        // Public read-only access for rushee registration (timeslots selection)
+        .route("/admin/get_pis_timeslots", get(controllers::admin::get_pis_timeslots).options(|| async { StatusCode::OK }))
+        .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }));
 
     let admin_routes = Router::new()
         .route("/admin/add_pis_question", post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_question", post(controllers::admin::delete_pis_question).options(|| async { StatusCode::OK }))
-        .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }))
+        // get_pis_questions is in public_routes for rushee registration
         .route("/admin/add_pis_timeslot", post(controllers::admin::add_pis_timeslot).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_timeslot", post(controllers::admin::delete_pis_timeslot).options(|| async { StatusCode::OK }))
-        .route("/admin/get_pis_timeslots", get(controllers::admin::get_pis_timeslots).options(|| async { StatusCode::OK }))
+        // get_pis_timeslots is in public_routes for rushee registration
         .route("/admin/add-rush-night", post(controllers::admin::add_rush_night).options(|| async { StatusCode::OK }))
         .route("/admin/delete_rush_night", post(controllers::admin::delete_rush_night).options(|| async { StatusCode::OK }))
         .route("/admin/pis-signup/:id", post(controllers::admin::brother_pis_sign_up).options(|| async { StatusCode::OK }))
         .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
         .route("/admin/export-rushee-numbers", get(controllers::admin::export_rushee_numbers).options(|| async { StatusCode::OK }))
+        .route("/admin/rushees/sorting", get(controllers::admin::get_sorting_rushees).options(|| async { StatusCode::OK }))
+        .route("/admin/rushees/:id/notes", get(controllers::admin::get_rushee_notes).put(controllers::admin::update_rushee_notes).options(|| async { StatusCode::OK }))
+        .route("/admin/rushees/:id/sorting", put(controllers::admin::update_rushee_sorting).options(|| async { StatusCode::OK }))
+        .route("/admin/rushees/reorder", put(controllers::admin::bulk_reorder).options(|| async { StatusCode::OK }))
+        .route("/admin/get-admin-status", post(controllers::admin::get_admin_status).options(|| async { StatusCode::OK }))
         .route("/admin/make-admin", post(controllers::admin::make_admin).options(|| async { StatusCode::OK }))
         .route("/admin/voting/change-rushee", post(controllers::voting::change_rushee).options(|| async { StatusCode::OK }))
         .route("/admin/voting/clear-votes", post(controllers::voting::clear_votes).options(|| async { StatusCode::OK }))

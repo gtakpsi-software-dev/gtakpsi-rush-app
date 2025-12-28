@@ -1,7 +1,7 @@
 import React from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import { FaSync } from "react-icons/fa";
-import axios from "axios";
+import { adminPost } from "../../js/adminAxios";
 import { toast } from "react-toastify";
 
 interface VoteSummaryProps {
@@ -92,7 +92,7 @@ export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) 
   const handleClearVotes = async () => {
 
             await toast.promise(
-                axios.post(`${api}/admin/voting/clear-votes`),
+                adminPost(`${api}/admin/voting/clear-votes`, {}),
                 {
                     pending: "Clearing votes...",
                     success: "Votes cleared successfully!",
