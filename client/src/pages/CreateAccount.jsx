@@ -143,7 +143,7 @@ export default function CreateAccount() {
                                             name="email" 
                                             id="email" 
                                             className="input-apple" 
-                                            placeholder="name@gatech.edu"
+                                            placeholder="name@example.com"
                                             onKeyPress={handleKeyPress}
                                             required
                                         />

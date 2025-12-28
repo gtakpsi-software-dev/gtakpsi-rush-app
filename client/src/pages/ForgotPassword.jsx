@@ -60,14 +60,14 @@ export default function ForgotPassword() {
                                         <p className="text-apple-footnote text-apple-gray-500">
                                             Didn't receive the email? Check your spam folder or try again.
                                         </p>
-                                        <div className="pt-4 space-y-3">
+                                        <div className="pt-6 space-y-4">
                                             <button 
                                                 onClick={() => setEmailSent(false)}
                                                 className="btn-apple-secondary w-full"
                                             >
                                                 Try Again
                                             </button>
-                                            <Link to='/login'>
+                                            <Link to='/login' className="block">
                                                 <button className="btn-apple w-full">
                                                     Back to Sign In
                                                 </button>
@@ -94,7 +94,7 @@ export default function ForgotPassword() {
                                                     name="email" 
                                                     id="email" 
                                                     className="input-apple" 
-                                                    placeholder="name@gatech.edu"
+                                                    placeholder="name@example.com"
                                                     onKeyPress={handleKeyPress}
                                                     required
                                                 />
