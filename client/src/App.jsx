@@ -34,6 +34,7 @@ import AdminVotingDashboard from './pages/AdminVotingDashboardComponents';
 import BrotherVotingPage from './pages/BrotherVotingPage';
 import AdminSorting from './pages/AdminSorting';
 import BidComSorting from './pages/BidComSorting';
+import BrotherSorting from './pages/BrotherSorting';
 
 function App() {
 
@@ -68,6 +69,7 @@ function App() {
           <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
           <Route path='/admin/sorting' element={<AdminSorting/>} />
           <Route path='/bidcom/sorting' element={<BidComSorting/>} />
+          <Route path='/sorting' element={<BrotherSorting/>} />
           <Route path='/voting' element={<BrotherVotingPage/>} />
 
         </Routes>

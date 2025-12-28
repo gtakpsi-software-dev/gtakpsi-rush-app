@@ -135,11 +135,10 @@ export default function Navbar(props) {
                             </li>
                             <li>
                                 <a
-                                    href="/attendance"
-                                    target="_blank"
+                                    href="/voting"
                                     className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
                                 >
-                                    Attendance
+                                    Voting
                                 </a>
                             </li>
 
@@ -166,10 +165,19 @@ export default function Navbar(props) {
                                         </li>
                                         <li>
                                             <a
-                                                href="/voting"
+                                                href="/attendance"
+                                                target="_blank"
                                                 className="block px-4 py-2 text-black hover:bg-apple-gray-100"
                                             >
-                                                Voting
+                                                Attendance
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                href="/sorting"
+                                                className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                            >
+                                                Sorting
                                             </a>
                                         </li>
                                         {/* Show BidCom Sorting for bidcom users (non-admins have it here) */}

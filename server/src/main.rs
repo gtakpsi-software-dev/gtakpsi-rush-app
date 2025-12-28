@@ -94,7 +94,10 @@ async fn main() {
 
         // Public read-only access for rushee registration (timeslots selection)
         .route("/admin/get_pis_timeslots", get(controllers::admin::get_pis_timeslots).options(|| async { StatusCode::OK }))
-        .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }));
+        .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }))
+        
+        // Public read-only sorting view for all brothers
+        .route("/brother/sorting", get(controllers::admin::get_sorting_rushees_public).options(|| async { StatusCode::OK }));
 
     // Routes accessible by both admin and bid committee
     let bidcom_routes = Router::new()

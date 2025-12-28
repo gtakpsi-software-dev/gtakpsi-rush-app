@@ -700,6 +700,61 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
     }
 }
 
+/// Public endpoint: Fetch rushees for sorting board (view-only, shows names)
+/// Accessible to all authenticated brothers
+pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
+    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+
+    let cursor_result = collection.find(doc! {}).await;
+    match cursor_result {
+        Ok(mut cursor) => {
+            let mut list: Vec<SortingRushee> = Vec::new();
+            let mut order_counter: i32 = 1;
+            while let Some(item) = cursor.next().await {
+                if let Ok(doc) = item {
+                    let status = if validate_status(&doc.sorting_status) {
+                        doc.sorting_status.clone()
+                    } else {
+                        "UNSORTED".to_string()
+                    };
+
+                    let order = if doc.sorting_order > 0 {
+                        doc.sorting_order
+                    } else {
+                        order_counter
+                    };
+
+                    list.push(SortingRushee {
+                        id: doc.gtid.clone(),
+                        fullName: format!("{} {}", doc.first_name, doc.last_name),
+                        rushNumber: 0, // Don't expose rushee numbers to regular brothers
+                        sortingStatus: status,
+                        sortingOrder: order,
+                        sortingTags: doc.sorting_tags.clone(),
+                    });
+                    order_counter += 1;
+                }
+            }
+
+            // Stable ordering by status then order
+            list.sort_by(|a, b| {
+                let ai = SORTING_STATUSES.iter().position(|s| *s == a.sortingStatus).unwrap_or(0);
+                let bi = SORTING_STATUSES.iter().position(|s| *s == b.sortingStatus).unwrap_or(0);
+                ai.cmp(&bi).then(a.sortingOrder.cmp(&b.sortingOrder))
+            });
+
+            Ok(Json(json!({
+                "status": "success",
+                "payload": list
+            })))
+        }
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to fetch rushees"
+        }))),
+    }
+}
+
 /// Get notes for rushee
 pub async fn get_rushee_notes(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
