@@ -79,10 +79,10 @@ function App() {
             </a>
             {" "}or{" "} 
             <a
-              href="mailto:kajmera6@gatech.edu"
+              href="mailto:spanchamia6@gatech.edu"
               className="text-black font-normal hover:text-apple-gray-600 transition-colors duration-200 no-underline hover:underline"
             >
-              kajmera6@gatech.edu
+              spanchamia6@gatech.edu
             </a>
           </p>
         </div>

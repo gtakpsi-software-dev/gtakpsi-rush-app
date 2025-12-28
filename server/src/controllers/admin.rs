@@ -1,9 +1,7 @@
 use axum::{
-    extract::Path,
+    extract::{Path, State},
     http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::{get, post},
-    Router,
+    response::Json,
 };
 use futures::stream::StreamExt;
 use mongodb::bson::doc;
@@ -16,9 +14,10 @@ use crate::{
         pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming},
         Rushee::StrippedRushee,
     },
+    middlewares::auth::FirebaseAuth,
 };
 
-use super::{db, rushee};
+use super::db;
 
 /**
  * Add a PIS question
@@ -598,6 +597,36 @@ pub async fn export_rushee_numbers() -> Result<Json<Value>, StatusCode> {
         Err(_err) => Ok(Json(json!({
             "status": "error",
             "message": "Database error"
+        }))),
+    }
+}
+
+#[derive(serde::Deserialize)]
+pub struct AdminTogglePayload {
+    pub uid: String,
+    #[serde(default)]
+    pub make_admin: Option<bool>,
+}
+
+/// Promote/demote a brother to admin (protected by admin middleware)
+pub async fn make_admin(
+    State(auth): State<std::sync::Arc<FirebaseAuth>>,
+    Json(payload): Json<AdminTogglePayload>,
+) -> Result<Json<Value>, StatusCode> {
+    let make_admin = payload.make_admin.unwrap_or(true);
+
+    match auth.set_admin_claim(&payload.uid, make_admin).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": if make_admin { "Admin access granted" } else { "Admin access removed" }
+        }))),
+        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
+            "status": "error",
+            "message": "Service account missing on server; cannot update admin claim"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to update admin claim"
         }))),
     }
 }

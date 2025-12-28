@@ -7,10 +7,16 @@ import "react-toastify/dist/ReactToastify.css";
 import { verifyUser } from "../js/verifications";
 import Navbar from "../components/Navbar";
 import Loader from "../components/Loader";
+import { auth, db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function Admin() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
     const rusheeApiBase = import.meta.env.VITE_API_PREFIX + "/rushee";
+    const allowlist = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
+        .split(",")
+        .map((e) => e.trim().toLowerCase())
+        .filter((e) => e.length > 0);
 
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
@@ -19,6 +25,13 @@ export default function Admin() {
     const [rushNightName, setRushNightName] = useState("");
     const [rushNightTime, setRushNightTime] = useState("");
     const [loading, setLoading] = useState(true);
+
+    // Admin promotion state
+    const [brothers, setBrothers] = useState([]);
+    const [brotherSearch, setBrotherSearch] = useState("");
+    const [filteredBrothers, setFilteredBrothers] = useState([]);
+    const [selectedBrother, setSelectedBrother] = useState(null);
+    const [isPromoting, setIsPromoting] = useState(false);
 
     // Reschedule PIS state
     const [rusheeSearch, setRusheeSearch] = useState("");
@@ -41,9 +54,39 @@ export default function Admin() {
                         navigate(`/error/${errorTitle}/${errorDescription}`);
                     }
                 })
-                .catch((error) => {
+                .catch(() => {
                     navigate(`/error/${errorTitle}/${errorDescription}`);
                 });
+
+            const current = auth.currentUser;
+            if (!current) {
+                navigate(`/error/${errorTitle}/${errorDescription}`);
+                return;
+            }
+
+            const tokenResult = await current.getIdTokenResult(true);
+            const isAdmin = tokenResult.claims?.admin === true;
+            const isAllowlisted = current.email && allowlist.includes(current.email.toLowerCase());
+            if (!(isAdmin || isAllowlisted)) {
+                toast.error("Not authorized");
+                navigate(`/error/${errorTitle}/${errorDescription}`);
+                return;
+            }
+
+            // attach auth header for all admin calls
+            axios.defaults.headers.common["Authorization"] = `Bearer ${tokenResult.token}`;
+
+            // Fetch brothers for admin promotion
+            try {
+                const snapshot = await getDocs(collection(db, "brothers"));
+                const list = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setBrothers(list);
+            } catch (error) {
+                console.error("Failed to fetch brothers:", error);
+            }
 
             // Fetch rushees for reschedule feature
             try {
@@ -68,10 +111,10 @@ export default function Admin() {
             setLoading(false);
         }
 
-        if (loading == true) {
+        if (loading === true) {
             fetchInitial();
         }
-    });
+    }, [loading, navigate, rusheeApiBase]);
 
     // Filter rushees based on search
     useEffect(() => {
@@ -86,6 +129,23 @@ export default function Admin() {
         );
         setFilteredRushees(filtered.slice(0, 10)); // Limit to 10 results
     }, [rusheeSearch, rushees]);
+
+    // Filter brothers for admin promotion
+    useEffect(() => {
+        if (brotherSearch.trim() === "") {
+            setFilteredBrothers([]);
+            return;
+        }
+        const search = brotherSearch.toLowerCase();
+        const filtered = brothers.filter((b) => {
+            const fullName = `${b.firstname || b.firstName || ""} ${b.lastname || b.lastName || ""}`.trim();
+            return (
+                (b.email || "").toLowerCase().includes(search) ||
+                fullName.toLowerCase().includes(search)
+            );
+        });
+        setFilteredBrothers(filtered.slice(0, 10));
+    }, [brotherSearch, brothers]);
 
     const handleRequest = async (endpoint, payload, method = "post", successMessage = "Success!") => {
         try {
@@ -171,6 +231,50 @@ export default function Admin() {
         setSelectedRushee(rushee);
         setRusheeSearch(rushee.name);
         setFilteredRushees([]);
+    };
+
+    const handleSelectBrother = (brother) => {
+        setSelectedBrother(brother);
+        const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
+        setBrotherSearch(fullName || brother.email || "");
+        setFilteredBrothers([]);
+    };
+
+    const handleMakeAdmin = async () => {
+        if (!selectedBrother) {
+            toast.error("Select a brother first");
+            return;
+        }
+        const uid = selectedBrother.uid || selectedBrother.id || selectedBrother._id;
+        if (!uid) {
+            toast.error("No UID found for this brother");
+            return;
+        }
+        setIsPromoting(true);
+        try {
+            const response = await axios.post(`${apiBase}/make-admin`, { uid });
+            if (response.data.status === "success") {
+                toast.success(`Granted admin to ${selectedBrother.email || "brother"}`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to grant admin", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to grant admin", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setIsPromoting(false);
+        }
     };
 
     const handleReschedulePIS = async () => {
@@ -402,6 +506,68 @@ export default function Admin() {
                                     className="w-full bg-apple-gray-100 text-black py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-200 transition-all duration-200 border border-apple-gray-200"
                                 >
                                     Fetch Timeslots
+                                </button>
+                            </div>
+
+                            {/* Admin Access */}
+                            <div className="card-apple p-5">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Admin Access</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    Search a brother and grant admin access
+                                </p>
+                                <div className="relative mb-3">
+                                    <input
+                                        type="text"
+                                        placeholder="Search brother by name or email..."
+                                        className="input-apple text-apple-body"
+                                        value={brotherSearch}
+                                        onChange={(e) => {
+                                            setBrotherSearch(e.target.value);
+                                            if (selectedBrother && e.target.value !== (selectedBrother.email || "")) {
+                                                setSelectedBrother(null);
+                                            }
+                                        }}
+                                    />
+                                    {filteredBrothers.length > 0 && !selectedBrother && (
+                                        <div className="absolute z-10 w-full mt-1 bg-white border border-apple-gray-200 rounded-apple-lg shadow-lg max-h-60 overflow-y-auto">
+                                            {filteredBrothers.map((brother) => {
+                                                const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
+                                                return (
+                                                    <div
+                                                        key={brother.uid || brother.id || brother._id}
+                                                        className="px-4 py-3 hover:bg-apple-gray-100 cursor-pointer border-b border-apple-gray-100 last:border-b-0"
+                                                        onClick={() => handleSelectBrother(brother)}
+                                                    >
+                                                        <div className="text-apple-body font-normal text-black">
+                                                            {fullName || brother.email}
+                                                        </div>
+                                                        <div className="text-apple-caption2 text-apple-gray-600">
+                                                            {brother.email}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {selectedBrother && (
+                                    <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200 mb-3">
+                                        <div className="text-apple-body font-medium text-black">
+                                            {`${selectedBrother.firstname || selectedBrother.firstName || ""} ${selectedBrother.lastname || selectedBrother.lastName || ""}`.trim() || selectedBrother.email}
+                                        </div>
+                                        <div className="text-apple-caption2 text-apple-gray-600 mt-1">
+                                            {selectedBrother.email}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={handleMakeAdmin}
+                                    disabled={isPromoting}
+                                    className="w-full bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
+                                >
+                                    {isPromoting ? "Granting..." : "Make Admin"}
                                 </button>
                             </div>
                         </div>

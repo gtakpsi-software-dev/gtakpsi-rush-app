@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { AdminVotingContextProvider, useAdminVotingContext } from "./AdminVotingContext";
@@ -9,6 +9,7 @@ import VoteSummary from "./VoteSummary";
 import BrotherList from "./BrotherList";
 import { Brother } from "./types";
 import NotFound from "../404";
+import { auth } from "../../firebase";
 
 function Content() {
 
@@ -17,17 +18,43 @@ function Content() {
     const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
     const socketRef = useRef<WebSocket | null>(null);
     const navigate = useNavigate();
+    const [authorized, setAuthorized] = useState(false);
 
     const storedUser: string | null = localStorage.getItem('user')
+    const allowlist = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
+        .split(",")
+        .map((e: string) => e.trim().toLowerCase())
+        .filter((e: string) => e.length > 0);
 
     useEffect(() => {
-        if (!storedUser) {
-            navigate("/login");
-            return;
+        async function checkAdmin() {
+            if (!storedUser) {
+                navigate("/login");
+                return;
+            }
+            const current = auth.currentUser;
+            if (!current) {
+                navigate("/login");
+                return;
+            }
+            try {
+                const tokenResult = await current.getIdTokenResult(true);
+                const isAdmin = tokenResult.claims?.admin === true;
+                const email = current.email ? current.email.toLowerCase() : "";
+                const isAllowlisted = email && allowlist.includes(email);
+                if (!(isAdmin || isAllowlisted)) {
+                    navigate("/login");
+                    return;
+                }
+                setAuthorized(true);
+            } catch (err) {
+                navigate("/login");
+            }
         }
-    }, [storedUser, navigate]);
+        checkAdmin();
+    }, [storedUser, navigate, allowlist]);
 
-    if (!storedUser) {
+    if (!storedUser || !authorized) {
         return null;
     }
 

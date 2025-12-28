@@ -1,11 +1,12 @@
 use axum::http::{Method, StatusCode};
 use axum::{
+    middleware,
     routing::{get, post},
     Router,
 };
 use tower_http::cors::{Any, CorsLayer};
 use dotenv::dotenv;
-use std::env;
+use std::{env, fs, sync::Arc};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -49,7 +50,26 @@ async fn main() {
         .parse()
         .expect("PORT must be a valid number");
 
-    let app = Router::new()
+    let project_id = env::var("FIREBASE_PROJECT_ID").expect("FIREBASE_PROJECT_ID not set");
+    let allowlist = env::var("ADMIN_ALLOWLIST_EMAILS").ok();
+    // Prefer inline JSON env, fallback to file path if provided.
+    let service_account = env::var("FIREBASE_SERVICE_ACCOUNT_JSON")
+        .ok()
+        .and_then(|inline| serde_json::from_str::<middlewares::auth::ServiceAccount>(&inline).ok())
+        .or_else(|| {
+            env::var("FIREBASE_SERVICE_ACCOUNT_PATH")
+                .ok()
+                .and_then(|path| fs::read_to_string(path).ok())
+                .and_then(|contents| serde_json::from_str::<middlewares::auth::ServiceAccount>(&contents).ok())
+        });
+
+    let firebase_auth = Arc::new(middlewares::auth::FirebaseAuth::new(
+        project_id,
+        allowlist,
+        service_account,
+    ));
+
+    let public_routes = Router::new()
         .route("/", get(health_check))
         .route("/health", get(health_check))
 
@@ -70,6 +90,9 @@ async fn main() {
         .route("/rushee/get-available-timeslots", get(controllers::rushee::get_available_timeslots))
         .route("/brother/comments/:brother_name", get(controllers::rushee::get_brother_comments).options(|| async { StatusCode::OK }))
 
+        .route("/rushee/vote", post(controllers::voting::handle_rushee_vote).options(|| async { StatusCode::OK }));
+
+    let admin_routes = Router::new()
         .route("/admin/add_pis_question", post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_question", post(controllers::admin::delete_pis_question).options(|| async { StatusCode::OK }))
         .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }))
@@ -81,17 +104,22 @@ async fn main() {
         .route("/admin/pis-signup/:id", post(controllers::admin::brother_pis_sign_up).options(|| async { StatusCode::OK }))
         .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
         .route("/admin/export-rushee-numbers", get(controllers::admin::export_rushee_numbers).options(|| async { StatusCode::OK }))
-        
-        .route("/rushee/vote", post(controllers::voting::handle_rushee_vote).options(|| async { StatusCode::OK }))
+        .route("/admin/make-admin", post(controllers::admin::make_admin).options(|| async { StatusCode::OK }))
         .route("/admin/voting/change-rushee", post(controllers::voting::change_rushee).options(|| async { StatusCode::OK }))
         .route("/admin/voting/clear-votes", post(controllers::voting::clear_votes).options(|| async { StatusCode::OK }))
         .route("/admin/voting/make-eligible", post(controllers::voting::make_eligible).options(|| async { StatusCode::OK }))
         .route("/admin/voting/make-ineligible", post(controllers::voting::make_ineligible).options(|| async { StatusCode::OK }))
         .route("/admin/voting/get-eligibility", get(controllers::voting::get_elibibility).options(|| async { StatusCode::OK }))
         .route("/admin/voting/post-question", post(controllers::voting::post_question).options(|| async { StatusCode::OK }))
-
         .route("/admin/voting/get-rushee", get(controllers::voting::get_rushee).options(|| async { StatusCode::OK }))
-        
+        .route_layer(middleware::from_fn_with_state(
+            firebase_auth.clone(),
+            middlewares::auth::require_admin,
+        ))
+        .with_state(firebase_auth.clone());
+
+    let app = public_routes
+        .merge(admin_routes)
         .layer(
             CorsLayer::new()
                 .allow_origin(Any) // Allow requests from any origin
