@@ -364,11 +364,6 @@ export default function BidComSorting() {
                 </button>
             </div>
 
-            {/* Bid Committee Mode Badge */}
-            <div className="fixed top-20 left-6 z-30 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
-                Bid Committee View
-            </div>
-
             <div className="relative w-full h-[calc(100vh-80px)] mt-16 overflow-hidden">
                 <div
                     className="absolute inset-0"

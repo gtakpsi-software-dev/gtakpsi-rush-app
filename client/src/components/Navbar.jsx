@@ -3,12 +3,22 @@ import { Link } from "react-router-dom";
 
 import { logout } from "../js/user";
 import { verifyUser } from "../js/verifications";
+import { auth } from "../firebase";
+
+// Parse admin allowlist once
+const ADMIN_ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => e.length > 0);
 
 export default function Navbar(props) {
     const [showMenu, setShowMenu] = useState(false);
     const [showMore, setShowMore] = useState(false);
+    const [showAdmin, setShowAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isBidcom, setIsBidcom] = useState(false);
     const stripped = props.stripped ? props.stripped : false;
 
     useEffect(() => {
@@ -16,6 +26,19 @@ export default function Navbar(props) {
             try {
                 const authenticated = await verifyUser();
                 setIsAuthenticated(authenticated);
+                
+                // Check admin/bidcom status
+                const user = auth.currentUser;
+                if (user) {
+                    const tokenResult = await user.getIdTokenResult(true);
+                    const adminClaim = tokenResult.claims?.admin === true;
+                    const bidcomClaim = tokenResult.claims?.bidcom === true;
+                    const email = user.email ? user.email.toLowerCase() : "";
+                    const isAllowlisted = email && ADMIN_ALLOWLIST.includes(email);
+                    
+                    setIsAdmin(adminClaim || isAllowlisted);
+                    setIsBidcom(bidcomClaim);
+                }
             } catch (error) {
                 setIsAuthenticated(false);
             } finally {
@@ -123,7 +146,10 @@ export default function Navbar(props) {
                             {/* More menu */}
                             <li className="relative">
                                 <button
-                                    onClick={() => setShowMore(!showMore)}
+                                    onClick={() => {
+                                        setShowMore(!showMore);
+                                        setShowAdmin(false);
+                                    }}
                                     className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
                                 >
                                     More ▾
@@ -146,10 +172,71 @@ export default function Navbar(props) {
                                                 Voting
                                             </a>
                                         </li>
-
+                                        {/* Show BidCom Sorting for bidcom users (non-admins have it here) */}
+                                        {isBidcom && !isAdmin && (
+                                            <li>
+                                                <a
+                                                    href="/bidcom/sorting"
+                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                >
+                                                    BidCom Sorting
+                                                </a>
+                                            </li>
+                                        )}
                                     </ul>
                                 )}
                             </li>
+
+                            {/* Admin menu - only for admins */}
+                            {isAdmin && (
+                                <li className="relative">
+                                    <button
+                                        onClick={() => {
+                                            setShowAdmin(!showAdmin);
+                                            setShowMore(false);
+                                        }}
+                                        className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                    >
+                                        Admin ▾
+                                    </button>
+                                    {showAdmin && (
+                                        <ul className="absolute left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50">
+                                            <li>
+                                                <a
+                                                    href="/admin"
+                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                >
+                                                    Panel
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="/admin/voting"
+                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                >
+                                                    Voting
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="/admin/sorting"
+                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                >
+                                                    Sorting
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="/bidcom/sorting"
+                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                >
+                                                    BidCom Sorting
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    )}
+                                </li>
+                            )}
 
                             <li>
                                 <p
