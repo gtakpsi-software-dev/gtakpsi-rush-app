@@ -38,6 +38,9 @@ export default function BrotherSorting() {
         INELIGIBLE: [],
     });
     const [selectedRushee, setSelectedRushee] = useState(null);
+    const [notes, setNotes] = useState("");
+    const [notesLoading, setNotesLoading] = useState(false);
+    const [notesTags, setNotesTags] = useState([]);
 
     const [scale, setScale] = useState(1);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -92,12 +95,29 @@ export default function BrotherSorting() {
         return () => unsubscribe();
     }, [fetchData, navigate]);
 
-    const openDetails = (rushee) => {
+    const openDetails = async (rushee) => {
         setSelectedRushee(rushee);
+        setNotes("");
+        setNotesTags([]);
+        setNotesLoading(true);
+        
+        try {
+            const response = await axios.get(`${apiBase}/rushees/${rushee.id}/notes`);
+            if (response.data.status === "success") {
+                setNotes(response.data.sortingNotes || "");
+                setNotesTags(response.data.sortingTags || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch notes", err);
+        } finally {
+            setNotesLoading(false);
+        }
     };
 
     const closeDetails = () => {
         setSelectedRushee(null);
+        setNotes("");
+        setNotesTags([]);
     };
 
     // Zoom controls
@@ -302,33 +322,55 @@ export default function BrotherSorting() {
                             </button>
                         </div>
                         <div className="p-4 flex-1 overflow-auto">
-                            {/* Tags Section - View Only */}
-                            {selectedRushee.sortingTags && selectedRushee.sortingTags.length > 0 && (
-                                <div className="mb-4">
-                                    <div className="text-sm font-medium text-apple-gray-700 mb-2">Tags</div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {selectedRushee.sortingTags.map((tagKey) => {
-                                            const tagInfo = TAGS.find((t) => t.key === tagKey);
-                                            if (!tagInfo) return null;
-                                            return (
-                                                <span
-                                                    key={tagKey}
-                                                    className={`px-3 py-1.5 rounded-full text-sm font-medium border ${tagInfo.color}`}
-                                                >
-                                                    {tagInfo.label}
-                                                </span>
-                                            );
-                                        })}
-                                    </div>
+                            {notesLoading ? (
+                                <div className="text-apple-body text-apple-gray-500 text-center py-4">
+                                    Loading notes...
                                 </div>
+                            ) : (
+                                <>
+                                    {/* Tags Section - View Only */}
+                                    {notesTags && notesTags.length > 0 && (
+                                        <div className="mb-4">
+                                            <div className="text-sm font-medium text-apple-gray-700 mb-2">Tags</div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {notesTags.map((tagKey) => {
+                                                    const tagInfo = TAGS.find((t) => t.key === tagKey);
+                                                    if (!tagInfo) return null;
+                                                    return (
+                                                        <span
+                                                            key={tagKey}
+                                                            className={`px-3 py-1.5 rounded-full text-sm font-medium border ${tagInfo.color}`}
+                                                        >
+                                                            {tagInfo.label}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Notes Section - View Only */}
+                                    <div className="mb-4">
+                                        <div className="text-sm font-medium text-apple-gray-700 mb-2">Notes</div>
+                                        {notes ? (
+                                            <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200 whitespace-pre-wrap text-apple-body text-black">
+                                                {notes}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200 text-apple-body text-apple-gray-400 italic">
+                                                No notes yet
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* View-Only Notice */}
+                                    <div className="bg-amber-50 rounded-apple-lg p-3 border border-amber-200">
+                                        <p className="text-apple-footnote text-amber-700 text-center">
+                                            This is a view-only board. Contact an admin to make changes.
+                                        </p>
+                                    </div>
+                                </>
                             )}
-                            
-                            {/* View-Only Notice */}
-                            <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200">
-                                <p className="text-apple-footnote text-apple-gray-600 text-center">
-                                    This is a view-only board. Contact an admin to make changes.
-                                </p>
-                            </div>
                         </div>
                         <div className="p-4 border-t border-apple-gray-200 flex justify-end">
                             <button

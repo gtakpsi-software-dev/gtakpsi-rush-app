@@ -97,7 +97,8 @@ async fn main() {
         .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }))
         
         // Public read-only sorting view for all brothers
-        .route("/brother/sorting", get(controllers::admin::get_sorting_rushees_public).options(|| async { StatusCode::OK }));
+        .route("/brother/sorting", get(controllers::admin::get_sorting_rushees_public).options(|| async { StatusCode::OK }))
+        .route("/brother/rushees/:id/notes", get(controllers::admin::get_rushee_notes).options(|| async { StatusCode::OK }));
 
     // Routes accessible by both admin and bid committee
     let bidcom_routes = Router::new()
