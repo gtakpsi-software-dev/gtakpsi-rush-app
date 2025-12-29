@@ -3,6 +3,7 @@ import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import VoiceRecorder from "../components/VoiceRecorder";
 import CollaborativeTextarea from "../components/CollaborativeTextarea";
+import CollaborativeInput from "../components/CollaborativeInput";
 import VoiceTranscriptionHandler from "../components/VoiceTranscriptionHandler";
 import axios from "axios";
 import CommentWarning from "../components/CommentWarning";
@@ -242,23 +243,13 @@ export default function PIS() {
         }
     };
 
-    // Handle brother field changes with real-time sync
+    // Handle brother field changes (WebSocket sync is handled by CollaborativeInput)
     const handleBrotherAChange = (field, value) => {
         setBrotherA(prev => ({ ...prev, [field]: value }));
-        
-        // Send update via WebSocket
-        if (collaboration.isConnected) {
-            collaboration.sendTextUpdate(`_brotherA_${field}`, value);
-        }
     };
 
     const handleBrotherBChange = (field, value) => {
         setBrotherB(prev => ({ ...prev, [field]: value }));
-        
-        // Send update via WebSocket
-        if (collaboration.isConnected) {
-            collaboration.sendTextUpdate(`_brotherB_${field}`, value);
-        }
     };
 
     // Autosave function
@@ -495,20 +486,24 @@ export default function PIS() {
                                     <div className="mb-6">
                                         <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother A:</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <input
-                                                type="text"
+                                            <CollaborativeInput
+                                                fieldKey="_brotherA_firstName"
                                                 placeholder="First Name"
                                                 value={brotherA.firstName}
-                                                onChange={(e) => handleBrotherAChange('firstName', e.target.value)}
+                                                onChange={(value) => handleBrotherAChange('firstName', value)}
                                                 className="input-apple text-apple-footnote"
+                                                collaboration={collaboration}
+                                                currentUser={currentUser}
                                                 required
                                             />
-                                            <input
-                                                type="text"
+                                            <CollaborativeInput
+                                                fieldKey="_brotherA_lastName"
                                                 placeholder="Last Name"
                                                 value={brotherA.lastName}
-                                                onChange={(e) => handleBrotherAChange('lastName', e.target.value)}
+                                                onChange={(value) => handleBrotherAChange('lastName', value)}
                                                 className="input-apple text-apple-footnote"
+                                                collaboration={collaboration}
+                                                currentUser={currentUser}
                                                 required
                                             />
                                         </div>
@@ -518,19 +513,23 @@ export default function PIS() {
                                     <div className="mb-0">
                                         <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother B:</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <input
-                                                type="text"
+                                            <CollaborativeInput
+                                                fieldKey="_brotherB_firstName"
                                                 placeholder="First Name"
                                                 value={brotherB.firstName}
-                                                onChange={(e) => handleBrotherBChange('firstName', e.target.value)}
+                                                onChange={(value) => handleBrotherBChange('firstName', value)}
                                                 className="input-apple text-apple-footnote"
+                                                collaboration={collaboration}
+                                                currentUser={currentUser}
                                             />
-                                            <input
-                                                type="text"
+                                            <CollaborativeInput
+                                                fieldKey="_brotherB_lastName"
                                                 placeholder="Last Name"
                                                 value={brotherB.lastName}
-                                                onChange={(e) => handleBrotherBChange('lastName', e.target.value)}
+                                                onChange={(value) => handleBrotherBChange('lastName', value)}
                                                 className="input-apple text-apple-footnote"
+                                                collaboration={collaboration}
+                                                currentUser={currentUser}
                                             />
                                         </div>
                                     </div>
