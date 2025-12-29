@@ -1,11 +1,11 @@
 // Speculative word bank for detecting potentially speculative language in comments
 export const SPECULATIVE_WORDS = [
     // Future-oriented speculation
-    "will", "would", "could", "should", "might", "may", "can", "shall",
+    "would", "could", "should", "might", "may", "shall",
     "going to", "gonna", "planning to", "intending to", "expecting to",
     
     // Conditional speculation
-    "if", "when", "assuming", "supposing", "provided that", "in case",
+    "assuming", "supposing", "provided that", "in case",
     "unless", "otherwise", "alternatively",
     
     // Uncertainty indicators
