@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import { adminGet, adminPut } from "../js/adminAxios";
 
+const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
+
 const STATUSES = [
     { key: "UNSORTED", label: "Unsorted" },
     { key: "IN_CLOUD", label: "In Cloud" },
@@ -56,6 +58,69 @@ export default function AdminSorting() {
     const [scale, setScale] = useState(1);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const panState = useRef({ panning: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+
+    // WebSocket for real-time collaboration
+    const wsRef = useRef(null);
+    const [wsConnected, setWsConnected] = useState(false);
+    const [viewerCount, setViewerCount] = useState(0);
+    const dragPositionRef = useRef({ x: 0, y: 0 });
+    const throttleRef = useRef(null);
+
+    // Connect to sorting broadcaster WebSocket
+    useEffect(() => {
+        const connectWs = () => {
+            const ws = new WebSocket(`${SORTING_WS_URL}/ws`);
+            wsRef.current = ws;
+
+            ws.onopen = () => {
+                console.log("Connected to sorting broadcaster");
+                setWsConnected(true);
+                // Join as admin
+                const user = auth.currentUser;
+                const name = user?.displayName || user?.email?.split("@")[0] || "Admin";
+                ws.send(JSON.stringify({ type: "join", is_admin: true, name }));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === "viewer_count") {
+                        setViewerCount(msg.count);
+                    }
+                    // Admin doesn't need to handle incoming drag events (they're the source)
+                } catch (e) {
+                    console.error("Failed to parse WS message", e);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from sorting broadcaster");
+                setWsConnected(false);
+                // Reconnect after 3 seconds
+                setTimeout(connectWs, 3000);
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket error", err);
+                ws.close();
+            };
+        };
+
+        connectWs();
+
+        return () => {
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
+        };
+    }, []);
+
+    // Send WebSocket message helper
+    const wsSend = useCallback((msg) => {
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify(msg));
+        }
+    }, []);
 
     const fetchData = useCallback(async () => {
         try {
@@ -120,21 +185,48 @@ export default function AdminSorting() {
         return () => unsubscribe();
     }, [fetchData, authChecked, navigate]);
 
-    const handleDragStart = (rushee, fromColumn, index) => {
-        setDragging({ id: rushee.id, fromColumn, index });
+    const handleDragStart = (rushee, fromColumn, index, e) => {
+        setDragging({ id: rushee.id, fromColumn, index, rushee });
+        
+        // Send drag_start to WebSocket
+        const rect = e?.currentTarget?.getBoundingClientRect();
+        const x = rect ? rect.left : 0;
+        const y = rect ? rect.top : 0;
+        dragPositionRef.current = { x, y };
+        
+        wsSend({
+            type: "drag_start",
+            rushee_id: rushee.id,
+            rushee_name: rushee.fullName,
+            x,
+            y,
+        });
     };
 
     const handleDragOver = (e, columnKey, index) => {
         e.preventDefault();
         setHoverIndex({ column: columnKey, index });
+        
+        // Throttle drag_move messages to ~30fps
+        const now = Date.now();
+        if (!throttleRef.current || now - throttleRef.current > 33) {
+            throttleRef.current = now;
+            const x = e.clientX;
+            const y = e.clientY;
+            dragPositionRef.current = { x, y };
+            wsSend({ type: "drag_move", x, y });
+        }
     };
 
     const clearDragState = () => {
+        // Send drag_end to WebSocket
+        wsSend({ type: "drag_end" });
+        
         setDragging(null);
         setHoverIndex({ column: null, index: null });
     };
 
-    const persistReorder = async (updatedColumns, colsToUpdate) => {
+    const persistReorder = async (updatedColumns, colsToUpdate, movedRusheeId, newStatus) => {
         try {
             await Promise.all(
                 colsToUpdate.map((colKey) => {
@@ -145,6 +237,11 @@ export default function AdminSorting() {
                     });
                 })
             );
+            
+            // Notify WebSocket that card was saved
+            if (movedRusheeId && newStatus) {
+                wsSend({ type: "card_saved", rushee_id: movedRusheeId, new_status: newStatus });
+            }
         } catch (err) {
             toast.error("Failed to save order; reverting");
             await fetchData();
@@ -188,10 +285,10 @@ export default function AdminSorting() {
                 }));
             }
 
-            // persist async
+            // persist async - pass rushee id and new status for WebSocket notification
             const colsToUpdate =
                 fromColumn === targetColumn ? [targetColumn] : [fromColumn, targetColumn];
-            persistReorder(updated, colsToUpdate);
+            persistReorder(updated, colsToUpdate, id, targetColumn);
 
             return updated;
         });
@@ -380,7 +477,7 @@ export default function AdminSorting() {
                             <div
                                 data-card
                                 draggable
-                                onDragStart={() => handleDragStart(r, col.key, idx)}
+                                onDragStart={(e) => handleDragStart(r, col.key, idx, e)}
                                 onDragOver={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -468,6 +565,14 @@ export default function AdminSorting() {
         >
             <Navbar />
             
+            {/* Viewer Count - Top Right */}
+            {wsConnected && viewerCount > 1 && (
+                <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-apple-gray-600">{viewerCount} viewing</span>
+                </div>
+            )}
+
             {/* Fixed Zoom Controls - Bottom Left */}
             <div className="fixed bottom-20 left-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-2xl px-4 py-3 shadow-lg">
                 <button

@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import axios from "axios";
 
+const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
+
 const STATUSES = [
     { key: "UNSORTED", label: "Unsorted" },
     { key: "IN_CLOUD", label: "In Cloud" },
@@ -46,6 +48,16 @@ export default function BrotherSorting() {
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const panState = useRef({ panning: false, startX: 0, startY: 0, origX: 0, origY: 0 });
 
+    // WebSocket for real-time collaboration
+    const wsRef = useRef(null);
+    const [wsConnected, setWsConnected] = useState(false);
+    const [viewerCount, setViewerCount] = useState(0);
+    
+    // Ghost card state (shows when admin is dragging)
+    const [ghostCard, setGhostCard] = useState(null);
+    
+    const fetchDataRef = useRef(null);
+
     const fetchData = useCallback(async () => {
         try {
             const current = auth.currentUser;
@@ -84,6 +96,9 @@ export default function BrotherSorting() {
         }
     }, [apiBase, navigate]);
 
+    // Store fetchData in ref for WebSocket to use
+    fetchDataRef.current = fetchData;
+
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
@@ -94,6 +109,90 @@ export default function BrotherSorting() {
         });
         return () => unsubscribe();
     }, [fetchData, navigate]);
+
+    // Connect to sorting broadcaster WebSocket for real-time updates
+    useEffect(() => {
+        const connectWs = () => {
+            const ws = new WebSocket(`${SORTING_WS_URL}/ws`);
+            wsRef.current = ws;
+
+            ws.onopen = () => {
+                console.log("Connected to sorting broadcaster (viewer)");
+                setWsConnected(true);
+                // Join as viewer (non-admin)
+                const user = auth.currentUser;
+                const name = user?.displayName || user?.email?.split("@")[0] || "Viewer";
+                ws.send(JSON.stringify({ type: "join", is_admin: false, name }));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    
+                    switch (msg.type) {
+                        case "viewer_count":
+                            setViewerCount(msg.count);
+                            break;
+                        case "drag_start":
+                            setGhostCard({
+                                rusheeId: msg.rushee_id,
+                                rusheeName: msg.rushee_name,
+                                x: msg.x,
+                                y: msg.y,
+                                draggerName: msg.dragger_name,
+                            });
+                            break;
+                        case "drag_move":
+                            setGhostCard((prev) => prev ? { ...prev, x: msg.x, y: msg.y } : null);
+                            break;
+                        case "drag_end":
+                            setGhostCard(null);
+                            break;
+                        case "card_moved":
+                            // Refresh data when a card has been moved
+                            if (fetchDataRef.current) {
+                                fetchDataRef.current();
+                            }
+                            break;
+                        case "current_drag":
+                            if (msg.active) {
+                                setGhostCard({
+                                    rusheeId: msg.rushee_id,
+                                    rusheeName: msg.rushee_name,
+                                    x: msg.x,
+                                    y: msg.y,
+                                    draggerName: msg.dragger_name,
+                                });
+                            }
+                            break;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse WS message", e);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("Disconnected from sorting broadcaster");
+                setWsConnected(false);
+                setGhostCard(null);
+                // Reconnect after 3 seconds
+                setTimeout(connectWs, 3000);
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket error", err);
+                ws.close();
+            };
+        };
+
+        connectWs();
+
+        return () => {
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
+        };
+    }, []);
 
     const openDetails = async (rushee) => {
         setSelectedRushee(rushee);
@@ -252,6 +351,37 @@ export default function BrotherSorting() {
         >
             <Navbar />
             
+            {/* Viewer Count & Live Indicator */}
+            {wsConnected && (
+                <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
+                    <div className={`w-2 h-2 rounded-full ${ghostCard ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
+                    <span className="text-sm text-apple-gray-600">
+                        {ghostCard ? `${ghostCard.draggerName} is editing` : `${viewerCount} viewing`}
+                    </span>
+                </div>
+            )}
+
+            {/* Ghost Card - Shows when admin is dragging */}
+            {ghostCard && (
+                <div
+                    className="fixed z-50 pointer-events-none"
+                    style={{
+                        left: ghostCard.x,
+                        top: ghostCard.y,
+                        transform: "translate(-50%, -50%)",
+                    }}
+                >
+                    <div className="p-3 rounded-apple-lg border-2 border-blue-400 bg-blue-50/90 shadow-xl backdrop-blur-sm animate-pulse w-48">
+                        <div className="text-apple-body text-blue-700 font-semibold">
+                            {ghostCard.rusheeName}
+                        </div>
+                        <div className="text-apple-caption2 text-blue-500 mt-1">
+                            Being moved by {ghostCard.draggerName}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Fixed Zoom Controls - Bottom Left */}
             <div className="fixed bottom-20 left-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-2xl px-4 py-3 shadow-lg">
                 <button
