@@ -15,7 +15,7 @@ import json
 import os
 import requests
 import firebase_admin
-from firebase_admin import credentials, storage
+from firebase_admin import credentials, storage, auth as firebase_auth
 
 # Restrict script from running between September 1st and September 12th
 current_date = datetime.now()
@@ -31,6 +31,8 @@ mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT
 api_url = os.getenv("API")
 firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
 firebase_storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
+firebase_api_key = os.getenv("FIREBASE_API_KEY")  # Web API key from Firebase console
+admin_uid = os.getenv("ADMIN_UID")  # UID of an admin user
 
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
@@ -38,6 +40,42 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, {
         'storageBucket': firebase_storage_bucket
     })
+
+# Get an ID token for API authentication
+def get_admin_id_token():
+    """Generate an ID token for an admin user to authenticate API requests."""
+    if not firebase_api_key:
+        print("Warning: FIREBASE_API_KEY not set in .env - API requests may fail")
+        return None
+    if not admin_uid:
+        print("Warning: ADMIN_UID not set in .env - API requests may fail")
+        return None
+    
+    try:
+        # Create a custom token for the admin user
+        custom_token = firebase_auth.create_custom_token(admin_uid)
+        
+        # Exchange custom token for an ID token using Firebase Auth REST API
+        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={firebase_api_key}"
+        response = requests.post(url, json={
+            "token": custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token,
+            "returnSecureToken": True
+        })
+        
+        if response.status_code == 200:
+            id_token = response.json().get("idToken")
+            print("Successfully obtained admin authentication token")
+            return id_token
+        else:
+            print(f"Failed to get ID token: {response.json()}")
+            return None
+    except Exception as e:
+        print(f"Error getting admin token: {e}")
+        return None
+
+# Get auth headers for API requests
+id_token = get_admin_id_token()
+auth_headers = {"Authorization": f"Bearer {id_token}"} if id_token else {}
 
 # Connect to MongoDB
 client = MongoClient(mongo_uri)
@@ -95,13 +133,20 @@ with open("pis_timeslots.json", "r") as file:
     data = json.load(file)
 
     for i in tqdm(range(len(data)), desc="Adding PIS Timeslots"):
-        response = requests.post(api_url + "/admin/add_pis_timeslot", json=data[i])
-        
-        if response.status_code == 200:
-            if response.json().get("status") == "error":
-                errors.append(response.json().get("message"))
-        else:
-            errors.append(f"Some network error occurred while adding PIS Timeslot at {data[i]['time']}")
+        try:
+            response = requests.post(
+                api_url + "/admin/add_pis_timeslot", 
+                json=data[i],
+                headers=auth_headers
+            )
+            
+            if response.status_code == 200:
+                if response.json().get("status") == "error":
+                    errors.append(response.json().get("message"))
+            else:
+                errors.append(f"Error adding PIS Timeslot at {data[i]['time']}: HTTP {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            errors.append(f"Network error adding PIS Timeslot at {data[i]['time']}: {e}")
 
 
 # add rush nights
@@ -110,26 +155,40 @@ with open("rush_nights.json", "r") as file:
     data = json.load(file)
 
     for i in tqdm(range(len(data)), desc="Adding Rush Nights"):
-        response = requests.post(api_url + "/admin/add-rush-night", json=data[i])
-        
-        if response.status_code == 200:
-            if response.json().get("status") == "error":
-                errors.append(response.json().get("message"))
-        else:
-            errors.append(f"Some network error occurred while adding Rush Night {data[i]['name']}")
+        try:
+            response = requests.post(
+                api_url + "/admin/add-rush-night", 
+                json=data[i],
+                headers=auth_headers
+            )
+            
+            if response.status_code == 200:
+                if response.json().get("status") == "error":
+                    errors.append(response.json().get("message"))
+            else:
+                errors.append(f"Error adding Rush Night {data[i]['name']}: HTTP {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            errors.append(f"Network error adding Rush Night {data[i]['name']}: {e}")
 
 with open("pis_questions.json", "r") as file:
 
     data = json.load(file)
 
     for i in tqdm(range(len(data)), desc="Adding PIS Questions"):
-        response = requests.post(api_url + "/admin/add_pis_question", json=data[i])
-        
-        if response.status_code == 200:
-            if response.json().get("status") == "error":
-                errors.append(response.json().get("message"))
-        else:
-            errors.append(f"Some network error occurred while adding PIS Question {data[i]['question']}")
+        try:
+            response = requests.post(
+                api_url + "/admin/add_pis_question", 
+                json=data[i],
+                headers=auth_headers
+            )
+            
+            if response.status_code == 200:
+                if response.json().get("status") == "error":
+                    errors.append(response.json().get("message"))
+            else:
+                errors.append(f"Error adding PIS Question: HTTP {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            errors.append(f"Network error adding PIS Question {data[i]['question']}: {e}")
 
 
 if len(errors) > 0:

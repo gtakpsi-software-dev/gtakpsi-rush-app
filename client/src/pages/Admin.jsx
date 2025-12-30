@@ -47,6 +47,12 @@ export default function Admin() {
     const [pisFormStatus, setPisFormStatus] = useState({ is_active: false, sent_at: null });
     const [pisFormLoading, setPisFormLoading] = useState(false);
     const [brotherAvailabilities, setBrotherAvailabilities] = useState([]);
+    
+    // Edit brother availability state
+    const [editingBrotherAvailability, setEditingBrotherAvailability] = useState(null);
+    const [editingSlots, setEditingSlots] = useState(new Set());
+    const [allPisTimeslots, setAllPisTimeslots] = useState([]);
+    const [savingAvailability, setSavingAvailability] = useState(false);
 
     const navigate = useNavigate();
 
@@ -67,7 +73,7 @@ export default function Admin() {
 
             const current = auth.currentUser;
             if (!current) {
-                navigate(`/error/${errorTitle}/${errorDescription}`);
+                    navigate(`/error/${errorTitle}/${errorDescription}`);
                 return;
             }
 
@@ -136,6 +142,21 @@ export default function Admin() {
                 }
             } catch (error) {
                 console.error("Failed to fetch brother availabilities:", error);
+            }
+
+            // Fetch all PIS timeslots for editing availability
+            try {
+                const timeslotsResponse = await axios.get(`${apiBase}/get_pis_timeslots`);
+                if (timeslotsResponse.data.status === "success") {
+                    const sorted = timeslotsResponse.data.payload.sort((a, b) => {
+                        const timeA = parseInt(a.time.$date.$numberLong);
+                        const timeB = parseInt(b.time.$date.$numberLong);
+                        return timeA - timeB;
+                    });
+                    setAllPisTimeslots(sorted);
+                }
+            } catch (error) {
+                console.error("Failed to fetch PIS timeslots:", error);
             }
 
             setLoading(false);
@@ -752,12 +773,258 @@ export default function Admin() {
         }
     };
 
+    // ========== Edit Brother Availability Handlers ==========
+    
+    const openEditAvailability = (brother) => {
+        setEditingBrotherAvailability(brother);
+        // Convert their available timeslots to a Set of ISO strings for easy comparison
+        const slots = new Set();
+        if (brother.available_timeslots) {
+            brother.available_timeslots.forEach(ts => {
+                let isoString;
+                if (ts.$date && ts.$date.$numberLong) {
+                    isoString = new Date(parseInt(ts.$date.$numberLong)).toISOString();
+                } else {
+                    isoString = new Date(ts).toISOString();
+                }
+                slots.add(isoString);
+            });
+        }
+        setEditingSlots(slots);
+    };
+
+    const closeEditAvailability = () => {
+        setEditingBrotherAvailability(null);
+        setEditingSlots(new Set());
+    };
+
+    const toggleEditSlot = (slotIso) => {
+        const newSlots = new Set(editingSlots);
+        if (newSlots.has(slotIso)) {
+            newSlots.delete(slotIso);
+        } else {
+            newSlots.add(slotIso);
+        }
+        setEditingSlots(newSlots);
+    };
+
+    const selectAllEditSlots = () => {
+        const allSlots = new Set(allPisTimeslots.map(slot => 
+            new Date(parseInt(slot.time.$date.$numberLong)).toISOString()
+        ));
+        setEditingSlots(allSlots);
+    };
+
+    const clearAllEditSlots = () => {
+        setEditingSlots(new Set());
+    };
+
+    const saveEditedAvailability = async () => {
+        if (!editingBrotherAvailability) return;
+        
+        setSavingAvailability(true);
+        try {
+            const api = import.meta.env.VITE_API_PREFIX;
+            const response = await axios.post(`${api}/brother/pis-availability/submit`, {
+                brother_uid: editingBrotherAvailability.brother_uid,
+                brother_email: editingBrotherAvailability.brother_email,
+                brother_first_name: editingBrotherAvailability.brother_first_name,
+                brother_last_name: editingBrotherAvailability.brother_last_name,
+                available_timeslots: Array.from(editingSlots)
+            });
+
+            if (response.data.status === "success") {
+                toast.success(`Updated availability for ${editingBrotherAvailability.brother_first_name}`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+                
+                // Refresh the availabilities list
+                const availabilitiesResponse = await axios.get(`${apiBase}/pis-availability/all`);
+                if (availabilitiesResponse.data.status === "success") {
+                    setBrotherAvailabilities(availabilitiesResponse.data.payload);
+                }
+                
+                closeEditAvailability();
+            } else {
+                toast.error(response.data.message || "Failed to update", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to save availability", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setSavingAvailability(false);
+        }
+    };
+
+    const formatSlotTime = (slot) => {
+        const date = new Date(parseInt(slot.time.$date.$numberLong));
+        return {
+            date: date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            }),
+            time: date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            })
+        };
+    };
+
+    // Group timeslots by date for the edit modal
+    const groupedEditSlots = allPisTimeslots.reduce((groups, slot) => {
+        const date = new Date(parseInt(slot.time.$date.$numberLong));
+        const dateKey = date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+        });
+        if (!groups[dateKey]) {
+            groups[dateKey] = [];
+        }
+        groups[dateKey].push(slot);
+        return groups;
+    }, {});
+
     if (loading) {
         return <Loader />;
     }
 
     return (
         <div className="min-h-screen w-full bg-white">
+            {/* Edit Brother Availability Modal */}
+            {editingBrotherAvailability && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={closeEditAvailability}
+                    />
+                    
+                    {/* Modal */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-semibold text-white">
+                                    Edit Availability
+                                </h2>
+                                <p className="text-amber-100 text-sm">
+                                    {editingBrotherAvailability.brother_first_name} {editingBrotherAvailability.brother_last_name}
+                                </p>
+                            </div>
+                            <button
+                                onClick={closeEditAvailability}
+                                className="text-white/80 hover:text-white text-2xl font-light"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto max-h-[55vh]">
+                            {allPisTimeslots.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    No PIS timeslots available
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Quick actions */}
+                                    <div className="flex gap-3 mb-6">
+                                        <button
+                                            onClick={selectAllEditSlots}
+                                            className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors"
+                                        >
+                                            Select All
+                                        </button>
+                                        <button
+                                            onClick={clearAllEditSlots}
+                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                                        >
+                                            Clear All
+                                        </button>
+                                        <div className="ml-auto text-sm text-gray-500 self-center">
+                                            {editingSlots.size} of {allPisTimeslots.length} selected
+                                        </div>
+                                    </div>
+
+                                    {/* Timeslots grouped by date */}
+                                    <div className="space-y-6">
+                                        {Object.entries(groupedEditSlots).map(([dateKey, slots]) => (
+                                            <div key={dateKey}>
+                                                <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                                                    {dateKey}
+                                                </h3>
+                                                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                                    {slots.map((slot, idx) => {
+                                                        const slotIso = new Date(parseInt(slot.time.$date.$numberLong)).toISOString();
+                                                        const isSelected = editingSlots.has(slotIso);
+                                                        const { time } = formatSlotTime(slot);
+                                                        
+                                                        return (
+                                                            <button
+                                                                key={idx}
+                                                                onClick={() => toggleEditSlot(slotIso)}
+                                                                className={`
+                                                                    px-2 py-2 rounded-lg text-sm font-medium
+                                                                    transition-all duration-150
+                                                                    ${isSelected 
+                                                                        ? 'bg-amber-500 text-white shadow-md' 
+                                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                {time}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="border-t bg-gray-50 px-6 py-4">
+                            <div className="flex items-center justify-end gap-3">
+                                <button
+                                    onClick={closeEditAvailability}
+                                    className="px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={saveEditedAvailability}
+                                    disabled={savingAvailability}
+                                    className={`
+                                        px-6 py-2.5 rounded-xl font-medium text-white
+                                        transition-all duration-200
+                                        ${savingAvailability
+                                            ? 'bg-gray-300 cursor-not-allowed'
+                                            : 'bg-amber-500 hover:bg-amber-600 shadow-md hover:shadow-lg'
+                                        }
+                                    `}
+                                >
+                                    {savingAvailability ? 'Saving...' : `Save (${editingSlots.size} slots)`}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Navbar />
 
             <div className="pt-24 p-4 pb-20">
@@ -902,7 +1169,7 @@ export default function Admin() {
                                 <div className="mb-3">
                                     <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Admin Access</div>
                                     <div className="flex gap-3">
-                                        <button
+                <button
                                             onClick={() => handleSetAdmin(true)}
                                             disabled={isPromoting || !selectedBrother || brotherAdminStatus}
                                             className="flex-1 bg-black text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
@@ -915,9 +1182,9 @@ export default function Admin() {
                                             className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
                                         >
                                             {isPromoting ? "..." : "Remove Admin"}
-                                        </button>
+                </button>
                                     </div>
-                                </div>
+            </div>
 
                                 {/* Bid Committee Controls */}
                                 <div>
@@ -930,14 +1197,14 @@ export default function Admin() {
                                         >
                                             {isPromoting ? "..." : "Grant Bid Com"}
                                         </button>
-                                        <button
+                <button
                                             onClick={() => handleSetBidcom(false)}
                                             disabled={isPromoting || !selectedBrother || !brotherBidcomStatus}
                                             className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
                                         >
                                             {isPromoting ? "..." : "Remove Bid Com"}
-                                        </button>
-                                    </div>
+                </button>
+            </div>
                                 </div>
                             </div>
                         </div>
@@ -971,12 +1238,12 @@ export default function Admin() {
                 />
                                 </div>
                                 <div className="flex gap-3">
-                                    <button
+                <button
                                         onClick={() => handleRequest("add_pis_question", { question, question_type: questionType }, "post", "Question added!")}
                                         className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
                                     >
                                         Add Question
-                                    </button>
+                </button>
                 <button
                                         onClick={() => handleRequest("delete_pis_question", { question, question_type: questionType }, "post", "Question deleted!")}
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200"
@@ -1052,7 +1319,7 @@ export default function Admin() {
                     Delete Rush Night
                 </button>
             </div>
-                            </div>
+            </div>
 
                             {/* Reschedule PIS */}
                             <div className="card-apple p-6">
@@ -1064,7 +1331,7 @@ export default function Admin() {
                                 <div className="space-y-4">
                                     {/* Rushee Search */}
                                     <div className="relative">
-                                        <input
+                <input
                                             type="text"
                                             placeholder="Search rushee by name or GTID..."
                                             className="input-apple text-apple-body"
@@ -1113,7 +1380,7 @@ export default function Admin() {
                                                         Current PIS: <span className="font-medium">{formatCurrentPISTime(selectedRushee)}</span>
                                                     </div>
                                                 </div>
-                                                <button
+                <button
                                                     onClick={() => {
                                                         setSelectedRushee(null);
                                                         setRusheeSearch("");
@@ -1121,8 +1388,8 @@ export default function Admin() {
                                                     className="text-apple-gray-400 hover:text-apple-gray-600 text-xl"
                                                 >
                                                     ×
-                                                </button>
-                                            </div>
+                </button>
+            </div>
                                         </div>
                                     )}
 
@@ -1152,7 +1419,7 @@ export default function Admin() {
                                                 No available timeslots found
                                             </p>
                                         )}
-                                    </div>
+            </div>
 
                                     {/* Reschedule Button */}
                                     <button
@@ -1166,7 +1433,7 @@ export default function Admin() {
                                     >
                                         Reschedule PIS
                                     </button>
-                                </div>
+        </div>
                             </div>
                         </div>
                     </div>
@@ -1250,16 +1517,24 @@ export default function Admin() {
                                     </div>
                                 </div>
                                 
+                                <p className="text-apple-caption2 text-apple-gray-500 mb-3">
+                                    Click on a name to edit their availability
+                                </p>
+                                
                                 {brotherAvailabilities.length > 0 && (
-                                    <div className="bg-gray-50 rounded-lg p-3 max-h-32 overflow-y-auto">
+                                    <div className="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
                                         <div className="flex flex-wrap gap-2">
                                             {brotherAvailabilities.map((avail, idx) => (
-                                                <span 
+                                                <button 
                                                     key={idx}
-                                                    className="text-xs bg-white px-2 py-1 rounded border text-gray-600"
+                                                    onClick={() => openEditAvailability(avail)}
+                                                    className="text-xs bg-white px-3 py-1.5 rounded border text-gray-700 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-all cursor-pointer"
                                                 >
                                                     {avail.brother_first_name} {avail.brother_last_name}
-                                                </span>
+                                                    <span className="ml-1 text-gray-400">
+                                                        ({avail.available_timeslots?.length || 0})
+                                                    </span>
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
