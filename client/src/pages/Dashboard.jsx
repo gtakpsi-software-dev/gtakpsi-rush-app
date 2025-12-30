@@ -13,6 +13,9 @@ import Fuse from "fuse.js";
 
 import { verifyUser } from "../js/verifications";
 import Button from "../components/Button";
+import PISAvailabilityModal from "../components/PISAvailabilityModal";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Dashboard(props) {
     const [user, setUser] = useState(
@@ -29,6 +32,10 @@ export default function Dashboard(props) {
     const [selectedClass, setSelectedClass] = useState("All");
     const [selectedCloud, setSelectedCloud] = useState("All");
     const [selectedSort, setSelectedSort] = useState("none");
+    
+    // PIS Availability Modal state
+    const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+    const [brotherData, setBrotherData] = useState(null);
 
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
@@ -47,6 +54,40 @@ export default function Dashboard(props) {
                 .then(async (response) => {
                     if (response === false) {
                         navigate("/");
+                    }
+
+                    // Check if brother needs to fill out PIS availability form
+                    const currentUser = auth.currentUser;
+                    if (currentUser) {
+                        try {
+                            // Get brother data from Firestore
+                            const brotherDoc = await getDoc(doc(db, "brothers", currentUser.uid));
+                            if (brotherDoc.exists()) {
+                                setBrotherData({
+                                    uid: currentUser.uid,
+                                    email: currentUser.email,
+                                    ...brotherDoc.data()
+                                });
+                            } else {
+                                setBrotherData({
+                                    uid: currentUser.uid,
+                                    email: currentUser.email,
+                                    firstName: '',
+                                    lastName: ''
+                                });
+                            }
+
+                            // Check if form is active and brother hasn't submitted
+                            const checkResponse = await axios.post(`${api}/brother/pis-availability/check`, {
+                                brother_uid: currentUser.uid
+                            });
+                            
+                            if (checkResponse.data.status === "success" && checkResponse.data.needs_form) {
+                                setShowAvailabilityModal(true);
+                            }
+                        } catch (err) {
+                            console.log("Error checking PIS availability:", err);
+                        }
                     }
 
                     await axios
@@ -154,6 +195,14 @@ export default function Dashboard(props) {
 
     return (
         <div>
+            {/* PIS Availability Modal - Blocking */}
+            {showAvailabilityModal && brotherData && (
+                <PISAvailabilityModal
+                    user={brotherData}
+                    onSubmit={() => setShowAvailabilityModal(false)}
+                />
+            )}
+            
             {error ? (
                 <Error title={errorTitle} description={errorDescription} />
             ) : (

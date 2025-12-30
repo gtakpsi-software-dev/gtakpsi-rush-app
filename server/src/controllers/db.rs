@@ -4,7 +4,11 @@ use std::env;
 use redis::aio::ConnectionManager;
 use tokio::sync::OnceCell;
 
-use crate::models::{misc::RushNight, pis::{PISQuestion, PISTimeslot}, Rushee::RusheeModel};
+use crate::models::{
+    misc::RushNight, 
+    pis::{PISQuestion, PISTimeslot, PISAvailabilityFormStatus, BrotherPISAvailability}, 
+    Rushee::RusheeModel
+};
 
 pub static MONGO_CLIENT: OnceCell<Arc<Client>> = OnceCell::const_new();
 pub static REDIS_CLIENT: OnceCell<Arc<ConnectionManager>> = OnceCell::const_new();
@@ -61,4 +65,14 @@ pub async fn get_pis_timeslots_client() -> Collection<PISTimeslot> {
 pub async fn get_rush_nights_client() -> Collection<RushNight> {
     let client = get_mongo_client().await;
     client.database("rush-app").collection("rush-nights")
+}
+
+pub async fn get_pis_availability_form_status_client() -> Collection<PISAvailabilityFormStatus> {
+    let client = get_mongo_client().await;
+    client.database("rush-app").collection("pis-availability-form-status")
+}
+
+pub async fn get_brother_pis_availability_client() -> Collection<BrotherPISAvailability> {
+    let client = get_mongo_client().await;
+    client.database("rush-app").collection("brother-pis-availability")
 }

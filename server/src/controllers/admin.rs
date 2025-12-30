@@ -8,12 +8,13 @@ use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
 use serde::{Deserialize, Serialize};
 use axum::extract::Extension;
+use std::collections::HashMap;
 
 use crate::{
     middlewares::timeHelpers::{self, string_to_bson_datetime},
     models::{
         misc::{IncomingBrotherName, IncomingRushNight, RushNight},
-        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming},
+        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability},
         Rushee::StrippedRushee,
     },
     middlewares::auth::FirebaseAuth,
@@ -980,6 +981,451 @@ pub async fn make_bidcom(
         Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "Failed to update bidcom claim"
+        }))),
+    }
+}
+
+// ========== PIS Availability System Endpoints ==========
+
+/// Send the PIS availability form to all brothers (activate form)
+pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_pis_availability_form_status_client().await;
+    
+    // Delete any existing status document
+    let _ = collection.delete_many(doc! {}).await;
+    
+    // Insert new active status
+    let status = PISAvailabilityFormStatus {
+        is_active: true,
+        sent_at: Some(DateTime::now()),
+    };
+    
+    match collection.insert_one(status).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "PIS availability form sent to all brothers"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to send form"
+        }))),
+    }
+}
+
+/// Clear all availability submissions and resend the form
+pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, StatusCode> {
+    // Clear all brother availability submissions
+    let availability_collection = db::get_brother_pis_availability_client().await;
+    if let Err(_) = availability_collection.delete_many(doc! {}).await {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to clear availability submissions"
+        })));
+    }
+    
+    // Reset and activate the form
+    let form_collection = db::get_pis_availability_form_status_client().await;
+    let _ = form_collection.delete_many(doc! {}).await;
+    
+    let status = PISAvailabilityFormStatus {
+        is_active: true,
+        sent_at: Some(DateTime::now()),
+    };
+    
+    match form_collection.insert_one(status).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "Cleared all submissions and resent form"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to resend form"
+        }))),
+    }
+}
+
+/// Check if the PIS availability form is currently active
+pub async fn get_pis_availability_form_status() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_pis_availability_form_status_client().await;
+    
+    match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => Ok(Json(json!({
+            "status": "success",
+            "is_active": status.is_active,
+            "sent_at": status.sent_at
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "success",
+            "is_active": false,
+            "sent_at": null
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to check form status"
+        }))),
+    }
+}
+
+/// Check if a specific brother needs to fill out the availability form
+#[derive(Deserialize)]
+pub struct CheckBrotherAvailabilityPayload {
+    pub brother_uid: String,
+}
+
+pub async fn check_brother_needs_availability_form(
+    Json(payload): Json<CheckBrotherAvailabilityPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    // First check if form is active
+    let form_collection = db::get_pis_availability_form_status_client().await;
+    let form_status = match form_collection.find_one(doc! {}).await {
+        Ok(Some(status)) => status,
+        Ok(None) => {
+            return Ok(Json(json!({
+                "status": "success",
+                "needs_form": false
+            })));
+        }
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to check form status"
+            })));
+        }
+    };
+    
+    if !form_status.is_active {
+        return Ok(Json(json!({
+            "status": "success",
+            "needs_form": false
+        })));
+    }
+    
+    // Check if brother has already submitted
+    let availability_collection = db::get_brother_pis_availability_client().await;
+    match availability_collection.find_one(doc! { "brother_uid": &payload.brother_uid }).await {
+        Ok(Some(_)) => Ok(Json(json!({
+            "status": "success",
+            "needs_form": false
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "success",
+            "needs_form": true
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to check availability"
+        }))),
+    }
+}
+
+/// Submit brother's PIS availability
+pub async fn submit_brother_availability(
+    Json(payload): Json<IncomingBrotherAvailability>,
+) -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_brother_pis_availability_client().await;
+    
+    // Convert timeslot strings to DateTime
+    let timeslots: Vec<DateTime> = payload.available_timeslots
+        .iter()
+        .map(|t| string_to_bson_datetime(t))
+        .collect();
+    
+    let availability = BrotherPISAvailability {
+        brother_uid: payload.brother_uid.clone(),
+        brother_email: payload.brother_email,
+        brother_first_name: payload.brother_first_name,
+        brother_last_name: payload.brother_last_name,
+        available_timeslots: timeslots,
+        submitted_at: DateTime::now(),
+    };
+    
+    // Upsert - update if exists, insert if not
+    let filter = doc! { "brother_uid": &payload.brother_uid };
+    let _ = collection.delete_one(filter).await;
+    
+    match collection.insert_one(availability).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "Availability submitted successfully"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to submit availability"
+        }))),
+    }
+}
+
+/// Get all brother availabilities (admin view)
+pub async fn get_all_brother_availabilities() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_brother_pis_availability_client().await;
+    
+    match collection.find(doc! {}).await {
+        Ok(mut cursor) => {
+            let mut availabilities: Vec<BrotherPISAvailability> = Vec::new();
+            while let Some(item) = cursor.next().await {
+                if let Ok(avail) = item {
+                    availabilities.push(avail);
+                }
+            }
+            Ok(Json(json!({
+                "status": "success",
+                "payload": availabilities
+            })))
+        }
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to fetch availabilities"
+        }))),
+    }
+}
+
+/// Auto-assign brothers to PIS slots based on availability
+pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
+    // Get all brother availabilities
+    let availability_collection = db::get_brother_pis_availability_client().await;
+    let mut availability_cursor = match availability_collection.find(doc! {}).await {
+        Ok(cursor) => cursor,
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to fetch brother availabilities"
+            })));
+        }
+    };
+    
+    let mut brother_availabilities: Vec<BrotherPISAvailability> = Vec::new();
+    while let Some(item) = availability_cursor.next().await {
+        if let Ok(avail) = item {
+            brother_availabilities.push(avail);
+        }
+    }
+    
+    if brother_availabilities.is_empty() {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "No brother availabilities found. Have brothers fill out the form first."
+        })));
+    }
+    
+    // Build a map of timeslot -> available brothers
+    let mut timeslot_to_brothers: HashMap<i64, Vec<(String, String)>> = HashMap::new();
+    for avail in &brother_availabilities {
+        for ts in &avail.available_timeslots {
+            let ts_millis = ts.timestamp_millis();
+            let entry = timeslot_to_brothers.entry(ts_millis).or_insert_with(Vec::new);
+            entry.push((avail.brother_first_name.clone(), avail.brother_last_name.clone()));
+        }
+    }
+    
+    // Track how many PIS each brother is assigned to (for load balancing)
+    let mut brother_assignment_count: HashMap<String, i32> = HashMap::new();
+    
+    // Get all rushees with PIS signups
+    let rushee_collection = db::get_rushee_client().await;
+    let mut rushee_cursor = match rushee_collection.find(doc! {}).await {
+        Ok(cursor) => cursor,
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to fetch rushees"
+            })));
+        }
+    };
+    
+    let mut assignments_made = 0;
+    let mut assignment_failures = 0;
+    
+    while let Some(item) = rushee_cursor.next().await {
+        if let Ok(rushee) = item {
+            let ts_millis = rushee.pis_timeslot.timestamp_millis();
+            
+            // Skip if both brothers are already assigned
+            if rushee.pis_signup.first_brother_first_name != "none" 
+                && rushee.pis_signup.second_brother_first_name != "none" {
+                continue;
+            }
+            
+            // Get available brothers for this timeslot
+            let available_brothers = match timeslot_to_brothers.get(&ts_millis) {
+                Some(bros) => bros.clone(),
+                None => {
+                    assignment_failures += 1;
+                    continue;
+                }
+            };
+            
+            if available_brothers.is_empty() {
+                assignment_failures += 1;
+                continue;
+            }
+            
+            // Sort by assignment count (ascending) for load balancing
+            let mut sorted_brothers = available_brothers.clone();
+            sorted_brothers.sort_by(|a, b| {
+                let key_a = format!("{} {}", a.0, a.1);
+                let key_b = format!("{} {}", b.0, b.1);
+                let count_a = brother_assignment_count.get(&key_a).unwrap_or(&0);
+                let count_b = brother_assignment_count.get(&key_b).unwrap_or(&0);
+                count_a.cmp(count_b)
+            });
+            
+            // Assign first brother if needed
+            let mut first_assigned = (
+                rushee.pis_signup.first_brother_first_name.clone(),
+                rushee.pis_signup.first_brother_last_name.clone()
+            );
+            let mut update_first = false;
+            
+            if first_assigned.0 == "none" {
+                if let Some(bro) = sorted_brothers.first() {
+                    first_assigned = bro.clone();
+                    update_first = true;
+                    let key = format!("{} {}", bro.0, bro.1);
+                    *brother_assignment_count.entry(key).or_insert(0) += 1;
+                }
+            }
+            
+            // Assign second brother if needed (different from first)
+            let mut second_assigned = (
+                rushee.pis_signup.second_brother_first_name.clone(),
+                rushee.pis_signup.second_brother_last_name.clone()
+            );
+            let mut update_second = false;
+            
+            if second_assigned.0 == "none" {
+                // Re-sort after first assignment
+                sorted_brothers.sort_by(|a, b| {
+                    let key_a = format!("{} {}", a.0, a.1);
+                    let key_b = format!("{} {}", b.0, b.1);
+                    let count_a = brother_assignment_count.get(&key_a).unwrap_or(&0);
+                    let count_b = brother_assignment_count.get(&key_b).unwrap_or(&0);
+                    count_a.cmp(count_b)
+                });
+                
+                for bro in &sorted_brothers {
+                    // Don't assign same brother twice
+                    if bro.0 != first_assigned.0 || bro.1 != first_assigned.1 {
+                        second_assigned = bro.clone();
+                        update_second = true;
+                        let key = format!("{} {}", bro.0, bro.1);
+                        *brother_assignment_count.entry(key).or_insert(0) += 1;
+                        break;
+                    }
+                }
+            }
+            
+            // Update rushee if any assignments were made
+            if update_first || update_second {
+                let mut update_doc = doc! {};
+                if update_first {
+                    update_doc.insert("pis_signup.first_brother_first_name", &first_assigned.0);
+                    update_doc.insert("pis_signup.first_brother_last_name", &first_assigned.1);
+                }
+                if update_second {
+                    update_doc.insert("pis_signup.second_brother_first_name", &second_assigned.0);
+                    update_doc.insert("pis_signup.second_brother_last_name", &second_assigned.1);
+                }
+                
+                let filter = doc! { "gtid": &rushee.gtid };
+                let update = doc! { "$set": update_doc };
+                
+                if let Ok(_) = rushee_collection.update_one(filter, update).await {
+                    assignments_made += 1;
+                }
+            }
+        }
+    }
+    
+    Ok(Json(json!({
+        "status": "success",
+        "message": format!("Assigned brothers to {} PIS slots. {} slots had no available brothers.", 
+                          assignments_made, assignment_failures)
+    })))
+}
+
+/// Clear all brother assignments from PIS slots
+pub async fn clear_pis_assignments() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_rushee_client().await;
+    
+    let update = doc! {
+        "$set": {
+            "pis_signup.first_brother_first_name": "none",
+            "pis_signup.first_brother_last_name": "none",
+            "pis_signup.second_brother_first_name": "none",
+            "pis_signup.second_brother_last_name": "none"
+        }
+    };
+    
+    match collection.update_many(doc! {}, update).await {
+        Ok(result) => Ok(Json(json!({
+            "status": "success",
+            "message": format!("Cleared assignments from {} rushees", result.modified_count)
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to clear assignments"
+        }))),
+    }
+}
+
+/// Export PIS schedule with brother assignments as CSV data
+pub async fn export_pis_with_brothers() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_rushee_client().await;
+    
+    match collection.find(doc! {}).await {
+        Ok(mut cursor) => {
+            let mut export_data: Vec<serde_json::Value> = Vec::new();
+            
+            while let Some(item) = cursor.next().await {
+                if let Ok(rushee) = item {
+                    export_data.push(json!({
+                        "rushee_name": format!("{} {}", rushee.first_name, rushee.last_name),
+                        "timeslot": rushee.pis_timeslot,
+                        "brother_1": format!("{} {}", 
+                            rushee.pis_signup.first_brother_first_name,
+                            rushee.pis_signup.first_brother_last_name
+                        ),
+                        "brother_2": format!("{} {}", 
+                            rushee.pis_signup.second_brother_first_name,
+                            rushee.pis_signup.second_brother_last_name
+                        )
+                    }));
+                }
+            }
+            
+            // Sort by timeslot
+            export_data.sort_by(|a, b| {
+                let ts_a = a["timeslot"]["$date"]["$numberLong"].as_str().unwrap_or("0");
+                let ts_b = b["timeslot"]["$date"]["$numberLong"].as_str().unwrap_or("0");
+                ts_a.cmp(ts_b)
+            });
+            
+            Ok(Json(json!({
+                "status": "success",
+                "payload": export_data
+            })))
+        }
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to export data"
+        }))),
+    }
+}
+
+/// Deactivate the PIS availability form
+pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_pis_availability_form_status_client().await;
+    
+    let update = doc! { "$set": { "is_active": false } };
+    
+    match collection.update_many(doc! {}, update).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "Form deactivated"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to deactivate form"
         }))),
     }
 }

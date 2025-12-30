@@ -1,4 +1,3 @@
-use chrono::Date;
 use serde::{Deserialize, Serialize};
 use bson::DateTime;
 
@@ -37,4 +36,34 @@ pub struct PISSignup {
 pub struct IncomingPISSignup {
     pub brother_first_name: String,
     pub brother_last_name: String,
+}
+
+// ========== PIS Availability System Models ==========
+
+/// Tracks whether the PIS availability form is currently active
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct PISAvailabilityFormStatus {
+    pub is_active: bool,
+    pub sent_at: Option<DateTime>,
+}
+
+/// Stores a brother's PIS availability submission
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct BrotherPISAvailability {
+    pub brother_uid: String,
+    pub brother_email: String,
+    pub brother_first_name: String,
+    pub brother_last_name: String,
+    pub available_timeslots: Vec<DateTime>,
+    pub submitted_at: DateTime,
+}
+
+/// Incoming payload for brother availability submission
+#[derive(Debug, Deserialize, Serialize)]
+pub struct IncomingBrotherAvailability {
+    pub brother_uid: String,
+    pub brother_email: String,
+    pub brother_first_name: String,
+    pub brother_last_name: String,
+    pub available_timeslots: Vec<String>, // ISO strings
 }

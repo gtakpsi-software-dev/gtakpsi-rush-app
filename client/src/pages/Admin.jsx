@@ -43,6 +43,11 @@ export default function Admin() {
     const [availableTimeslots, setAvailableTimeslots] = useState([]);
     const [selectedNewTimeslot, setSelectedNewTimeslot] = useState("");
 
+    // PIS Availability Form state
+    const [pisFormStatus, setPisFormStatus] = useState({ is_active: false, sent_at: null });
+    const [pisFormLoading, setPisFormLoading] = useState(false);
+    const [brotherAvailabilities, setBrotherAvailabilities] = useState([]);
+
     const navigate = useNavigate();
 
     const errorTitle = "Invalid User Credentials";
@@ -108,6 +113,29 @@ export default function Admin() {
                 }
             } catch (error) {
                 console.error("Failed to fetch timeslots:", error);
+            }
+
+            // Fetch PIS availability form status
+            try {
+                const formStatusResponse = await axios.get(`${apiBase}/pis-availability/status`);
+                if (formStatusResponse.data.status === "success") {
+                    setPisFormStatus({
+                        is_active: formStatusResponse.data.is_active,
+                        sent_at: formStatusResponse.data.sent_at
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch PIS form status:", error);
+            }
+
+            // Fetch brother availabilities
+            try {
+                const availabilitiesResponse = await axios.get(`${apiBase}/pis-availability/all`);
+                if (availabilitiesResponse.data.status === "success") {
+                    setBrotherAvailabilities(availabilitiesResponse.data.payload);
+                }
+            } catch (error) {
+                console.error("Failed to fetch brother availabilities:", error);
             }
 
             setLoading(false);
@@ -490,6 +518,226 @@ export default function Admin() {
                 });
             } else {
                 toast.error("Failed to fetch PIS timeslots", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(`Export error: ${error.message}`, {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        }
+    };
+
+    // ========== PIS Availability Handlers ==========
+    
+    const handleSendPISForm = async () => {
+        setPisFormLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/pis-availability/send-form`);
+            if (response.data.status === "success") {
+                setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() });
+                toast.success("PIS availability form sent to all brothers!", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to send form", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to send form", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setPisFormLoading(false);
+        }
+    };
+
+    const handleClearAndResendPISForm = async () => {
+        if (!window.confirm("This will clear all existing brother availability submissions and resend the form. Continue?")) {
+            return;
+        }
+        setPisFormLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/pis-availability/clear-and-resend`);
+            if (response.data.status === "success") {
+                setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() });
+                setBrotherAvailabilities([]);
+                toast.success("Cleared submissions and resent form!", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to clear and resend", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to clear and resend", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setPisFormLoading(false);
+        }
+    };
+
+    const handleDeactivatePISForm = async () => {
+        setPisFormLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/pis-availability/deactivate`);
+            if (response.data.status === "success") {
+                setPisFormStatus({ ...pisFormStatus, is_active: false });
+                toast.success("Form deactivated", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to deactivate form", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setPisFormLoading(false);
+        }
+    };
+
+    const handleAutoAssignBrothers = async () => {
+        if (!window.confirm("This will automatically assign available brothers to all PIS slots. Continue?")) {
+            return;
+        }
+        setPisFormLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/pis-availability/auto-assign`);
+            if (response.data.status === "success") {
+                toast.success(response.data.message, {
+                    position: "top-center",
+                    autoClose: 5000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to auto-assign", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to auto-assign brothers", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setPisFormLoading(false);
+        }
+    };
+
+    const handleClearAssignments = async () => {
+        if (!window.confirm("This will clear all brother assignments from PIS slots. Continue?")) {
+            return;
+        }
+        setPisFormLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/pis-availability/clear-assignments`);
+            if (response.data.status === "success") {
+                toast.success(response.data.message, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to clear assignments", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to clear assignments", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setPisFormLoading(false);
+        }
+    };
+
+    const exportPISWithBrothers = async () => {
+        try {
+            const response = await axios.get(`${apiBase}/pis-availability/export-csv`);
+            
+            if (response.data.status === "success") {
+                const data = response.data.payload;
+                
+                const csvHeaders = ["Rushee", "Date", "Time", "Brother 1", "Brother 2"];
+                
+                const processedData = data.map(item => {
+                    let jsDate;
+                    if (item.timeslot && item.timeslot.$date && item.timeslot.$date.$numberLong) {
+                        jsDate = new Date(parseInt(item.timeslot.$date.$numberLong));
+                    } else {
+                        jsDate = new Date(item.timeslot);
+                    }
+                    const date = jsDate.toLocaleDateString();
+                    const time = jsDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const brother1 = item.brother_1 === "none none" ? "" : item.brother_1;
+                    const brother2 = item.brother_2 === "none none" ? "" : item.brother_2;
+                    
+                    const csvRow = [
+                        `"${item.rushee_name}"`,
+                        `"${date}"`,
+                        `"${time}"`,
+                        `"${brother1}"`,
+                        `"${brother2}"`
+                    ].join(",");
+                    
+                    return { originalDate: jsDate, csvRow };
+                });
+                
+                processedData.sort((a, b) => a.originalDate - b.originalDate);
+                
+                const csvRows = [csvHeaders.join(","), ...processedData.map(d => d.csvRow)];
+                const csvContent = csvRows.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `PIS_Schedule_With_Brothers_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                
+                toast.success(`Exported ${data.length} PIS appointments with brother assignments`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error("Failed to export", {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
@@ -919,6 +1167,147 @@ export default function Admin() {
                                         Reschedule PIS
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-apple-gray-200 my-10"></div>
+
+                    {/* PIS Availability System Section */}
+                    <div>
+                        <h2 className="text-apple-title2 font-normal text-black mb-4">PIS Brother Availability</h2>
+                        <p className="text-apple-footnote text-apple-gray-600 font-light mb-6">
+                            Send availability form to brothers, auto-assign them to PIS slots, and export schedules
+                        </p>
+
+                        <div className="space-y-6">
+                            {/* Form Status Card */}
+                            <div className="card-apple p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-apple-headline font-normal text-black">Availability Form</h3>
+                                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        pisFormStatus.is_active 
+                                            ? 'bg-green-100 text-green-700' 
+                                            : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                        {pisFormStatus.is_active ? 'Active' : 'Inactive'}
+                                    </div>
+                                </div>
+                                
+                                {pisFormStatus.sent_at && (
+                                    <p className="text-apple-caption2 text-apple-gray-500 mb-4">
+                                        Last sent: {new Date(pisFormStatus.sent_at.$date ? 
+                                            parseInt(pisFormStatus.sent_at.$date.$numberLong) : 
+                                            pisFormStatus.sent_at
+                                        ).toLocaleString()}
+                                    </p>
+                                )}
+
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    When active, brothers will be prompted to fill out their availability before accessing the app.
+                                </p>
+
+                                <div className="flex flex-wrap gap-3">
+                                    {!pisFormStatus.is_active ? (
+                                        <button
+                                            onClick={handleSendPISForm}
+                                            disabled={pisFormLoading}
+                                            className="flex-1 bg-amber-500 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-amber-600 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {pisFormLoading ? 'Sending...' : 'Send Form to All Brothers'}
+                                        </button>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={handleDeactivatePISForm}
+                                                disabled={pisFormLoading}
+                                                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-gray-200 transition-all duration-200 disabled:opacity-60"
+                                            >
+                                                {pisFormLoading ? '...' : 'Deactivate Form'}
+                                            </button>
+                                            <button
+                                                onClick={handleClearAndResendPISForm}
+                                                disabled={pisFormLoading}
+                                                className="flex-1 bg-red-100 text-red-700 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-red-200 transition-all duration-200 disabled:opacity-60"
+                                            >
+                                                {pisFormLoading ? '...' : 'Clear & Resend'}
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Submissions Status */}
+                            <div className="card-apple p-6">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Submissions</h3>
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="text-3xl font-light text-amber-500">
+                                        {brotherAvailabilities.length}
+                                    </div>
+                                    <div className="text-apple-footnote text-apple-gray-600">
+                                        brothers have submitted their availability
+                                    </div>
+                                </div>
+                                
+                                {brotherAvailabilities.length > 0 && (
+                                    <div className="bg-gray-50 rounded-lg p-3 max-h-32 overflow-y-auto">
+                                        <div className="flex flex-wrap gap-2">
+                                            {brotherAvailabilities.map((avail, idx) => (
+                                                <span 
+                                                    key={idx}
+                                                    className="text-xs bg-white px-2 py-1 rounded border text-gray-600"
+                                                >
+                                                    {avail.brother_first_name} {avail.brother_last_name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Auto-Assignment */}
+                            <div className="card-apple p-6">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Auto-Assign Brothers</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    Automatically assign 2 available brothers to each rushee's PIS slot based on submitted availability.
+                                    Brothers are load-balanced to distribute assignments evenly.
+                                </p>
+
+                                <div className="flex flex-wrap gap-3">
+                                    <button
+                                        onClick={handleAutoAssignBrothers}
+                                        disabled={pisFormLoading || brotherAvailabilities.length === 0}
+                                        className={`flex-1 py-3 px-4 rounded-apple-xl text-apple-body font-light transition-all duration-200 ${
+                                            brotherAvailabilities.length > 0
+                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        } disabled:opacity-60`}
+                                    >
+                                        {pisFormLoading ? '...' : 'Auto-Assign Brothers'}
+                                    </button>
+                                    <button
+                                        onClick={handleClearAssignments}
+                                        disabled={pisFormLoading}
+                                        className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200 disabled:opacity-60"
+                                    >
+                                        {pisFormLoading ? '...' : 'Clear All Assignments'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Export with Brothers */}
+                            <div className="card-apple p-6">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Export Full Schedule</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    Export CSV with rushee names, timeslots, and assigned brothers (sorted chronologically)
+                                </p>
+                                <button
+                                    onClick={exportPISWithBrothers}
+                                    className="w-full bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
+                                >
+                                    Export PIS Schedule with Brothers
+                                </button>
                             </div>
                         </div>
                     </div>
