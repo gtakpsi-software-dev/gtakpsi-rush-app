@@ -130,13 +130,13 @@ export default function PISAvailabilityModal({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             
             {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4">
+            <div className="relative bg-white rounded-apple-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4 border border-apple-gray-200">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-5">
-                    <h2 className="text-2xl font-semibold text-white">
+                <div className="bg-black px-6 py-5">
+                    <h2 className="text-apple-title1 font-normal text-white">
                         PIS Availability Form
                     </h2>
-                    <p className="text-amber-100 mt-1">
+                    <p className="text-apple-footnote text-apple-gray-400 mt-1 font-light">
                         Select all timeslots you're available to host PIS interviews
                     </p>
                 </div>
@@ -145,10 +145,10 @@ export default function PISAvailabilityModal({
                 <div className="p-6 overflow-y-auto max-h-[60vh]">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500"></div>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black"></div>
                         </div>
                     ) : timeslots.length === 0 ? (
-                        <div className="text-center py-12 text-gray-500">
+                        <div className="text-center py-12 text-apple-gray-500 text-apple-body font-light">
                             No PIS timeslots available yet
                         </div>
                     ) : (
@@ -157,17 +157,17 @@ export default function PISAvailabilityModal({
                             <div className="flex gap-3 mb-6">
                                 <button
                                     onClick={selectAll}
-                                    className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors"
+                                    className="px-4 py-2 bg-apple-gray-100 text-black rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-200 transition-colors border border-apple-gray-200"
                                 >
                                     Select All
                                 </button>
                                 <button
                                     onClick={clearAll}
-                                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                                    className="px-4 py-2 bg-white text-apple-gray-600 rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-50 transition-colors border border-apple-gray-200"
                                 >
                                     Clear All
                                 </button>
-                                <div className="ml-auto text-sm text-gray-500 self-center">
+                                <div className="ml-auto text-apple-caption1 text-apple-gray-500 self-center font-light">
                                     {selectedSlots.size} of {timeslots.length} selected
                                 </div>
                             </div>
@@ -176,7 +176,7 @@ export default function PISAvailabilityModal({
                             <div className="space-y-6">
                                 {Object.entries(groupedSlots).map(([dateKey, slots]) => (
                                     <div key={dateKey}>
-                                        <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                                        <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
                                             {dateKey}
                                         </h3>
                                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -190,11 +190,11 @@ export default function PISAvailabilityModal({
                                                         key={idx}
                                                         onClick={() => toggleSlot(slotIso)}
                                                         className={`
-                                                            px-3 py-2.5 rounded-lg text-sm font-medium
+                                                            px-3 py-2.5 rounded-apple-lg text-apple-footnote font-light
                                                             transition-all duration-150
                                                             ${isSelected 
-                                                                ? 'bg-amber-500 text-white shadow-md scale-[1.02]' 
-                                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                                ? 'bg-black text-white shadow-md' 
+                                                                : 'bg-apple-gray-100 text-apple-gray-700 hover:bg-apple-gray-200 border border-apple-gray-200'
                                                             }
                                                         `}
                                                     >
@@ -211,20 +211,20 @@ export default function PISAvailabilityModal({
                 </div>
 
                 {/* Footer */}
-                <div className="border-t bg-gray-50 px-6 py-4">
+                <div className="border-t border-apple-gray-200 bg-apple-gray-50 px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-500">
+                        <p className="text-apple-caption1 text-apple-gray-500 font-light">
                             You must submit this form to access the Rush App
                         </p>
                         <button
                             onClick={handleSubmit}
                             disabled={submitting || selectedSlots.size === 0}
                             className={`
-                                px-6 py-2.5 rounded-xl font-medium text-white
+                                px-6 py-2.5 rounded-apple-xl text-apple-body font-light text-white
                                 transition-all duration-200
                                 ${submitting || selectedSlots.size === 0
-                                    ? 'bg-gray-300 cursor-not-allowed'
-                                    : 'bg-amber-500 hover:bg-amber-600 shadow-md hover:shadow-lg'
+                                    ? 'bg-apple-gray-300 cursor-not-allowed'
+                                    : 'bg-black hover:bg-apple-gray-800'
                                 }
                             `}
                         >

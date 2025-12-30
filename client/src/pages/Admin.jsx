@@ -912,20 +912,20 @@ export default function Admin() {
                     />
                     
                     {/* Modal */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4">
+                    <div className="relative bg-white rounded-apple-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 border border-apple-gray-200">
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex items-center justify-between">
+                        <div className="bg-black px-6 py-4 flex items-center justify-between">
                             <div>
-                                <h2 className="text-xl font-semibold text-white">
+                                <h2 className="text-apple-title2 font-normal text-white">
                                     Edit Availability
                                 </h2>
-                                <p className="text-amber-100 text-sm">
+                                <p className="text-apple-footnote text-apple-gray-400 font-light">
                                     {editingBrotherAvailability.brother_first_name} {editingBrotherAvailability.brother_last_name}
                                 </p>
                             </div>
                             <button
                                 onClick={closeEditAvailability}
-                                className="text-white/80 hover:text-white text-2xl font-light"
+                                className="text-white/60 hover:text-white text-2xl font-light transition-colors"
                             >
                                 ×
                             </button>
@@ -934,7 +934,7 @@ export default function Admin() {
                         {/* Content */}
                         <div className="p-6 overflow-y-auto max-h-[55vh]">
                             {allPisTimeslots.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
+                                <div className="text-center py-8 text-apple-gray-500 text-apple-body font-light">
                                     No PIS timeslots available
                                 </div>
                             ) : (
@@ -943,17 +943,17 @@ export default function Admin() {
                                     <div className="flex gap-3 mb-6">
                                         <button
                                             onClick={selectAllEditSlots}
-                                            className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors"
+                                            className="px-4 py-2 bg-apple-gray-100 text-black rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-200 transition-colors border border-apple-gray-200"
                                         >
                                             Select All
                                         </button>
                                         <button
                                             onClick={clearAllEditSlots}
-                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                                            className="px-4 py-2 bg-white text-apple-gray-600 rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-50 transition-colors border border-apple-gray-200"
                                         >
                                             Clear All
                                         </button>
-                                        <div className="ml-auto text-sm text-gray-500 self-center">
+                                        <div className="ml-auto text-apple-caption1 text-apple-gray-500 self-center font-light">
                                             {editingSlots.size} of {allPisTimeslots.length} selected
                                         </div>
                                     </div>
@@ -962,7 +962,7 @@ export default function Admin() {
                                     <div className="space-y-6">
                                         {Object.entries(groupedEditSlots).map(([dateKey, slots]) => (
                                             <div key={dateKey}>
-                                                <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                                                <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
                                                     {dateKey}
                                                 </h3>
                                                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
@@ -976,11 +976,11 @@ export default function Admin() {
                                                                 key={idx}
                                                                 onClick={() => toggleEditSlot(slotIso)}
                                                                 className={`
-                                                                    px-2 py-2 rounded-lg text-sm font-medium
+                                                                    px-2 py-2 rounded-apple-lg text-apple-footnote font-light
                                                                     transition-all duration-150
                                                                     ${isSelected 
-                                                                        ? 'bg-amber-500 text-white shadow-md' 
-                                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                                        ? 'bg-black text-white shadow-md' 
+                                                                        : 'bg-apple-gray-100 text-apple-gray-700 hover:bg-apple-gray-200 border border-apple-gray-200'
                                                                     }
                                                                 `}
                                                             >
@@ -997,11 +997,11 @@ export default function Admin() {
                         </div>
 
                         {/* Footer */}
-                        <div className="border-t bg-gray-50 px-6 py-4">
+                        <div className="border-t border-apple-gray-200 bg-apple-gray-50 px-6 py-4">
                             <div className="flex items-center justify-end gap-3">
                                 <button
                                     onClick={closeEditAvailability}
-                                    className="px-5 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+                                    className="px-5 py-2.5 rounded-apple-xl text-apple-body font-light text-apple-gray-600 hover:bg-apple-gray-100 transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -1009,11 +1009,11 @@ export default function Admin() {
                                     onClick={saveEditedAvailability}
                                     disabled={savingAvailability}
                                     className={`
-                                        px-6 py-2.5 rounded-xl font-medium text-white
+                                        px-6 py-2.5 rounded-apple-xl text-apple-body font-light text-white
                                         transition-all duration-200
                                         ${savingAvailability
-                                            ? 'bg-gray-300 cursor-not-allowed'
-                                            : 'bg-amber-500 hover:bg-amber-600 shadow-md hover:shadow-lg'
+                                            ? 'bg-apple-gray-300 cursor-not-allowed'
+                                            : 'bg-black hover:bg-apple-gray-800'
                                         }
                                     `}
                                 >
@@ -1422,7 +1422,7 @@ export default function Admin() {
             </div>
 
                                     {/* Reschedule Button */}
-                                    <button
+                <button
                                         onClick={handleReschedulePIS}
                                         disabled={!selectedRushee || !selectedNewTimeslot}
                                         className={`w-full py-3 px-4 rounded-apple-xl text-apple-body font-light transition-all duration-200 ${
@@ -1432,11 +1432,11 @@ export default function Admin() {
                                         }`}
                                     >
                                         Reschedule PIS
-                                    </button>
+                </button>
         </div>
                             </div>
                         </div>
-                    </div>
+            </div>
 
                     {/* Divider */}
                     <div className="border-t border-apple-gray-200 my-10"></div>
@@ -1453,10 +1453,10 @@ export default function Admin() {
                             <div className="card-apple p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-apple-headline font-normal text-black">Availability Form</h3>
-                                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    <div className={`px-3 py-1 rounded-full text-apple-caption1 font-medium ${
                                         pisFormStatus.is_active 
-                                            ? 'bg-green-100 text-green-700' 
-                                            : 'bg-gray-100 text-gray-600'
+                                            ? 'bg-black text-white' 
+                                            : 'bg-apple-gray-100 text-apple-gray-600'
                                     }`}>
                                         {pisFormStatus.is_active ? 'Active' : 'Inactive'}
                                     </div>
@@ -1477,69 +1477,69 @@ export default function Admin() {
 
                                 <div className="flex flex-wrap gap-3">
                                     {!pisFormStatus.is_active ? (
-                                        <button
+                <button
                                             onClick={handleSendPISForm}
                                             disabled={pisFormLoading}
-                                            className="flex-1 bg-amber-500 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-amber-600 transition-all duration-200 disabled:opacity-60"
-                                        >
+                                            className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
+                >
                                             {pisFormLoading ? 'Sending...' : 'Send Form to All Brothers'}
-                                        </button>
+                </button>
                                     ) : (
                                         <>
                                             <button
                                                 onClick={handleDeactivatePISForm}
                                                 disabled={pisFormLoading}
-                                                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-gray-200 transition-all duration-200 disabled:opacity-60"
+                                                className="flex-1 bg-apple-gray-100 text-apple-gray-700 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-200 transition-all duration-200 disabled:opacity-60 border border-apple-gray-200"
                                             >
                                                 {pisFormLoading ? '...' : 'Deactivate Form'}
                                             </button>
                                             <button
                                                 onClick={handleClearAndResendPISForm}
                                                 disabled={pisFormLoading}
-                                                className="flex-1 bg-red-100 text-red-700 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-red-200 transition-all duration-200 disabled:opacity-60"
+                                                className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-red-50 transition-all duration-200 disabled:opacity-60 border border-red-200"
                                             >
                                                 {pisFormLoading ? '...' : 'Clear & Resend'}
                                             </button>
                                         </>
                                     )}
                                 </div>
-                            </div>
+            </div>
 
                             {/* Submissions Status */}
                             <div className="card-apple p-6">
                                 <h3 className="text-apple-headline font-normal text-black mb-2">Submissions</h3>
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="text-3xl font-light text-amber-500">
+                                    <div className="text-3xl font-light text-black">
                                         {brotherAvailabilities.length}
                                     </div>
-                                    <div className="text-apple-footnote text-apple-gray-600">
+                                    <div className="text-apple-footnote text-apple-gray-600 font-light">
                                         brothers have submitted their availability
                                     </div>
                                 </div>
                                 
-                                <p className="text-apple-caption2 text-apple-gray-500 mb-3">
+                                <p className="text-apple-caption2 text-apple-gray-500 mb-3 font-light">
                                     Click on a name to edit their availability
                                 </p>
                                 
                                 {brotherAvailabilities.length > 0 && (
-                                    <div className="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                                    <div className="bg-apple-gray-50 rounded-apple-lg p-3 max-h-48 overflow-y-auto border border-apple-gray-100">
                                         <div className="flex flex-wrap gap-2">
                                             {brotherAvailabilities.map((avail, idx) => (
-                                                <button 
+                <button
                                                     key={idx}
                                                     onClick={() => openEditAvailability(avail)}
-                                                    className="text-xs bg-white px-3 py-1.5 rounded border text-gray-700 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-all cursor-pointer"
+                                                    className="text-apple-caption1 bg-white px-3 py-1.5 rounded-apple border border-apple-gray-200 text-apple-gray-700 hover:bg-apple-gray-100 hover:border-apple-gray-300 transition-all cursor-pointer font-light"
                                                 >
                                                     {avail.brother_first_name} {avail.brother_last_name}
-                                                    <span className="ml-1 text-gray-400">
+                                                    <span className="ml-1 text-apple-gray-400">
                                                         ({avail.available_timeslots?.length || 0})
                                                     </span>
-                                                </button>
+                </button>
                                             ))}
                                         </div>
                                     </div>
                                 )}
-                            </div>
+            </div>
 
                             {/* Auto-Assignment */}
                             <div className="card-apple p-6">
@@ -1550,7 +1550,7 @@ export default function Admin() {
                                 </p>
 
                                 <div className="flex flex-wrap gap-3">
-                                    <button
+                <button
                                         onClick={handleAutoAssignBrothers}
                                         disabled={pisFormLoading || brotherAvailabilities.length === 0}
                                         className={`flex-1 py-3 px-4 rounded-apple-xl text-apple-body font-light transition-all duration-200 ${
@@ -1567,9 +1567,9 @@ export default function Admin() {
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200 disabled:opacity-60"
                                     >
                                         {pisFormLoading ? '...' : 'Clear All Assignments'}
-                                    </button>
+                </button>
                                 </div>
-                            </div>
+            </div>
 
                             {/* Export with Brothers */}
                             <div className="card-apple p-6">
