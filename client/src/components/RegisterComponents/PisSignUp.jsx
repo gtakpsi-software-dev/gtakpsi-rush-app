@@ -87,21 +87,6 @@ export default function PisSignUp(props) {
                                 </p>
                             </div>
                             
-                            {/* Warning message for Wednesday slots */}
-                            <div className="mb-8 flex justify-center">
-                                <div className="bg-orange-50 border border-orange-200 rounded-apple-2xl p-6 max-w-2xl">
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-orange-500 text-lg mt-0.5">⚠️</span>
-                                        <div className="text-left">
-                                            <p className="text-apple-body text-orange-800 font-normal leading-relaxed">
-                                                <strong className="font-medium text-orange-900">Please do not sign up for a Wednesday (September 10th) timeslot unless you absolutely have to. </strong> 
-                                                If you must, please email <a href="mailto:vmiriyapalli@gatech.edu" className="text-orange-700 underline hover:text-orange-600 transition-colors duration-200">vmiriyapalli@gatech.edu</a> with a reason as to why and she will schedule you between 8:00 PM and 10:15 PM.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
                             {/* Timeslot Selection */}
                             <div>
                                 <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
