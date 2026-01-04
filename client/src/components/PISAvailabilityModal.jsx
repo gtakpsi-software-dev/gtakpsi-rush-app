@@ -69,13 +69,33 @@ export default function PISAvailabilityModal({
             return;
         }
 
+        // Extract first and last names, handling various possible formats
+        let firstName = user.firstName || user.firstname || '';
+        let lastName = user.lastName || user.lastname || '';
+        
+        // If names are empty but we have a displayName, try to parse it
+        if ((!firstName || !lastName) && user.displayName) {
+            const nameParts = user.displayName.trim().split(' ');
+            if (!firstName) firstName = nameParts[0] || '';
+            if (!lastName) lastName = nameParts.slice(1).join(' ') || '';
+        }
+        
+        // Trim names to avoid whitespace issues
+        firstName = firstName.trim();
+        lastName = lastName.trim();
+        
+        if (!firstName || !lastName) {
+            toast.error('Unable to determine your name. Please contact an admin.');
+            return;
+        }
+
         setSubmitting(true);
         try {
             const response = await axios.post(`${api}/brother/pis-availability/submit`, {
                 brother_uid: user.uid,
                 brother_email: user.email,
-                brother_first_name: user.firstName || user.firstname || '',
-                brother_last_name: user.lastName || user.lastname || '',
+                brother_first_name: firstName,
+                brother_last_name: lastName,
                 available_timeslots: Array.from(selectedSlots)
             });
 
