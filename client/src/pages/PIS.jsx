@@ -162,15 +162,29 @@ export default function PIS() {
                     await axios.get(`${api}/rushee/${gtid}`)
                         .then((response) => {
                             if (response.data.status === "success") {
-                                setRushee(response.data.payload);
+                                const rusheeData = response.data.payload;
+                                setRushee(rusheeData);
 
                                 // Prepopulate answers with existing PIS answers
                                 const existingAnswers = {};
-                                response.data.payload.pis?.forEach((pis) => {
+                                rusheeData.pis?.forEach((pis) => {
                                     existingAnswers[pis.question] = pis.answer;
                                 });
                                 // Merge with any answers already present (e.g., from real-time doc state)
                                 setAnswers((prev) => ({ ...prev, ...existingAnswers }));
+                                
+                                // Initialize brother names from existing pis_signup data
+                                if (rusheeData.pis_signup) {
+                                    const signup = rusheeData.pis_signup;
+                                    setBrotherA({
+                                        firstName: signup.first_brother_first_name !== "none" ? signup.first_brother_first_name : '',
+                                        lastName: signup.first_brother_last_name !== "none" ? signup.first_brother_last_name : ''
+                                    });
+                                    setBrotherB({
+                                        firstName: signup.second_brother_first_name !== "none" ? signup.second_brother_first_name : '',
+                                        lastName: signup.second_brother_last_name !== "none" ? signup.second_brother_last_name : ''
+                                    });
+                                }
                             } else {
                                 navigate(`/error/${errorTitle}/${"Rushee with this GTID does not exist"}`);
                             }

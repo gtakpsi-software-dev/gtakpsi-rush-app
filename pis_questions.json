@@ -4,11 +4,11 @@
         "question_type": "MC"
     },
     {
-        "question": "Are you available on Saturday, September 20th from 9am to 4pm?",
+        "question": "Are you available on Saturday, February 14th from 9am to 4pm?",
         "question_type": "MC"
     },
     {
-        "question": "Are you available on Sunday, October 19th from 9am to 4pm?",
+        "question": "Are you available on Sunday, March 15th from 9am to 4pm?",
         "question_type": "MC"
     },
     {
@@ -16,23 +16,35 @@
         "question_type": "Long"
     },
     {
-        "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
+        "question": "Could you share an experience where you truly understood the importance of service?",
         "question_type": "Long"
     },
     {
-        "question": "Could you share an experience where you truly exemplified the value of service and understood the importance of it?",
-        "question_type": "Long"
-    },
-    {
-        "question": "At Recruitment, who was your most memorable conversation with, and what was it about?",
-        "question_type": "Long"
-    },
-    {
-        "question": "Why do you want to join AKPsi?",
+        "question": "Why do you want to join AKPsi? ",
         "question_type": "Long"
     },
     {
         "question": "Could you describe a time when you took steps to promote and uphold diversity, equity and inclusion principles?",
+        "question_type": "Long"
+    },
+    {
+        "question": "What was your memorable conversation or the coolest thing you learned about a brother during Rush?",
+        "question_type": "Long"
+    },
+    {
+        "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
+        "question_type": "Long"
+    },
+    {
+        "question": "Who’s your biggest role model and why?",
+        "question_type": "Long"
+    },
+    {
+        "question": "If you could have any superpower what would it be and why?",
+        "question_type": "Long"
+    },
+    {
+        "question": "Tell us about a recent hobby you’ve picked up.",
         "question_type": "Long"
     },
     {
