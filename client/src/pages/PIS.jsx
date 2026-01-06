@@ -72,20 +72,21 @@ export default function PIS() {
     useEffect(() => {
         const docState = collaboration.documentState;
         if (docState && Object.keys(docState).length > 0) {
-            // Handle brother fields
-            if (docState['_brotherA_firstName'] !== undefined) {
+            // Handle brother fields - only update if WebSocket has a non-empty value
+            // This prevents WebSocket empty state from overwriting database values
+            if (docState['_brotherA_firstName'] !== undefined && docState['_brotherA_firstName']) {
                 setBrotherA(prev => prev.firstName !== docState['_brotherA_firstName'] 
                     ? { ...prev, firstName: docState['_brotherA_firstName'] } : prev);
             }
-            if (docState['_brotherA_lastName'] !== undefined) {
+            if (docState['_brotherA_lastName'] !== undefined && docState['_brotherA_lastName']) {
                 setBrotherA(prev => prev.lastName !== docState['_brotherA_lastName'] 
                     ? { ...prev, lastName: docState['_brotherA_lastName'] } : prev);
             }
-            if (docState['_brotherB_firstName'] !== undefined) {
+            if (docState['_brotherB_firstName'] !== undefined && docState['_brotherB_firstName']) {
                 setBrotherB(prev => prev.firstName !== docState['_brotherB_firstName'] 
                     ? { ...prev, firstName: docState['_brotherB_firstName'] } : prev);
             }
-            if (docState['_brotherB_lastName'] !== undefined) {
+            if (docState['_brotherB_lastName'] !== undefined && docState['_brotherB_lastName']) {
                 setBrotherB(prev => prev.lastName !== docState['_brotherB_lastName'] 
                     ? { ...prev, lastName: docState['_brotherB_lastName'] } : prev);
             }
@@ -114,15 +115,15 @@ export default function PIS() {
             const latestUpdate = updates[updates.length - 1];
             const { field, value } = latestUpdate;
             
-            // Handle brother field updates
+            // Handle brother field updates - allow empty values here since this is a live update from another user
             if (field === '_brotherA_firstName') {
-                setBrotherA(prev => prev.firstName !== value ? { ...prev, firstName: value } : prev);
+                setBrotherA(prev => prev.firstName !== value ? { ...prev, firstName: value || '' } : prev);
             } else if (field === '_brotherA_lastName') {
-                setBrotherA(prev => prev.lastName !== value ? { ...prev, lastName: value } : prev);
+                setBrotherA(prev => prev.lastName !== value ? { ...prev, lastName: value || '' } : prev);
             } else if (field === '_brotherB_firstName') {
-                setBrotherB(prev => prev.firstName !== value ? { ...prev, firstName: value } : prev);
+                setBrotherB(prev => prev.firstName !== value ? { ...prev, firstName: value || '' } : prev);
             } else if (field === '_brotherB_lastName') {
-                setBrotherB(prev => prev.lastName !== value ? { ...prev, lastName: value } : prev);
+                setBrotherB(prev => prev.lastName !== value ? { ...prev, lastName: value || '' } : prev);
             } else {
                 // Handle answer updates (MC and text questions)
                 setAnswers(prev => {
@@ -176,14 +177,23 @@ export default function PIS() {
                                 // Initialize brother names from existing pis_signup data
                                 if (rusheeData.pis_signup) {
                                     const signup = rusheeData.pis_signup;
-                                    setBrotherA({
-                                        firstName: signup.first_brother_first_name !== "none" ? signup.first_brother_first_name : '',
-                                        lastName: signup.first_brother_last_name !== "none" ? signup.first_brother_last_name : ''
+                                    
+                                    // Helper to check if a value is a valid name (not "none", null, undefined, or empty)
+                                    const isValidName = (val) => val && val.trim() && val.trim().toLowerCase() !== "none";
+                                    
+                                    const brotherAFirst = isValidName(signup.first_brother_first_name) ? signup.first_brother_first_name.trim() : '';
+                                    const brotherALast = isValidName(signup.first_brother_last_name) ? signup.first_brother_last_name.trim() : '';
+                                    const brotherBFirst = isValidName(signup.second_brother_first_name) ? signup.second_brother_first_name.trim() : '';
+                                    const brotherBLast = isValidName(signup.second_brother_last_name) ? signup.second_brother_last_name.trim() : '';
+                                    
+                                    console.log('Initializing brother names:', {
+                                        brotherA: { firstName: brotherAFirst, lastName: brotherALast },
+                                        brotherB: { firstName: brotherBFirst, lastName: brotherBLast },
+                                        rawSignup: signup
                                     });
-                                    setBrotherB({
-                                        firstName: signup.second_brother_first_name !== "none" ? signup.second_brother_first_name : '',
-                                        lastName: signup.second_brother_last_name !== "none" ? signup.second_brother_last_name : ''
-                                    });
+                                    
+                                    setBrotherA({ firstName: brotherAFirst, lastName: brotherALast });
+                                    setBrotherB({ firstName: brotherBFirst, lastName: brotherBLast });
                                 }
                             } else {
                                 navigate(`/error/${errorTitle}/${"Rushee with this GTID does not exist"}`);
