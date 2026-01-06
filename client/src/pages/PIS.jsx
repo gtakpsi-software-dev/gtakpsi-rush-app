@@ -604,6 +604,7 @@ export default function PIS() {
                                                             currentUser={currentUser}
                                                         />
                                                     </div>
+                                                    {/* Voice transcription temporarily disabled
                                                     <div className="flex-shrink-0 self-center">
                                                         <VoiceTranscriptionHandler
                                                             questionKey={question.question}
@@ -614,6 +615,7 @@ export default function PIS() {
                                                             disabled={!collaboration.isConnected && collaboration.connectedUsers.length > 0}
                                                         />
                                                     </div>
+                                                    */}
                                                 </div>
                                             )}
                                             
