@@ -214,7 +214,7 @@ export default function Navbar(props) {
                                                     href="/admin"
                                                     className="block px-4 py-2 text-black hover:bg-apple-gray-100"
                                                 >
-                                                    Panel
+                                                    Admin Panel
                                                 </a>
                                             </li>
                                             <li>
@@ -222,7 +222,7 @@ export default function Navbar(props) {
                                                     href="/admin/voting"
                                                     className="block px-4 py-2 text-black hover:bg-apple-gray-100"
                                                 >
-                                                    Voting
+                                                    Admin Voting
                                                 </a>
                                             </li>
                                             <li>
@@ -230,7 +230,7 @@ export default function Navbar(props) {
                                                     href="/admin/sorting"
                                                     className="block px-4 py-2 text-black hover:bg-apple-gray-100"
                                                 >
-                                                    Sorting
+                                                    Admin Sorting
                                                 </a>
                                             </li>
                                             <li>
