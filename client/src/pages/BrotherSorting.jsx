@@ -502,7 +502,13 @@ export default function BrotherSorting() {
                                 </>
                             )}
                         </div>
-                        <div className="p-4 border-t border-apple-gray-200 flex justify-end">
+                        <div className="p-4 border-t border-apple-gray-200 flex justify-end gap-2">
+                            <button
+                                onClick={() => navigate(`/brother/rushee/${selectedRushee.id}`)}
+                                className="px-4 py-2 bg-black text-white text-apple-body rounded-apple hover:bg-apple-gray-800 transition-colors"
+                            >
+                                View Rushee Page
+                            </button>
                             <button
                                 onClick={closeDetails}
                                 className="px-4 py-2 bg-apple-gray-100 text-apple-body text-black rounded-apple hover:bg-apple-gray-200 transition-colors"

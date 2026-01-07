@@ -691,12 +691,20 @@ export default function AdminSorting() {
                                 {notesStatus === "error" && "Error saving notes"}
                                 {notesStatus === "idle" && "Autosave enabled"}
                             </span>
-                            <button
-                                onClick={closeNotes}
-                                className="px-4 py-2 bg-apple-gray-100 text-apple-body text-black rounded-apple hover:bg-apple-gray-200 transition-colors"
-                            >
-                                Close
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => navigate(`/brother/rushee/${selectedRushee.id}`)}
+                                    className="px-4 py-2 bg-black text-white text-apple-body rounded-apple hover:bg-apple-gray-800 transition-colors"
+                                >
+                                    View Rushee Page
+                                </button>
+                                <button
+                                    onClick={closeNotes}
+                                    className="px-4 py-2 bg-apple-gray-100 text-apple-body text-black rounded-apple hover:bg-apple-gray-200 transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </>
