@@ -1342,8 +1342,12 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         );
         let mut update_second = false;
         
+        // Track if rushee needed assignments
+        let needed_first = first_assigned.0 == "none";
+        let needed_second = second_assigned.0 == "none";
+        
         // Assign first brother if needed
-        if first_assigned.0 == "none" {
+        if needed_first {
             if let Some(bro) = eligible_brothers.first() {
                 first_assigned = (bro.0.clone(), bro.1.clone());
                 update_first = true;
@@ -1354,7 +1358,7 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         }
         
         // Assign second brother if needed (must be different from first)
-        if second_assigned.0 == "none" {
+        if needed_second {
             let first_key = format!("{} {}", first_assigned.0.trim(), first_assigned.1.trim());
             
             // Re-filter eligible brothers (excluding the first assigned and already assigned at timeslot)
@@ -1386,6 +1390,10 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
             }
         }
         
+        // Check if rushee still has unassigned slots after our attempt
+        let still_missing_first = needed_first && !update_first;
+        let still_missing_second = needed_second && !update_second;
+        
         // Update rushee if any assignments were made
         if update_first || update_second {
             let mut update_doc = doc! {};
@@ -1404,12 +1412,20 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
             if let Ok(_) = rushee_collection.update_one(filter, update).await {
                 assignments_made += 1;
             }
+            
+            // If we made some assignments but still missing brothers, count as partial failure
+            if still_missing_first || still_missing_second {
+                assignment_failures += 1;
+            }
+        } else if needed_first || needed_second {
+            // Rushee needed assignments but we couldn't make any (all brothers at this time are busy)
+            assignment_failures += 1;
         }
     }
     
     Ok(Json(json!({
         "status": "success",
-        "message": format!("Assigned brothers to {} PIS slots. {} slots had no available brothers.", 
+        "message": format!("Assigned brothers to {} PIS slots. {} slots could not be fully assigned (all available brothers at that time were busy).", 
                           assignments_made, assignment_failures)
     })))
 }
