@@ -64,10 +64,7 @@ export default function PISAvailabilityModal({
     };
 
     const handleSubmit = async () => {
-        if (selectedSlots.size === 0) {
-            toast.warning('Please select at least one timeslot');
-            return;
-        }
+        // Allow submission with zero slots (brother is not available for any)
 
         // Extract first and last names, handling various possible formats
         let firstName = user.firstName || user.firstname || '';
@@ -157,7 +154,7 @@ export default function PISAvailabilityModal({
                         PIS Availability Form
                     </h2>
                     <p className="text-apple-footnote text-apple-gray-400 mt-1 font-light">
-                        Select all timeslots you're available to host PIS interviews
+                        Select all timeslots you're available to host PIS interviews (or submit with none if unavailable)
                     </p>
                 </div>
 
@@ -238,11 +235,11 @@ export default function PISAvailabilityModal({
                         </p>
                         <button
                             onClick={handleSubmit}
-                            disabled={submitting || selectedSlots.size === 0}
+                            disabled={submitting}
                             className={`
                                 px-6 py-2.5 rounded-apple-xl text-apple-body font-light text-white
                                 transition-all duration-200
-                                ${submitting || selectedSlots.size === 0
+                                ${submitting
                                     ? 'bg-apple-gray-300 cursor-not-allowed'
                                     : 'bg-black hover:bg-apple-gray-800'
                                 }
@@ -257,7 +254,9 @@ export default function PISAvailabilityModal({
                                     Submitting...
                                 </span>
                             ) : (
-                                `Submit Availability (${selectedSlots.size} slots)`
+                                selectedSlots.size === 0 
+                                    ? 'Submit (Not Available)'
+                                    : `Submit Availability (${selectedSlots.size} slots)`
                             )}
                         </button>
                     </div>
