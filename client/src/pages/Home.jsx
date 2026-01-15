@@ -25,8 +25,8 @@ export default function Home() {
                 
                 {/* Subtitle */}
                 <div className="mb-12 opacity-0 animate-slide-up" style={{animationDelay: '1.1s', animationFillMode: 'forwards'}}>
-                    <p className="text-apple-title2 text-apple-gray-600 font-light max-w-2xl leading-relaxed">
-                        Join Georgia Tech's premier business fraternity for Spring 2026 Rush. 
+                    <p className="text-apple-title2 text-apple-gray-600 font-light max-w-4xl leading-relaxed">
+                        Join Georgia Tech's premier business fraternity for Spring 2026 Rush.<br />
                         Experience professional development, networking, and brotherhood.
                     </p>
                 </div>
