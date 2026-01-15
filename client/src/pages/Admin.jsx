@@ -889,8 +889,8 @@ export default function Admin() {
         setRushAppLoading(true);
         
         const newStatus = {
-            disable_bidcom: field === 'disable_bidcom' ? newValue : rushAppStatus.disable_bidcom,
-            disable_regular: field === 'disable_regular' ? newValue : rushAppStatus.disable_regular,
+            disable_bidcom: field === 'disable_bidcom' ? Boolean(newValue) : Boolean(rushAppStatus.disable_bidcom),
+            disable_regular: field === 'disable_regular' ? Boolean(newValue) : Boolean(rushAppStatus.disable_regular),
         };
         
         try {
