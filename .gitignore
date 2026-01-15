@@ -1,3 +1,8 @@
 .env
 firebase-service-account.json
 *.json.bak
+
+server/bin/
+server/lib/
+
+server/pyvenv.cfg
