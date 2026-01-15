@@ -153,9 +153,8 @@ async fn main() {
         .route("/admin/pis-availability/auto-assign", post(controllers::admin::auto_assign_pis_brothers).options(|| async { StatusCode::OK }))
         .route("/admin/pis-availability/clear-assignments", post(controllers::admin::clear_pis_assignments).options(|| async { StatusCode::OK }))
         .route("/admin/pis-availability/export-csv", get(controllers::admin::export_pis_with_brothers).options(|| async { StatusCode::OK }))
-        // Rush App disable/enable routes
-        .route("/admin/rush-app/disable", post(controllers::admin::disable_rush_app).options(|| async { StatusCode::OK }))
-        .route("/admin/rush-app/enable", post(controllers::admin::enable_rush_app).options(|| async { StatusCode::OK }))
+        // Rush App access control routes
+        .route("/admin/rush-app/update", post(controllers::admin::update_rush_app_settings).options(|| async { StatusCode::OK }))
         .route("/admin/rush-app/status", get(controllers::admin::get_rush_app_status).options(|| async { StatusCode::OK }))
         .route_layer(middleware::from_fn_with_state(
             firebase_auth.clone(),

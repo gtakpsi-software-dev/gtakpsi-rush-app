@@ -55,7 +55,7 @@ export default function Admin() {
     const [savingAvailability, setSavingAvailability] = useState(false);
 
     // Rush App disable state
-    const [rushAppStatus, setRushAppStatus] = useState({ is_disabled: false, disabled_for: null });
+    const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false });
     const [rushAppLoading, setRushAppLoading] = useState(false);
 
     const navigate = useNavigate();
@@ -168,10 +168,9 @@ export default function Admin() {
                 const rushAppResponse = await axios.get(`${apiBase}/rush-app/status`);
                 if (rushAppResponse.data.status === "success") {
                     setRushAppStatus({
-                        is_disabled: rushAppResponse.data.is_disabled,
-                        disabled_for: rushAppResponse.data.disabled_for,
-                        disabled_at: rushAppResponse.data.disabled_at,
-                        disabled_by: rushAppResponse.data.disabled_by
+                        disable_bidcom: rushAppResponse.data.disable_bidcom,
+                        disable_regular: rushAppResponse.data.disable_regular,
+                        updated_by: rushAppResponse.data.updated_by
                     });
                 }
             } catch (error) {
@@ -886,70 +885,37 @@ export default function Admin() {
 
     // ========== Rush App Disable Handlers ==========
 
-    const handleDisableRushApp = async (disabledFor) => {
-        const targetText = disabledFor === "bidcom" ? "bid committee brothers" : "all brothers";
-        if (!window.confirm(`Are you sure you want to disable the Rush App for ${targetText}? They will not be able to sign in until you re-enable it.`)) {
-            return;
-        }
+    const handleToggleRushAppAccess = async (field, newValue) => {
+        setRushAppLoading(true);
         
-        setRushAppLoading(true);
+        const newStatus = {
+            disable_bidcom: field === 'disable_bidcom' ? newValue : rushAppStatus.disable_bidcom,
+            disable_regular: field === 'disable_regular' ? newValue : rushAppStatus.disable_regular,
+        };
+        
         try {
-            const response = await axios.post(`${apiBase}/rush-app/disable`, { disabled_for: disabledFor });
+            const response = await axios.post(`${apiBase}/rush-app/update`, newStatus);
             if (response.data.status === "success") {
                 setRushAppStatus({
-                    is_disabled: true,
-                    disabled_for: disabledFor,
-                    disabled_at: new Date().toISOString(),
-                    disabled_by: auth.currentUser?.email || "admin"
+                    ...newStatus,
+                    updated_by: auth.currentUser?.email || "admin"
                 });
-                toast.success(response.data.message, {
+                
+                const targetText = field === 'disable_bidcom' ? 'Bid Committee' : 'Regular Brothers';
+                toast.success(`${targetText} access ${newValue ? 'disabled' : 'enabled'}`, {
                     position: "top-center",
-                    autoClose: 3000,
+                    autoClose: 2000,
                     theme: "dark",
                 });
             } else {
-                toast.error(response.data.message || "Failed to disable Rush App", {
+                toast.error(response.data.message || "Failed to update settings", {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             }
         } catch (error) {
-            toast.error("Failed to disable Rush App", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setRushAppLoading(false);
-        }
-    };
-
-    const handleEnableRushApp = async () => {
-        setRushAppLoading(true);
-        try {
-            const response = await axios.post(`${apiBase}/rush-app/enable`);
-            if (response.data.status === "success") {
-                setRushAppStatus({
-                    is_disabled: false,
-                    disabled_for: null,
-                    disabled_at: null,
-                    disabled_by: null
-                });
-                toast.success(response.data.message, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to enable Rush App", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error("Failed to enable Rush App", {
+            toast.error("Failed to update Rush App settings", {
                 position: "top-center",
                 autoClose: 3000,
                 theme: "dark",
@@ -1304,54 +1270,62 @@ export default function Admin() {
 
                             {/* Rush App Control */}
                             <div className="card-apple p-5">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-apple-headline font-normal text-black">Rush App Access</h3>
-                                    <div className={`px-3 py-1 rounded-full text-apple-caption1 font-medium ${
-                                        rushAppStatus.is_disabled 
-                                            ? 'bg-red-100 text-red-700' 
-                                            : 'bg-green-100 text-green-700'
-                                    }`}>
-                                        {rushAppStatus.is_disabled 
-                                            ? (rushAppStatus.disabled_for === "bidcom" ? "Disabled (BidCom)" : "Disabled (All)")
-                                            : 'Enabled'}
-                                    </div>
-                                </div>
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Rush App Access</h3>
                                 <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                                    Temporarily disable login for brothers. Admins always have access.
+                                    Disable login for specific groups. Admins always have access.
                                 </p>
 
-                                {rushAppStatus.is_disabled && rushAppStatus.disabled_by && (
-                                    <p className="text-apple-caption2 text-apple-gray-500 mb-4">
-                                        Disabled by: {rushAppStatus.disabled_by}
-                                    </p>
-                                )}
-
-                                {!rushAppStatus.is_disabled ? (
-                                    <div className="space-y-3">
+                                <div className="space-y-4">
+                                    {/* Bid Committee Toggle */}
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-apple-body font-normal text-black">Bid Committee</div>
+                                            <div className="text-apple-caption2 text-apple-gray-500">Members with bid committee access</div>
+                                        </div>
                                         <button
-                                            onClick={() => handleDisableRushApp("bidcom")}
+                                            onClick={() => handleToggleRushAppAccess('disable_bidcom', !rushAppStatus.disable_bidcom)}
                                             disabled={rushAppLoading}
-                                            className="w-full bg-amber-500 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-amber-600 transition-all duration-200 disabled:opacity-60"
+                                            className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
+                                                rushAppStatus.disable_bidcom ? 'bg-black' : 'bg-apple-gray-300'
+                                            } ${rushAppLoading ? 'opacity-50' : ''}`}
                                         >
-                                            {rushAppLoading ? "..." : "Disable for Bid Committee Only"}
-                                        </button>
-                                        <button
-                                            onClick={() => handleDisableRushApp("all")}
-                                            disabled={rushAppLoading}
-                                            className="w-full bg-red-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-red-700 transition-all duration-200 disabled:opacity-60"
-                                        >
-                                            {rushAppLoading ? "..." : "Disable for All Brothers"}
+                                            <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                                rushAppStatus.disable_bidcom ? 'translate-x-5' : 'translate-x-0.5'
+                                            }`} />
                                         </button>
                                     </div>
-                                ) : (
-                                    <button
-                                        onClick={handleEnableRushApp}
-                                        disabled={rushAppLoading}
-                                        className="w-full bg-green-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-green-700 transition-all duration-200 disabled:opacity-60"
-                                    >
-                                        {rushAppLoading ? "..." : "Enable Rush App"}
-                                    </button>
-                                )}
+
+                                    {/* Regular Brothers Toggle */}
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-apple-body font-normal text-black">Regular Brothers</div>
+                                            <div className="text-apple-caption2 text-apple-gray-500">Brothers without admin or bid committee</div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleToggleRushAppAccess('disable_regular', !rushAppStatus.disable_regular)}
+                                            disabled={rushAppLoading}
+                                            className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
+                                                rushAppStatus.disable_regular ? 'bg-black' : 'bg-apple-gray-300'
+                                            } ${rushAppLoading ? 'opacity-50' : ''}`}
+                                        >
+                                            <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                                rushAppStatus.disable_regular ? 'translate-x-5' : 'translate-x-0.5'
+                                            }`} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-apple-gray-100">
+                                    <div className="text-apple-caption2 text-apple-gray-400">
+                                        {(rushAppStatus.disable_bidcom || rushAppStatus.disable_regular) 
+                                            ? `Disabled: ${[
+                                                rushAppStatus.disable_bidcom && 'Bid Committee',
+                                                rushAppStatus.disable_regular && 'Regular Brothers'
+                                            ].filter(Boolean).join(', ')}`
+                                            : 'All brothers can access the app'
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

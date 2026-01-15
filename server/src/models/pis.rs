@@ -70,19 +70,20 @@ pub struct IncomingBrotherAvailability {
 
 // ========== Rush App Status Models ==========
 
-/// Tracks whether the Rush App is disabled and for whom
+/// Tracks whether the Rush App is disabled for specific user groups
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RushAppStatus {
-    pub is_disabled: bool,
-    pub disabled_for: Option<String>, // "bidcom" or "all"
-    pub disabled_at: Option<DateTime>,
-    pub disabled_by: Option<String>,
+    pub disable_bidcom: bool,    // Disable for bid committee members
+    pub disable_regular: bool,   // Disable for regular brothers (non-admin, non-bidcom)
+    pub updated_at: Option<DateTime>,
+    pub updated_by: Option<String>,
 }
 
-/// Payload to disable the Rush App
+/// Payload to update Rush App access settings
 #[derive(Debug, Deserialize, Serialize)]
-pub struct DisableRushAppPayload {
-    pub disabled_for: String, // "bidcom" or "all"
+pub struct UpdateRushAppPayload {
+    pub disable_bidcom: bool,
+    pub disable_regular: bool,
 }
 
 /// Payload to check if a brother can access the app
