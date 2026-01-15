@@ -6,7 +6,7 @@ use tokio::sync::OnceCell;
 
 use crate::models::{
     misc::RushNight, 
-    pis::{PISQuestion, PISTimeslot, PISAvailabilityFormStatus, BrotherPISAvailability}, 
+    pis::{PISQuestion, PISTimeslot, PISAvailabilityFormStatus, BrotherPISAvailability, AppDisableStatus}, 
     Rushee::RusheeModel
 };
 
@@ -75,4 +75,9 @@ pub async fn get_pis_availability_form_status_client() -> Collection<PISAvailabi
 pub async fn get_brother_pis_availability_client() -> Collection<BrotherPISAvailability> {
     let client = get_mongo_client().await;
     client.database("rush-app").collection("brother-pis-availability")
+}
+
+pub async fn get_app_disable_status_client() -> Collection<AppDisableStatus> {
+    let client = get_mongo_client().await;
+    client.database("rush-app").collection("app-disable-status")
 }

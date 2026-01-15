@@ -14,7 +14,7 @@ use crate::{
     middlewares::timeHelpers::{self, string_to_bson_datetime},
     models::{
         misc::{IncomingBrotherName, IncomingRushNight, RushNight},
-        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability},
+        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, AppDisableStatus},
         Rushee::StrippedRushee,
     },
     middlewares::auth::FirebaseAuth,
@@ -1513,6 +1513,79 @@ pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCod
         Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "Failed to deactivate form"
+        }))),
+    }
+}
+
+// ========== App Disable System Endpoints ==========
+
+/// Get the current app disable status (public endpoint for brothers to check)
+pub async fn get_app_disable_status() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_app_disable_status_client().await;
+    
+    match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => Ok(Json(json!({
+            "status": "success",
+            "disabled_for_regular_brothers": status.disabled_for_regular_brothers,
+            "disabled_for_bidcom_brothers": status.disabled_for_bidcom_brothers,
+            "message": status.message
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "success",
+            "disabled_for_regular_brothers": false,
+            "disabled_for_bidcom_brothers": false,
+            "message": null
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to check app status"
+        }))),
+    }
+}
+
+/// Payload for setting app disable status
+#[derive(Deserialize)]
+pub struct SetAppDisablePayload {
+    pub disabled_for_regular_brothers: bool,
+    pub disabled_for_bidcom_brothers: bool,
+    #[serde(default)]
+    pub message: Option<String>,
+}
+
+/// Set the app disable status (admin only)
+pub async fn set_app_disable_status(
+    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
+    Json(payload): Json<SetAppDisablePayload>,
+) -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_app_disable_status_client().await;
+    
+    // Delete any existing status
+    let _ = collection.delete_many(doc! {}).await;
+    
+    // Insert new status
+    let status = AppDisableStatus {
+        disabled_for_regular_brothers: payload.disabled_for_regular_brothers,
+        disabled_for_bidcom_brothers: payload.disabled_for_bidcom_brothers,
+        disabled_at: Some(DateTime::now()),
+        disabled_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
+        message: payload.message.clone(),
+    };
+    
+    match collection.insert_one(status).await {
+        Ok(_) => {
+            let action = if payload.disabled_for_regular_brothers || payload.disabled_for_bidcom_brothers {
+                "App access restricted"
+            } else {
+                "App access restored"
+            };
+            Ok(Json(json!({
+                "status": "success",
+                "message": action
+            })))
+        },
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to update app status"
         }))),
     }
 }

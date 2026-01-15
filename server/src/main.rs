@@ -103,7 +103,10 @@ async fn main() {
         // PIS Availability - brother-facing routes (need to be accessible by logged-in brothers)
         .route("/brother/pis-availability/check", post(controllers::admin::check_brother_needs_availability_form).options(|| async { StatusCode::OK }))
         .route("/brother/pis-availability/submit", post(controllers::admin::submit_brother_availability).options(|| async { StatusCode::OK }))
-        .route("/admin/pis-availability/status", get(controllers::admin::get_pis_availability_form_status).options(|| async { StatusCode::OK }));
+        .route("/admin/pis-availability/status", get(controllers::admin::get_pis_availability_form_status).options(|| async { StatusCode::OK }))
+        
+        // App disable status - public read for brothers to check
+        .route("/brother/app-status", get(controllers::admin::get_app_disable_status).options(|| async { StatusCode::OK }));
 
     // Routes accessible by both admin and bid committee
     let bidcom_routes = Router::new()
@@ -150,6 +153,8 @@ async fn main() {
         .route("/admin/pis-availability/auto-assign", post(controllers::admin::auto_assign_pis_brothers).options(|| async { StatusCode::OK }))
         .route("/admin/pis-availability/clear-assignments", post(controllers::admin::clear_pis_assignments).options(|| async { StatusCode::OK }))
         .route("/admin/pis-availability/export-csv", get(controllers::admin::export_pis_with_brothers).options(|| async { StatusCode::OK }))
+        // App disable status - admin only
+        .route("/admin/app-status", post(controllers::admin::set_app_disable_status).options(|| async { StatusCode::OK }))
         .route_layer(middleware::from_fn_with_state(
             firebase_auth.clone(),
             middlewares::auth::require_admin,

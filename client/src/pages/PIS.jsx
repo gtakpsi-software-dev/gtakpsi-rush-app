@@ -17,6 +17,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Badges from "../components/Badge";
+import AppDisabledOverlay from "../components/AppDisabledOverlay";
+import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 
 // Autosave status type
 const SAVE_STATUS = {
@@ -53,6 +55,9 @@ export default function PIS() {
     const [currentUser, setCurrentUser] = useState(null);
     const [saveStatus, setSaveStatus] = useState(SAVE_STATUS.IDLE);
     const [lastSaved, setLastSaved] = useState(null);
+    
+    // App disabled state (hook handles admin/bidcom logic)
+    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const navigate = useNavigate();
     const autosaveTimeoutRef = useRef(null);
@@ -392,6 +397,11 @@ export default function PIS() {
 
     return (
         <div>
+            {/* App Disabled Overlay */}
+            {appDisabled && (
+                <AppDisabledOverlay message={appDisabledMessage} />
+            )}
+            
             {loading ? (
                 <Loader />
             ) : (

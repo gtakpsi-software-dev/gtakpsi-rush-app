@@ -54,6 +54,15 @@ export default function Admin() {
     const [allPisTimeslots, setAllPisTimeslots] = useState([]);
     const [savingAvailability, setSavingAvailability] = useState(false);
 
+    // App disable state
+    const [appDisableStatus, setAppDisableStatus] = useState({
+        disabled_for_regular_brothers: false,
+        disabled_for_bidcom_brothers: false,
+        message: ""
+    });
+    const [appDisableLoading, setAppDisableLoading] = useState(false);
+    const [customDisableMessage, setCustomDisableMessage] = useState("");
+
     const navigate = useNavigate();
 
     const errorTitle = "Invalid User Credentials";
@@ -157,6 +166,22 @@ export default function Admin() {
                 }
             } catch (error) {
                 console.error("Failed to fetch PIS timeslots:", error);
+            }
+
+            // Fetch app disable status
+            try {
+                const api = import.meta.env.VITE_API_PREFIX;
+                const appStatusResponse = await axios.get(`${api}/brother/app-status`);
+                if (appStatusResponse.data.status === "success") {
+                    setAppDisableStatus({
+                        disabled_for_regular_brothers: appStatusResponse.data.disabled_for_regular_brothers || false,
+                        disabled_for_bidcom_brothers: appStatusResponse.data.disabled_for_bidcom_brothers || false,
+                        message: appStatusResponse.data.message || ""
+                    });
+                    setCustomDisableMessage(appStatusResponse.data.message || "");
+                }
+            } catch (error) {
+                console.error("Failed to fetch app disable status:", error);
             }
 
             setLoading(false);
@@ -896,6 +921,83 @@ export default function Admin() {
         return groups;
     }, {});
 
+    // ========== App Disable Handlers ==========
+
+    const handleUpdateAppDisableStatus = async (newStatus) => {
+        setAppDisableLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/app-status`, {
+                disabled_for_regular_brothers: newStatus.disabled_for_regular_brothers,
+                disabled_for_bidcom_brothers: newStatus.disabled_for_bidcom_brothers,
+                message: customDisableMessage || null
+            });
+            if (response.data.status === "success") {
+                setAppDisableStatus(newStatus);
+                toast.success(response.data.message, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to update status", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to update app status", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setAppDisableLoading(false);
+        }
+    };
+
+    const handleDisableBrothers = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_regular_brothers: true
+        });
+    };
+
+    const handleEnableBrothers = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_regular_brothers: false
+        });
+    };
+
+    const handleDisableBidcom = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_bidcom_brothers: true
+        });
+    };
+
+    const handleEnableBidcom = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_bidcom_brothers: false
+        });
+    };
+
+    const handleDisableAll = () => {
+        handleUpdateAppDisableStatus({
+            disabled_for_regular_brothers: true,
+            disabled_for_bidcom_brothers: true
+        });
+    };
+
+    const handleEnableAll = () => {
+        handleUpdateAppDisableStatus({
+            disabled_for_regular_brothers: false,
+            disabled_for_bidcom_brothers: false
+        });
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -1036,6 +1138,136 @@ export default function Admin() {
                             Manage PIS questions, timeslots, and rush nights
                         </p>
                     </div>
+
+                    {/* App Access Control Section */}
+                    <div className="mb-10">
+                        <h2 className="text-apple-title2 font-normal text-black mb-4">App Access Control</h2>
+                        <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                            Disable the rush app for brothers. When disabled, brothers will see a blurred overlay and cannot access app features.
+                        </p>
+                        
+                        <div className="card-apple p-6">
+                            {/* Current Status */}
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className={`px-4 py-2 rounded-apple-xl text-apple-body font-light ${
+                                    !appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers
+                                        ? 'bg-green-100 text-green-700 border border-green-200'
+                                        : appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers
+                                            ? 'bg-red-100 text-red-700 border border-red-200'
+                                            : 'bg-amber-100 text-amber-700 border border-amber-200'
+                                }`}>
+                                    {!appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers
+                                        ? '✓ App Enabled for All'
+                                        : appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers
+                                            ? '✕ App Disabled for All Brothers'
+                                            : appDisableStatus.disabled_for_regular_brothers
+                                                ? '⚠ Disabled for Regular Brothers Only'
+                                                : '⚠ Disabled for Bid Committee Only'}
+                                </div>
+                            </div>
+
+                            {/* Toggle Controls */}
+                            <div className="space-y-4 mb-6">
+                                {/* Regular Brothers Toggle */}
+                                <div className="flex items-center justify-between p-4 bg-apple-gray-50 rounded-apple-xl border border-apple-gray-200">
+                                    <div>
+                                        <div className="text-apple-body font-normal text-black">Regular Brothers</div>
+                                        <div className="text-apple-caption1 text-apple-gray-500 font-light">
+                                            Brothers without admin or bid committee access
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={toggleRegularBrothersDisable}
+                                        disabled={appDisableLoading}
+                                        className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
+                                            appDisableStatus.disabled_for_regular_brothers
+                                                ? 'bg-red-500'
+                                                : 'bg-green-500'
+                                        } ${appDisableLoading ? 'opacity-60' : ''}`}
+                                    >
+                                        <span className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                            appDisableStatus.disabled_for_regular_brothers
+                                                ? 'translate-x-7'
+                                                : 'translate-x-1'
+                                        }`} />
+                                    </button>
+                                </div>
+
+                                {/* Bid Committee Toggle */}
+                                <div className="flex items-center justify-between p-4 bg-apple-gray-50 rounded-apple-xl border border-apple-gray-200">
+                                    <div>
+                                        <div className="text-apple-body font-normal text-black">Bid Committee Brothers</div>
+                                        <div className="text-apple-caption1 text-apple-gray-500 font-light">
+                                            Brothers with bid committee access
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={toggleBidcomDisable}
+                                        disabled={appDisableLoading}
+                                        className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
+                                            appDisableStatus.disabled_for_bidcom_brothers
+                                                ? 'bg-red-500'
+                                                : 'bg-green-500'
+                                        } ${appDisableLoading ? 'opacity-60' : ''}`}
+                                    >
+                                        <span className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                            appDisableStatus.disabled_for_bidcom_brothers
+                                                ? 'translate-x-7'
+                                                : 'translate-x-1'
+                                        }`} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Custom Message */}
+                            <div className="mb-6">
+                                <label className="text-apple-footnote text-apple-gray-600 font-light mb-2 block">
+                                    Custom Message (shown to disabled users)
+                                </label>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        placeholder="The rush app has been temporarily disabled..."
+                                        className="input-apple text-apple-body flex-1"
+                                        value={appDisableStatus.message || ""}
+                                        onChange={(e) => setAppDisableStatus({...appDisableStatus, message: e.target.value})}
+                                    />
+                                    <button
+                                        onClick={updateDisableMessage}
+                                        disabled={appDisableLoading}
+                                        className="px-4 py-2 bg-apple-gray-100 text-black rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-200 transition-all duration-200 border border-apple-gray-200 disabled:opacity-60"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Quick Actions */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={enableAppForAll}
+                                    disabled={appDisableLoading || (!appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers)}
+                                    className="flex-1 bg-green-600 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-green-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    Enable for All
+                                </button>
+                                <button
+                                    onClick={disableAppForAll}
+                                    disabled={appDisableLoading || (appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers)}
+                                    className="flex-1 bg-red-600 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-red-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    Disable for All
+                                </button>
+                            </div>
+
+                            <p className="text-apple-caption2 text-apple-gray-400 font-light mt-4 text-center">
+                                Note: Admins always have full access regardless of disable settings
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-apple-gray-200 my-10"></div>
 
                     {/* Exports & Fetch Section */}
                     <div className="mb-10">
@@ -1583,6 +1815,156 @@ export default function Admin() {
                                 >
                                     Export PIS Schedule with Brothers
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-apple-gray-200 my-10"></div>
+
+                    {/* App Access Control Section */}
+                    <div>
+                        <h2 className="text-apple-title2 font-normal text-black mb-4">App Access Control</h2>
+                        <p className="text-apple-footnote text-apple-gray-600 font-light mb-6">
+                            Disable rush app access for brothers. When disabled, they will see a blurred page with a message. This does NOT modify or delete any existing data.
+                        </p>
+
+                        <div className="space-y-6">
+                            {/* Current Status Card */}
+                            <div className="card-apple p-6">
+                                <h3 className="text-apple-headline font-normal text-black mb-4">Current Status</h3>
+                                
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div className={`p-4 rounded-apple-lg border ${
+                                        appDisableStatus.disabled_for_regular_brothers 
+                                            ? 'bg-red-50 border-red-200' 
+                                            : 'bg-green-50 border-green-200'
+                                    }`}>
+                                        <div className="text-apple-footnote font-medium text-apple-gray-600 mb-1">
+                                            Regular Brothers
+                                        </div>
+                                        <div className={`text-apple-body font-medium ${
+                                            appDisableStatus.disabled_for_regular_brothers 
+                                                ? 'text-red-600' 
+                                                : 'text-green-600'
+                                        }`}>
+                                            {appDisableStatus.disabled_for_regular_brothers ? 'Disabled' : 'Enabled'}
+                                        </div>
+                                    </div>
+                                    <div className={`p-4 rounded-apple-lg border ${
+                                        appDisableStatus.disabled_for_bidcom_brothers 
+                                            ? 'bg-red-50 border-red-200' 
+                                            : 'bg-green-50 border-green-200'
+                                    }`}>
+                                        <div className="text-apple-footnote font-medium text-apple-gray-600 mb-1">
+                                            Bid Committee
+                                        </div>
+                                        <div className={`text-apple-body font-medium ${
+                                            appDisableStatus.disabled_for_bidcom_brothers 
+                                                ? 'text-red-600' 
+                                                : 'text-green-600'
+                                        }`}>
+                                            {appDisableStatus.disabled_for_bidcom_brothers ? 'Disabled' : 'Enabled'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Custom Message */}
+                                <div className="mb-6">
+                                    <label className="text-apple-footnote font-medium text-apple-gray-600 mb-2 block">
+                                        Custom Message (Optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Rush app is closed for maintenance"
+                                        className="input-apple text-apple-body"
+                                        value={customDisableMessage}
+                                        onChange={(e) => setCustomDisableMessage(e.target.value)}
+                                    />
+                                    <p className="text-apple-caption2 text-apple-gray-500 mt-1">
+                                        This message will be shown to brothers when the app is disabled
+                                    </p>
+                                </div>
+
+                                {/* Quick Actions */}
+                                <div className="space-y-3">
+                                    <div className="text-apple-footnote font-medium text-apple-gray-600 mb-2">Quick Actions</div>
+                                    
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={handleDisableAll}
+                                            disabled={appDisableLoading || (appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers)}
+                                            className="flex-1 bg-red-600 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-red-700 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {appDisableLoading ? '...' : 'Disable for Everyone'}
+                                        </button>
+                                        <button
+                                            onClick={handleEnableAll}
+                                            disabled={appDisableLoading || (!appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers)}
+                                            className="flex-1 bg-green-600 text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-green-700 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {appDisableLoading ? '...' : 'Enable for Everyone'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Individual Controls */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* Regular Brothers */}
+                                <div className="card-apple p-6">
+                                    <h3 className="text-apple-headline font-normal text-black mb-2">Regular Brothers</h3>
+                                    <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                        Control access for all non-bid committee brothers
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={handleDisableBrothers}
+                                            disabled={appDisableLoading || appDisableStatus.disabled_for_regular_brothers}
+                                            className="flex-1 bg-red-100 text-red-700 py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-red-200 transition-all duration-200 disabled:opacity-60 border border-red-200"
+                                        >
+                                            Disable
+                                        </button>
+                                        <button
+                                            onClick={handleEnableBrothers}
+                                            disabled={appDisableLoading || !appDisableStatus.disabled_for_regular_brothers}
+                                            className="flex-1 bg-green-100 text-green-700 py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-green-200 transition-all duration-200 disabled:opacity-60 border border-green-200"
+                                        >
+                                            Enable
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Bid Committee */}
+                                <div className="card-apple p-6">
+                                    <h3 className="text-apple-headline font-normal text-black mb-2">Bid Committee</h3>
+                                    <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                        Control access for bid committee brothers
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={handleDisableBidcom}
+                                            disabled={appDisableLoading || appDisableStatus.disabled_for_bidcom_brothers}
+                                            className="flex-1 bg-red-100 text-red-700 py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-red-200 transition-all duration-200 disabled:opacity-60 border border-red-200"
+                                        >
+                                            Disable
+                                        </button>
+                                        <button
+                                            onClick={handleEnableBidcom}
+                                            disabled={appDisableLoading || !appDisableStatus.disabled_for_bidcom_brothers}
+                                            className="flex-1 bg-green-100 text-green-700 py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-green-200 transition-all duration-200 disabled:opacity-60 border border-green-200"
+                                        >
+                                            Enable
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Info Note */}
+                            <div className="bg-apple-gray-50 rounded-apple-lg p-4 border border-apple-gray-200">
+                                <p className="text-apple-caption1 text-apple-gray-600 font-light">
+                                    <span className="font-medium">Note:</span> Admins will always have access to the app regardless of these settings. Disabling access will not modify or delete any existing data — it only prevents brothers from viewing or interacting with the app.
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,8 @@ import Loader from "../components/Loader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
+import AppDisabledOverlay from "../components/AppDisabledOverlay";
+import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 
 export default function BrotherPIS() {
 
@@ -17,6 +19,9 @@ export default function BrotherPIS() {
     const [days, setDays] = useState(new Map());
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [loading, setLoading] = useState(true)
+    
+    // App disabled state (hook handles admin/bidcom logic)
+    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const navigate = useNavigate()
 
@@ -161,6 +166,11 @@ export default function BrotherPIS() {
     return (
 
         <div>
+            {/* App Disabled Overlay */}
+            {appDisabled && (
+                <AppDisabledOverlay message={appDisabledMessage} />
+            )}
+            
             <Navbar />
             {loading ? <Loader /> : <div className="w-screen min-h-screen bg-slate-900 text-white flex flex-col justify-center items-center">
 

@@ -67,3 +67,15 @@ pub struct IncomingBrotherAvailability {
     pub brother_last_name: String,
     pub available_timeslots: Vec<String>, // ISO strings
 }
+
+// ========== App Disable Status ==========
+
+/// Tracks whether the rush app is disabled for brothers
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct AppDisableStatus {
+    pub disabled_for_regular_brothers: bool,
+    pub disabled_for_bidcom_brothers: bool,
+    pub disabled_at: Option<DateTime>,
+    pub disabled_by: Option<String>,
+    pub message: Option<String>,
+}
