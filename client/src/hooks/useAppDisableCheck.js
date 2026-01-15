@@ -38,22 +38,29 @@ export function useAppDisableCheck() {
                 
                 if (response.data.status === "success") {
                     const disabledForRegular = response.data.disabled_for_regular_brothers;
-                    const disabledForBidcom = response.data.disabled_for_bidcom_brothers;
-                    const disabledForAdmins = response.data.disabled_for_admins;
-                    
-                    // Check if disabled for this user type
-                    if (isAdmin && disabledForAdmins) {
-                        setAppDisabled(true);
-                        setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
-                    } else if (isBidcom && !isAdmin && disabledForBidcom) {
-                        // Bidcom who is not an admin
-                        setAppDisabled(true);
-                        setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
-                    } else if (!isBidcom && !isAdmin && disabledForRegular) {
-                        // Regular brother (not admin, not bidcom)
+                const disabledForBidcom = response.data.disabled_for_bidcom_brothers;
+                const disabledForAdmins = response.data.disabled_for_admins;
+                
+                // Strict priority:
+                // 1) Admins: only the admin toggle applies
+                // 2) BidCom (non-admin): only the bidcom toggle applies
+                // 3) Regular (not admin, not bidcom): only the brothers toggle applies
+                if (isAdmin) {
+                    if (disabledForAdmins) {
                         setAppDisabled(true);
                         setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
                     }
+                } else if (isBidcom) {
+                    if (disabledForBidcom) {
+                        setAppDisabled(true);
+                        setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
+                    }
+                } else {
+                    if (disabledForRegular) {
+                        setAppDisabled(true);
+                        setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
+                    }
+                }
                 }
             } catch (err) {
                 console.log("Error checking app disable status:", err);
