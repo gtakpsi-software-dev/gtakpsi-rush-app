@@ -7,9 +7,6 @@ pub fn string_to_bson_datetime(date_string: &str) -> BsonDateTime {
 }
 
 pub fn same_day(date1: &BsonDateTime, date2: &BsonDateTime) -> bool {
-    // TODO: TEMPORARY OVERRIDE - Remove this line to restore normal behavior
-    return true;
-    
     // Extract the milliseconds since the UNIX epoch
     let millis1 = date1.timestamp_millis();
     let millis2 = date2.timestamp_millis();
