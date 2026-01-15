@@ -998,6 +998,43 @@ export default function Admin() {
         });
     };
 
+    // Toggle functions for the UI switches
+    const toggleRegularBrothersDisable = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_regular_brothers: !appDisableStatus.disabled_for_regular_brothers
+        });
+    };
+
+    const toggleBidcomDisable = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus,
+            disabled_for_bidcom_brothers: !appDisableStatus.disabled_for_bidcom_brothers
+        });
+    };
+
+    const updateDisableMessage = () => {
+        handleUpdateAppDisableStatus({
+            ...appDisableStatus
+        });
+    };
+
+    const enableAppForAll = () => {
+        handleUpdateAppDisableStatus({
+            disabled_for_regular_brothers: false,
+            disabled_for_bidcom_brothers: false,
+            message: appDisableStatus.message
+        });
+    };
+
+    const disableAppForAll = () => {
+        handleUpdateAppDisableStatus({
+            disabled_for_regular_brothers: true,
+            disabled_for_bidcom_brothers: true,
+            message: appDisableStatus.message
+        });
+    };
+
     if (loading) {
         return <Loader />;
     }
