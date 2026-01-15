@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import AppDisabledOverlay from '../components/AppDisabledOverlay';
-import { useAppDisableCheck } from '../hooks/useAppDisableCheck';
 
 const Comments = () => {
   const navigate = useNavigate();
   const [commentsData, setCommentsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // App disabled state (hook handles admin/bidcom logic)
-  const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -43,10 +38,6 @@ const Comments = () => {
 
   return (
     <div className="min-h-screen w-full bg-white overflow-y-auto">
-      {/* App Disabled Overlay */}
-      {appDisabled && (
-        <AppDisabledOverlay message={appDisabledMessage} />
-      )}
       <Navbar />
       <div className="pt-24 p-4 pb-20">
         <div className="container mx-auto px-4 max-w-4xl">

@@ -5,8 +5,6 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import axios from "axios";
-import AppDisabledOverlay from "../components/AppDisabledOverlay";
-import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -32,9 +30,6 @@ export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
 
     const navigate = useNavigate();
-    
-    // App disabled state (hook handles admin/bidcom logic)
-    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const [loading, setLoading] = useState(true);
     const [columns, setColumns] = useState({
@@ -354,11 +349,6 @@ export default function BrotherSorting() {
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
         >
-            {/* App Disabled Overlay */}
-            {appDisabled && (
-                <AppDisabledOverlay message={appDisabledMessage} />
-            )}
-            
             <Navbar />
             
             {/* Viewer Count & Live Indicator */}

@@ -14,8 +14,6 @@ import Fuse from "fuse.js";
 import { verifyUser } from "../js/verifications";
 import Button from "../components/Button";
 import PISAvailabilityModal from "../components/PISAvailabilityModal";
-import AppDisabledOverlay from "../components/AppDisabledOverlay";
-import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -38,9 +36,6 @@ export default function Dashboard(props) {
     // PIS Availability Modal state
     const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
     const [brotherData, setBrotherData] = useState(null);
-
-    // App disabled state (hook handles admin/bidcom logic)
-    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
@@ -200,14 +195,8 @@ export default function Dashboard(props) {
 
     return (
         <div>
-            {/* App Disabled Overlay - Highest priority */}
-            <AppDisabledOverlay 
-                show={appDisabled} 
-                message={appDisabledMessage} 
-            />
-
             {/* PIS Availability Modal - Blocking */}
-            {showAvailabilityModal && brotherData && !appDisabled && (
+            {showAvailabilityModal && brotherData && (
                 <PISAvailabilityModal
                     user={brotherData}
                     onSubmit={() => setShowAvailabilityModal(false)}

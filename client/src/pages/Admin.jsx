@@ -54,14 +54,9 @@ export default function Admin() {
     const [allPisTimeslots, setAllPisTimeslots] = useState([]);
     const [savingAvailability, setSavingAvailability] = useState(false);
 
-    // App disable state
-    const [appDisableStatus, setAppDisableStatus] = useState({
-        disabled_for_admins: false,
-        disabled_for_regular_brothers: false,
-        disabled_for_bidcom_brothers: false,
-        message: ""
-    });
-    const [appDisableLoading, setAppDisableLoading] = useState(false);
+    // Rush App disable state
+    const [rushAppStatus, setRushAppStatus] = useState({ is_disabled: false, disabled_for: null });
+    const [rushAppLoading, setRushAppLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -168,20 +163,19 @@ export default function Admin() {
                 console.error("Failed to fetch PIS timeslots:", error);
             }
 
-            // Fetch app disable status
+            // Fetch Rush App status
             try {
-                const api = import.meta.env.VITE_API_PREFIX;
-                const appStatusResponse = await axios.get(`${api}/brother/app-status`);
-                if (appStatusResponse.data.status === "success") {
-                    setAppDisableStatus({
-                        disabled_for_admins: appStatusResponse.data.disabled_for_admins || false,
-                        disabled_for_regular_brothers: appStatusResponse.data.disabled_for_regular_brothers || false,
-                        disabled_for_bidcom_brothers: appStatusResponse.data.disabled_for_bidcom_brothers || false,
-                        message: appStatusResponse.data.message || ""
+                const rushAppResponse = await axios.get(`${apiBase}/rush-app/status`);
+                if (rushAppResponse.data.status === "success") {
+                    setRushAppStatus({
+                        is_disabled: rushAppResponse.data.is_disabled,
+                        disabled_for: rushAppResponse.data.disabled_for,
+                        disabled_at: rushAppResponse.data.disabled_at,
+                        disabled_by: rushAppResponse.data.disabled_by
                     });
                 }
             } catch (error) {
-                console.error("Failed to fetch app disable status:", error);
+                console.error("Failed to fetch Rush App status:", error);
             }
 
             setLoading(false);
@@ -890,6 +884,81 @@ export default function Admin() {
         }
     };
 
+    // ========== Rush App Disable Handlers ==========
+
+    const handleDisableRushApp = async (disabledFor) => {
+        const targetText = disabledFor === "bidcom" ? "bid committee brothers" : "all brothers";
+        if (!window.confirm(`Are you sure you want to disable the Rush App for ${targetText}? They will not be able to sign in until you re-enable it.`)) {
+            return;
+        }
+        
+        setRushAppLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/rush-app/disable`, { disabled_for: disabledFor });
+            if (response.data.status === "success") {
+                setRushAppStatus({
+                    is_disabled: true,
+                    disabled_for: disabledFor,
+                    disabled_at: new Date().toISOString(),
+                    disabled_by: auth.currentUser?.email || "admin"
+                });
+                toast.success(response.data.message, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to disable Rush App", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to disable Rush App", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setRushAppLoading(false);
+        }
+    };
+
+    const handleEnableRushApp = async () => {
+        setRushAppLoading(true);
+        try {
+            const response = await axios.post(`${apiBase}/rush-app/enable`);
+            if (response.data.status === "success") {
+                setRushAppStatus({
+                    is_disabled: false,
+                    disabled_for: null,
+                    disabled_at: null,
+                    disabled_by: null
+                });
+                toast.success(response.data.message, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to enable Rush App", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to enable Rush App", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setRushAppLoading(false);
+        }
+    };
+
     const formatSlotTime = (slot) => {
         const date = new Date(parseInt(slot.time.$date.$numberLong));
         return {
@@ -920,42 +989,6 @@ export default function Admin() {
         groups[dateKey].push(slot);
         return groups;
     }, {});
-
-    // ========== App Disable Handlers ==========
-
-    const handleUpdateAppDisableStatus = async (newStatus) => {
-        setAppDisableLoading(true);
-        try {
-            const response = await axios.post(`${apiBase}/app-status`, {
-                disabled_for_admins: newStatus.disabled_for_admins,
-                disabled_for_regular_brothers: newStatus.disabled_for_regular_brothers,
-                disabled_for_bidcom_brothers: newStatus.disabled_for_bidcom_brothers,
-                message: "Rush App is Disabled."
-            });
-            if (response.data.status === "success") {
-                setAppDisableStatus(newStatus);
-                toast.success(response.data.message, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to update status", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error("Failed to update app status", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setAppDisableLoading(false);
-        }
-    };
 
     if (loading) {
         return <Loader />;
@@ -1269,90 +1302,56 @@ export default function Admin() {
                                 </div>
                             </div>
 
-                            {/* Brother Access (Disable App) */}
+                            {/* Rush App Control */}
                             <div className="card-apple p-5">
-                                <h3 className="text-apple-headline font-normal text-black mb-2">App Access</h3>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-apple-headline font-normal text-black">Rush App Access</h3>
+                                    <div className={`px-3 py-1 rounded-full text-apple-caption1 font-medium ${
+                                        rushAppStatus.is_disabled 
+                                            ? 'bg-red-100 text-red-700' 
+                                            : 'bg-green-100 text-green-700'
+                                    }`}>
+                                        {rushAppStatus.is_disabled 
+                                            ? (rushAppStatus.disabled_for === "bidcom" ? "Disabled (BidCom)" : "Disabled (All)")
+                                            : 'Enabled'}
+                                    </div>
+                                </div>
                                 <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                                    Disable app access by user type
+                                    Temporarily disable login for brothers. Admins always have access.
                                 </p>
-                                
-                                {/* Disable Options */}
-                                <div className="space-y-2 mb-4">
-                                    <button
-                                        onClick={() => handleUpdateAppDisableStatus({ 
-                                            disabled_for_admins: !appDisableStatus.disabled_for_admins, 
-                                            disabled_for_regular_brothers: appDisableStatus.disabled_for_regular_brothers, 
-                                            disabled_for_bidcom_brothers: appDisableStatus.disabled_for_bidcom_brothers 
-                                        })}
-                                        disabled={appDisableLoading}
-                                        className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
-                                            appDisableStatus.disabled_for_admins
-                                                ? 'bg-red-50 border-red-200'
-                                                : 'bg-apple-gray-50 border-apple-gray-200 hover:bg-apple-gray-100'
-                                        }`}
-                                    >
-                                        <span className="text-apple-footnote font-normal text-black">Admins</span>
-                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_admins ? 'text-red-600' : 'text-green-600'}`}>
-                                            {appDisableStatus.disabled_for_admins ? 'Disabled' : 'Enabled'}
-                                        </span>
-                                    </button>
-                                    
-                                    <button
-                                        onClick={() => handleUpdateAppDisableStatus({ 
-                                            disabled_for_admins: appDisableStatus.disabled_for_admins,
-                                            disabled_for_regular_brothers: appDisableStatus.disabled_for_regular_brothers, 
-                                            disabled_for_bidcom_brothers: !appDisableStatus.disabled_for_bidcom_brothers 
-                                        })}
-                                        disabled={appDisableLoading}
-                                        className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
-                                            appDisableStatus.disabled_for_bidcom_brothers
-                                                ? 'bg-red-50 border-red-200'
-                                                : 'bg-apple-gray-50 border-apple-gray-200 hover:bg-apple-gray-100'
-                                        }`}
-                                    >
-                                        <span className="text-apple-footnote font-normal text-black">Bid Committee</span>
-                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_bidcom_brothers ? 'text-red-600' : 'text-green-600'}`}>
-                                            {appDisableStatus.disabled_for_bidcom_brothers ? 'Disabled' : 'Enabled'}
-                                        </span>
-                                    </button>
-                                    
-                                    <button
-                                        onClick={() => handleUpdateAppDisableStatus({ 
-                                            disabled_for_admins: appDisableStatus.disabled_for_admins,
-                                            disabled_for_regular_brothers: !appDisableStatus.disabled_for_regular_brothers, 
-                                            disabled_for_bidcom_brothers: appDisableStatus.disabled_for_bidcom_brothers 
-                                        })}
-                                        disabled={appDisableLoading}
-                                        className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
-                                            appDisableStatus.disabled_for_regular_brothers
-                                                ? 'bg-red-50 border-red-200'
-                                                : 'bg-apple-gray-50 border-apple-gray-200 hover:bg-apple-gray-100'
-                                        }`}
-                                    >
-                                        <span className="text-apple-footnote font-normal text-black">Brothers</span>
-                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_regular_brothers ? 'text-red-600' : 'text-green-600'}`}>
-                                            {appDisableStatus.disabled_for_regular_brothers ? 'Disabled' : 'Enabled'}
-                                        </span>
-                                    </button>
-                                </div>
 
-                                {/* Quick Actions */}
-                                <div className="flex gap-2">
+                                {rushAppStatus.is_disabled && rushAppStatus.disabled_by && (
+                                    <p className="text-apple-caption2 text-apple-gray-500 mb-4">
+                                        Disabled by: {rushAppStatus.disabled_by}
+                                    </p>
+                                )}
+
+                                {!rushAppStatus.is_disabled ? (
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={() => handleDisableRushApp("bidcom")}
+                                            disabled={rushAppLoading}
+                                            className="w-full bg-amber-500 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-amber-600 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {rushAppLoading ? "..." : "Disable for Bid Committee Only"}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDisableRushApp("all")}
+                                            disabled={rushAppLoading}
+                                            className="w-full bg-red-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-red-700 transition-all duration-200 disabled:opacity-60"
+                                        >
+                                            {rushAppLoading ? "..." : "Disable for All Brothers"}
+                                        </button>
+                                    </div>
+                                ) : (
                                     <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_admins: false, disabled_for_regular_brothers: false, disabled_for_bidcom_brothers: false })}
-                                        disabled={appDisableLoading || (!appDisableStatus.disabled_for_admins && !appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers)}
-                                        className="flex-1 bg-black text-white py-2.5 px-3 rounded-apple-xl text-apple-footnote font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-40"
+                                        onClick={handleEnableRushApp}
+                                        disabled={rushAppLoading}
+                                        className="w-full bg-green-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-green-700 transition-all duration-200 disabled:opacity-60"
                                     >
-                                        Enable All
+                                        {rushAppLoading ? "..." : "Enable Rush App"}
                                     </button>
-                                    <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_admins: true, disabled_for_regular_brothers: true, disabled_for_bidcom_brothers: true })}
-                                        disabled={appDisableLoading || (appDisableStatus.disabled_for_admins && appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers)}
-                                        className="flex-1 bg-white text-black py-2.5 px-3 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-40"
-                                    >
-                                        Disable All
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1733,7 +1732,6 @@ export default function Admin() {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

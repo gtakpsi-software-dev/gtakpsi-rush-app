@@ -14,7 +14,7 @@ use crate::{
     middlewares::timeHelpers::{self, string_to_bson_datetime},
     models::{
         misc::{IncomingBrotherName, IncomingRushNight, RushNight},
-        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, AppDisableStatus},
+        pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, RushAppStatus, DisableRushAppPayload, CheckAccessPayload},
         Rushee::StrippedRushee,
     },
     middlewares::auth::FirebaseAuth,
@@ -1517,80 +1517,168 @@ pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCod
     }
 }
 
-// ========== App Disable System Endpoints ==========
+// ========== Rush App Disable System Endpoints ==========
 
-/// Get the current app disable status (public endpoint for brothers to check)
-pub async fn get_app_disable_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_app_disable_status_client().await;
+/// Disable the Rush App for a specific group
+pub async fn disable_rush_app(
+    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
+    Json(payload): Json<DisableRushAppPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    // Validate disabled_for value
+    if payload.disabled_for != "bidcom" && payload.disabled_for != "all" {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "Invalid disabled_for value. Must be 'bidcom' or 'all'"
+        })));
+    }
     
-    match collection.find_one(doc! {}).await {
-        Ok(Some(status)) => Ok(Json(json!({
+    let collection = db::get_rush_app_status_client().await;
+    
+    // Delete any existing status document
+    let _ = collection.delete_many(doc! {}).await;
+    
+    // Insert new disabled status
+    let status = RushAppStatus {
+        is_disabled: true,
+        disabled_for: Some(payload.disabled_for.clone()),
+        disabled_at: Some(DateTime::now()),
+        disabled_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
+    };
+    
+    match collection.insert_one(status).await {
+        Ok(_) => Ok(Json(json!({
             "status": "success",
-            "disabled_for_regular_brothers": status.disabled_for_regular_brothers,
-            "disabled_for_bidcom_brothers": status.disabled_for_bidcom_brothers,
-            "disabled_for_admins": status.disabled_for_admins,
-            "message": status.message
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "disabled_for_regular_brothers": false,
-            "disabled_for_bidcom_brothers": false,
-            "disabled_for_admins": false,
-            "message": null
+            "message": format!("Rush App disabled for {}", 
+                if payload.disabled_for == "bidcom" { "bid committee brothers" } else { "all brothers" })
         }))),
         Err(_) => Ok(Json(json!({
             "status": "error",
-            "message": "Failed to check app status"
+            "message": "Failed to disable Rush App"
         }))),
     }
 }
 
-/// Payload for setting app disable status
-#[derive(Deserialize)]
-pub struct SetAppDisablePayload {
-    pub disabled_for_regular_brothers: bool,
-    pub disabled_for_bidcom_brothers: bool,
-    #[serde(default)]
-    pub disabled_for_admins: bool,
-    #[serde(default)]
-    pub message: Option<String>,
-}
-
-/// Set the app disable status (admin only)
-pub async fn set_app_disable_status(
-    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
-    Json(payload): Json<SetAppDisablePayload>,
-) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_app_disable_status_client().await;
+/// Enable the Rush App (remove all restrictions)
+pub async fn enable_rush_app() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_rush_app_status_client().await;
     
-    // Delete any existing status
-    let _ = collection.delete_many(doc! {}).await;
-    
-    // Insert new status
-    let status = AppDisableStatus {
-        disabled_for_regular_brothers: payload.disabled_for_regular_brothers,
-        disabled_for_bidcom_brothers: payload.disabled_for_bidcom_brothers,
-        disabled_for_admins: payload.disabled_for_admins,
-        disabled_at: Some(DateTime::now()),
-        disabled_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
-        message: payload.message.clone(),
-    };
-    
-    match collection.insert_one(status).await {
-        Ok(_) => {
-            let action = if payload.disabled_for_regular_brothers || payload.disabled_for_bidcom_brothers || payload.disabled_for_admins {
-                "App access restricted"
-            } else {
-                "App access restored"
-            };
-            Ok(Json(json!({
-                "status": "success",
-                "message": action
-            })))
-        },
+    // Delete any existing status document (no status = enabled)
+    match collection.delete_many(doc! {}).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "Rush App enabled for all brothers"
+        }))),
         Err(_) => Ok(Json(json!({
             "status": "error",
-            "message": "Failed to update app status"
+            "message": "Failed to enable Rush App"
         }))),
+    }
+}
+
+/// Get current Rush App status (admin only)
+pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_rush_app_status_client().await;
+    
+    match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => Ok(Json(json!({
+            "status": "success",
+            "is_disabled": status.is_disabled,
+            "disabled_for": status.disabled_for,
+            "disabled_at": status.disabled_at,
+            "disabled_by": status.disabled_by
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "success",
+            "is_disabled": false,
+            "disabled_for": null,
+            "disabled_at": null,
+            "disabled_by": null
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to fetch Rush App status"
+        }))),
+    }
+}
+
+/// Check if a brother can access the Rush App (public endpoint)
+/// Admins always have access, regardless of disable settings
+pub async fn check_rush_app_access(
+    Json(payload): Json<CheckAccessPayload>,
+) -> Result<Json<Value>, StatusCode> {
+    // Admins always have access
+    if payload.is_admin {
+        return Ok(Json(json!({
+            "status": "success",
+            "allowed": true,
+            "reason": null
+        })));
+    }
+    
+    let collection = db::get_rush_app_status_client().await;
+    
+    match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => {
+            if !status.is_disabled {
+                // App is not disabled
+                return Ok(Json(json!({
+                    "status": "success",
+                    "allowed": true,
+                    "reason": null
+                })));
+            }
+            
+            // App is disabled, check who it's disabled for
+            match status.disabled_for.as_deref() {
+                Some("all") => {
+                    // Disabled for all brothers (non-admins)
+                    Ok(Json(json!({
+                        "status": "success",
+                        "allowed": false,
+                        "reason": "The Rush App has been temporarily disabled by an administrator."
+                    })))
+                }
+                Some("bidcom") => {
+                    // Disabled for bid committee only
+                    if payload.is_bidcom {
+                        Ok(Json(json!({
+                            "status": "success",
+                            "allowed": false,
+                            "reason": "The Rush App has been temporarily disabled for bid committee members."
+                        })))
+                    } else {
+                        // Regular brothers can still access
+                        Ok(Json(json!({
+                            "status": "success",
+                            "allowed": true,
+                            "reason": null
+                        })))
+                    }
+                }
+                _ => {
+                    // Unknown disabled_for value, allow access
+                    Ok(Json(json!({
+                        "status": "success",
+                        "allowed": true,
+                        "reason": null
+                    })))
+                }
+            }
+        }
+        Ok(None) => {
+            // No status document means app is enabled
+            Ok(Json(json!({
+                "status": "success",
+                "allowed": true,
+                "reason": null
+            })))
+        }
+        Err(_) => {
+            // On error, allow access to be safe
+            Ok(Json(json!({
+                "status": "error",
+                "message": "Failed to check access status"
+            })))
+        }
     }
 }

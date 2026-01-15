@@ -6,8 +6,6 @@ import Loader from "../components/Loader";
 import Navbar from "../components/Navbar"
 import MyError from "../components/Error";
 import Badges from "../components/Badge";
-import AppDisabledOverlay from "../components/AppDisabledOverlay";
-import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 
 import { verifyUser } from "../js/verifications";
 
@@ -21,9 +19,6 @@ export default function PISDashboard() {
 
     const [errorTitle, setErrorTitle] = useState("")
     const [errorDescription, setErrorDescription] = useState("")
-    
-    // App disabled state (hook handles admin/bidcom logic)
-    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const navigate = useNavigate()
 
@@ -79,11 +74,6 @@ export default function PISDashboard() {
 
     return (
         <div>
-            {/* App Disabled Overlay */}
-            {appDisabled && (
-                <AppDisabledOverlay message={appDisabledMessage} />
-            )}
-            
             {error ? (
                 <div>
 

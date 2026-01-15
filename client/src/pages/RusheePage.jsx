@@ -17,8 +17,6 @@ import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
 import { verifyInfo } from "../js/verifications";
-import AppDisabledOverlay from "../components/AppDisabledOverlay";
-import { useAppDisableCheck } from "../hooks/useAppDisableCheck";
 
 export default function RusheePage() {
 
@@ -27,9 +25,6 @@ export default function RusheePage() {
     const [initialRushee, setInitialRushee] = useState(null); // Stores the initial fetched state
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // App disabled state (hook handles admin/bidcom logic)
-    const { appDisabled, appDisabledMessage } = useAppDisableCheck();
 
     const [showPreview, setShowPreview] = useState(false)
     const [image, setImage] = useState()
@@ -305,10 +300,6 @@ export default function RusheePage() {
 
     return (
         <div>
-            {/* App Disabled Overlay */}
-            {appDisabled && (
-                <AppDisabledOverlay message={appDisabledMessage} />
-            )}
 
             <Navbar stripped={true} />
 

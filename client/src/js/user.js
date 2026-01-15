@@ -19,6 +19,7 @@ import { isEmailAllowed } from "../data/allowedEmails";
 
 /**
  * Sign in with email and password
+ * Checks if the Rush App is disabled for this user before allowing access
  */
 export async function login(credentials) {
     try {
@@ -29,6 +30,51 @@ export async function login(credentials) {
         );
         
         const user = userCredential.user;
+        
+        // Get the user's token to check their claims (admin/bidcom status)
+        const tokenResult = await user.getIdTokenResult(true);
+        const isAdmin = tokenResult.claims?.admin === true;
+        const isBidcom = tokenResult.claims?.bidcom === true;
+        
+        // Check if the Rush App is disabled for this user
+        const apiBase = import.meta.env.VITE_API_PREFIX;
+        try {
+            const accessResponse = await fetch(`${apiBase}/brother/rush-app/check-access`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    is_admin: isAdmin,
+                    is_bidcom: isBidcom,
+                }),
+            });
+            
+            const accessData = await accessResponse.json();
+            
+            if (accessData.status === 'success' && accessData.allowed === false) {
+                // User is blocked - sign them out and show error
+                await signOut(auth);
+                localStorage.removeItem('user');
+                
+                toast.error(accessData.reason || 'The Rush App has been temporarily disabled.', {
+                    position: "top-center",
+                    autoClose: 6000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "dark",
+                });
+                
+                return false;
+            }
+        } catch (accessError) {
+            // If the access check fails, allow login to proceed (fail open)
+            console.warn("Could not check Rush App access status:", accessError);
+        }
+        
         const nameParts = user.displayName?.split(' ') || ['', ''];
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
