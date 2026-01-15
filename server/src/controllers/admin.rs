@@ -1528,12 +1528,14 @@ pub async fn get_app_disable_status() -> Result<Json<Value>, StatusCode> {
             "status": "success",
             "disabled_for_regular_brothers": status.disabled_for_regular_brothers,
             "disabled_for_bidcom_brothers": status.disabled_for_bidcom_brothers,
+            "disabled_for_admins": status.disabled_for_admins,
             "message": status.message
         }))),
         Ok(None) => Ok(Json(json!({
             "status": "success",
             "disabled_for_regular_brothers": false,
             "disabled_for_bidcom_brothers": false,
+            "disabled_for_admins": false,
             "message": null
         }))),
         Err(_) => Ok(Json(json!({
@@ -1548,6 +1550,8 @@ pub async fn get_app_disable_status() -> Result<Json<Value>, StatusCode> {
 pub struct SetAppDisablePayload {
     pub disabled_for_regular_brothers: bool,
     pub disabled_for_bidcom_brothers: bool,
+    #[serde(default)]
+    pub disabled_for_admins: bool,
     #[serde(default)]
     pub message: Option<String>,
 }
@@ -1566,6 +1570,7 @@ pub async fn set_app_disable_status(
     let status = AppDisableStatus {
         disabled_for_regular_brothers: payload.disabled_for_regular_brothers,
         disabled_for_bidcom_brothers: payload.disabled_for_bidcom_brothers,
+        disabled_for_admins: payload.disabled_for_admins,
         disabled_at: Some(DateTime::now()),
         disabled_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
         message: payload.message.clone(),
@@ -1573,7 +1578,7 @@ pub async fn set_app_disable_status(
     
     match collection.insert_one(status).await {
         Ok(_) => {
-            let action = if payload.disabled_for_regular_brothers || payload.disabled_for_bidcom_brothers {
+            let action = if payload.disabled_for_regular_brothers || payload.disabled_for_bidcom_brothers || payload.disabled_for_admins {
                 "App access restricted"
             } else {
                 "App access restored"

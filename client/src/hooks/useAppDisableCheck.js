@@ -5,7 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 /**
  * Custom hook to check if the app is disabled for the current user.
- * Admins ALWAYS bypass the disable check - they can never be disabled.
+ * Checks against user type: admin, bidcom, or regular brother.
  * 
  * @returns {{ appDisabled: boolean, appDisabledMessage: string, isChecking: boolean }}
  */
@@ -32,26 +32,25 @@ export function useAppDisableCheck() {
                 const isAdmin = tokenResult.claims?.admin === true;
                 const isBidcom = tokenResult.claims?.bidcom === true;
                 
-                // ADMINS ALWAYS BYPASS - they can never be disabled
-                if (isAdmin) {
-                    setAppDisabled(false);
-                    setIsChecking(false);
-                    return;
-                }
-                
-                // Check if app is disabled for non-admins
+                // Check if app is disabled
                 const api = import.meta.env.VITE_API_PREFIX;
                 const response = await axios.get(`${api}/brother/app-status`);
                 
                 if (response.data.status === "success") {
                     const disabledForRegular = response.data.disabled_for_regular_brothers;
                     const disabledForBidcom = response.data.disabled_for_bidcom_brothers;
+                    const disabledForAdmins = response.data.disabled_for_admins;
                     
-                    // Check if disabled for this user type (only for non-admins)
-                    if (isBidcom && disabledForBidcom) {
+                    // Check if disabled for this user type
+                    if (isAdmin && disabledForAdmins) {
                         setAppDisabled(true);
                         setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
-                    } else if (!isBidcom && disabledForRegular) {
+                    } else if (isBidcom && !isAdmin && disabledForBidcom) {
+                        // Bidcom who is not an admin
+                        setAppDisabled(true);
+                        setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
+                    } else if (!isBidcom && !isAdmin && disabledForRegular) {
+                        // Regular brother (not admin, not bidcom)
                         setAppDisabled(true);
                         setAppDisabledMessage(response.data.message || "Rush App is Disabled.");
                     }

@@ -56,6 +56,7 @@ export default function Admin() {
 
     // App disable state
     const [appDisableStatus, setAppDisableStatus] = useState({
+        disabled_for_admins: false,
         disabled_for_regular_brothers: false,
         disabled_for_bidcom_brothers: false,
         message: ""
@@ -173,6 +174,7 @@ export default function Admin() {
                 const appStatusResponse = await axios.get(`${api}/brother/app-status`);
                 if (appStatusResponse.data.status === "success") {
                     setAppDisableStatus({
+                        disabled_for_admins: appStatusResponse.data.disabled_for_admins || false,
                         disabled_for_regular_brothers: appStatusResponse.data.disabled_for_regular_brothers || false,
                         disabled_for_bidcom_brothers: appStatusResponse.data.disabled_for_bidcom_brothers || false,
                         message: appStatusResponse.data.message || ""
@@ -925,6 +927,7 @@ export default function Admin() {
         setAppDisableLoading(true);
         try {
             const response = await axios.post(`${apiBase}/app-status`, {
+                disabled_for_admins: newStatus.disabled_for_admins,
                 disabled_for_regular_brothers: newStatus.disabled_for_regular_brothers,
                 disabled_for_bidcom_brothers: newStatus.disabled_for_bidcom_brothers,
                 message: "Rush App is Disabled."
@@ -1268,30 +1271,38 @@ export default function Admin() {
 
                             {/* Brother Access (Disable App) */}
                             <div className="card-apple p-5">
-                                <h3 className="text-apple-headline font-normal text-black mb-2">Brother Access</h3>
+                                <h3 className="text-apple-headline font-normal text-black mb-2">App Access</h3>
                                 <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                                    Disable app access for brothers
+                                    Disable app access by user type
                                 </p>
                                 
                                 {/* Disable Options */}
                                 <div className="space-y-2 mb-4">
                                     <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_regular_brothers: !appDisableStatus.disabled_for_regular_brothers, disabled_for_bidcom_brothers: appDisableStatus.disabled_for_bidcom_brothers })}
+                                        onClick={() => handleUpdateAppDisableStatus({ 
+                                            disabled_for_admins: !appDisableStatus.disabled_for_admins, 
+                                            disabled_for_regular_brothers: appDisableStatus.disabled_for_regular_brothers, 
+                                            disabled_for_bidcom_brothers: appDisableStatus.disabled_for_bidcom_brothers 
+                                        })}
                                         disabled={appDisableLoading}
                                         className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
-                                            appDisableStatus.disabled_for_regular_brothers
+                                            appDisableStatus.disabled_for_admins
                                                 ? 'bg-red-50 border-red-200'
                                                 : 'bg-apple-gray-50 border-apple-gray-200 hover:bg-apple-gray-100'
                                         }`}
                                     >
-                                        <span className="text-apple-footnote font-normal text-black">Brothers</span>
-                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_regular_brothers ? 'text-red-600' : 'text-green-600'}`}>
-                                            {appDisableStatus.disabled_for_regular_brothers ? 'Disabled' : 'Enabled'}
+                                        <span className="text-apple-footnote font-normal text-black">Admins</span>
+                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_admins ? 'text-red-600' : 'text-green-600'}`}>
+                                            {appDisableStatus.disabled_for_admins ? 'Disabled' : 'Enabled'}
                                         </span>
                                     </button>
                                     
                                     <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_regular_brothers: appDisableStatus.disabled_for_regular_brothers, disabled_for_bidcom_brothers: !appDisableStatus.disabled_for_bidcom_brothers })}
+                                        onClick={() => handleUpdateAppDisableStatus({ 
+                                            disabled_for_admins: appDisableStatus.disabled_for_admins,
+                                            disabled_for_regular_brothers: appDisableStatus.disabled_for_regular_brothers, 
+                                            disabled_for_bidcom_brothers: !appDisableStatus.disabled_for_bidcom_brothers 
+                                        })}
                                         disabled={appDisableLoading}
                                         className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
                                             appDisableStatus.disabled_for_bidcom_brothers
@@ -1304,20 +1315,39 @@ export default function Admin() {
                                             {appDisableStatus.disabled_for_bidcom_brothers ? 'Disabled' : 'Enabled'}
                                         </span>
                                     </button>
+                                    
+                                    <button
+                                        onClick={() => handleUpdateAppDisableStatus({ 
+                                            disabled_for_admins: appDisableStatus.disabled_for_admins,
+                                            disabled_for_regular_brothers: !appDisableStatus.disabled_for_regular_brothers, 
+                                            disabled_for_bidcom_brothers: appDisableStatus.disabled_for_bidcom_brothers 
+                                        })}
+                                        disabled={appDisableLoading}
+                                        className={`w-full flex items-center justify-between p-3 rounded-apple-lg border transition-all duration-200 ${
+                                            appDisableStatus.disabled_for_regular_brothers
+                                                ? 'bg-red-50 border-red-200'
+                                                : 'bg-apple-gray-50 border-apple-gray-200 hover:bg-apple-gray-100'
+                                        }`}
+                                    >
+                                        <span className="text-apple-footnote font-normal text-black">Brothers</span>
+                                        <span className={`text-apple-caption1 font-medium ${appDisableStatus.disabled_for_regular_brothers ? 'text-red-600' : 'text-green-600'}`}>
+                                            {appDisableStatus.disabled_for_regular_brothers ? 'Disabled' : 'Enabled'}
+                                        </span>
+                                    </button>
                                 </div>
 
                                 {/* Quick Actions */}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_regular_brothers: false, disabled_for_bidcom_brothers: false })}
-                                        disabled={appDisableLoading || (!appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers)}
+                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_admins: false, disabled_for_regular_brothers: false, disabled_for_bidcom_brothers: false })}
+                                        disabled={appDisableLoading || (!appDisableStatus.disabled_for_admins && !appDisableStatus.disabled_for_regular_brothers && !appDisableStatus.disabled_for_bidcom_brothers)}
                                         className="flex-1 bg-black text-white py-2.5 px-3 rounded-apple-xl text-apple-footnote font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-40"
                                     >
                                         Enable All
                                     </button>
                                     <button
-                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_regular_brothers: true, disabled_for_bidcom_brothers: true })}
-                                        disabled={appDisableLoading || (appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers)}
+                                        onClick={() => handleUpdateAppDisableStatus({ disabled_for_admins: true, disabled_for_regular_brothers: true, disabled_for_bidcom_brothers: true })}
+                                        disabled={appDisableLoading || (appDisableStatus.disabled_for_admins && appDisableStatus.disabled_for_regular_brothers && appDisableStatus.disabled_for_bidcom_brothers)}
                                         className="flex-1 bg-white text-black py-2.5 px-3 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-40"
                                     >
                                         Disable All

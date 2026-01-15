@@ -43,7 +43,7 @@ export default function AppDisabledOverlay({ message, show }) {
 
                 {/* Message */}
                 <p className="text-apple-body text-apple-gray-600 font-light mb-8">
-                    {message || "The rush app has been temporarily disabled by an administrator. Please check back later."}
+                    The rush app has been temporarily disabled by an administrator. Please check back later.
                 </p>
 
                 {/* Admin Contact */}

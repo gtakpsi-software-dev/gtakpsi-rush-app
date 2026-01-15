@@ -70,11 +70,12 @@ pub struct IncomingBrotherAvailability {
 
 // ========== App Disable Status ==========
 
-/// Tracks whether the rush app is disabled for brothers
+/// Tracks whether the rush app is disabled for different user types
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AppDisableStatus {
     pub disabled_for_regular_brothers: bool,
     pub disabled_for_bidcom_brothers: bool,
+    pub disabled_for_admins: bool,
     pub disabled_at: Option<DateTime>,
     pub disabled_by: Option<String>,
     pub message: Option<String>,
