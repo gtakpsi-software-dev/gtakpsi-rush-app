@@ -36,22 +36,34 @@ export async function login(credentials) {
         const isAdmin = tokenResult.claims?.admin === true;
         const isBidcom = tokenResult.claims?.bidcom === true;
         
+        console.log("Login - User claims:", {
+            uid: user.uid,
+            email: user.email,
+            claims: tokenResult.claims,
+            isAdmin,
+            isBidcom
+        });
+        
         // Check if the Rush App is disabled for this user
         const apiBase = import.meta.env.VITE_API_PREFIX;
         try {
+            const requestBody = {
+                uid: user.uid,
+                is_admin: isAdmin,
+                is_bidcom: isBidcom,
+            };
+            console.log("Login - Sending access check:", requestBody);
+            
             const accessResponse = await fetch(`${apiBase}/brother/rush-app/check-access`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    is_admin: isAdmin,
-                    is_bidcom: isBidcom,
-                }),
+                body: JSON.stringify(requestBody),
             });
             
             const accessData = await accessResponse.json();
+            console.log("Login - Access check response:", accessData);
             
             if (accessData.status === 'success' && accessData.allowed === false) {
                 // User is blocked - sign them out and show error
