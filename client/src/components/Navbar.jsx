@@ -141,6 +141,14 @@ export default function Navbar(props) {
                                     Voting
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    href="/my-pis"
+                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                >
+                                    My PIS
+                                </a>
+                            </li>
 
                             {/* More menu */}
                             <li className="relative">

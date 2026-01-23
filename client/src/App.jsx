@@ -26,6 +26,7 @@ import BrotherPIS from './pages/BrotherPIS';
 import AddTimeslotPage from './pages/AddTimeslotPage';
 import AddPIS from './pages/AddPIS';
 import PISDashboard from './pages/PISDashboard';
+import MyPISPage from './pages/MyPISPage';
 import NotFound from './pages/404';
 import SuccessPage from './components/AttendanceComponents/SuccessPage';
 import Comments from './pages/Comments';
@@ -61,6 +62,7 @@ function App() {
           <Route path='/pis/:gtid' element={<PIS/>} />
           <Route path='/attendance' element={<Attendance/>} />
           <Route path='/comments' element={<Comments />} />
+          <Route path='/my-pis' element={<MyPISPage/>} />
           {/* <Route path='/brother/pis' element={<BrotherPIS/>} />
           <Route path='/brother/dashboard' element={<PISDashboard/>} /> */}
           <Route path='*' element={<NotFound/>} />
