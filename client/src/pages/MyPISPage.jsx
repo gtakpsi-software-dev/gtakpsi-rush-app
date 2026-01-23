@@ -79,18 +79,18 @@ export default function MyPISPage() {
         const pisTime = dayjs(timestamp);
         
         if (pisTime.isBefore(now)) {
-            return { text: "Completed", color: "text-green-600" };
+            return { text: "Completed", color: "text-green-600", bg: "bg-green-50" };
         }
         
         const diffDays = pisTime.diff(now, "day");
         const diffHours = pisTime.diff(now, "hour");
         
         if (diffHours < 1) {
-            return { text: "Starting soon!", color: "text-red-600" };
+            return { text: "Starting soon!", color: "text-red-600", bg: "bg-red-50" };
         } else if (diffHours < 24) {
-            return { text: `In ${diffHours} hour${diffHours > 1 ? "s" : ""}`, color: "text-orange-600" };
+            return { text: `In ${diffHours} hour${diffHours > 1 ? "s" : ""}`, color: "text-orange-600", bg: "bg-orange-50" };
         } else {
-            return { text: `In ${diffDays} day${diffDays > 1 ? "s" : ""}`, color: "text-apple-gray-600" };
+            return { text: `In ${diffDays} day${diffDays > 1 ? "s" : ""}`, color: "text-apple-gray-600", bg: "bg-apple-gray-50" };
         }
     };
     
@@ -103,14 +103,17 @@ export default function MyPISPage() {
             <Navbar />
             
             <div className="pt-24 p-4 pb-20">
-                <div className="container mx-auto px-4 max-w-5xl">
+                <div className="container mx-auto px-4 max-w-4xl">
                     {/* Header */}
                     <div className="mb-8">
                         <h1 className="text-apple-large font-light text-black mb-2">
                             My PIS Appointments
                         </h1>
                         <p className="text-apple-body text-apple-gray-600 font-light">
-                            Here are the rushees you're scheduled to interview
+                            {rushees.length > 0 
+                                ? `You have ${rushees.length} interview${rushees.length > 1 ? "s" : ""} scheduled`
+                                : "Here are the rushees you're scheduled to interview"
+                            }
                         </p>
                     </div>
                     
@@ -129,60 +132,30 @@ export default function MyPISPage() {
                             </p>
                         </div>
                     ) : (
-                        <>
-                            {/* Summary Card */}
-                            <div className="card-apple p-6 mb-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-apple-footnote text-apple-gray-600 font-light uppercase tracking-wide">
-                                            Total Appointments
-                                        </p>
-                                        <p className="text-4xl font-light text-black">
-                                            {rushees.length}
-                                        </p>
-                                    </div>
-                                    <div className="text-6xl">🎤</div>
-                                </div>
-                            </div>
-                            
-                            {/* Rushee Cards Grid */}
-                            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-                                {rushees.map((rushee, idx) => {
-                                    const relativeTime = getRelativeTime(rushee.pis_timeslot);
-                                    
-                                    return (
-                                        <div
-                                            key={rushee.gtid || idx}
-                                            onClick={() => navigate(`/brother/rushee/${rushee.gtid}`)}
-                                            className="card-apple cursor-pointer hover:border-apple-gray-300 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
-                                        >
-                                            {/* Timeslot Banner */}
-                                            <div className="bg-black px-5 py-3 flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-lg">🕐</span>
-                                                    <span className="text-white text-apple-footnote font-light">
-                                                        {formatTimeslot(rushee.pis_timeslot)}
-                                                    </span>
-                                                </div>
-                                                {relativeTime && (
-                                                    <span className={`text-apple-caption1 font-medium ${relativeTime.color} bg-white px-2 py-1 rounded-apple`}>
-                                                        {relativeTime.text}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            
-                                            <div className="flex">
-                                                {/* Picture */}
+                        <div className="space-y-6">
+                            {rushees.map((rushee, idx) => {
+                                const relativeTime = getRelativeTime(rushee.pis_timeslot);
+                                
+                                return (
+                                    <div
+                                        key={rushee.gtid || idx}
+                                        className="card-apple overflow-hidden"
+                                    >
+                                        {/* Main Content */}
+                                        <div className="p-6">
+                                            <div className="flex flex-col md:flex-row gap-6">
+                                                {/* Photo */}
                                                 <img
                                                     src={rushee.image_url}
                                                     alt={rushee.name}
-                                                    className="w-32 h-32 object-cover"
+                                                    className="w-40 h-40 rounded-apple-2xl object-cover border border-apple-gray-200 shrink-0"
                                                 />
                                                 
-                                                {/* Content */}
-                                                <div className="flex-1 p-4">
-                                                    <div className="flex flex-col gap-1 mb-2">
-                                                        <h2 className="text-apple-title2 font-normal text-black leading-tight">
+                                                {/* Info */}
+                                                <div className="flex-1">
+                                                    {/* Name and Badges */}
+                                                    <div className="flex flex-col sm:flex-row gap-3 items-start mb-4">
+                                                        <h2 className="text-apple-title1 font-light text-black">
                                                             {rushee.name}
                                                         </h2>
                                                         <div className="flex flex-wrap gap-1">
@@ -192,47 +165,88 @@ export default function MyPISPage() {
                                                         </div>
                                                     </div>
                                                     
-                                                    <div className="space-y-0.5">
-                                                        <p className="text-apple-caption1 text-apple-gray-600 font-light truncate">
-                                                            {rushee.major}
+                                                    {/* Details Grid */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-apple-body">
+                                                        {rushee.pronouns && (
+                                                            <p className="text-apple-gray-600 font-light">
+                                                                <span className="text-black font-normal">Pronouns:</span> {rushee.pronouns}
+                                                            </p>
+                                                        )}
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">Email:</span> {rushee.email}
                                                         </p>
-                                                        <p className="text-apple-caption1 text-apple-gray-600 font-light truncate">
-                                                            {rushee.email}
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">Major:</span> {rushee.major}
+                                                        </p>
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">Class:</span> {rushee.class}
+                                                        </p>
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">GTID:</span> {rushee.gtid}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            {/* Ratings Preview */}
+                                            {/* Ratings */}
                                             {rushee.ratings && rushee.ratings.length > 0 && (
-                                                <div className="px-4 pb-4">
-                                                    <div className="flex flex-wrap gap-1">
+                                                <div className="mt-5 pt-5 border-t border-apple-gray-200">
+                                                    <p className="text-apple-footnote text-apple-gray-600 font-light mb-3 uppercase tracking-wide">
+                                                        Current Ratings
+                                                    </p>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                                         {rushee.ratings.map((rating, rIdx) => (
-                                                            <span
-                                                                key={rIdx}
-                                                                className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"
-                                                            >
-                                                                {rating.name}: {((rating.value / 5) * 100).toFixed(0)}%
-                                                            </span>
+                                                            <div key={rIdx} className="bg-apple-gray-50 rounded-apple p-3">
+                                                                <p className="text-apple-caption1 text-apple-gray-600 font-light mb-1">
+                                                                    {rating.name}
+                                                                </p>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="flex-1 bg-apple-gray-200 rounded-full h-1.5">
+                                                                        <div 
+                                                                            className="bg-black h-1.5 rounded-full"
+                                                                            style={{ width: `${(rating.value / 5) * 100}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <span className="text-apple-caption1 text-black font-normal">
+                                                                        {((rating.value / 5) * 100).toFixed(0)}%
+                                                                    </span>
+                                                                </div>
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
-                                            
-                                            {/* View Rushee Link */}
-                                            <div className="border-t border-apple-gray-200 px-4 py-3 flex items-center justify-between">
-                                                <span className="text-apple-footnote text-apple-gray-600 font-light">
-                                                    GTID: {rushee.gtid}
-                                                </span>
-                                                <span className="text-apple-footnote text-black font-normal flex items-center gap-1">
-                                                    View Rushee Page →
-                                                </span>
-                                            </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </>
+                                        
+                                        {/* Footer - Schedule & Action */}
+                                        <div className="bg-apple-gray-50 border-t border-apple-gray-200 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-white rounded-apple border border-apple-gray-200 flex items-center justify-center">
+                                                    <span className="text-lg">🕐</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-apple-body text-black font-normal">
+                                                        {formatTimeslot(rushee.pis_timeslot)}
+                                                    </p>
+                                                    {relativeTime && (
+                                                        <p className={`text-apple-footnote font-light ${relativeTime.color}`}>
+                                                            {relativeTime.text}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            <button
+                                                onClick={() => navigate(`/brother/rushee/${rushee.gtid}`)}
+                                                className="btn-apple px-5 py-2.5 text-apple-footnote font-light"
+                                            >
+                                                View Full Profile →
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </div>
