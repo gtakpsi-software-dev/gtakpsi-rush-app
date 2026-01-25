@@ -126,12 +126,6 @@ export default function PISAvailabilityModal({
         };
     };
 
-    // Check if a slot is on Monday Feb 2 (in local time)
-    const isMondayFeb2 = (slot) => {
-        const date = new Date(parseInt(slot.time.$date.$numberLong));
-        return date.getDay() === 1 && date.getMonth() === 1 && date.getDate() === 2;
-    };
-
     // Group timeslots by date
     const groupedSlots = timeslots.reduce((groups, slot) => {
         const date = new Date(parseInt(slot.time.$date.$numberLong));
@@ -141,9 +135,9 @@ export default function PISAvailabilityModal({
             day: 'numeric'
         });
         if (!groups[dateKey]) {
-            groups[dateKey] = { slots: [], isMonday: isMondayFeb2(slot) };
+            groups[dateKey] = [];
         }
-        groups[dateKey].slots.push(slot);
+        groups[dateKey].push(slot);
         return groups;
     }, {});
 
@@ -197,29 +191,11 @@ export default function PISAvailabilityModal({
 
                             {/* Timeslots grouped by date */}
                             <div className="space-y-6">
-                                {Object.entries(groupedSlots).map(([dateKey, { slots, isMonday }]) => (
+                                {Object.entries(groupedSlots).map(([dateKey, slots]) => (
                                     <div key={dateKey}>
                                         <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
                                             {dateKey}
                                         </h3>
-                                        
-                                        {/* Warning for Monday Feb 2 */}
-                                        {isMonday && (
-                                            <div className="bg-yellow-50 border border-yellow-300 rounded-apple-lg p-4 mb-4">
-                                                <div className="flex items-start gap-3">
-                                                    <span className="text-xl">⚠️</span>
-                                                    <div>
-                                                        <p className="text-apple-footnote font-medium text-yellow-800 mb-1">
-                                                            Only sign up for Monday, Feb 2 if you absolutely have to and cannot do the PIS on Sunday.
-                                                        </p>
-                                                        <p className="text-apple-caption1 text-yellow-700 font-light">
-                                                            If so, email <a href="mailto:vmiryapalli@gatech.edu" className="underline font-medium">vmiryapalli@gatech.edu</a> with a reason as to why.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
                                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                             {slots.map((slot, idx) => {
                                                 const slotIso = new Date(parseInt(slot.time.$date.$numberLong)).toISOString();
@@ -234,12 +210,8 @@ export default function PISAvailabilityModal({
                                                             px-3 py-2.5 rounded-apple-lg text-apple-footnote font-light
                                                             transition-all duration-150
                                                             ${isSelected 
-                                                                ? isMonday 
-                                                                    ? 'bg-yellow-500 text-white shadow-md' 
-                                                                    : 'bg-black text-white shadow-md' 
-                                                                : isMonday
-                                                                    ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border border-yellow-300'
-                                                                    : 'bg-apple-gray-100 text-apple-gray-700 hover:bg-apple-gray-200 border border-apple-gray-200'
+                                                                ? 'bg-black text-white shadow-md' 
+                                                                : 'bg-apple-gray-100 text-apple-gray-700 hover:bg-apple-gray-200 border border-apple-gray-200'
                                                             }
                                                         `}
                                                     >
