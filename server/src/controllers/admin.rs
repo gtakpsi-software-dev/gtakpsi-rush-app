@@ -39,6 +39,7 @@ pub async fn add_pis_question(Json(payload): Json<PISQuestion>) -> Result<Json<V
     let new_question = PISQuestion {
         question: payload.question,
         question_type: payload.question_type,
+        order: payload.order,
     };
 
     let result = connection.insert_one(new_question).await;
