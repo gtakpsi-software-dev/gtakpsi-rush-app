@@ -20,6 +20,7 @@ export default function Admin() {
 
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
+    const [questionOrder, setQuestionOrder] = useState("");
     const [timeslotTime, setTimeslotTime] = useState("");
     const [timeslotChange, setTimeslotChange] = useState(1);
     const [rushNightName, setRushNightName] = useState("");
@@ -983,7 +984,7 @@ export default function Admin() {
                                     {editingBrotherAvailability.brother_first_name} {editingBrotherAvailability.brother_last_name}
                                 </p>
                             </div>
-                            <button
+                <button
                                 onClick={closeEditAvailability}
                                 className="text-white/60 hover:text-white text-2xl font-light transition-colors"
                             >
@@ -1045,7 +1046,7 @@ export default function Admin() {
                                                                 `}
                                                             >
                                                                 {time}
-                                                            </button>
+                </button>
                                                         );
                                                     })}
                                                 </div>
@@ -1054,7 +1055,7 @@ export default function Admin() {
                                     </div>
                                 </>
                             )}
-                        </div>
+            </div>
 
                         {/* Footer */}
                         <div className="border-t border-apple-gray-200 bg-apple-gray-50 px-6 py-4">
@@ -1250,7 +1251,7 @@ export default function Admin() {
                                 <div>
                                     <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Bid Committee Access</div>
                                     <div className="flex gap-3">
-                                        <button
+                <button
                                             onClick={() => handleSetBidcom(true)}
                                             disabled={isPromoting || !selectedBrother || brotherBidcomStatus}
                                             className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-blue-700 transition-all duration-200 disabled:opacity-60"
@@ -1266,7 +1267,7 @@ export default function Admin() {
                 </button>
             </div>
                                 </div>
-                            </div>
+            </div>
 
                             {/* Rush App Control */}
                             <div className="card-apple p-5">
@@ -1356,10 +1357,23 @@ export default function Admin() {
                     value={questionType}
                     onChange={(e) => setQuestionType(e.target.value)}
                 />
+                <input
+                    type="number"
+                                        placeholder="Question order (e.g., 1)"
+                                        className="input-apple text-apple-body"
+                    value={questionOrder}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setQuestionOrder(value === "" ? "" : Number(value));
+                    }}
+                />
                                 </div>
                                 <div className="flex gap-3">
                 <button
-                                        onClick={() => handleRequest("add_pis_question", { question, question_type: questionType }, "post", "Question added!")}
+                                        onClick={() => {
+                                            const order = questionOrder === "" ? undefined : Number(questionOrder);
+                                            handleRequest("add_pis_question", { question, question_type: questionType, order }, "post", "Question added!");
+                                        }}
                                         className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
                                     >
                                         Add Question
@@ -1390,7 +1404,7 @@ export default function Admin() {
                     value={timeslotChange}
                     onChange={(e) => setTimeslotChange(Number(e.target.value))}
                 />
-                                </div>
+            </div>
                                 <div className="flex gap-3">
                 <button
                                         onClick={() => handleRequest("add_pis_timeslot", { time: timeslotTime, change: timeslotChange }, "post", "Timeslot added!")}
