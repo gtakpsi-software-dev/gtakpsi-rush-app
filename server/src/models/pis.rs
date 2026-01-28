@@ -5,6 +5,8 @@ use bson::DateTime;
 pub struct PISQuestion {
     pub question: String,
     pub question_type: String,
+    #[serde(default)]
+    pub order: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

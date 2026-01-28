@@ -204,7 +204,13 @@ export default function PIS() {
                     await axios.get(`${api}/admin/get_pis_questions`)
                         .then((response) => {
                             if (response.data.status === "success") {
-                                setQuestions(response.data.payload);
+                                // Sort questions by order field (ascending)
+                                const sortedQuestions = [...response.data.payload].sort((a, b) => {
+                                    const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+                                    const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+                                    return orderA - orderB;
+                                });
+                                setQuestions(sortedQuestions);
                             } else {
                                 navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`);
                             }

@@ -1,66 +1,87 @@
 [
     {
         "question": "Are you available on Thursdays @ 7PM?",
-        "question_type": "MC"
+        "question_type": "MC",
+        "order": 1
     },
     {
         "question": "Are you available on Saturday, February 14th from 9am to 4pm?",
-        "question_type": "MC"
+        "question_type": "MC",
+        "order": 2
     },
     {
         "question": "Are you available on Sunday, March 15th from 9am to 4pm?",
-        "question_type": "MC"
+        "question_type": "MC",
+        "order": 3
     },
     {
         "question": "Tell me/us about yourself?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 4
     },
     {
         "question": "Could you share an experience where you truly understood the importance of service?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 5
     },
     {
         "question": "Why do you want to join AKPsi? ",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 6
     },
     {
         "question": "Could you describe a time when you took steps to promote and uphold diversity, equity and inclusion principles?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 7
     },
     {
         "question": "What was your memorable conversation or the coolest thing you learned about a brother during Rush?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 8
     },
     {
         "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 9
     },
     {
-        "question": "Who’s your biggest role model and why?",
-        "question_type": "Long"
+        "question": "Who's your biggest role model and why?",
+        "question_type": "Long",
+        "order": 10
     },
     {
         "question": "If you could have any superpower what would it be and why?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 11
     },
     {
-        "question": "Tell us about a recent hobby you’ve picked up.",
-        "question_type": "Long"
+        "question": "Tell us about a recent hobby you've picked up.",
+        "question_type": "Long",
+        "order": 12
+    },
+    {
+        "question": "(Optional) If you could have any superpower what would it be and why?",
+        "question_type": "Long",
+        "order": 13
     },
     {
         "question": "[BROTHER A] Would you extend this rushee a bid?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 14
     },
     {
         "question": "[BROTHER A] Why or Why Not?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 15
     },
     {
         "question": "[BROTHER B] Would you extend this rushee a bid?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 16
     },
     {
         "question": "[BROTHER B] Why or Why Not?",
-        "question_type": "Long"
+        "question_type": "Long",
+        "order": 17
     }
 ]
