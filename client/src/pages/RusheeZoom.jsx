@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import Navbar from "../components/Navbar";
 import { verifyUser } from "../js/verifications";
 import Loader from "../components/Loader";
+import { auth } from "../firebase";
 import CommentWarning from "../components/CommentWarning";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 
@@ -43,6 +44,7 @@ export default function RusheeZoom() {
         "Group Interactions": null,
         "Professionalism": null,
     });
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const navigate = useNavigate();
 
@@ -68,8 +70,9 @@ export default function RusheeZoom() {
         "Professionalism",
     ];
 
-    // Function to check if current user has already posted a comment
+    // Function to check if current user has already posted a comment (or is admin)
     const hasUserPostedComment = () => {
+        if (isAdmin) return true;
         if (!rushee || !user) return false;
         const currentUserName = user.firstname + " " + user.lastname;
         return rushee.comments.some(comment => comment.brother_name === currentUserName);
@@ -84,6 +87,17 @@ export default function RusheeZoom() {
 
                     if (response == false) {
                         navigate(`/error/${errorTitle}/${errorDescription}`);
+                    }
+
+                    // Check if user is admin
+                    const currentUser = auth.currentUser;
+                    if (currentUser) {
+                        try {
+                            const tokenResult = await currentUser.getIdTokenResult(true);
+                            setIsAdmin(tokenResult.claims?.admin === true);
+                        } catch (e) {
+                            console.error("Error checking admin status:", e);
+                        }
                     }
 
                     await axios.get(`${api}/rushee/${gtid}`)
