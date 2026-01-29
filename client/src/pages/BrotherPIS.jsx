@@ -198,8 +198,9 @@ export default function BrotherPIS() {
                                                 <p>
                                                     <strong>Time:</strong>{" "}
                                                     {slot.time.toLocaleTimeString([], {
-                                                        hour: "2-digit",
+                                                        hour: "numeric",
                                                         minute: "2-digit",
+                                                        hour12: true,
                                                     })}
                                                 </p>
                                                 <p>

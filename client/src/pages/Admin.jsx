@@ -520,7 +520,7 @@ export default function Admin() {
                 const processedSlots = timeslots.map(slot => {
                     const jsDate = new Date(parseInt(slot.time.$date.$numberLong));
                     const date = jsDate.toLocaleDateString();
-                    const time = jsDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const time = jsDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
                     const rusheeName = `${slot.rushee_first_name} ${slot.rushee_last_name}`;
                     const flexWindow = slot.flex_window ? "Yes" : "No";
                     
@@ -738,7 +738,7 @@ export default function Admin() {
                         jsDate = new Date(item.timeslot);
                     }
                     const date = jsDate.toLocaleDateString();
-                    const time = jsDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const time = jsDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
                     
                     const brother1 = item.brother_1 === "none none" ? "" : item.brother_1;
                     const brother2 = item.brother_2 === "none none" ? "" : item.brother_2;
