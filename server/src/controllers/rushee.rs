@@ -177,17 +177,17 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
                 match rushee {
                     Ok(doc) => {
                         rushees.push(StrippedRushee {
-                            name: format!("{} {}", doc.first_name, doc.last_name),
+                        name: format!("{} {}", doc.first_name, doc.last_name),
                             first_name: doc.first_name.clone(),
                             last_name: doc.last_name.clone(),
-                            class: doc.class,
-                            gtid: doc.gtid,
-                            major: doc.major,
-                            ratings: doc.ratings,
-                            image_url: doc.image_url,
-                            email: doc.email,
-                            pronouns: doc.pronouns,
-                            attendance: doc.attendance,
+                        class: doc.class,
+                        gtid: doc.gtid,
+                        major: doc.major,
+                        ratings: doc.ratings,
+                        image_url: doc.image_url,
+                        email: doc.email,
+                        pronouns: doc.pronouns,
+                        attendance: doc.attendance,
                             registration_order: order,
                             pis_timeslot: Some(doc.pis_timeslot),
                         });
@@ -639,7 +639,7 @@ pub async fn update_attendance(Path(id): Path<String>) -> Result<Json<Value>, St
                     }
 
                     let filter = doc! {"gtid": id.clone()};
-                    let update = doc! {"$push": {
+                    let update = doc! {"$addToSet": {
                         "attendance": bson_night,
                     }};
 
