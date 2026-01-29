@@ -575,7 +575,7 @@ export default function RusheeZoom() {
                                             <span className="text-lg">🕒</span>
                                             <span className="text-apple-gray-600 font-light">
                                                 <span className="text-black font-normal">Timeslot:</span>{" "}
-                                                {dayjs(parseInt(rushee.pis_timeslot.$date.$numberLong)).format('ddd, DD MMM YYYY HH:mm:ss')}
+                                                {dayjs(parseInt(rushee.pis_timeslot.$date.$numberLong)).format('ddd, DD MMM YYYY h:mm A')}
                                             </span>
                                         </div>
                                         <p className="text-apple-gray-600 font-light">
