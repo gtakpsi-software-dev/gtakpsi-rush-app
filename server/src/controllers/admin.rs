@@ -8,7 +8,9 @@ use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
 use serde::{Deserialize, Serialize};
 use axum::extract::Extension;
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
+use tokio::sync::Mutex;
 
 use crate::{
     middlewares::timeHelpers::{self, string_to_bson_datetime},
@@ -29,6 +31,9 @@ const SORTING_STATUSES: [&str; 5] = [
     "OUT_CLOUD",
     "INELIGIBLE",
 ];
+
+// Serialize sorting reorder updates to avoid interleaving writes.
+static SORTING_REORDER_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
 /**
  * Add a PIS question
@@ -687,7 +692,9 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
             list.sort_by(|a, b| {
                 let ai = SORTING_STATUSES.iter().position(|s| *s == a.sortingStatus).unwrap_or(0);
                 let bi = SORTING_STATUSES.iter().position(|s| *s == b.sortingStatus).unwrap_or(0);
-                ai.cmp(&bi).then(a.sortingOrder.cmp(&b.sortingOrder))
+                ai.cmp(&bi)
+                    .then(a.sortingOrder.cmp(&b.sortingOrder))
+                    .then_with(|| a.id.cmp(&b.id))
             });
 
             Ok(Json(json!({
@@ -742,7 +749,9 @@ pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
             list.sort_by(|a, b| {
                 let ai = SORTING_STATUSES.iter().position(|s| *s == a.sortingStatus).unwrap_or(0);
                 let bi = SORTING_STATUSES.iter().position(|s| *s == b.sortingStatus).unwrap_or(0);
-                ai.cmp(&bi).then(a.sortingOrder.cmp(&b.sortingOrder))
+                ai.cmp(&bi)
+                    .then(a.sortingOrder.cmp(&b.sortingOrder))
+                    .then_with(|| a.id.cmp(&b.id))
             });
 
             Ok(Json(json!({
@@ -866,6 +875,8 @@ pub async fn bulk_reorder(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<BulkReorderPayload>,
 ) -> Result<Json<Value>, StatusCode> {
+    let _lock = SORTING_REORDER_LOCK.lock().await;
+
     if !validate_status(&payload.column) {
         return Ok(Json(json!({
             "status": "error",
