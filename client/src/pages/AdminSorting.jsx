@@ -63,11 +63,12 @@ export default function AdminSorting() {
     const wsRef = useRef(null);
     const [wsConnected, setWsConnected] = useState(false);
     const [viewerCount, setViewerCount] = useState(0);
-    const [ghostCard, setGhostCard] = useState(null);
+    const [ghostCards, setGhostCards] = useState({});
+    const [lockedCards, setLockedCards] = useState({});
     const dragPositionRef = useRef({ x: 0, y: 0 });
     const throttleRef = useRef(null);
-    const reorderInFlightRef = useRef(false);
-    const pendingReorderRef = useRef(null);
+    const moveInFlightRef = useRef(false);
+    const pendingMovesRef = useRef([]);
     const fetchDataRef = useRef(null);
     const draggingRef = useRef(null);
 
@@ -94,23 +95,60 @@ export default function AdminSorting() {
                             setViewerCount(msg.count);
                             break;
                         case "drag_start":
-                            if (!draggingRef.current) {
-                                setGhostCard({
-                                    rusheeId: msg.rushee_id,
-                                    rusheeName: msg.rushee_name,
-                                    x: msg.x,
-                                    y: msg.y,
-                                    draggerName: msg.dragger_name,
-                                });
+                            if (draggingRef.current?.id !== msg.rushee_id) {
+                                setGhostCards((prev) => ({
+                                    ...prev,
+                                    [msg.rushee_id]: {
+                                        rusheeId: msg.rushee_id,
+                                        rusheeName: msg.rushee_name,
+                                        x: msg.x,
+                                        y: msg.y,
+                                        draggerName: msg.dragger_name,
+                                    },
+                                }));
+                                setLockedCards((prev) => ({
+                                    ...prev,
+                                    [msg.rushee_id]: msg.dragger_name,
+                                }));
                             }
                             break;
                         case "drag_move":
-                            if (!draggingRef.current) {
-                                setGhostCard((prev) => prev ? { ...prev, x: msg.x, y: msg.y } : null);
+                            if (draggingRef.current?.id !== msg.rushee_id) {
+                                setGhostCards((prev) => {
+                                    if (!prev[msg.rushee_id]) return prev;
+                                    return {
+                                        ...prev,
+                                        [msg.rushee_id]: {
+                                            ...prev[msg.rushee_id],
+                                            x: msg.x,
+                                            y: msg.y,
+                                        },
+                                    };
+                                });
                             }
                             break;
                         case "drag_end":
-                            setGhostCard(null);
+                            setGhostCards((prev) => {
+                                if (!prev[msg.rushee_id]) return prev;
+                                const next = { ...prev };
+                                delete next[msg.rushee_id];
+                                return next;
+                            });
+                            setLockedCards((prev) => {
+                                if (!prev[msg.rushee_id]) return prev;
+                                const next = { ...prev };
+                                delete next[msg.rushee_id];
+                                return next;
+                            });
+                            break;
+                        case "drag_denied":
+                            setLockedCards((prev) => ({
+                                ...prev,
+                                [msg.rushee_id]: msg.dragger_name,
+                            }));
+                            if (draggingRef.current?.id === msg.rushee_id) {
+                                cancelDragState();
+                            }
                             break;
                         case "card_moved":
                             if (fetchDataRef.current) {
@@ -118,14 +156,21 @@ export default function AdminSorting() {
                             }
                             break;
                         case "current_drag":
-                            if (msg.active && !draggingRef.current) {
-                                setGhostCard({
-                                    rusheeId: msg.rushee_id,
-                                    rusheeName: msg.rushee_name,
-                                    x: msg.x,
-                                    y: msg.y,
-                                    draggerName: msg.dragger_name,
-                                });
+                            if (msg.active && draggingRef.current?.id !== msg.rushee_id) {
+                                setGhostCards((prev) => ({
+                                    ...prev,
+                                    [msg.rushee_id]: {
+                                        rusheeId: msg.rushee_id,
+                                        rusheeName: msg.rushee_name,
+                                        x: msg.x,
+                                        y: msg.y,
+                                        draggerName: msg.dragger_name,
+                                    },
+                                }));
+                                setLockedCards((prev) => ({
+                                    ...prev,
+                                    [msg.rushee_id]: msg.dragger_name,
+                                }));
                             }
                             break;
                         default:
@@ -139,7 +184,8 @@ export default function AdminSorting() {
             ws.onclose = () => {
                 console.log("Disconnected from sorting broadcaster");
                 setWsConnected(false);
-                setGhostCard(null);
+                setGhostCards({});
+                setLockedCards({});
                 // Reconnect after 3 seconds
                 setTimeout(connectWs, 3000);
             };
@@ -237,6 +283,13 @@ export default function AdminSorting() {
     }, [fetchData, authChecked, navigate]);
 
     const handleDragStart = (rushee, fromColumn, index, e) => {
+        const lockedBy = lockedCards[rushee.id];
+        if (lockedBy && draggingRef.current?.id !== rushee.id) {
+            e.preventDefault();
+            return;
+        }
+
+        draggingRef.current = { id: rushee.id, fromColumn, index, rushee };
         setDragging({ id: rushee.id, fromColumn, index, rushee });
         
         // Send drag_start to WebSocket
@@ -265,57 +318,55 @@ export default function AdminSorting() {
             const x = e.clientX;
             const y = e.clientY;
             dragPositionRef.current = { x, y };
-            wsSend({ type: "drag_move", x, y });
+            if (draggingRef.current?.id) {
+                wsSend({ type: "drag_move", rushee_id: draggingRef.current.id, x, y });
+            }
         }
     };
 
     const clearDragState = () => {
         // Send drag_end to WebSocket
-        wsSend({ type: "drag_end" });
+        if (draggingRef.current?.id) {
+            wsSend({ type: "drag_end", rushee_id: draggingRef.current.id });
+        }
         
         setDragging(null);
         setHoverIndex({ column: null, index: null });
+        draggingRef.current = null;
     };
 
-    const persistReorder = async (updatedColumns, colsToUpdate, movedRusheeId, newStatus) => {
-        if (reorderInFlightRef.current) {
-            pendingReorderRef.current = { updatedColumns, colsToUpdate, movedRusheeId, newStatus };
-            return;
-        }
+    const cancelDragState = () => {
+        setDragging(null);
+        setHoverIndex({ column: null, index: null });
+        draggingRef.current = null;
+    };
 
-        reorderInFlightRef.current = true;
+    const processMoveQueue = async () => {
+        if (moveInFlightRef.current) return;
+        const next = pendingMovesRef.current.shift();
+        if (!next) return;
+
+        moveInFlightRef.current = true;
         try {
-            await Promise.all(
-                colsToUpdate.map((colKey) => {
-                    const ids = updatedColumns[colKey].map((r) => r.id);
-                    return adminPut(`${apiBase}/rushees/reorder`, {
-                        column: colKey,
-                        orderedRusheeIds: ids,
-                    });
-                })
-            );
-
-            // Notify WebSocket that card was saved (only if no newer reorder is queued)
-            if (movedRusheeId && newStatus && !pendingReorderRef.current) {
-                wsSend({ type: "card_saved", rushee_id: movedRusheeId, new_status: newStatus });
+            await adminPut(`${apiBase}/rushees/move`, next);
+            if (next.movedRusheeId && next.toColumn) {
+                wsSend({ type: "card_saved", rushee_id: next.movedRusheeId, new_status: next.toColumn });
             }
         } catch (err) {
             toast.error("Failed to save order; reverting");
-            pendingReorderRef.current = null;
-            await fetchData();
-        } finally {
-            reorderInFlightRef.current = false;
-            if (pendingReorderRef.current) {
-                const next = pendingReorderRef.current;
-                pendingReorderRef.current = null;
-                persistReorder(
-                    next.updatedColumns,
-                    next.colsToUpdate,
-                    next.movedRusheeId,
-                    next.newStatus
-                );
+            pendingMovesRef.current = [];
+            if (fetchDataRef.current) {
+                await fetchDataRef.current();
             }
+        } finally {
+            moveInFlightRef.current = false;
+            processMoveQueue();
         }
+    };
+
+    const enqueueMove = (payload) => {
+        pendingMovesRef.current.push(payload);
+        processMoveQueue();
     };
 
     const handleDrop = (targetColumn, targetIndex) => {
@@ -355,10 +406,13 @@ export default function AdminSorting() {
                 }));
             }
 
-            // persist async - pass rushee id and new status for WebSocket notification
-            const colsToUpdate =
-                fromColumn === targetColumn ? [targetColumn] : [fromColumn, targetColumn];
-            persistReorder(updated, colsToUpdate, id, targetColumn);
+            // persist async move against latest backend state
+            enqueueMove({
+                fromColumn,
+                toColumn: targetColumn,
+                movedRusheeId: id,
+                targetIndex: insertAt,
+            });
 
             return updated;
         });
@@ -540,58 +594,73 @@ export default function AdminSorting() {
                 <div className="space-y-1 min-h-[60px]">
                     {items.map((r, idx) => (
                         <React.Fragment key={r.id}>
-                            {/* Drop indicator BEFORE this card */}
-                            {isHoveringThisColumn && hoverIndex.index === idx && dragging && dragging.id !== r.id && (
-                                <DropIndicator />
-                            )}
-                            <div
-                                data-card
-                                draggable
-                                onDragStart={(e) => handleDragStart(r, col.key, idx, e)}
-                                onDragOver={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    // Determine if we're in the top or bottom half of the card
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    const midY = rect.top + rect.height / 2;
-                                    const insertIndex = e.clientY < midY ? idx : idx + 1;
-                                    setHoverIndex({ column: col.key, index: insertIndex });
-                                }}
-                                onDrop={(e) => {
-                                    e.stopPropagation();
-                                    handleDrop(col.key, hoverIndex.index);
-                                }}
-                                onClick={() => openNotes(r)}
-                                className={`p-3 rounded-apple-lg border-2 bg-white hover:shadow-md cursor-grab select-none transition-all ${
-                                    dragging?.id === r.id 
-                                        ? "opacity-50 border-dashed border-apple-gray-300 bg-apple-gray-50" 
-                                        : "border-apple-gray-200 hover:border-apple-gray-300"
-                                }`}
-                            >
-                                <div className="text-apple-body text-black font-medium">{r.fullName}</div>
-                                <div className="text-apple-caption2 text-apple-gray-600">Rushee #{r.rushNumber}</div>
-                                {/* Tags */}
-                                {r.sortingTags && r.sortingTags.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                        {r.sortingTags.map((tagKey) => {
-                                            const tagInfo = TAGS.find((t) => t.key === tagKey);
-                                            if (!tagInfo) return null;
-                                            return (
-                                                <span
-                                                    key={tagKey}
-                                                    className={`text-xs px-2 py-0.5 rounded-full border ${tagInfo.color}`}
-                                                >
-                                                    {tagInfo.label}
-                                                </span>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                            {/* Drop indicator AFTER this card (only for last item) */}
-                            {isHoveringThisColumn && hoverIndex.index === idx + 1 && idx === items.length - 1 && dragging && dragging.id !== r.id && (
-                                <DropIndicator />
-                            )}
+                            {(() => {
+                                const lockedBy = lockedCards[r.id];
+                                const isLockedByOther = Boolean(lockedBy) && draggingRef.current?.id !== r.id;
+                                return (
+                                    <React.Fragment>
+                                        {/* Drop indicator BEFORE this card */}
+                                        {isHoveringThisColumn && hoverIndex.index === idx && dragging && dragging.id !== r.id && (
+                                            <DropIndicator />
+                                        )}
+                                        <div
+                                            data-card
+                                            draggable={!isLockedByOther}
+                                            onDragStart={(e) => handleDragStart(r, col.key, idx, e)}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                // Determine if we're in the top or bottom half of the card
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                const midY = rect.top + rect.height / 2;
+                                                const insertIndex = e.clientY < midY ? idx : idx + 1;
+                                                setHoverIndex({ column: col.key, index: insertIndex });
+                                            }}
+                                            onDrop={(e) => {
+                                                e.stopPropagation();
+                                                handleDrop(col.key, hoverIndex.index);
+                                            }}
+                                            onClick={() => openNotes(r)}
+                                            className={`p-3 rounded-apple-lg border-2 bg-white hover:shadow-md select-none transition-all ${
+                                                dragging?.id === r.id 
+                                                    ? "opacity-50 border-dashed border-apple-gray-300 bg-apple-gray-50" 
+                                                    : isLockedByOther
+                                                        ? "border-apple-gray-200 bg-apple-gray-50 cursor-not-allowed"
+                                                        : "border-apple-gray-200 hover:border-apple-gray-300 cursor-grab"
+                                            }`}
+                                        >
+                                            <div className="text-apple-body text-black font-medium">{r.fullName}</div>
+                                            <div className="text-apple-caption2 text-apple-gray-600">Rushee #{r.rushNumber}</div>
+                                            {isLockedByOther && (
+                                                <div className="text-apple-caption2 text-orange-600 mt-1">
+                                                    Moving by {lockedBy}
+                                                </div>
+                                            )}
+                                            {/* Tags */}
+                                            {r.sortingTags && r.sortingTags.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-2">
+                                                    {r.sortingTags.map((tagKey) => {
+                                                        const tagInfo = TAGS.find((t) => t.key === tagKey);
+                                                        if (!tagInfo) return null;
+                                                        return (
+                                                            <span
+                                                                key={tagKey}
+                                                                className={`text-xs px-2 py-0.5 rounded-full border ${tagInfo.color}`}
+                                                            >
+                                                                {tagInfo.label}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {/* Drop indicator AFTER this card (only for last item) */}
+                                        {isHoveringThisColumn && hoverIndex.index === idx + 1 && idx === items.length - 1 && dragging && dragging.id !== r.id && (
+                                            <DropIndicator />
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })()}
                         </React.Fragment>
                     ))}
                     {/* Empty state or drop zone at end */}
@@ -636,35 +705,45 @@ export default function AdminSorting() {
             <Navbar />
             
             {/* Viewer Count & Live Indicator */}
-            {wsConnected && (viewerCount > 1 || ghostCard) && (
-                <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-                    <div className={`w-2 h-2 rounded-full ${ghostCard ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
-                    <span className="text-sm text-apple-gray-600">
-                        {ghostCard ? `${ghostCard.draggerName} is editing` : `${viewerCount} viewing`}
-                    </span>
-                </div>
-            )}
+            {(() => {
+                const ghostList = Object.values(ghostCards);
+                const ghostCount = ghostList.length;
+                if (!wsConnected || (viewerCount <= 1 && ghostCount === 0)) return null;
+                const label =
+                    ghostCount === 0
+                        ? `${viewerCount} viewing`
+                        : ghostCount === 1
+                            ? `${ghostList[0].draggerName} is editing`
+                            : `${ghostCount} admins editing`;
+                return (
+                    <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
+                        <div className={`w-2 h-2 rounded-full ${ghostCount > 0 ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
+                        <span className="text-sm text-apple-gray-600">{label}</span>
+                    </div>
+                );
+            })()}
 
-            {/* Ghost Card - Shows when another admin is dragging */}
-            {ghostCard && (
+            {/* Ghost Cards - Shows when other admins are dragging */}
+            {Object.values(ghostCards).map((ghost) => (
                 <div
+                    key={ghost.rusheeId}
                     className="fixed z-50 pointer-events-none"
                     style={{
-                        left: ghostCard.x,
-                        top: ghostCard.y,
+                        left: ghost.x,
+                        top: ghost.y,
                         transform: "translate(-50%, -50%)",
                     }}
                 >
                     <div className="p-3 rounded-apple-lg border-2 border-blue-400 bg-blue-50/90 shadow-xl backdrop-blur-sm animate-pulse w-56">
                         <div className="text-apple-body text-blue-700 font-semibold">
-                            {ghostCard.rusheeName}
+                            {ghost.rusheeName}
                         </div>
                         <div className="text-apple-caption2 text-blue-500 mt-1">
-                            Being moved by {ghostCard.draggerName}
+                            Being moved by {ghost.draggerName}
                         </div>
                     </div>
                 </div>
-            )}
+            ))}
 
             {/* Fixed Zoom Controls - Bottom Left */}
             <div className="fixed bottom-20 left-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-2xl px-4 py-3 shadow-lg">

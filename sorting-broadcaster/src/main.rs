@@ -10,7 +10,7 @@ use axum::{
 use dashmap::DashMap;
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{env, net::SocketAddr, sync::Arc};
+use std::{collections::HashMap, env, net::SocketAddr, sync::Arc};
 use tokio::sync::broadcast;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -25,18 +25,18 @@ struct Client {
 
 type ClientMap = Arc<DashMap<String, Client>>;
 
-/// Current drag state (who is dragging what)
-#[derive(Clone, Default)]
+/// Current drag state (per rushee)
+#[derive(Clone, Debug)]
 struct DragState {
-    dragger_id: Option<String>,
-    dragger_name: Option<String>,
-    rushee_id: Option<String>,
-    rushee_name: Option<String>,
+    dragger_id: String,
+    dragger_name: String,
+    rushee_id: String,
+    rushee_name: String,
     position_x: f64,
     position_y: f64,
 }
 
-type SharedDragState = Arc<tokio::sync::RwLock<DragState>>;
+type SharedDragState = Arc<tokio::sync::RwLock<HashMap<String, DragState>>>;
 
 /// Shared application state
 struct AppState {
@@ -63,9 +63,9 @@ enum IncomingMessage {
         y: f64,
     },
     #[serde(rename = "drag_move")]
-    DragMove { x: f64, y: f64 },
+    DragMove { rushee_id: String, x: f64, y: f64 },
     #[serde(rename = "drag_end")]
-    DragEnd {},
+    DragEnd { rushee_id: String },
     #[serde(rename = "card_saved")]
     CardSaved { rushee_id: String, new_status: String },
 }
@@ -91,6 +91,8 @@ enum OutgoingMessage {
     DragEnd { rushee_id: String },
     #[serde(rename = "card_moved")]
     CardMoved { rushee_id: String, new_status: String },
+    #[serde(rename = "drag_denied")]
+    DragDenied { rushee_id: String, dragger_name: String },
     #[serde(rename = "viewer_count")]
     ViewerCount { count: usize },
     #[serde(rename = "current_drag")]
@@ -114,7 +116,7 @@ async fn main() {
 
     let state = Arc::new(AppState {
         clients: Arc::new(DashMap::new()),
-        drag_state: Arc::new(tokio::sync::RwLock::new(DragState::default())),
+        drag_state: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
         broadcast_tx,
     });
 
@@ -181,14 +183,14 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     // Send current drag state to new client
     {
         let drag = state.drag_state.read().await;
-        if drag.dragger_id.is_some() {
+        for state in drag.values() {
             let msg = OutgoingMessage::CurrentDrag {
                 active: true,
-                dragger_name: drag.dragger_name.clone(),
-                rushee_id: drag.rushee_id.clone(),
-                rushee_name: drag.rushee_name.clone(),
-                x: drag.position_x,
-                y: drag.position_y,
+                dragger_name: Some(state.dragger_name.clone()),
+                rushee_id: Some(state.rushee_id.clone()),
+                rushee_name: Some(state.rushee_name.clone()),
+                x: state.position_x,
+                y: state.position_y,
             };
             if let Ok(json) = serde_json::to_string(&msg) {
                 let _ = tx.send(json);
@@ -230,19 +232,23 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     send_task.abort();
     
     // Check if this client was dragging
-    {
+    let released = {
         let mut drag = state.drag_state.write().await;
-        if drag.dragger_id.as_ref() == Some(&client_id) {
-            // Broadcast drag_end since dragger disconnected
-            if let Some(rushee_id) = &drag.rushee_id {
-                let msg = OutgoingMessage::DragEnd {
-                    rushee_id: rushee_id.clone(),
-                };
-                if let Ok(json) = serde_json::to_string(&msg) {
-                    let _ = state.broadcast_tx.send(json);
-                }
-            }
-            *drag = DragState::default();
+        let released_ids: Vec<String> = drag
+            .iter()
+            .filter(|(_, state)| state.dragger_id == client_id)
+            .map(|(id, _)| id.clone())
+            .collect();
+        for id in &released_ids {
+            drag.remove(id);
+        }
+        released_ids
+    };
+
+    for rushee_id in released {
+        let msg = OutgoingMessage::DragEnd { rushee_id };
+        if let Ok(json) = serde_json::to_string(&msg) {
+            let _ = state.broadcast_tx.send(json);
         }
     }
     
@@ -275,11 +281,19 @@ async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
                 return;
             }
             
-            // Check if someone else is already dragging
-            {
-                let drag = state.drag_state.read().await;
-                if drag.dragger_id.is_some() && drag.dragger_id.as_ref() != Some(&client_id.to_string()) {
-                    return; // Someone else is dragging
+            // Check if someone else is already dragging this card
+            if let Some(existing) = state.drag_state.read().await.get(&rushee_id).cloned() {
+                if existing.dragger_id != client_id {
+                    if let Some(client) = state.clients.get(client_id) {
+                        let msg = OutgoingMessage::DragDenied {
+                            rushee_id,
+                            dragger_name: existing.dragger_name,
+                        };
+                        if let Ok(json) = serde_json::to_string(&msg) {
+                            let _ = client.tx.send(json);
+                        }
+                    }
+                    return;
                 }
             }
             
@@ -287,15 +301,20 @@ async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
                 .and_then(|c| c.name.clone())
                 .unwrap_or_else(|| "Admin".to_string());
             
-            // Update drag state
+            // Update drag state for this rushee
             {
                 let mut drag = state.drag_state.write().await;
-                drag.dragger_id = Some(client_id.to_string());
-                drag.dragger_name = Some(dragger_name.clone());
-                drag.rushee_id = Some(rushee_id.clone());
-                drag.rushee_name = Some(rushee_name.clone());
-                drag.position_x = x;
-                drag.position_y = y;
+                drag.insert(
+                    rushee_id.clone(),
+                    DragState {
+                        dragger_id: client_id.to_string(),
+                        dragger_name: dragger_name.clone(),
+                        rushee_id: rushee_id.clone(),
+                        rushee_name: rushee_name.clone(),
+                        position_x: x,
+                        position_y: y,
+                    },
+                );
             }
             
             // Broadcast to all clients
@@ -311,55 +330,54 @@ async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
             }
         }
         
-        Ok(IncomingMessage::DragMove { x, y }) => {
+        Ok(IncomingMessage::DragMove { rushee_id, x, y }) => {
             // Only the current dragger can send move updates
             let is_dragger = {
                 let drag = state.drag_state.read().await;
-                drag.dragger_id.as_ref() == Some(&client_id.to_string())
+                drag.get(&rushee_id)
+                    .map(|state| state.dragger_id == client_id)
+                    .unwrap_or(false)
             };
             
             if !is_dragger {
                 return;
             }
             
-            let rushee_id = {
+            {
                 let mut drag = state.drag_state.write().await;
-                drag.position_x = x;
-                drag.position_y = y;
-                drag.rushee_id.clone()
-            };
-            
-            if let Some(rushee_id) = rushee_id {
-                let msg = OutgoingMessage::DragMove { rushee_id, x, y };
-                if let Ok(json) = serde_json::to_string(&msg) {
-                    let _ = state.broadcast_tx.send(json);
+                if let Some(state) = drag.get_mut(&rushee_id) {
+                    state.position_x = x;
+                    state.position_y = y;
                 }
+            }
+            
+            let msg = OutgoingMessage::DragMove { rushee_id, x, y };
+            if let Ok(json) = serde_json::to_string(&msg) {
+                let _ = state.broadcast_tx.send(json);
             }
         }
         
-        Ok(IncomingMessage::DragEnd {}) => {
+        Ok(IncomingMessage::DragEnd { rushee_id }) => {
             // Only the current dragger can end
             let is_dragger = {
                 let drag = state.drag_state.read().await;
-                drag.dragger_id.as_ref() == Some(&client_id.to_string())
+                drag.get(&rushee_id)
+                    .map(|state| state.dragger_id == client_id)
+                    .unwrap_or(false)
             };
             
             if !is_dragger {
                 return;
             }
             
-            let rushee_id = {
+            {
                 let mut drag = state.drag_state.write().await;
-                let id = drag.rushee_id.clone();
-                *drag = DragState::default();
-                id
-            };
+                drag.remove(&rushee_id);
+            }
             
-            if let Some(rushee_id) = rushee_id {
-                let msg = OutgoingMessage::DragEnd { rushee_id };
-                if let Ok(json) = serde_json::to_string(&msg) {
-                    let _ = state.broadcast_tx.send(json);
-                }
+            let msg = OutgoingMessage::DragEnd { rushee_id };
+            if let Ok(json) = serde_json::to_string(&msg) {
+                let _ = state.broadcast_tx.send(json);
             }
         }
         

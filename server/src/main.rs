@@ -135,6 +135,7 @@ async fn main() {
         .route("/admin/rushees/:id/notes", get(controllers::admin::get_rushee_notes).put(controllers::admin::update_rushee_notes).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/:id/sorting", put(controllers::admin::update_rushee_sorting).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/reorder", put(controllers::admin::bulk_reorder).options(|| async { StatusCode::OK }))
+        .route("/admin/rushees/move", put(controllers::admin::move_rushee).options(|| async { StatusCode::OK }))
         .route("/admin/get-admin-status", post(controllers::admin::get_admin_status).options(|| async { StatusCode::OK }))
         .route("/admin/make-admin", post(controllers::admin::make_admin).options(|| async { StatusCode::OK }))
         .route("/admin/make-bidcom", post(controllers::admin::make_bidcom).options(|| async { StatusCode::OK }))

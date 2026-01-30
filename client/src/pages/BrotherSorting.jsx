@@ -54,7 +54,7 @@ export default function BrotherSorting() {
     const [viewerCount, setViewerCount] = useState(0);
     
     // Ghost card state (shows when admin is dragging)
-    const [ghostCard, setGhostCard] = useState(null);
+    const [ghostCards, setGhostCards] = useState({});
     
     const fetchDataRef = useRef(null);
 
@@ -134,19 +134,37 @@ export default function BrotherSorting() {
                             setViewerCount(msg.count);
                             break;
                         case "drag_start":
-                            setGhostCard({
-                                rusheeId: msg.rushee_id,
-                                rusheeName: msg.rushee_name,
-                                x: msg.x,
-                                y: msg.y,
-                                draggerName: msg.dragger_name,
-                            });
+                            setGhostCards((prev) => ({
+                                ...prev,
+                                [msg.rushee_id]: {
+                                    rusheeId: msg.rushee_id,
+                                    rusheeName: msg.rushee_name,
+                                    x: msg.x,
+                                    y: msg.y,
+                                    draggerName: msg.dragger_name,
+                                },
+                            }));
                             break;
                         case "drag_move":
-                            setGhostCard((prev) => prev ? { ...prev, x: msg.x, y: msg.y } : null);
+                            setGhostCards((prev) => {
+                                if (!prev[msg.rushee_id]) return prev;
+                                return {
+                                    ...prev,
+                                    [msg.rushee_id]: {
+                                        ...prev[msg.rushee_id],
+                                        x: msg.x,
+                                        y: msg.y,
+                                    },
+                                };
+                            });
                             break;
                         case "drag_end":
-                            setGhostCard(null);
+                            setGhostCards((prev) => {
+                                if (!prev[msg.rushee_id]) return prev;
+                                const next = { ...prev };
+                                delete next[msg.rushee_id];
+                                return next;
+                            });
                             break;
                         case "card_moved":
                             // Refresh data when a card has been moved
@@ -156,13 +174,16 @@ export default function BrotherSorting() {
                             break;
                         case "current_drag":
                             if (msg.active) {
-                                setGhostCard({
-                                    rusheeId: msg.rushee_id,
-                                    rusheeName: msg.rushee_name,
-                                    x: msg.x,
-                                    y: msg.y,
-                                    draggerName: msg.dragger_name,
-                                });
+                                setGhostCards((prev) => ({
+                                    ...prev,
+                                    [msg.rushee_id]: {
+                                        rusheeId: msg.rushee_id,
+                                        rusheeName: msg.rushee_name,
+                                        x: msg.x,
+                                        y: msg.y,
+                                        draggerName: msg.dragger_name,
+                                    },
+                                }));
                             }
                             break;
                     }
@@ -174,7 +195,7 @@ export default function BrotherSorting() {
             ws.onclose = () => {
                 console.log("Disconnected from sorting broadcaster");
                 setWsConnected(false);
-                setGhostCard(null);
+                setGhostCards({});
                 // Reconnect after 3 seconds
                 setTimeout(connectWs, 3000);
             };
@@ -352,35 +373,47 @@ export default function BrotherSorting() {
             <Navbar />
             
             {/* Viewer Count & Live Indicator */}
-            {wsConnected && (
-                <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-                    <div className={`w-2 h-2 rounded-full ${ghostCard ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
-                    <span className="text-sm text-apple-gray-600">
-                        {ghostCard ? `${ghostCard.draggerName} is editing` : `${viewerCount} viewing`}
-                    </span>
-                </div>
-            )}
+            {(() => {
+                const ghostList = Object.values(ghostCards);
+                const ghostCount = ghostList.length;
+                if (!wsConnected) return null;
+                const label =
+                    ghostCount === 0
+                        ? `${viewerCount} viewing`
+                        : ghostCount === 1
+                            ? `${ghostList[0].draggerName} is editing`
+                            : `${ghostCount} admins editing`;
+                return (
+                    <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
+                        <div className={`w-2 h-2 rounded-full ${ghostCount > 0 ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
+                        <span className="text-sm text-apple-gray-600">
+                            {label}
+                        </span>
+                    </div>
+                );
+            })()}
 
-            {/* Ghost Card - Shows when admin is dragging */}
-            {ghostCard && (
+            {/* Ghost Cards - Shows when admins are dragging */}
+            {Object.values(ghostCards).map((ghost) => (
                 <div
+                    key={ghost.rusheeId}
                     className="fixed z-50 pointer-events-none"
                     style={{
-                        left: ghostCard.x,
-                        top: ghostCard.y,
+                        left: ghost.x,
+                        top: ghost.y,
                         transform: "translate(-50%, -50%)",
                     }}
                 >
                     <div className="p-3 rounded-apple-lg border-2 border-blue-400 bg-blue-50/90 shadow-xl backdrop-blur-sm animate-pulse w-48">
                         <div className="text-apple-body text-blue-700 font-semibold">
-                            {ghostCard.rusheeName}
+                            {ghost.rusheeName}
                         </div>
                         <div className="text-apple-caption2 text-blue-500 mt-1">
-                            Being moved by {ghostCard.draggerName}
+                            Being moved by {ghost.draggerName}
                         </div>
                     </div>
                 </div>
-            )}
+            ))}
 
             {/* Fixed Zoom Controls - Bottom Left */}
             <div className="fixed bottom-20 left-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-2xl px-4 py-3 shadow-lg">
