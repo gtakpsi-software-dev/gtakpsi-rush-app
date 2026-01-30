@@ -10,7 +10,7 @@ use axum::{
 use dashmap::DashMap;
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, env, net::SocketAddr, sync::Arc};
+use std::{collections::HashMap, env, net::SocketAddr, sync::Arc, time::{Duration, Instant}};
 use tokio::sync::broadcast;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -34,6 +34,7 @@ struct DragState {
     rushee_name: String,
     position_x: f64,
     position_y: f64,
+    last_update: Instant,
 }
 
 type SharedDragState = Arc<tokio::sync::RwLock<HashMap<String, DragState>>>;
@@ -118,6 +119,40 @@ async fn main() {
         clients: Arc::new(DashMap::new()),
         drag_state: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
         broadcast_tx,
+    });
+
+    // Spawn background task for stale drag cleanup
+    let cleanup_state = state.clone();
+    tokio::spawn(async move {
+        let stale_threshold = Duration::from_secs(60); // 60 seconds
+        loop {
+            tokio::time::sleep(Duration::from_secs(10)).await; // Check every 10 seconds
+            
+            let stale_ids: Vec<String> = {
+                let drag = cleanup_state.drag_state.read().await;
+                drag.iter()
+                    .filter(|(_, state)| state.last_update.elapsed() > stale_threshold)
+                    .map(|(id, _)| id.clone())
+                    .collect()
+            };
+            
+            if !stale_ids.is_empty() {
+                println!("Cleaning up {} stale drags", stale_ids.len());
+                let mut drag = cleanup_state.drag_state.write().await;
+                for id in &stale_ids {
+                    drag.remove(id);
+                }
+                drop(drag);
+                
+                // Broadcast drag_end for each stale drag
+                for rushee_id in stale_ids {
+                    let msg = OutgoingMessage::DragEnd { rushee_id };
+                    if let Ok(json) = serde_json::to_string(&msg) {
+                        let _ = cleanup_state.broadcast_tx.send(json);
+                    }
+                }
+            }
+        }
     });
 
     let cors = CorsLayer::new()
@@ -313,6 +348,7 @@ async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
                         rushee_name: rushee_name.clone(),
                         position_x: x,
                         position_y: y,
+                        last_update: Instant::now(),
                     },
                 );
             }
@@ -348,6 +384,7 @@ async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
                 if let Some(state) = drag.get_mut(&rushee_id) {
                     state.position_x = x;
                     state.position_y = y;
+                    state.last_update = Instant::now();
                 }
             }
             

@@ -390,6 +390,18 @@ export default function AdminSorting() {
         draggingRef.current = null;
     };
 
+    // Handle dragend event - fires when ANY drag operation ends (success or cancel)
+    const handleDragEnd = (e) => {
+        // If we still have a dragging state, it means handleDrop wasn't called
+        // (e.g., user cancelled the drag or dropped outside a valid target)
+        if (draggingRef.current?.id) {
+            wsSend({ type: "drag_end", rushee_id: draggingRef.current.id });
+        }
+        setDragging(null);
+        setHoverIndex({ column: null, index: null });
+        draggingRef.current = null;
+    };
+
     const processMoveQueue = async () => {
         if (moveInFlightRef.current) return;
         const next = pendingMovesRef.current.shift();
@@ -656,6 +668,7 @@ export default function AdminSorting() {
                                             data-card
                                             draggable={!isLockedByOther}
                                             onDragStart={(e) => handleDragStart(r, col.key, idx, e)}
+                                            onDragEnd={handleDragEnd}
                                             onDragOver={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
