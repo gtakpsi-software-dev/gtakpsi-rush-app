@@ -65,6 +65,8 @@ export default function AdminSorting() {
     const [viewerCount, setViewerCount] = useState(0);
     const dragPositionRef = useRef({ x: 0, y: 0 });
     const throttleRef = useRef(null);
+    const reorderInFlightRef = useRef(false);
+    const pendingReorderRef = useRef(null);
 
     // Connect to sorting broadcaster WebSocket
     useEffect(() => {
@@ -227,6 +229,12 @@ export default function AdminSorting() {
     };
 
     const persistReorder = async (updatedColumns, colsToUpdate, movedRusheeId, newStatus) => {
+        if (reorderInFlightRef.current) {
+            pendingReorderRef.current = { updatedColumns, colsToUpdate, movedRusheeId, newStatus };
+            return;
+        }
+
+        reorderInFlightRef.current = true;
         try {
             await Promise.all(
                 colsToUpdate.map((colKey) => {
@@ -237,14 +245,27 @@ export default function AdminSorting() {
                     });
                 })
             );
-            
-            // Notify WebSocket that card was saved
-            if (movedRusheeId && newStatus) {
+
+            // Notify WebSocket that card was saved (only if no newer reorder is queued)
+            if (movedRusheeId && newStatus && !pendingReorderRef.current) {
                 wsSend({ type: "card_saved", rushee_id: movedRusheeId, new_status: newStatus });
             }
         } catch (err) {
             toast.error("Failed to save order; reverting");
+            pendingReorderRef.current = null;
             await fetchData();
+        } finally {
+            reorderInFlightRef.current = false;
+            if (pendingReorderRef.current) {
+                const next = pendingReorderRef.current;
+                pendingReorderRef.current = null;
+                persistReorder(
+                    next.updatedColumns,
+                    next.colsToUpdate,
+                    next.movedRusheeId,
+                    next.newStatus
+                );
+            }
         }
     };
 
