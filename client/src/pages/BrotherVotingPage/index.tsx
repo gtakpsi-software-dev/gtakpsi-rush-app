@@ -68,8 +68,8 @@ function Content() {
       <div className="pt-20 sm:pt-24 px-6 pb-24 w-full max-w-6xl mx-auto">
         <QuestionBanner />
         <RusheePreviewCard />
-        <RusheeComments />
         <RusheePISInfo />
+        <RusheeComments />
       </div>
     </div>
   );

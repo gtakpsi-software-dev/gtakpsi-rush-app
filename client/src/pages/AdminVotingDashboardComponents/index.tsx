@@ -29,6 +29,11 @@ function Content() {
     const [authChecked, setAuthChecked] = useState(false);
 
     const storedUser: string | null = localStorage.getItem('user')
+    
+    // Memoize user to prevent WebSocket reconnecting on every render
+    const user: Brother | null = useMemo(() => {
+        return storedUser ? JSON.parse(storedUser) : null;
+    }, [storedUser]);
 
     useEffect(() => {
         // Only run auth check once
@@ -63,8 +68,6 @@ function Content() {
         });
         return () => unsubscribe();
     }, [storedUser, navigate, authChecked]);
-
-    const user: Brother | null = storedUser ? JSON.parse(storedUser) : null;
 
     useEffect(() => {
 
@@ -105,7 +108,7 @@ function Content() {
         ws.onerror = (e) => console.error("WebSocket error", e);
 
         return () => ws.close();
-    }, [setVotes, authorized, user, websocketAPI]);
+    }, [setVotes, setRushee, setQuestion, authorized, user, websocketAPI]);
 
     const handleSetQuestion = (value: string) => {
         console.log("Set question to:", value);
