@@ -63,10 +63,13 @@ export default function AdminSorting() {
     const wsRef = useRef(null);
     const [wsConnected, setWsConnected] = useState(false);
     const [viewerCount, setViewerCount] = useState(0);
+    const [ghostCard, setGhostCard] = useState(null);
     const dragPositionRef = useRef({ x: 0, y: 0 });
     const throttleRef = useRef(null);
     const reorderInFlightRef = useRef(false);
     const pendingReorderRef = useRef(null);
+    const fetchDataRef = useRef(null);
+    const draggingRef = useRef(null);
 
     // Connect to sorting broadcaster WebSocket
     useEffect(() => {
@@ -86,10 +89,48 @@ export default function AdminSorting() {
             ws.onmessage = (event) => {
                 try {
                     const msg = JSON.parse(event.data);
-                    if (msg.type === "viewer_count") {
-                        setViewerCount(msg.count);
+                    switch (msg.type) {
+                        case "viewer_count":
+                            setViewerCount(msg.count);
+                            break;
+                        case "drag_start":
+                            if (!draggingRef.current) {
+                                setGhostCard({
+                                    rusheeId: msg.rushee_id,
+                                    rusheeName: msg.rushee_name,
+                                    x: msg.x,
+                                    y: msg.y,
+                                    draggerName: msg.dragger_name,
+                                });
+                            }
+                            break;
+                        case "drag_move":
+                            if (!draggingRef.current) {
+                                setGhostCard((prev) => prev ? { ...prev, x: msg.x, y: msg.y } : null);
+                            }
+                            break;
+                        case "drag_end":
+                            setGhostCard(null);
+                            break;
+                        case "card_moved":
+                            if (fetchDataRef.current) {
+                                fetchDataRef.current();
+                            }
+                            break;
+                        case "current_drag":
+                            if (msg.active && !draggingRef.current) {
+                                setGhostCard({
+                                    rusheeId: msg.rushee_id,
+                                    rusheeName: msg.rushee_name,
+                                    x: msg.x,
+                                    y: msg.y,
+                                    draggerName: msg.dragger_name,
+                                });
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    // Admin doesn't need to handle incoming drag events (they're the source)
                 } catch (e) {
                     console.error("Failed to parse WS message", e);
                 }
@@ -98,6 +139,7 @@ export default function AdminSorting() {
             ws.onclose = () => {
                 console.log("Disconnected from sorting broadcaster");
                 setWsConnected(false);
+                setGhostCard(null);
                 // Reconnect after 3 seconds
                 setTimeout(connectWs, 3000);
             };
@@ -171,6 +213,13 @@ export default function AdminSorting() {
             setAuthChecked(true);
         }
     }, [apiBase, navigate]);
+
+    // Store latest fetchData for WebSocket refresh
+    fetchDataRef.current = fetchData;
+
+    useEffect(() => {
+        draggingRef.current = dragging;
+    }, [dragging]);
 
     useEffect(() => {
         // Only run once
@@ -586,11 +635,34 @@ export default function AdminSorting() {
         >
             <Navbar />
             
-            {/* Viewer Count - Top Right */}
-            {wsConnected && viewerCount > 1 && (
+            {/* Viewer Count & Live Indicator */}
+            {wsConnected && (viewerCount > 1 || ghostCard) && (
                 <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-apple-gray-600">{viewerCount} viewing</span>
+                    <div className={`w-2 h-2 rounded-full ${ghostCard ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
+                    <span className="text-sm text-apple-gray-600">
+                        {ghostCard ? `${ghostCard.draggerName} is editing` : `${viewerCount} viewing`}
+                    </span>
+                </div>
+            )}
+
+            {/* Ghost Card - Shows when another admin is dragging */}
+            {ghostCard && (
+                <div
+                    className="fixed z-50 pointer-events-none"
+                    style={{
+                        left: ghostCard.x,
+                        top: ghostCard.y,
+                        transform: "translate(-50%, -50%)",
+                    }}
+                >
+                    <div className="p-3 rounded-apple-lg border-2 border-blue-400 bg-blue-50/90 shadow-xl backdrop-blur-sm animate-pulse w-56">
+                        <div className="text-apple-body text-blue-700 font-semibold">
+                            {ghostCard.rusheeName}
+                        </div>
+                        <div className="text-apple-caption2 text-blue-500 mt-1">
+                            Being moved by {ghostCard.draggerName}
+                        </div>
+                    </div>
                 </div>
             )}
 
