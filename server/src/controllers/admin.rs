@@ -952,12 +952,18 @@ pub async fn move_rushee(
         .cloned()
         .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?;
     let _guard_first = first_lock.lock().await;
-    let _guard_second = if first != second {
-        let second_lock = SORTING_COLUMN_LOCKS
-            .get(&second)
-            .cloned()
-            .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?;
-        Some(second_lock.lock().await)
+    let second_lock = if first != second {
+        Some(
+            SORTING_COLUMN_LOCKS
+                .get(&second)
+                .cloned()
+                .ok_or(StatusCode::INTERNAL_SERVER_ERROR)?,
+        )
+    } else {
+        None
+    };
+    let _guard_second = if let Some(lock) = &second_lock {
+        Some(lock.lock().await)
     } else {
         None
     };
@@ -965,7 +971,10 @@ pub async fn move_rushee(
     let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> =
         db::get_rushee_client().await;
 
-    let mut fetch_ids = |column: &str| async {
+    async fn fetch_ids(
+        collection: &mongodb::Collection<crate::models::Rushee::RusheeModel>,
+        column: &str,
+    ) -> Result<Vec<String>, StatusCode> {
         let cursor = collection.find(doc! { "sorting_status": column }).await;
         match cursor {
             Ok(mut cursor) => {
@@ -980,7 +989,7 @@ pub async fn move_rushee(
             }
             Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
         }
-    };
+    }
 
     let target_index = if payload.targetIndex < 0 {
         0
@@ -989,7 +998,7 @@ pub async fn move_rushee(
     };
 
     if from_column == to_column {
-        let mut ids: Vec<String> = fetch_ids(&from_column).await?;
+        let mut ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
         let pos = ids.iter().position(|id| id == &payload.movedRusheeId);
         let Some(pos) = pos else {
             return Ok(Json(json!({
@@ -1019,8 +1028,8 @@ pub async fn move_rushee(
             }
         }
     } else {
-        let mut from_ids: Vec<String> = fetch_ids(&from_column).await?;
-        let mut to_ids: Vec<String> = fetch_ids(&to_column).await?;
+        let mut from_ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
+        let mut to_ids: Vec<String> = fetch_ids(&collection, &to_column).await?;
 
         let pos = from_ids.iter().position(|id| id == &payload.movedRusheeId);
         let Some(pos) = pos else {
