@@ -45,6 +45,7 @@ export default function RusheeZoom() {
         "Professionalism": null,
     });
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isBidcom, setIsBidcom] = useState(false);
 
     const navigate = useNavigate();
 
@@ -70,9 +71,9 @@ export default function RusheeZoom() {
         "Professionalism",
     ];
 
-    // Function to check if current user has already posted a comment (or is admin)
+    // Function to check if current user has already posted a comment (or is admin/bidcom)
     const hasUserPostedComment = () => {
-        if (isAdmin) return true;
+        if (isAdmin || isBidcom) return true;
         if (!rushee || !user) return false;
         const currentUserName = user.firstname + " " + user.lastname;
         return rushee.comments.some(comment => comment.brother_name === currentUserName);
@@ -89,14 +90,15 @@ export default function RusheeZoom() {
                         navigate(`/error/${errorTitle}/${errorDescription}`);
                     }
 
-                    // Check if user is admin
+                    // Check if user is admin or bidcom
                     const currentUser = auth.currentUser;
                     if (currentUser) {
                         try {
                             const tokenResult = await currentUser.getIdTokenResult(true);
                             setIsAdmin(tokenResult.claims?.admin === true);
+                            setIsBidcom(tokenResult.claims?.bidcom === true);
                         } catch (e) {
-                            console.error("Error checking admin status:", e);
+                            console.error("Error checking admin/bidcom status:", e);
                         }
                     }
 
