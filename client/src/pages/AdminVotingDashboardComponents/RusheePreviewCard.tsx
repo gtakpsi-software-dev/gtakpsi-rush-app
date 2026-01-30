@@ -60,20 +60,27 @@ export default function RusheePreviewCard() {
     const handleSelect = async (selected: Rushee) => {
         const payload = { gtid: selected.gtid };
 
-        await toast.promise(
-            adminPost(`${api}/admin/voting/change-rushee`, payload),
-            {
-                pending: "Updating rushee...",
-                success: "Rushee updated successfully!",
-                error: "Failed to update rushee",
-            },
-            {
-                position: "top-center",
-                theme: "light",
-            }
-        );
-
+        // Optimistically update local state immediately (don't wait for WebSocket)
+        setRushee(selected);
         handleCloseSearch();
+
+        try {
+            await toast.promise(
+                adminPost(`${api}/admin/voting/change-rushee`, payload),
+                {
+                    pending: "Updating rushee...",
+                    success: "Rushee updated successfully!",
+                    error: "Failed to update rushee",
+                },
+                {
+                    position: "top-center",
+                    theme: "light",
+                }
+            );
+        } catch (err) {
+            // If API fails, revert to previous state
+            setRushee(rushee);
+        }
     };
 
     return (
