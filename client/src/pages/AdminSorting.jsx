@@ -65,6 +65,7 @@ export default function AdminSorting() {
     const [viewerCount, setViewerCount] = useState(0);
     const [ghostCards, setGhostCards] = useState({});
     const [lockedCards, setLockedCards] = useState({});
+    const ghostTimestampsRef = useRef({}); // Track when each ghost was created
     const dragPositionRef = useRef({ x: 0, y: 0 });
     const throttleRef = useRef(null);
     const moveInFlightRef = useRef(false);
@@ -96,6 +97,7 @@ export default function AdminSorting() {
                             break;
                         case "drag_start":
                             if (draggingRef.current?.id !== msg.rushee_id) {
+                                ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                                 setGhostCards((prev) => ({
                                     ...prev,
                                     [msg.rushee_id]: {
@@ -114,6 +116,8 @@ export default function AdminSorting() {
                             break;
                         case "drag_move":
                             if (draggingRef.current?.id !== msg.rushee_id) {
+                                // Update timestamp to keep the ghost fresh
+                                ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                                 setGhostCards((prev) => {
                                     if (!prev[msg.rushee_id]) return prev;
                                     return {
@@ -128,6 +132,7 @@ export default function AdminSorting() {
                             }
                             break;
                         case "drag_end":
+                            delete ghostTimestampsRef.current[msg.rushee_id];
                             setGhostCards((prev) => {
                                 if (!prev[msg.rushee_id]) return prev;
                                 const next = { ...prev };
@@ -151,12 +156,29 @@ export default function AdminSorting() {
                             }
                             break;
                         case "card_moved":
+                            // Clear ghost and lock state for this card (fallback if drag_end was missed)
+                            if (msg.rushee_id) {
+                                delete ghostTimestampsRef.current[msg.rushee_id];
+                                setGhostCards((prev) => {
+                                    if (!prev[msg.rushee_id]) return prev;
+                                    const next = { ...prev };
+                                    delete next[msg.rushee_id];
+                                    return next;
+                                });
+                                setLockedCards((prev) => {
+                                    if (!prev[msg.rushee_id]) return prev;
+                                    const next = { ...prev };
+                                    delete next[msg.rushee_id];
+                                    return next;
+                                });
+                            }
                             if (fetchDataRef.current) {
                                 fetchDataRef.current();
                             }
                             break;
                         case "current_drag":
                             if (msg.active && draggingRef.current?.id !== msg.rushee_id) {
+                                ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                                 setGhostCards((prev) => ({
                                     ...prev,
                                     [msg.rushee_id]: {
@@ -198,10 +220,37 @@ export default function AdminSorting() {
 
         connectWs();
 
+        // Stale ghost cleanup interval - clear ghosts older than 30 seconds
+        const staleCleanupInterval = setInterval(() => {
+            const now = Date.now();
+            const STALE_THRESHOLD = 30000; // 30 seconds
+            const staleIds = Object.entries(ghostTimestampsRef.current)
+                .filter(([_, timestamp]) => now - timestamp > STALE_THRESHOLD)
+                .map(([id]) => id);
+            
+            if (staleIds.length > 0) {
+                console.log("Cleaning up stale ghosts:", staleIds);
+                staleIds.forEach((id) => {
+                    delete ghostTimestampsRef.current[id];
+                });
+                setGhostCards((prev) => {
+                    const next = { ...prev };
+                    staleIds.forEach((id) => delete next[id]);
+                    return next;
+                });
+                setLockedCards((prev) => {
+                    const next = { ...prev };
+                    staleIds.forEach((id) => delete next[id]);
+                    return next;
+                });
+            }
+        }, 5000); // Check every 5 seconds
+
         return () => {
             if (wsRef.current) {
                 wsRef.current.close();
             }
+            clearInterval(staleCleanupInterval);
         };
     }, []);
 

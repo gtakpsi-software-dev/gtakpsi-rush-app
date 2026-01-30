@@ -55,6 +55,7 @@ export default function BrotherSorting() {
     
     // Ghost card state (shows when admin is dragging)
     const [ghostCards, setGhostCards] = useState({});
+    const ghostTimestampsRef = useRef({}); // Track when each ghost was created
     
     const fetchDataRef = useRef(null);
 
@@ -134,6 +135,7 @@ export default function BrotherSorting() {
                             setViewerCount(msg.count);
                             break;
                         case "drag_start":
+                            ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                             setGhostCards((prev) => ({
                                 ...prev,
                                 [msg.rushee_id]: {
@@ -146,6 +148,7 @@ export default function BrotherSorting() {
                             }));
                             break;
                         case "drag_move":
+                            ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                             setGhostCards((prev) => {
                                 if (!prev[msg.rushee_id]) return prev;
                                 return {
@@ -159,6 +162,7 @@ export default function BrotherSorting() {
                             });
                             break;
                         case "drag_end":
+                            delete ghostTimestampsRef.current[msg.rushee_id];
                             setGhostCards((prev) => {
                                 if (!prev[msg.rushee_id]) return prev;
                                 const next = { ...prev };
@@ -167,6 +171,16 @@ export default function BrotherSorting() {
                             });
                             break;
                         case "card_moved":
+                            // Clear ghost state for this card (fallback if drag_end was missed)
+                            if (msg.rushee_id) {
+                                delete ghostTimestampsRef.current[msg.rushee_id];
+                                setGhostCards((prev) => {
+                                    if (!prev[msg.rushee_id]) return prev;
+                                    const next = { ...prev };
+                                    delete next[msg.rushee_id];
+                                    return next;
+                                });
+                            }
                             // Refresh data when a card has been moved
                             if (fetchDataRef.current) {
                                 fetchDataRef.current();
@@ -174,6 +188,7 @@ export default function BrotherSorting() {
                             break;
                         case "current_drag":
                             if (msg.active) {
+                                ghostTimestampsRef.current[msg.rushee_id] = Date.now();
                                 setGhostCards((prev) => ({
                                     ...prev,
                                     [msg.rushee_id]: {
@@ -208,10 +223,32 @@ export default function BrotherSorting() {
 
         connectWs();
 
+        // Stale ghost cleanup interval - clear ghosts older than 30 seconds
+        const staleCleanupInterval = setInterval(() => {
+            const now = Date.now();
+            const STALE_THRESHOLD = 30000; // 30 seconds
+            const staleIds = Object.entries(ghostTimestampsRef.current)
+                .filter(([_, timestamp]) => now - timestamp > STALE_THRESHOLD)
+                .map(([id]) => id);
+            
+            if (staleIds.length > 0) {
+                console.log("Cleaning up stale ghosts:", staleIds);
+                staleIds.forEach((id) => {
+                    delete ghostTimestampsRef.current[id];
+                });
+                setGhostCards((prev) => {
+                    const next = { ...prev };
+                    staleIds.forEach((id) => delete next[id]);
+                    return next;
+                });
+            }
+        }, 5000); // Check every 5 seconds
+
         return () => {
             if (wsRef.current) {
                 wsRef.current.close();
             }
+            clearInterval(staleCleanupInterval);
         };
     }, []);
 
