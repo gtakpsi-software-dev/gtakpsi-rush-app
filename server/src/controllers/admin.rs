@@ -989,7 +989,7 @@ pub async fn move_rushee(
     };
 
     if from_column == to_column {
-        let mut ids = fetch_ids(&from_column).await?;
+        let mut ids: Vec<String> = fetch_ids(&from_column).await?;
         let pos = ids.iter().position(|id| id == &payload.movedRusheeId);
         let Some(pos) = pos else {
             return Ok(Json(json!({
@@ -1019,8 +1019,8 @@ pub async fn move_rushee(
             }
         }
     } else {
-        let mut from_ids = fetch_ids(&from_column).await?;
-        let mut to_ids = fetch_ids(&to_column).await?;
+        let mut from_ids: Vec<String> = fetch_ids(&from_column).await?;
+        let mut to_ids: Vec<String> = fetch_ids(&to_column).await?;
 
         let pos = from_ids.iter().position(|id| id == &payload.movedRusheeId);
         let Some(pos) = pos else {
