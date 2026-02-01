@@ -21,7 +21,12 @@ const Comments = () => {
         }
         const brotherName = `${user.firstname} ${user.lastname}`;
         const api = import.meta.env.VITE_API_PREFIX || '';
-        const res = await fetch(`${api}/brother/comments/${encodeURIComponent(brotherName)}`);
+        const apiKey = import.meta.env.VITE_API_KEY;
+        const headers = {};
+        if (apiKey) {
+          headers['X-API-Key'] = apiKey;
+        }
+        const res = await fetch(`${api}/brother/comments/${encodeURIComponent(brotherName)}`, { headers });
         const data = await res.json();
         if (data.status === 'success') {
           setCommentsData(data.payload);

@@ -54,11 +54,17 @@ export async function login(credentials) {
             };
             console.log("Login - Sending access check:", requestBody);
             
+            const apiKey = import.meta.env.VITE_API_KEY;
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            if (apiKey) {
+                headers['X-API-Key'] = apiKey;
+            }
+            
             const accessResponse = await fetch(`${apiBase}/brother/rush-app/check-access`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
                 body: JSON.stringify(requestBody),
             });
             
