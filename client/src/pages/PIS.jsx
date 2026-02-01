@@ -10,6 +10,7 @@ import { useCollaboration } from "../hooks/useCollaboration";
 
 import { verifyUser } from "../js/verifications";
 import { useNavigate, useParams } from "react-router-dom";
+import { auth } from "../firebase";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -145,13 +146,36 @@ export default function PIS() {
                         navigate(`/error/${errorTitle}/${errorDescription}`);
                     }
 
-                    // Set current user for collaboration - make it stable across re-renders
+                    // Set current user for collaboration - get name from Firebase auth or localStorage
                     if (!currentUser || !currentUser.id) {
-                        const userId = getStableUserId(response.id);
+                        const firebaseUser = auth.currentUser;
+                        const storedUser = localStorage.getItem('user');
+                        const parsedStoredUser = storedUser ? JSON.parse(storedUser) : null;
+                        
+                        // Get user ID
+                        const userId = getStableUserId(firebaseUser?.uid || parsedStoredUser?._id);
+                        
+                        // Get name from Firebase displayName or localStorage
+                        let firstName = 'Anonymous';
+                        let lastName = 'User';
+                        
+                        if (firebaseUser?.displayName) {
+                            const nameParts = firebaseUser.displayName.split(' ');
+                            firstName = nameParts[0] || 'Anonymous';
+                            lastName = nameParts.slice(1).join(' ') || '';
+                        } else if (parsedStoredUser?.firstName || parsedStoredUser?.firstname) {
+                            firstName = parsedStoredUser.firstName || parsedStoredUser.firstname || 'Anonymous';
+                            lastName = parsedStoredUser.lastName || parsedStoredUser.lastname || '';
+                        } else if (firebaseUser?.email) {
+                            // Fallback to email prefix
+                            firstName = firebaseUser.email.split('@')[0] || 'Anonymous';
+                            lastName = '';
+                        }
+                        
                         const user = {
                             id: userId,
-                            firstName: response.firstName || 'Anonymous',
-                            lastName: response.lastName || 'User',
+                            firstName,
+                            lastName,
                         };
                         setCurrentUser(user);
                     }
