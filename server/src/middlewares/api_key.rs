@@ -5,6 +5,9 @@ use axum::{
 };
 use std::env;
 
+/// Paths that don't require API key validation (e.g., health checks)
+const EXCLUDED_PATHS: &[&str] = &["/", "/health"];
+
 /// Middleware to validate API key from X-API-Key header
 /// 
 /// This ensures only authorized clients (our frontend) can access the API.
@@ -19,6 +22,12 @@ where
 {
     // Skip API key check for OPTIONS requests (CORS preflight)
     if req.method() == Method::OPTIONS {
+        return Ok(next.run(req).await);
+    }
+
+    // Skip API key check for health check endpoints
+    let path = req.uri().path();
+    if EXCLUDED_PATHS.contains(&path) {
         return Ok(next.run(req).await);
     }
 
