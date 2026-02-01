@@ -16,6 +16,7 @@ export const useCollaboration = (roomId, currentUser) => {
     const socketRef = useRef(null);
     const knownVersionsRef = useRef({}); // field -> version number
     const pendingUpdatesRef = useRef({}); // field -> { clientUpdateId, value }
+    const resendingFieldsRef = useRef(new Set()); // tracks fields currently being resent after reject
 
     const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001';
 
@@ -98,6 +99,13 @@ export const useCollaboration = (roomId, currentUser) => {
                 }
 
                 knownVersionsRef.current[field] = incomingVersion;
+                
+                // Skip pushing to remoteUpdates if we're currently resending for this field
+                // Our pending value takes priority
+                if (resendingFieldsRef.current.has(field)) {
+                    return;
+                }
+                
                 setRemoteUpdates(prev => [...prev, { ...data, version: incomingVersion }].slice(-100));
             });
 
@@ -107,6 +115,8 @@ export const useCollaboration = (roomId, currentUser) => {
                 if (pending && pending.clientUpdateId === clientUpdateId) {
                     knownVersionsRef.current[field] = version;
                     delete pendingUpdatesRef.current[field];
+                    // Clear resending flag if it was set
+                    resendingFieldsRef.current.delete(field);
                 }
             });
 
@@ -114,11 +124,11 @@ export const useCollaboration = (roomId, currentUser) => {
             socketRef.current.on('text-reject', ({ field, serverValue, serverVersion, clientUpdateId }) => {
                 knownVersionsRef.current[field] = serverVersion;
 
-                // Push server value as a remote update so UIs converge
-                setRemoteUpdates(prev => [...prev, { field, value: serverValue, version: serverVersion, userId: 'server' }].slice(-100));
-
                 const pending = pendingUpdatesRef.current[field];
                 if (pending && pending.clientUpdateId === clientUpdateId) {
+                    // Mark field as resending to prevent remote update from overwriting local value
+                    resendingFieldsRef.current.add(field);
+                    
                     // Re-send pending value atop the latest server version
                     const newId = Math.random().toString(36).substr(2, 9);
                     pendingUpdatesRef.current[field] = { clientUpdateId: newId, value: pending.value };
@@ -131,6 +141,9 @@ export const useCollaboration = (roomId, currentUser) => {
                         userId: currentUser.id,
                         userName: `${currentUser.firstName} ${currentUser.lastName}`
                     });
+                } else {
+                    // No pending update to resend, accept server value
+                    setRemoteUpdates(prev => [...prev, { field, value: serverValue, version: serverVersion, userId: 'server' }].slice(-100));
                 }
             });
 
@@ -140,7 +153,12 @@ export const useCollaboration = (roomId, currentUser) => {
                 setConnectedUsers(prev => 
                     prev.map(user => 
                         user.id === data.userId 
-                            ? { ...user, cursor: data.position, field: data.field }
+                            ? { 
+                                ...user, 
+                                cursor: data.position, 
+                                field: data.position === null ? null : data.field,
+                                cursorTimestamp: data.timestamp || Date.now()
+                            }
                             : user
                     )
                 );
@@ -239,6 +257,17 @@ export const useCollaboration = (roomId, currentUser) => {
         }
     }, [socket, isConnected]);
 
+    // Clear cursor position (call on blur to release field lock)
+    const clearCursorPosition = useCallback((field) => {
+        if (socket && isConnected) {
+            socket.emit('cursor-position', {
+                field,
+                position: null,
+                timestamp: Date.now()
+            });
+        }
+    }, [socket, isConnected]);
+
     const sendTypingIndicator = useCallback((field, isTyping) => {
         if (socket && isConnected) {
             socket.emit('typing-indicator', {
@@ -255,11 +284,13 @@ export const useCollaboration = (roomId, currentUser) => {
         }
     }, [socket, isConnected]);
 
-    // Clean up old typing indicators
+    // Clean up old typing indicators and stale cursor positions
     useEffect(() => {
         const interval = setInterval(() => {
+            const now = Date.now();
+            
+            // Clean up typing indicators
             setTypingUsers(prev => {
-                const now = Date.now();
                 const filtered = new Map();
                 for (const [key, value] of prev) {
                     if (now - value.timestamp < 3000) { // 3 second timeout
@@ -268,10 +299,33 @@ export const useCollaboration = (roomId, currentUser) => {
                 }
                 return filtered;
             });
+            
+            // Clean up stale cursor positions (> 10 seconds old)
+            setConnectedUsers(prev => 
+                prev.map(user => {
+                    if (user.cursor !== null && user.cursorTimestamp && now - user.cursorTimestamp > 10000) {
+                        return { ...user, cursor: null, field: null };
+                    }
+                    return user;
+                })
+            );
         }, 1000);
 
         return () => clearInterval(interval);
     }, []);
+
+    // Helper to get active cursors for a field (filters out stale cursors)
+    const getActiveCursorsForField = useCallback((field) => {
+        const now = Date.now();
+        const CURSOR_STALE_THRESHOLD = 10000; // 10 seconds
+        
+        return connectedUsers.filter(user => 
+            user.field === field && 
+            user.cursor !== null && 
+            typeof user.cursor === 'number' &&
+            (!user.cursorTimestamp || now - user.cursorTimestamp < CURSOR_STALE_THRESHOLD)
+        );
+    }, [connectedUsers]);
 
     return {
         isConnected,
@@ -284,8 +338,10 @@ export const useCollaboration = (roomId, currentUser) => {
         sendTextOperation,
         sendTextUpdate,
         sendCursorPosition,
+        clearCursorPosition,
         sendTypingIndicator,
         requestDocumentState,
+        getActiveCursorsForField,
     };
 };
 
