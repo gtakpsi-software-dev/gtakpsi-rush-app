@@ -2,7 +2,7 @@ import axios from "axios";
 import { auth } from "../firebase";
 
 /**
- * Get an axios instance configured with Firebase auth token for admin API calls
+ * Get an axios instance configured with Firebase auth token and API key for admin API calls
  */
 export async function getAdminAxios() {
     const user = auth.currentUser;
@@ -11,11 +11,18 @@ export async function getAdminAxios() {
     }
     
     const token = await user.getIdToken();
+    const apiKey = import.meta.env.VITE_API_KEY;
+    
+    const headers = {
+        Authorization: `Bearer ${token}`,
+    };
+    
+    if (apiKey) {
+        headers['X-API-Key'] = apiKey;
+    }
     
     return axios.create({
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers,
     });
 }
 

@@ -2,9 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-// import dotenv from 'dotenv';
 
-// dotenv.config()
+// Configure axios with API key globally (must be imported early)
+import './js/axiosSetup.js'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

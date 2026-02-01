@@ -166,6 +166,9 @@ async fn main() {
     let app = public_routes
         .merge(bidcom_routes)
         .merge(admin_routes)
+        // API key middleware - validates X-API-Key header on all requests
+        // Applied before CORS so that CORS preflight (OPTIONS) requests still work
+        .layer(middleware::from_fn(middlewares::api_key::require_api_key))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any) // Allow requests from any origin

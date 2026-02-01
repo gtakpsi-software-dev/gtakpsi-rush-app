@@ -19,11 +19,17 @@ export async function verifyUser() {
                     const tokenResult = await user.getIdTokenResult(true);
                     const isAdmin = tokenResult.claims?.admin === true;
                     const isBidcom = tokenResult.claims?.bidcom === true;
+                    const apiKey = import.meta.env.VITE_API_KEY;
+                    const headers = {
+                        'Content-Type': 'application/json',
+                    };
+                    if (apiKey) {
+                        headers['X-API-Key'] = apiKey;
+                    }
+                    
                     const accessResponse = await fetch(`${api}/brother/rush-app/check-access`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers,
                         body: JSON.stringify({
                             uid: user.uid,
                             is_admin: isAdmin,
