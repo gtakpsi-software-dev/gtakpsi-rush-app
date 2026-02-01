@@ -6,8 +6,6 @@ import CollaborativeTextarea from "../components/CollaborativeTextarea";
 import CollaborativeInput from "../components/CollaborativeInput";
 import VoiceTranscriptionHandler from "../components/VoiceTranscriptionHandler";
 import axios from "axios";
-import CommentWarning from "../components/CommentWarning";
-import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 import { useCollaboration } from "../hooks/useCollaboration";
 
 import { verifyUser } from "../js/verifications";
@@ -47,7 +45,6 @@ export default function PIS() {
     const [rushee, setRushee] = useState();
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({}); // Stores answers for each question
-    const [answerWarnings, setAnswerWarnings] = useState({}); // Stores warnings for each answer
     const [brotherA, setBrotherA] = useState({ firstName: '', lastName: '' });
     const [brotherB, setBrotherB] = useState({ firstName: '', lastName: '' });
     const [currentUser, setCurrentUser] = useState(null);
@@ -239,24 +236,6 @@ export default function PIS() {
         // Only send websocket update for voice-originated changes; typing is handled inside the textarea component
         if (collaboration.isConnected && meta?.source === 'voice') {
             collaboration.sendTextUpdate(question, answer);
-        }
-        
-        // Validate answer for speculative language and rushee names
-        if (rushee && answer) {
-            const validationResult = validateComment(answer, rushee.first_name, rushee.last_name);
-            const warnings = generateWarnings(validationResult);
-            
-            setAnswerWarnings((prev) => ({
-                ...prev,
-                [question]: warnings
-            }));
-        } else {
-            // Clear warnings if no answer
-            setAnswerWarnings((prev) => {
-                const newWarnings = { ...prev };
-                delete newWarnings[question];
-                return newWarnings;
-            });
         }
     };
 
@@ -622,22 +601,6 @@ export default function PIS() {
                                                         />
                                                     </div>
                                                     */}
-                                                </div>
-                                            )}
-                                            
-                                            {/* Show warnings for this answer */}
-                                            {answerWarnings[question.question] && answerWarnings[question.question].length > 0 && (
-                                                <div className="mt-4">
-                                                    <CommentWarning 
-                                                        warnings={answerWarnings[question.question]} 
-                                                        onDismiss={(index) => {
-                                                            const newWarnings = answerWarnings[question.question].filter((_, i) => i !== index);
-                                                            setAnswerWarnings((prev) => ({
-                                                                ...prev,
-                                                                [question.question]: newWarnings
-                                                            }));
-                                                        }}
-                                                    />
                                                 </div>
                                             )}
                                         </div>
