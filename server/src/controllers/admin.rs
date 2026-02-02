@@ -823,7 +823,7 @@ pub async fn update_rushee_notes(
     }
 
     // Validate tags
-    let valid_tags = ["night_1", "night_2", "closed_night", "pis", "hard_no"];
+    let valid_tags = ["night_1", "night_2", "closed_night", "closed_night_invite", "pis", "hard_no"];
     let filtered_tags: Vec<&str> = payload.sortingTags
         .iter()
         .filter(|t| valid_tags.contains(&t.as_str()))
