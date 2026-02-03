@@ -13,6 +13,7 @@ const STATUSES = [
     { key: "IN_CLOUD", label: "In Cloud" },
     { key: "MID_CLOUD", label: "Mid Cloud" },
     { key: "OUT_CLOUD", label: "Out Cloud" },
+    { key: "DISCUSSED", label: "Discussed Rushees" },
     { key: "INELIGIBLE", label: "Ineligible" },
 ];
 
@@ -39,6 +40,7 @@ export default function BrotherSorting() {
         IN_CLOUD: [],
         MID_CLOUD: [],
         OUT_CLOUD: [],
+        DISCUSSED: [],
         INELIGIBLE: [],
     });
     const [selectedRushee, setSelectedRushee] = useState(null);
@@ -76,6 +78,7 @@ export default function BrotherSorting() {
                     IN_CLOUD: [],
                     MID_CLOUD: [],
                     OUT_CLOUD: [],
+                    DISCUSSED: [],
                     INELIGIBLE: [],
                 };
                 response.data.payload.forEach((r) => {
@@ -301,12 +304,20 @@ export default function BrotherSorting() {
 
         const handleWheel = (e) => {
             if (e.ctrlKey || e.metaKey) {
+                // Zoom with ctrl/cmd + scroll
                 e.preventDefault();
                 const delta = -e.deltaY * 0.001;
                 setScale((prev) => {
                     const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta));
                     return next;
                 });
+            } else {
+                // Pan with two-finger drag (trackpad scroll)
+                e.preventDefault();
+                setTranslate((prev) => ({
+                    x: prev.x - e.deltaX,
+                    y: prev.y - e.deltaY,
+                }));
             }
         };
 
@@ -315,7 +326,10 @@ export default function BrotherSorting() {
     }, []);
 
     const onMouseDown = (e) => {
+        // Only pan with right-click (button 2)
+        if (e.button !== 2) return;
         if (e.target.closest("[data-card]")) return;
+        e.preventDefault();
         panState.current = {
             panning: true,
             startX: e.clientX,
@@ -323,6 +337,11 @@ export default function BrotherSorting() {
             origX: translate.x,
             origY: translate.y,
         };
+    };
+
+    const onContextMenu = (e) => {
+        // Prevent context menu on right-click for panning
+        e.preventDefault();
     };
 
     const onMouseMove = (e) => {
@@ -408,6 +427,7 @@ export default function BrotherSorting() {
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
+            onContextMenu={onContextMenu}
         >
             <Navbar />
             

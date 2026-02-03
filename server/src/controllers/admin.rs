@@ -25,11 +25,12 @@ use crate::{
 
 use super::db;
 
-const SORTING_STATUSES: [&str; 5] = [
+const SORTING_STATUSES: [&str; 6] = [
     "UNSORTED",
     "IN_CLOUD",
     "MID_CLOUD",
     "OUT_CLOUD",
+    "DISCUSSED",
     "INELIGIBLE",
 ];
 
