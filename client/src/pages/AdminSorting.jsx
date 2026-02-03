@@ -591,7 +591,7 @@ export default function AdminSorting() {
 
         const handleWheel = (e) => {
             if (e.ctrlKey || e.metaKey) {
-                // Zoom with ctrl/cmd + scroll
+                // Zoom with ctrl/cmd + scroll (pinch-to-zoom)
                 e.preventDefault();
                 const delta = -e.deltaY * 0.001;
                 setScale((prev) => {
@@ -610,7 +610,7 @@ export default function AdminSorting() {
 
         canvas.addEventListener("wheel", handleWheel, { passive: false });
         return () => canvas.removeEventListener("wheel", handleWheel);
-    }, []);
+    }, [loading]);
 
     const onMouseDown = (e) => {
         // Only pan with right-click (button 2)
