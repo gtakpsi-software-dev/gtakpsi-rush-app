@@ -508,27 +508,10 @@ pub async fn get_brother_pis(
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
-    // Use projection to only fetch fields needed - avoids transferring comments
-    let options = mongodb::options::FindOptions::builder()
-        .projection(doc! {
-            "first_name": 1,
-            "last_name": 1,
-            "gtid": 1,
-            "major": 1,
-            "ratings": 1,
-            "image_url": 1,
-            "class": 1,
-            "email": 1,
-            "pronouns": 1,
-            "attendance": 1,
-            "pis_timeslot": 1,
-            "pis_signup": 1
-        })
-        .build();
-
     let result = connection
-        .find(doc! {})
-        .with_options(options)
+        .find({
+            doc! {}
+        })
         .await;
 
     match result {
@@ -602,18 +585,8 @@ pub async fn get_brother_pis(
 pub async fn export_rushee_numbers() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
-    // Only fetch fields needed for export
-    let options = mongodb::options::FindOptions::builder()
-        .projection(doc! {
-            "first_name": 1,
-            "last_name": 1,
-            "rush_number": 1
-        })
-        .build();
-
     let result = connection
         .find(doc! {})
-        .with_options(options)
         .await;
 
     match result {
@@ -699,20 +672,7 @@ fn validate_status(status: &str) -> bool {
 pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
 
-    // Use projection to only fetch fields needed for sorting - avoids transferring comments/pis
-    let options = mongodb::options::FindOptions::builder()
-        .projection(doc! {
-            "gtid": 1,
-            "first_name": 1,
-            "last_name": 1,
-            "sorting_status": 1,
-            "sorting_order": 1,
-            "sorting_tags": 1,
-            "rush_number": 1
-        })
-        .build();
-
-    let cursor_result = collection.find(doc! {}).with_options(options).await;
+    let cursor_result = collection.find(doc! {}).await;
     match cursor_result {
         Ok(mut cursor) => {
             let mut list: Vec<SortingRushee> = Vec::new();
@@ -771,19 +731,7 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
 pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
 
-    // Use projection to only fetch fields needed for sorting - avoids transferring comments/pis
-    let options = mongodb::options::FindOptions::builder()
-        .projection(doc! {
-            "gtid": 1,
-            "first_name": 1,
-            "last_name": 1,
-            "sorting_status": 1,
-            "sorting_order": 1,
-            "sorting_tags": 1
-        })
-        .build();
-
-    let cursor_result = collection.find(doc! {}).with_options(options).await;
+    let cursor_result = collection.find(doc! {}).await;
     match cursor_result {
         Ok(mut cursor) => {
             let mut list: Vec<SortingRushee> = Vec::new();

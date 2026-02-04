@@ -157,34 +157,14 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
 /**
  * gets all rushees in the following form: {"id", "name", "picture", "ratings" ...} (only the info needed for the homepage)
  * filters are passed in through the header
- * 
- * Uses projection to only fetch needed fields - this dramatically improves performance
- * by not transferring comments and PIS data over the network.
  */
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
 
-    // Use projection to only fetch fields needed for StrippedRushee
-    // This avoids transferring large comments and pis arrays over the network
-    let options = mongodb::options::FindOptions::builder()
-        .projection(doc! {
-            "first_name": 1,
-            "last_name": 1,
-            "gtid": 1,
-            "major": 1,
-            "ratings": 1,
-            "image_url": 1,
-            "class": 1,
-            "email": 1,
-            "pronouns": 1,
-            "attendance": 1,
-            "pis_timeslot": 1
-        })
-        .build();
-
     let result = collection
-        .find(doc! {})
-        .with_options(options)
+        .find({
+            doc! {}
+        })
         .await;
 
     match result {
