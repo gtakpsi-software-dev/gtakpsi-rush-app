@@ -94,12 +94,12 @@ export default function QuestionBanner() {
     };
 
     return (
-        <div className="relative w-full h-[240px] rounded-apple-xl overflow-hidden bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md mb-8">
+        <div className="relative w-full rounded-apple-xl overflow-hidden bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md flex-shrink-0">
             {/* Floating question marks */}
-            {Array.from({ length: 14 }).map((_, idx) => (
+            {Array.from({ length: 8 }).map((_, idx) => (
                 <span
                     key={idx}
-                    className="absolute text-[26px] sm:text-[34px] text-apple-gray-700 opacity-40 animate-float pointer-events-none select-none"
+                    className="absolute text-[20px] sm:text-[28px] text-apple-gray-700 opacity-30 animate-float pointer-events-none select-none"
                     style={{
                         top: `${Math.random() * 100}%`,
                         left: `${Math.random() * 100}%`,
@@ -112,18 +112,18 @@ export default function QuestionBanner() {
             ))}
 
             {/* Centered animated question */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center space-y-6">
+            <div className="relative flex flex-col sm:flex-row items-center justify-between gap-6 px-8 py-8">
                 <SplitText
                     key={question}
                     text={question ? question : "No Question Set"}
                     splitType="words"
-                    className="text-4xl sm:text-5xl font-semibold text-apple-gray-800 drop-shadow-sm"
+                    className="text-3xl sm:text-4xl font-semibold text-apple-gray-800 drop-shadow-sm"
                     duration={0.5}
                     delay={60}
                 />
 
                 {/* Voting options or success indicator */}
-                <div className="flex gap-4 mt-2">
+                <div className="flex gap-4 flex-shrink-0">
                     {hasVoted ? (
                         <div className="flex items-center gap-3 px-6 py-3 rounded-apple bg-green-100 border border-green-200">
                             <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
@@ -131,8 +131,8 @@ export default function QuestionBanner() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <span className="text-green-800 font-medium text-apple-body">
-                                Vote submitted: {submittedVote}
+                            <span className="text-green-800 font-semibold text-lg">
+                                Voted
                             </span>
                         </div>
                     ) : (
@@ -140,7 +140,7 @@ export default function QuestionBanner() {
                             <button
                                 key={option}
                                 onClick={() => handleVote(option)}
-                                className="px-5 py-2 rounded-apple bg-apple-gray-200 hover:bg-apple-gray-300 active:scale-[0.97] transition text-apple-gray-800 font-light text-apple-body"
+                                className="px-6 py-3 rounded-apple bg-apple-gray-200 hover:bg-apple-gray-300 active:scale-[0.97] transition text-apple-gray-800 font-semibold text-lg"
                             >
                                 {option}
                             </button>

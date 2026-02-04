@@ -23,43 +23,61 @@ export default function RusheeComments() {
         }
     }, [rushee?.comments]);
 
-    if (!rushee || rushee.comments.length === 0) return null;
+    if (!rushee) {
+        return (
+            <p className="text-lg text-apple-gray-500 font-light italic">
+                No rushee selected
+            </p>
+        );
+    }
+
+    if (!rushee.comments || rushee.comments.length === 0) {
+        return (
+            <p className="text-lg text-apple-gray-500 font-light italic">
+                No comments yet
+            </p>
+        );
+    }
 
     return (
-        <div className="mt-6 space-y-4 w-full">
+        <div className="space-y-4">
             {rushee.comments.map((comment, idx) => (
                 <div
                     key={idx}
                     ref={(el) => (commentsRef.current[idx] = el!)}
-                    className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 scrollbar-hide rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
+                    className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple"
                 >
                     <div className="flex items-center gap-2 mb-3">
                         <Badges text={comment.night ? (() => {
-                            // Handle different night data formats
                             if (typeof comment.night === 'string') {
                                 return comment.night;
                             } else if (comment.night && typeof comment.night === 'object') {
-                                // If it's a date object or has a name property
                                 return (comment.night as any).name || `Night ${new Date(comment.night).toLocaleDateString()}`;
                             }
                             return "Rush Event";
                         })() : "Rush Event"} />
                     </div>
 
-                    <p className="text-apple-body text-black font-light leading-relaxed">
-                        <span className="font-normal">{comment.brother_name}:</span> {comment.comment}
+                    <p className="text-base text-black font-light leading-relaxed">
+                        <span className="font-semibold">{comment.brother_name}:</span> {comment.comment}
                     </p>
 
-                    <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-apple-gray-200">
-                        {comment.ratings.map((rating) => (
-                            <span
-                                key={rating.name}
-                                className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
-                            >
-                                {rating.name}: {rating.value === 5 ? "Satisfactory" : "Unsatisfactory"}
-                            </span>
-                        ))}
-                    </div>
+                    {comment.ratings && comment.ratings.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-apple-gray-200">
+                            {comment.ratings.map((rating) => (
+                                <span
+                                    key={rating.name}
+                                    className={`px-3 py-1 rounded-apple text-sm font-medium ${
+                                        rating.value === 5 
+                                            ? 'bg-green-100 text-green-700' 
+                                            : 'bg-red-100 text-red-700'
+                                    }`}
+                                >
+                                    {rating.name}: {rating.value === 5 ? "Satisfactory" : "Unsatisfactory"}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
             ))}
         </div>

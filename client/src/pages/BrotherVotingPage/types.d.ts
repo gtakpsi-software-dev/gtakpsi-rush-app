@@ -26,6 +26,8 @@ export interface Rushee {
     comments: Comment[];
     ratings: Rating[];
     pis?: PISItem[];
+    sorting_notes?: string;
+    sorting_tags?: string[];
 }
 
 export interface Brother {

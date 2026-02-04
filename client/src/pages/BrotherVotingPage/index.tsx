@@ -6,7 +6,8 @@ import QuestionBanner from "./QuestionBanner";
 import RusheePreviewCard from "./RusheePreviewCard";
 import RusheeComments from "./RusheeComments";
 import RusheePISInfo from "./RusheePISInfo";
-import NotFound from "../404";
+import RusheeScores from "./RusheeScores";
+import RusheeBidCommNotes from "./RusheeBidCommNotes";
 import { Brother } from "./types";
 
 function Content() {
@@ -58,18 +59,64 @@ function Content() {
   }, [setRushee, websocketAPI]);
 
   return (
-    <div className="w-screen h-screen overflow-auto flex flex-col">
+    <div className="w-screen h-screen overflow-auto flex flex-col bg-apple-gray-50">
       {/* Fixed Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
         <Navbar />
       </div>
 
-      {/* Offset the height of the fixed navbar (adjust height if needed) */}
-      <div className="pt-20 sm:pt-24 px-6 pb-24 w-full max-w-6xl mx-auto">
-        <QuestionBanner />
-        <RusheePreviewCard />
-        <RusheePISInfo />
-        <RusheeComments />
+      {/* Main content area */}
+      <div className="pt-20 sm:pt-24 px-4 pb-32 flex-1">
+        <div className="w-full max-w-7xl mx-auto flex flex-col gap-4">
+          {/* Question Banner */}
+          <QuestionBanner />
+          
+          {/* Rushee Info Card */}
+          <RusheePreviewCard />
+          
+          {/* Four-panel grid layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Scores Panel */}
+            <div className="card-apple flex flex-col min-h-[320px]">
+              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
+                <h3 className="text-xl font-semibold text-black">Scores</h3>
+              </div>
+              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
+                <RusheeScores />
+              </div>
+            </div>
+            
+            {/* Bid Comm Notes Panel */}
+            <div className="card-apple flex flex-col min-h-[320px]">
+              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
+                <h3 className="text-xl font-semibold text-black">Bid Committee Notes</h3>
+              </div>
+              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
+                <RusheeBidCommNotes />
+              </div>
+            </div>
+            
+            {/* Comments Panel */}
+            <div className="card-apple flex flex-col min-h-[320px]">
+              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
+                <h3 className="text-xl font-semibold text-black">Comments</h3>
+              </div>
+              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
+                <RusheeComments />
+              </div>
+            </div>
+            
+            {/* PIS Info Panel */}
+            <div className="card-apple flex flex-col min-h-[320px]">
+              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
+                <h3 className="text-xl font-semibold text-black">PIS Information</h3>
+              </div>
+              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
+                <RusheePISInfo />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
