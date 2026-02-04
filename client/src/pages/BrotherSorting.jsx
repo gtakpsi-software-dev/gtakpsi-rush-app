@@ -303,6 +303,13 @@ export default function BrotherSorting() {
         if (!canvas) return;
 
         const handleWheel = (e) => {
+            // Check if scrolling inside a scrollable element (like the notes panel)
+            // If so, let the native scroll behavior happen
+            const scrollableParent = e.target.closest('[data-scrollable]');
+            if (scrollableParent) {
+                return;
+            }
+
             if (e.ctrlKey || e.metaKey) {
                 // Zoom with ctrl/cmd + scroll (pinch-to-zoom)
                 e.preventDefault();
@@ -543,7 +550,7 @@ export default function BrotherSorting() {
                                 ×
                             </button>
                         </div>
-                        <div className="p-4 flex-1 overflow-auto">
+                        <div className="p-4 flex-1 overflow-auto" data-scrollable>
                             {notesLoading ? (
                                 <div className="text-apple-body text-apple-gray-500 text-center py-4">
                                     Loading notes...

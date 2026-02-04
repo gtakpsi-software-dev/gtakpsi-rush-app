@@ -590,6 +590,14 @@ export default function AdminSorting() {
         if (!canvas) return;
 
         const handleWheel = (e) => {
+            // Check if scrolling inside a scrollable element (like the notes panel)
+            // If so, let the native scroll behavior happen
+            const scrollableParent = e.target.closest('[data-scrollable]');
+            if (scrollableParent) {
+                // Allow native scrolling inside scrollable elements
+                return;
+            }
+
             if (e.ctrlKey || e.metaKey) {
                 // Zoom with ctrl/cmd + scroll (pinch-to-zoom)
                 e.preventDefault();
@@ -899,7 +907,7 @@ export default function AdminSorting() {
                                 ×
                             </button>
                         </div>
-                        <div className="p-4 flex-1 overflow-auto flex flex-col gap-4">
+                        <div className="p-4 flex-1 overflow-auto flex flex-col gap-4" data-scrollable>
                             {notesStatus === "loading" ? (
                                 <div className="text-apple-body text-apple-gray-600">Loading...</div>
                             ) : (
