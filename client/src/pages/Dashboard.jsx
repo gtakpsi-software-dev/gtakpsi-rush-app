@@ -313,10 +313,12 @@ export default function Dashboard(props) {
 
                                                 {/* Content */}
                                                 <div className="p-5">
-                                                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-3">
-                                                        <h2 className="text-apple-title1 font-normal text-black flex-1 leading-tight">
-                                                            {rushee.name}
-                                                        </h2>
+                                                    <div className="flex flex-col gap-2 mb-3">
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <h2 className="text-apple-title1 font-normal text-black leading-tight">
+                                                                {rushee.name}
+                                                            </h2>
+                                                        </div>
                                                         <div className="flex flex-wrap gap-1">
                                                             {rushee.attendance.map((event, idx) => (
                                                                 <Badges text={event.name} key={idx} />
