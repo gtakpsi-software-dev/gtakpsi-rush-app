@@ -95,3 +95,20 @@ pub struct CheckAccessPayload {
     pub is_admin: bool,
     pub is_bidcom: bool,
 }
+
+// ========== Comment Visibility Settings ==========
+
+/// Tracks whether the comment visibility restriction is enabled
+/// When enabled, brothers must post their own comment before seeing others' comments
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct CommentVisibilitySettings {
+    pub require_comment_to_view: bool,  // If true, brothers must comment before seeing others
+    pub updated_at: Option<DateTime>,
+    pub updated_by: Option<String>,
+}
+
+/// Payload to update comment visibility settings
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UpdateCommentVisibilityPayload {
+    pub require_comment_to_view: bool,
+}

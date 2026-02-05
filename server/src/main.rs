@@ -106,7 +106,9 @@ async fn main() {
         .route("/admin/pis-availability/status", get(controllers::admin::get_pis_availability_form_status).options(|| async { StatusCode::OK }))
         
         // Rush App access check - public route for login flow
-        .route("/brother/rush-app/check-access", post(controllers::admin::check_rush_app_access).options(|| async { StatusCode::OK }));
+        .route("/brother/rush-app/check-access", post(controllers::admin::check_rush_app_access).options(|| async { StatusCode::OK }))
+        // Comment visibility check - public route for rushee page
+        .route("/brother/comment-visibility/status", get(controllers::admin::get_comment_visibility_status).options(|| async { StatusCode::OK }));
 
     // Routes accessible by both admin and bid committee
     let bidcom_routes = Router::new()
@@ -157,6 +159,9 @@ async fn main() {
         // Rush App access control routes
         .route("/admin/rush-app/update", post(controllers::admin::update_rush_app_settings).options(|| async { StatusCode::OK }))
         .route("/admin/rush-app/status", get(controllers::admin::get_rush_app_status).options(|| async { StatusCode::OK }))
+        // Comment visibility settings routes
+        .route("/admin/comment-visibility/update", post(controllers::admin::update_comment_visibility_settings).options(|| async { StatusCode::OK }))
+        .route("/admin/comment-visibility/status", get(controllers::admin::get_comment_visibility_settings).options(|| async { StatusCode::OK }))
         .route_layer(middleware::from_fn_with_state(
             firebase_auth.clone(),
             middlewares::auth::require_admin,

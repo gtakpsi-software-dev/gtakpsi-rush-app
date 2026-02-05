@@ -59,6 +59,10 @@ export default function Admin() {
     const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false });
     const [rushAppLoading, setRushAppLoading] = useState(false);
 
+    // Comment visibility settings state
+    const [commentVisibilityStatus, setCommentVisibilityStatus] = useState({ require_comment_to_view: true });
+    const [commentVisibilityLoading, setCommentVisibilityLoading] = useState(false);
+
     const navigate = useNavigate();
 
     const errorTitle = "Invalid User Credentials";
@@ -176,6 +180,19 @@ export default function Admin() {
                 }
             } catch (error) {
                 console.error("Failed to fetch Rush App status:", error);
+            }
+
+            // Fetch Comment Visibility status
+            try {
+                const commentVisibilityResponse = await axios.get(`${apiBase}/comment-visibility/status`);
+                if (commentVisibilityResponse.data.status === "success") {
+                    setCommentVisibilityStatus({
+                        require_comment_to_view: commentVisibilityResponse.data.require_comment_to_view,
+                        updated_by: commentVisibilityResponse.data.updated_by
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch comment visibility status:", error);
             }
 
             setLoading(false);
@@ -926,6 +943,44 @@ export default function Admin() {
         }
     };
 
+    // ========== Comment Visibility Handlers ==========
+
+    const handleToggleCommentVisibility = async (newValue) => {
+        setCommentVisibilityLoading(true);
+        
+        try {
+            const response = await axios.post(`${apiBase}/comment-visibility/update`, {
+                require_comment_to_view: newValue
+            });
+            if (response.data.status === "success") {
+                setCommentVisibilityStatus({
+                    require_comment_to_view: newValue,
+                    updated_by: auth.currentUser?.email || "admin"
+                });
+                
+                toast.success(`Comment visibility restriction ${newValue ? 'enabled' : 'disabled'}`, {
+                    position: "top-center",
+                    autoClose: 2000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to update settings", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to update comment visibility settings", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setCommentVisibilityLoading(false);
+        }
+    };
+
     const formatSlotTime = (slot) => {
         const date = new Date(parseInt(slot.time.$date.$numberLong));
         return {
@@ -1324,6 +1379,41 @@ export default function Admin() {
                                                 rushAppStatus.disable_regular && 'Regular Brothers'
                                             ].filter(Boolean).join(', ')}`
                                             : 'All brothers can access the app'
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Comment Visibility Control */}
+                            <div className="card-apple p-5">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Comment Visibility</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    When enabled, brothers must post their own comment before seeing others' comments on a rushee.
+                                </p>
+
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-apple-body font-normal text-black">Require Comment to View</div>
+                                        <div className="text-apple-caption2 text-apple-gray-500">Brothers must comment before seeing other comments</div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
+                                        disabled={commentVisibilityLoading}
+                                        className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
+                                            commentVisibilityStatus.require_comment_to_view ? 'bg-black' : 'bg-apple-gray-300'
+                                        } ${commentVisibilityLoading ? 'opacity-50' : ''}`}
+                                    >
+                                        <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                            commentVisibilityStatus.require_comment_to_view ? 'translate-x-5' : 'translate-x-0.5'
+                                        }`} />
+                                    </button>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-apple-gray-100">
+                                    <div className="text-apple-caption2 text-apple-gray-400">
+                                        {commentVisibilityStatus.require_comment_to_view 
+                                            ? 'Brothers must comment to see other comments'
+                                            : 'All brothers can see all comments immediately'
                                         }
                                     </div>
                                 </div>

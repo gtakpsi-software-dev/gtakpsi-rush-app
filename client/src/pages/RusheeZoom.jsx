@@ -46,6 +46,7 @@ export default function RusheeZoom() {
     });
     const [isAdmin, setIsAdmin] = useState(false);
     const [isBidcom, setIsBidcom] = useState(false);
+    const [requireCommentToView, setRequireCommentToView] = useState(true); // Default to existing behavior
 
     const navigate = useNavigate();
 
@@ -71,8 +72,12 @@ export default function RusheeZoom() {
         "Professionalism",
     ];
 
-    // Function to check if current user has already posted a comment (or is admin/bidcom)
+    // Function to check if current user can see comments
+    // Returns true if: requireCommentToView is disabled, user is admin/bidcom, or user has posted a comment
     const hasUserPostedComment = () => {
+        // If the restriction is disabled, everyone can see comments
+        if (!requireCommentToView) return true;
+        // Admins and bid committee can always see comments
         if (isAdmin || isBidcom) return true;
         if (!rushee || !user) return false;
         const currentUserName = user.firstname + " " + user.lastname;
@@ -116,6 +121,17 @@ export default function RusheeZoom() {
                             }
 
                         });
+
+                    // Fetch comment visibility settings
+                    try {
+                        const visibilityResponse = await axios.get(`${api}/brother/comment-visibility/status`);
+                        if (visibilityResponse.data.status === "success") {
+                            setRequireCommentToView(visibilityResponse.data.require_comment_to_view);
+                        }
+                    } catch (e) {
+                        console.error("Error fetching comment visibility settings:", e);
+                        // Keep default (require comment to view) on error
+                    }
 
                 })
                 .catch((error) => {
