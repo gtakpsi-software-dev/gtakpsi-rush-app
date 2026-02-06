@@ -152,21 +152,8 @@ pub async fn handle_rushee_vote(
     // Push to Redis first, then publish notification!
     let mut conn = get_redis_conn().await.as_ref().clone();
 
-    // check if brother has already voted
+    // Check if brother is in the ineligible voters first
     let key = "vote_log";
-    let already_voted: bool = conn
-        .hexists(key, rusheeVote.brother_id.clone())
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if already_voted {
-        return Ok(Json(json!({
-            "status": "duplicate",
-            "message": "Brother has already voted"
-        })));
-    }
-
-    // check if brother is in the ineglible voters
     let is_ineligible: bool = conn
         .sismember(INEGLIBLE_BROTHERS, &rusheeVote.brother_id)
         .await
@@ -179,14 +166,23 @@ pub async fn handle_rushee_vote(
         })));
     }
 
-    // Step 1: Add the vote to the log
-    conn.hset(key, rusheeVote.brother_id.clone(), serialized_rushee_vote)
+    // Use HSETNX for atomic check-and-set (fixes race condition)
+    // Returns true if the field was set (new vote), false if it already existed
+    let was_new_vote: bool = conn
+        .hset_nx(key, rusheeVote.brother_id.clone(), &serialized_rushee_vote)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // Publish update to notify listeners
+    if !was_new_vote {
+        return Ok(Json(json!({
+            "status": "duplicate",
+            "message": "Brother has already voted"
+        })));
+    }
+
+    // Publish update to notify listeners (include vote data to avoid refetching)
     let _: () = conn
-        .publish("vote_channel", "updated")
+        .publish("vote_channel", &serialized_rushee_vote)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
