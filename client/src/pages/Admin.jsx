@@ -266,6 +266,67 @@ export default function Admin() {
         }
     };
 
+    const exportRusheePersonalInfo = async () => {
+        try {
+            const response = await axios.get(`${apiBase}/export-rushee-info`);
+
+            if (response.data.status === "success") {
+                const rushees = response.data.payload;
+
+                const csvHeaders = ["First Name", "Last Name", "GTID", "Email", "Phone Number", "Housing", "Major", "Class", "Pronouns", "Exposure"];
+                const csvRows = [
+                    csvHeaders.join(","),
+                    ...rushees.map(r => 
+                        [
+                            `"${(r.first_name || '').replace(/"/g, '""')}"`,
+                            `"${(r.last_name || '').replace(/"/g, '""')}"`,
+                            `"${r.gtid || ''}"`,
+                            `"${r.email || ''}"`,
+                            `"${r.phone_number || ''}"`,
+                            `"${(r.housing || '').replace(/"/g, '""')}"`,
+                            `"${(r.major || '').replace(/"/g, '""')}"`,
+                            `"${r.class || ''}"`,
+                            `"${(r.pronouns || '').replace(/"/g, '""')}"`,
+                            `"${(r.exposure || '').replace(/"/g, '""')}"`
+                        ].join(",")
+                    )
+                ];
+
+                const csvContent = csvRows.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `Rushee_Personal_Info_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
+                toast.success(`Exported personal info for ${rushees.length} rushees`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error("Failed to fetch rushee personal info", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(`Export error: ${error.message}`, {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        }
+    };
+
     const exportRusheeNumbers = async () => {
         try {
             const response = await axios.get(`${apiBase}/export-rushee-numbers`);
@@ -1183,6 +1244,20 @@ export default function Admin() {
                                     className="w-full bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
                                 >
                                     Export PIS Schedule
+                                </button>
+                            </div>
+
+                            {/* Export Rushee Personal Info */}
+                            <div className="card-apple p-5">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Rushee Personal Info</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    Export CSV with all registration info (name, GTID, email, phone, housing, major, etc.)
+                                </p>
+                                <button
+                                    onClick={exportRusheePersonalInfo}
+                                    className="w-full bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
+                                >
+                                    Export Rushee Info
                                 </button>
                             </div>
 

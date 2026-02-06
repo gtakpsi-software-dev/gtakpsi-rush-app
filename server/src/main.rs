@@ -133,6 +133,7 @@ async fn main() {
         .route("/admin/pis-signup/:id", post(controllers::admin::brother_pis_sign_up).options(|| async { StatusCode::OK }))
         .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
         .route("/admin/export-rushee-numbers", get(controllers::admin::export_rushee_numbers).options(|| async { StatusCode::OK }))
+        .route("/admin/export-rushee-info", get(controllers::admin::export_rushee_personal_info).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/sorting", get(controllers::admin::get_sorting_rushees).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/:id/notes", get(controllers::admin::get_rushee_notes).put(controllers::admin::update_rushee_notes).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/:id/sorting", put(controllers::admin::update_rushee_sorting).options(|| async { StatusCode::OK }))
