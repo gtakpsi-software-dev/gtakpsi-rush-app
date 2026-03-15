@@ -31,6 +31,7 @@ print("Connected!")
 
 # Map filename (without extension) → GTID
 FILENAME_TO_GTID = {
+    "aarav-sardana":       "904093762",
     "abhinav-pinisetti":   "904093480",
     "addison-lewis":       "904105404",
     "adi-belde":           "903980383",
