@@ -67,7 +67,7 @@ export default function Login() {
                             <img className="w-20 h-20 mr-3" src="akpsilogo.png" alt="logo"/>
                         </a>
                         <div className="w-96 card-apple animate-slide-up" style={{animationDelay: '0.1s'}}>
-                            <div className="p-8 pb-10 space-y-6">
+                            <div className="p-8 space-y-6">
                                 <div className="text-center">
                                     <h1 className="text-apple-title1 font-light text-black mb-2">
                                         Welcome Back
@@ -126,7 +126,7 @@ export default function Login() {
                                     </div>
                                     
                                     {/* Create Account Button */}
-                                    <Link to='/create-account'>
+                                    <Link to='/create-account' className="mt-2 block">
                                         <button className="btn-apple-secondary w-full">
                                             Create Account
                                         </button>
