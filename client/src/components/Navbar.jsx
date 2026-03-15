@@ -115,8 +115,8 @@ export default function Navbar(props) {
                                     : "hidden"
                             }
                         >
-                            {/* In midterm mode: brothers see only Voting; admins see full nav */}
-                            {isMidtermMode && !isAdmin ? (
+                            {/* In midterm mode: everyone sees only Voting as main link (admins still get their dropdown) */}
+                            {isMidtermMode ? (
                                 <>
                                     <li>
                                         <a

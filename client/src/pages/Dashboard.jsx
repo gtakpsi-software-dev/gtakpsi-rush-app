@@ -304,7 +304,7 @@ export default function Dashboard(props) {
                                                     window.open(`/brother/rushee/${rushee.gtid}`, "_blank");
                                                 }}
                                                 key={rushee.id}
-                                                className={`card-apple transition-all duration-200 ${isMidtermMode ? "cursor-default opacity-90" : "cursor-pointer hover:border-apple-gray-300 hover:scale-[1.02] active:scale-[0.98]"}`}
+                                                className={`card-apple transition-all duration-200 ${isMidtermMode ? "cursor-default" : "cursor-pointer hover:border-apple-gray-300 hover:scale-[1.02] active:scale-[0.98]"}`}
                                             >
                                                 {/* Picture */}
                                                 <img
