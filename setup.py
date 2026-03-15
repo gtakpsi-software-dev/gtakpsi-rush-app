@@ -27,12 +27,13 @@ if datetime(current_date.year, 9, 1) <= current_date <= datetime(current_date.ye
 load_dotenv()
 
 # setup .env variables
-mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/")
+mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://ayangoel91:50JHJLMiBm8lxs1T@gtakpsi.npsqpww.mongodb.net/?appName=gtakpsi")
 api_url = os.getenv("API")
 firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
 firebase_storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
 firebase_api_key = os.getenv("FIREBASE_API_KEY")  # Web API key from Firebase console
 admin_uid = os.getenv("ADMIN_UID")  # UID of an admin user
+api_key = os.getenv("API_KEY")  # Server API key for X-API-Key header
 
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
@@ -75,7 +76,11 @@ def get_admin_id_token():
 
 # Get auth headers for API requests
 id_token = get_admin_id_token()
-auth_headers = {"Authorization": f"Bearer {id_token}"} if id_token else {}
+auth_headers = {}
+if id_token:
+    auth_headers["Authorization"] = f"Bearer {id_token}"
+if api_key:
+    auth_headers["X-API-Key"] = api_key
 
 # Connect to MongoDB
 client = MongoClient(mongo_uri)

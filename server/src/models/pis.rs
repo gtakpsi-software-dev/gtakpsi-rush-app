@@ -77,6 +77,8 @@ pub struct IncomingBrotherAvailability {
 pub struct RushAppStatus {
     pub disable_bidcom: bool,    // Disable for bid committee members
     pub disable_regular: bool,   // Disable for regular brothers (non-admin, non-bidcom)
+    #[serde(default)]
+    pub midterm_mode: bool,      // Strip UI to voting-only for brothers
     pub updated_at: Option<DateTime>,
     pub updated_by: Option<String>,
 }
@@ -86,6 +88,8 @@ pub struct RushAppStatus {
 pub struct UpdateRushAppPayload {
     pub disable_bidcom: bool,
     pub disable_regular: bool,
+    #[serde(default)]
+    pub midterm_mode: bool,
 }
 
 /// Payload to check if a brother can access the app

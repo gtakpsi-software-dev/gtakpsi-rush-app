@@ -8,7 +8,11 @@ import axios from 'axios'
 
 const votingOptions = ["Yes", "No", "Abstain"];
 
-export default function QuestionBanner() {
+interface Props {
+    midtermMode?: boolean;
+}
+
+export default function QuestionBanner({ midtermMode = false }: Props) {
     const { question, setQuestion } = useBrotherVotingContext();
     const [hasVoted, setHasVoted] = useState(false);
     const [submittedVote, setSubmittedVote] = useState<string | null>(null);
@@ -94,7 +98,7 @@ export default function QuestionBanner() {
     };
 
     return (
-        <div className="relative w-full rounded-apple-xl overflow-hidden bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md flex-shrink-0">
+        <div className={`relative w-full rounded-apple-xl overflow-hidden bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md ${midtermMode ? "flex-1 flex flex-col" : "flex-shrink-0"}`}>
             {/* Floating question marks */}
             {Array.from({ length: 8 }).map((_, idx) => (
                 <span
@@ -112,7 +116,7 @@ export default function QuestionBanner() {
             ))}
 
             {/* Centered animated question */}
-            <div className="relative flex flex-col sm:flex-row items-center justify-between gap-6 px-8 py-8">
+            <div className={`relative flex flex-col sm:flex-row items-center justify-between gap-6 px-8 py-8 ${midtermMode ? "flex-1" : ""}`}>
                 <SplitText
                     key={question}
                     text={question ? question : "No Question Set"}

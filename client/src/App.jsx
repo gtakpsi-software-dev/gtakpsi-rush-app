@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import './App.css'
+import { MidtermModeProvider, useMidtermMode } from './contexts/MidtermModeContext';
 
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
@@ -37,45 +38,43 @@ import AdminSorting from './pages/AdminSorting';
 import BidComSorting from './pages/BidComSorting';
 import BrotherSorting from './pages/BrotherSorting';
 
-function App() {
+function AppInner() {
+  const { isMidtermMode } = useMidtermMode();
 
   return (
+    <>
+      <Routes>
 
-    <div className='m-0 p-0 h-screen w-screen overflow-y-scroll no-scrollbar'>
+        <Route path='/' element={<Home />} index />
+        <Route path='/register' element={<Register />} />
+        <Route path='/login' element={<Login/>} />
+        <Route path='/create-account' element={<CreateAccount/>} />
+        <Route path='/forgot-password' element={<ForgotPassword/>} />
+        <Route path='/dashboard' element={<Dashboard/>} />
+        <Route path='/bid-committee' element={<BidCommitteeDashboard/>} />
+        <Route path='/brother/rushee/:gtid' element={<RusheeZoom/>} />
+        <Route path='/error/:title/:description' element={<MyError/>} />
+        <Route path='/admin' element={<Admin/>} />
+        <Route path='/addtimeslotpage' element={<AddTimeslotPage />} />
+        <Route path='/rushee/:gtid/:link' element={<RusheePage/>} />
+        <Route path='/pis/:gtid' element={<PIS/>} />
+        <Route path='/attendance' element={<Attendance/>} />
+        <Route path='/comments' element={<Comments />} />
+        <Route path='/my-pis' element={<MyPISPage/>} />
+        {/* <Route path='/brother/pis' element={<BrotherPIS/>} />
+        <Route path='/brother/dashboard' element={<PISDashboard/>} /> */}
+        <Route path='*' element={<NotFound/>} />
 
-      <BrowserRouter>
+        <Route path='/admin/addpis' element={<AddPIS/>} />
+        <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
+        <Route path='/admin/sorting' element={<AdminSorting/>} />
+        <Route path='/bidcom/sorting' element={<BidComSorting/>} />
+        <Route path='/sorting' element={<BrotherSorting/>} />
+        <Route path='/voting' element={<BrotherVotingPage/>} />
 
-        <Routes>
+      </Routes>
 
-          <Route path='/' element={<Home />} index />
-          <Route path='/register' element={<Register />} />
-          <Route path='/login' element={<Login/>} />
-          <Route path='/create-account' element={<CreateAccount/>} />
-          <Route path='/forgot-password' element={<ForgotPassword/>} />
-          <Route path='/dashboard' element={<Dashboard/>} />
-          <Route path='/bid-committee' element={<BidCommitteeDashboard/>} />
-          <Route path='/brother/rushee/:gtid' element={<RusheeZoom/>} />
-          <Route path='/error/:title/:description' element={<MyError/>} />
-          <Route path='/admin' element={<Admin/>} />
-          <Route path='/addtimeslotpage' element={<AddTimeslotPage />} />
-          <Route path='/rushee/:gtid/:link' element={<RusheePage/>} />
-          <Route path='/pis/:gtid' element={<PIS/>} />
-          <Route path='/attendance' element={<Attendance/>} />
-          <Route path='/comments' element={<Comments />} />
-          <Route path='/my-pis' element={<MyPISPage/>} />
-          {/* <Route path='/brother/pis' element={<BrotherPIS/>} />
-          <Route path='/brother/dashboard' element={<PISDashboard/>} /> */}
-          <Route path='*' element={<NotFound/>} />
-
-          <Route path='/admin/addpis' element={<AddPIS/>} />
-          <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
-          <Route path='/admin/sorting' element={<AdminSorting/>} />
-          <Route path='/bidcom/sorting' element={<BidComSorting/>} />
-          <Route path='/sorting' element={<BrotherSorting/>} />
-          <Route path='/voting' element={<BrotherVotingPage/>} />
-
-        </Routes>
-
+      {!isMidtermMode && (
         <div className="fixed z-20 bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-apple-gray-200 text-center py-3">
           <p className="text-apple-footnote text-apple-gray-600 font-light">
             Contact us at{" "}   
@@ -94,6 +93,21 @@ function App() {
             </a>
           </p>
         </div>
+      )}
+    </>
+  );
+}
+
+function App() {
+
+  return (
+
+    <div className='m-0 p-0 h-screen w-screen overflow-y-scroll no-scrollbar'>
+
+      <BrowserRouter>
+        <MidtermModeProvider>
+          <AppInner />
+        </MidtermModeProvider>
       </BrowserRouter>
 
       <ToastContainer

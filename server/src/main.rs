@@ -107,6 +107,8 @@ async fn main() {
         
         // Rush App access check - public route for login flow
         .route("/brother/rush-app/check-access", post(controllers::admin::check_rush_app_access).options(|| async { StatusCode::OK }))
+        // Midterm mode status - public route for all clients
+        .route("/brother/rush-app/midterm-status", get(controllers::admin::get_midterm_mode_status).options(|| async { StatusCode::OK }))
         // Comment visibility check - public route for rushee page
         .route("/brother/comment-visibility/status", get(controllers::admin::get_comment_visibility_status).options(|| async { StatusCode::OK }));
 

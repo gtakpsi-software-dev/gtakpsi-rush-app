@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { logout } from "../js/user";
 import { verifyUser } from "../js/verifications";
 import { auth } from "../firebase";
+import { useMidtermMode } from "../contexts/MidtermModeContext";
 
 // Parse admin allowlist once
 const ADMIN_ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
@@ -20,6 +21,7 @@ export default function Navbar(props) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isBidcom, setIsBidcom] = useState(false);
     const stripped = props.stripped ? props.stripped : false;
+    const { isMidtermMode } = useMidtermMode();
 
     useEffect(() => {
         async function checkAuth() {
@@ -65,7 +67,7 @@ export default function Navbar(props) {
                     <a href="/" className="flex items-center space-x-3">
                         <img src="/akpsilogo.png" className="h-8" alt="AKPsi Logo" />
                         <span className="self-center text-apple-title2 font-normal whitespace-nowrap text-black">
-                            AKPsi Rush Application
+                            {isMidtermMode ? "AKPsi Midterm" : "AKPsi Rush Application"}
                         </span>
                     </a>
                     <button
@@ -113,95 +115,109 @@ export default function Navbar(props) {
                                     : "hidden"
                             }
                         >
-                            <li>
-                                <a
-                                    href="/dashboard"
-                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
-                                    aria-current="page"
-                                >
-                                    Dashboard
-                                </a>
-                            </li>
+                            {/* In midterm mode: brothers see only Voting; admins see full nav */}
+                            {isMidtermMode && !isAdmin ? (
+                                <>
+                                    <li>
+                                        <a
+                                            href="/voting"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                        >
+                                            Voting
+                                        </a>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li>
+                                        <a
+                                            href="/dashboard"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                            aria-current="page"
+                                        >
+                                            Dashboard
+                                        </a>
+                                    </li>
 
+                                    <li>
+                                        <Link
+                                            to="/comments"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                        >
+                                            Comments
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/voting"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                        >
+                                            Voting
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/my-pis"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                        >
+                                            My PIS
+                                        </a>
+                                    </li>
 
-
-                            <li>
-                                <Link
-                                    to="/comments"
-                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
-                                >
-                                    Comments
-                                </Link>
-                            </li>
-                            <li>
-                                <a
-                                    href="/voting"
-                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
-                                >
-                                    Voting
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="/my-pis"
-                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
-                                >
-                                    My PIS
-                                </a>
-                            </li>
-
-                            {/* More menu */}
-                            <li className="relative">
-                                <button
-                                    onClick={() => {
-                                        setShowMore(!showMore);
-                                        setShowAdmin(false);
-                                    }}
-                                    className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
-                                >
-                                    More ▾
-                                </button>
-                                {showMore && (
-                                    <ul className="absolute left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50">
-                                        <li>
-                                            <a
-                                                href="/bid-committee"
-                                                className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                            >
-                                                Bid Committee
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a
-                                                href="/attendance"
-                                                target="_blank"
-                                                className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                            >
-                                                Attendance
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a
-                                                href="/sorting"
-                                                className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                            >
-                                                Sorting
-                                            </a>
-                                        </li>
-                                        {/* Show BidCom Sorting for bidcom users (non-admins have it here) */}
-                                        {isBidcom && !isAdmin && (
-                                            <li>
-                                                <a
-                                                    href="/bidcom/sorting"
-                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                                >
-                                                    BidCom Sorting
-                                                </a>
-                                            </li>
+                                    {/* More menu - hidden in midterm mode for non-admins (already handled above) */}
+                                    <li className="relative">
+                                        <button
+                                            onClick={() => {
+                                                setShowMore(!showMore);
+                                                setShowAdmin(false);
+                                            }}
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                        >
+                                            More ▾
+                                        </button>
+                                        {showMore && (
+                                            <ul className="absolute left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50">
+                                                <li>
+                                                    <a
+                                                        href="/bid-committee"
+                                                        className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                    >
+                                                        Bid Committee
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="/attendance"
+                                                        target="_blank"
+                                                        className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                    >
+                                                        Attendance
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a
+                                                        href="/sorting"
+                                                        className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                    >
+                                                        Sorting
+                                                    </a>
+                                                </li>
+                                                {/* Show BidCom Sorting for bidcom users (non-admins have it here) */}
+                                                {isBidcom && !isAdmin && (
+                                                    <li>
+                                                        <a
+                                                            href="/bidcom/sorting"
+                                                            className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                        >
+                                                            BidCom Sorting
+                                                        </a>
+                                                    </li>
+                                                )}
+                                            </ul>
                                         )}
-                                    </ul>
-                                )}
-                            </li>
+                                    </li>
+                                </>
+                            )}
 
                             {/* Admin menu - only for admins */}
                             {isAdmin && (
@@ -233,22 +249,26 @@ export default function Navbar(props) {
                                                     Admin Voting
                                                 </a>
                                             </li>
-                                            <li>
-                                                <a
-                                                    href="/admin/sorting"
-                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                                >
-                                                    Admin Sorting
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a
-                                                    href="/bidcom/sorting"
-                                                    className="block px-4 py-2 text-black hover:bg-apple-gray-100"
-                                                >
-                                                    BidCom Sorting
-                                                </a>
-                                            </li>
+                                            {!isMidtermMode && (
+                                                <>
+                                                    <li>
+                                                        <a
+                                                            href="/admin/sorting"
+                                                            className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                        >
+                                                            Admin Sorting
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a
+                                                            href="/bidcom/sorting"
+                                                            className="block px-4 py-2 text-black hover:bg-apple-gray-100"
+                                                        >
+                                                            BidCom Sorting
+                                                        </a>
+                                                    </li>
+                                                </>
+                                            )}
                                         </ul>
                                     )}
                                 </li>

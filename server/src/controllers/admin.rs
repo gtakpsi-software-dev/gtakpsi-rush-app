@@ -1775,6 +1775,7 @@ pub async fn update_rush_app_settings(
     let status = RushAppStatus {
         disable_bidcom: payload.disable_bidcom,
         disable_regular: payload.disable_regular,
+        midterm_mode: payload.midterm_mode,
         updated_at: Some(DateTime::now()),
         updated_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
     };
@@ -1800,6 +1801,7 @@ pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
             "status": "success",
             "disable_bidcom": status.disable_bidcom,
             "disable_regular": status.disable_regular,
+            "midterm_mode": status.midterm_mode,
             "updated_at": status.updated_at,
             "updated_by": status.updated_by
         }))),
@@ -1807,12 +1809,33 @@ pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
             "status": "success",
             "disable_bidcom": false,
             "disable_regular": false,
+            "midterm_mode": false,
             "updated_at": null,
             "updated_by": null
         }))),
         Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "Failed to fetch Rush App status"
+        }))),
+    }
+}
+
+/// Get midterm mode status (public endpoint, no auth required)
+pub async fn get_midterm_mode_status() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_rush_app_status_client().await;
+
+    match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => Ok(Json(json!({
+            "status": "success",
+            "midterm_mode": status.midterm_mode
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "status": "success",
+            "midterm_mode": false
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "success",
+            "midterm_mode": false
         }))),
     }
 }

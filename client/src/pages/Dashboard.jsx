@@ -8,6 +8,7 @@ import { useMediaQuery } from "react-responsive";
 import Error from "../components/Error";
 import Loader from "../components/Loader";
 import Badges from "../components/Badge";
+import { useMidtermMode } from "../contexts/MidtermModeContext";
 
 import Fuse from "fuse.js";
 
@@ -18,6 +19,7 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 export default function Dashboard(props) {
+    const { isMidtermMode } = useMidtermMode();
     const [user, setUser] = useState(
         props.user ? props.user : JSON.parse(localStorage.getItem("user"))
     );
@@ -298,11 +300,11 @@ export default function Dashboard(props) {
                                                                             <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                         {filteredRushees.map((rushee) => (
                                             <div
-                                                onClick={() => {
+                                                onClick={isMidtermMode ? undefined : () => {
                                                     window.open(`/brother/rushee/${rushee.gtid}`, "_blank");
                                                 }}
                                                 key={rushee.id}
-                                                className="card-apple cursor-pointer hover:border-apple-gray-300 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                className={`card-apple transition-all duration-200 ${isMidtermMode ? "cursor-default opacity-90" : "cursor-pointer hover:border-apple-gray-300 hover:scale-[1.02] active:scale-[0.98]"}`}
                                             >
                                                 {/* Picture */}
                                                 <img

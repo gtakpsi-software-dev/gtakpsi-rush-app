@@ -56,8 +56,11 @@ export default function Admin() {
     const [savingAvailability, setSavingAvailability] = useState(false);
 
     // Rush App disable state
-    const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false });
+    const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false, midterm_mode: false });
     const [rushAppLoading, setRushAppLoading] = useState(false);
+
+    // Midterm mode state
+    const [midtermLoading, setMidtermLoading] = useState(false);
 
     // Comment visibility settings state
     const [commentVisibilityStatus, setCommentVisibilityStatus] = useState({ require_comment_to_view: true });
@@ -175,6 +178,7 @@ export default function Admin() {
                     setRushAppStatus({
                         disable_bidcom: rushAppResponse.data.disable_bidcom,
                         disable_regular: rushAppResponse.data.disable_regular,
+                        midterm_mode: rushAppResponse.data.midterm_mode ?? false,
                         updated_by: rushAppResponse.data.updated_by
                     });
                 }
@@ -970,6 +974,7 @@ export default function Admin() {
         const newStatus = {
             disable_bidcom: field === 'disable_bidcom' ? Boolean(newValue) : Boolean(rushAppStatus.disable_bidcom),
             disable_regular: field === 'disable_regular' ? Boolean(newValue) : Boolean(rushAppStatus.disable_regular),
+            midterm_mode: Boolean(rushAppStatus.midterm_mode),
         };
         
         try {
@@ -1001,6 +1006,45 @@ export default function Admin() {
             });
         } finally {
             setRushAppLoading(false);
+        }
+    };
+
+    const handleToggleMidtermMode = async (newValue) => {
+        setMidtermLoading(true);
+
+        const newStatus = {
+            disable_bidcom: Boolean(rushAppStatus.disable_bidcom),
+            disable_regular: Boolean(rushAppStatus.disable_regular),
+            midterm_mode: Boolean(newValue),
+        };
+
+        try {
+            const response = await axios.post(`${apiBase}/rush-app/update`, newStatus);
+            if (response.data.status === "success") {
+                setRushAppStatus({
+                    ...newStatus,
+                    updated_by: auth.currentUser?.email || "admin"
+                });
+                toast.success(`Midterm Mode ${newValue ? 'enabled' : 'disabled'}`, {
+                    position: "top-center",
+                    autoClose: 2000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || "Failed to update Midterm Mode", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error("Failed to update Midterm Mode", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setMidtermLoading(false);
         }
     };
 
@@ -1489,6 +1533,41 @@ export default function Admin() {
                                         {commentVisibilityStatus.require_comment_to_view 
                                             ? 'Brothers must comment to see other comments'
                                             : 'All brothers can see all comments immediately'
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Midterm Mode Control */}
+                            <div className="card-apple p-5">
+                                <h3 className="text-apple-headline font-normal text-black mb-2">Midterm Mode</h3>
+                                <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
+                                    Strips the app to voting-only for all brothers. Admins retain full access. The navbar title changes to "AKPsi Midterm" and the contact bar is hidden.
+                                </p>
+
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-apple-body font-normal text-black">Midterm Mode</div>
+                                        <div className="text-apple-caption2 text-apple-gray-500">Brothers see only the voting page</div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleToggleMidtermMode(!rushAppStatus.midterm_mode)}
+                                        disabled={midtermLoading}
+                                        className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
+                                            rushAppStatus.midterm_mode ? 'bg-black' : 'bg-apple-gray-300'
+                                        } ${midtermLoading ? 'opacity-50' : ''}`}
+                                    >
+                                        <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
+                                            rushAppStatus.midterm_mode ? 'translate-x-5' : 'translate-x-0.5'
+                                        }`} />
+                                    </button>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-apple-gray-100">
+                                    <div className="text-apple-caption2 text-apple-gray-400">
+                                        {rushAppStatus.midterm_mode
+                                            ? 'Midterm Mode is active — brothers see voting only'
+                                            : 'Normal mode — full app is available to brothers'
                                         }
                                     </div>
                                 </div>

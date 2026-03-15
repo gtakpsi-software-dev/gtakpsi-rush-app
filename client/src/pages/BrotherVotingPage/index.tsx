@@ -9,12 +9,14 @@ import RusheePISInfo from "./RusheePISInfo";
 import RusheeScores from "./RusheeScores";
 import RusheeBidCommNotes from "./RusheeBidCommNotes";
 import { Brother } from "./types";
+import { useMidtermMode } from "../../contexts/MidtermModeContext";
 
 // Connection status type
 type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 
 function Content() {
   const { rushee, question, setRushee, setQuestion } = useBrotherVotingContext();
+  const { isMidtermMode } = useMidtermMode();
   const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -112,6 +114,30 @@ function Content() {
 
   if (!storedUser || !user) {
     return null;
+  }
+
+  if (isMidtermMode) {
+    return (
+      <div className="w-screen h-screen flex flex-col bg-apple-gray-50 overflow-hidden">
+        {/* Fixed Navbar */}
+        <div className="fixed top-0 left-0 w-full z-50">
+          <Navbar />
+        </div>
+
+        {/* Midterm layout: rushee info (~40vh) + question banner (fills rest) */}
+        <div className="pt-16 flex flex-col flex-1 overflow-hidden px-4 pb-4 gap-3">
+          {/* Rushee Preview Card */}
+          <div className="flex-shrink-0">
+            <RusheePreviewCard midtermMode />
+          </div>
+
+          {/* Question Banner fills remaining height */}
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+            <QuestionBanner midtermMode />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
