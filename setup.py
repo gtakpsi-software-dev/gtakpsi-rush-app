@@ -27,7 +27,7 @@ if datetime(current_date.year, 9, 1) <= current_date <= datetime(current_date.ye
 load_dotenv()
 
 # setup .env variables
-mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://ayangoel91:50JHJLMiBm8lxs1T@gtakpsi.npsqpww.mongodb.net/?appName=gtakpsi")
+mongo_uri = os.getenv("MONGO_URI")
 api_url = os.getenv("API")
 firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
 firebase_storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
