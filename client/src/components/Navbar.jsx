@@ -115,9 +115,18 @@ export default function Navbar(props) {
                                     : "hidden"
                             }
                         >
-                            {/* In midterm mode: everyone sees only Voting as main link (admins still get their dropdown) */}
+                            {/* In midterm mode: everyone sees only Dashboard + Voting (admins still get their dropdown) */}
                             {isMidtermMode ? (
                                 <>
+                                    <li>
+                                        <a
+                                            href="/dashboard"
+                                            className="block py-2 px-4 text-black rounded-apple hover:bg-apple-gray-100 transition-colors duration-200 md:p-2"
+                                            aria-current="page"
+                                        >
+                                            Dashboard
+                                        </a>
+                                    </li>
                                     <li>
                                         <a
                                             href="/voting"
