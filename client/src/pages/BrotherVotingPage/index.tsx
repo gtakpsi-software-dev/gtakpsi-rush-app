@@ -124,15 +124,15 @@ function Content() {
           <Navbar />
         </div>
 
-        {/* Midterm layout: rushee info (~40vh) + question banner (fills rest) */}
-        <div className="pt-16 flex flex-col flex-1 overflow-hidden px-4 pb-4 gap-3">
-          {/* Rushee Preview Card */}
-          <div className="flex-shrink-0">
+        {/* Midterm layout: left = rushee profile, right = question + vote */}
+        <div className="pt-20 pb-8 px-8 flex-1 flex gap-8 overflow-hidden">
+          {/* Left column: image + info stacked vertically */}
+          <div className="w-72 flex-shrink-0 flex flex-col">
             <RusheePreviewCard midtermMode />
           </div>
 
-          {/* Question Banner fills remaining height */}
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          {/* Right column: question + buttons fills remaining space */}
+          <div className="flex-1 flex flex-col min-w-0">
             <QuestionBanner midtermMode />
           </div>
         </div>
