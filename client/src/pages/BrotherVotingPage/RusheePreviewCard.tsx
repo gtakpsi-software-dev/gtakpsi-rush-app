@@ -28,17 +28,17 @@ export default function RusheePreviewCard({ midtermMode = false }: Props) {
                     className="w-full aspect-square object-cover"
                 />
                 {/* Info below the photo */}
-                <div className="p-5 flex flex-col gap-1">
-                    <h2 className="text-2xl font-semibold text-black leading-tight">
+                <div className="p-6 flex flex-col gap-2">
+                    <h2 className="text-3xl font-semibold text-black leading-tight">
                         {rushee.first_name} {rushee.last_name}
                     </h2>
-                    <p className="text-base text-apple-gray-500 font-light">
+                    <p className="text-lg text-apple-gray-500 font-light">
                         GTID: {rushee.gtid}
                     </p>
-                    <p className="text-base text-apple-gray-500 font-light">
+                    <p className="text-lg text-apple-gray-500 font-light">
                         {rushee.major}
                     </p>
-                    <p className="text-base text-apple-gray-500 font-light">
+                    <p className="text-lg text-apple-gray-500 font-light">
                         {rushee.pronouns}
                     </p>
                 </div>

@@ -125,9 +125,9 @@ function Content() {
         </div>
 
         {/* Midterm layout: left = rushee profile, right = question + vote */}
-        <div className="pt-20 pb-8 px-8 flex-1 flex gap-8 overflow-hidden">
+        <div className="pt-24 pb-8 px-8 flex-1 flex gap-8 overflow-hidden">
           {/* Left column: image + info stacked vertically */}
-          <div className="w-72 flex-shrink-0 flex flex-col">
+          <div className="w-96 flex-shrink-0 flex flex-col">
             <RusheePreviewCard midtermMode />
           </div>
 
