@@ -99,12 +99,12 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
 
     if (midtermMode) {
         return (
-            <div className="relative card-apple flex flex-col h-full p-8 gap-6 overflow-hidden">
+            <div className="relative flex flex-col h-full p-8 gap-6 overflow-hidden rounded-apple-xl bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md">
                 {/* Floating question marks */}
-                {Array.from({ length: 8 }).map((_, idx) => (
+                {Array.from({ length: 20 }).map((_, idx) => (
                     <span
                         key={idx}
-                        className="absolute text-[28px] text-apple-gray-700 opacity-20 animate-float pointer-events-none select-none"
+                        className="absolute text-[20px] sm:text-[28px] text-apple-gray-700 opacity-30 animate-float pointer-events-none select-none"
                         style={{
                             top: `${Math.random() * 100}%`,
                             left: `${Math.random() * 100}%`,
@@ -129,9 +129,9 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
                 </div>
 
                 {/* Vote buttons pinned to bottom */}
-                <div className="relative flex-shrink-0 flex gap-4">
+                <div className="relative flex-shrink-0 flex gap-4 justify-center">
                     {hasVoted ? (
-                        <div className="flex items-center gap-3 px-8 py-4 rounded-apple-xl bg-green-100 border border-green-200">
+                        <div className="flex items-center justify-center gap-3 w-full px-8 py-5 rounded-apple-xl bg-green-100 border border-green-200">
                             <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
                                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
