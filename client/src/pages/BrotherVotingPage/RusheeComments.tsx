@@ -1,14 +1,55 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
 import Badges from "../../components/Badge";
 import gsap from "gsap";
+import { formatRatingValue, ratingBadgeClass } from "../../js/ratingDisplay";
+import { getVisibleComments, shouldShowAllComments } from "../../js/commentVisibility";
+import axios from "axios";
+import { auth } from "../../firebase";
 
 export default function RusheeComments() {
     const { rushee } = useBrotherVotingContext();
     const commentsRef = useRef<HTMLDivElement[]>([]);
+    const [requireCommentToView, setRequireCommentToView] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isBidcom, setIsBidcom] = useState(false);
+
+    const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
 
     useEffect(() => {
-        if (rushee && rushee?.comments?.length > 0) {
+        async function fetchVisibility() {
+            const api = import.meta.env.VITE_API_PREFIX;
+            try {
+                const res = await axios.get(`${api}/brother/comment-visibility/status`);
+                if (res.data.status === "success") {
+                    setRequireCommentToView(res.data.require_comment_to_view);
+                }
+            } catch {
+                // default: restricted
+            }
+
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                try {
+                    const tokenResult = await currentUser.getIdTokenResult(true);
+                    setIsAdmin(tokenResult.claims?.admin === true);
+                    setIsBidcom(tokenResult.claims?.bidcom === true);
+                } catch {
+                    // ignore
+                }
+            }
+        }
+        fetchVisibility();
+    }, []);
+
+    const visibilityOptions = { requireCommentToView, isAdmin, isBidcom };
+    const visibleComments = rushee
+        ? getVisibleComments(rushee.comments, user, visibilityOptions)
+        : [];
+
+    useEffect(() => {
+        if (rushee && visibleComments.length > 0) {
             gsap.fromTo(
                 commentsRef.current,
                 { y: -20, opacity: 0 },
@@ -21,7 +62,7 @@ export default function RusheeComments() {
                 }
             );
         }
-    }, [rushee?.comments]);
+    }, [rushee?.comments, visibleComments.length]);
 
     if (!rushee) {
         return (
@@ -31,17 +72,17 @@ export default function RusheeComments() {
         );
     }
 
-    if (!rushee.comments || rushee.comments.length === 0) {
+    if (!visibleComments || visibleComments.length === 0) {
         return (
             <p className="text-lg text-apple-gray-500 font-light italic">
-                No comments yet
+                {shouldShowAllComments(visibilityOptions) ? "No comments yet" : "No comments from you yet"}
             </p>
         );
     }
 
     return (
         <div className="space-y-4">
-            {rushee.comments.map((comment, idx) => (
+            {visibleComments.map((comment, idx) => (
                 <div
                     key={idx}
                     ref={(el) => (commentsRef.current[idx] = el!)}
@@ -67,13 +108,9 @@ export default function RusheeComments() {
                             {comment.ratings.map((rating) => (
                                 <span
                                     key={rating.name}
-                                    className={`px-3 py-1 rounded-apple text-sm font-medium ${
-                                        rating.value === 5 
-                                            ? 'bg-green-100 text-green-700' 
-                                            : 'bg-red-100 text-red-700'
-                                    }`}
+                                    className={`px-3 py-1 rounded-apple text-sm font-medium ${ratingBadgeClass(rating.value)}`}
                                 >
-                                    {rating.name}: {rating.value === 5 ? "Satisfactory" : "Unsatisfactory"}
+                                    {rating.name}: {formatRatingValue(rating.value)}
                                 </span>
                             ))}
                         </div>

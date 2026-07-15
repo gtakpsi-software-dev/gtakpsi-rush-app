@@ -42,6 +42,7 @@ export const allowedEmails = [
   "gavin.salian@gmail.com",
   "giannaathavale1@gmail.com",
   "hasini.sandra@gmail.com",
+  "hasini.sandra+test@gmail.com",
   "inara.sheeraz@gmail.com",
   "kasaju.ishan@gmail.com",
   "ishan.voleti@gmail.com",

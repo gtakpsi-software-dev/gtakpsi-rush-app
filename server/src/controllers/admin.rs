@@ -1913,7 +1913,7 @@ pub async fn check_rush_app_access(
 // ========== Comment Visibility Settings Endpoints ==========
 
 /// Update comment visibility settings (admin only)
-/// When enabled, brothers must post their own comment before seeing others' comments
+/// When enabled, brothers only see their own comments on a rushee
 pub async fn update_comment_visibility_settings(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<UpdateCommentVisibilityPayload>,

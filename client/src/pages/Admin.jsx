@@ -1063,7 +1063,10 @@ export default function Admin() {
                     updated_by: auth.currentUser?.email || "admin"
                 });
                 
-                toast.success(`Comment visibility restriction ${newValue ? 'enabled' : 'disabled'}`, {
+                toast.success(newValue
+                    ? 'Comment viewing restricted — brothers only see their own comments'
+                    : 'Comment viewing open — all brothers can read every comment',
+                {
                     position: "top-center",
                     autoClose: 2000,
                     theme: "dark",
@@ -1507,32 +1510,38 @@ export default function Admin() {
                             <div className="card-apple p-5">
                                 <h3 className="text-apple-headline font-normal text-black mb-2">Comment Visibility</h3>
                                 <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                                    When enabled, brothers must post their own comment before seeing others' comments on a rushee.
+                                    Control whether brothers can read every comment on a rushee, or only their own.
+                                    Turn this on before voting so brothers can read all comments even if they did not post one.
                                 </p>
 
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <div className="text-apple-body font-normal text-black">Require Comment to View</div>
-                                        <div className="text-apple-caption2 text-apple-gray-500">Brothers must comment before seeing other comments</div>
+                                        <div className="text-apple-body font-normal text-black">Show All Comments to Brothers</div>
+                                        <div className="text-apple-caption2 text-apple-gray-500">
+                                            {commentVisibilityStatus.require_comment_to_view
+                                                ? 'Off — brothers only see their own comments (rush mode)'
+                                                : 'On — every brother can read all comments (voting mode)'
+                                            }
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
                                         disabled={commentVisibilityLoading}
                                         className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
-                                            commentVisibilityStatus.require_comment_to_view ? 'bg-black' : 'bg-apple-gray-300'
+                                            !commentVisibilityStatus.require_comment_to_view ? 'bg-black' : 'bg-apple-gray-300'
                                         } ${commentVisibilityLoading ? 'opacity-50' : ''}`}
                                     >
                                         <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                                            commentVisibilityStatus.require_comment_to_view ? 'translate-x-5' : 'translate-x-0.5'
+                                            !commentVisibilityStatus.require_comment_to_view ? 'translate-x-5' : 'translate-x-0.5'
                                         }`} />
                                     </button>
                                 </div>
 
                                 <div className="mt-4 pt-3 border-t border-apple-gray-100">
                                     <div className="text-apple-caption2 text-apple-gray-400">
-                                        {commentVisibilityStatus.require_comment_to_view 
-                                            ? 'Brothers must comment to see other comments'
-                                            : 'All brothers can see all comments immediately'
+                                        {commentVisibilityStatus.require_comment_to_view
+                                            ? 'Rush mode — brothers only see their own comments'
+                                            : 'Voting mode — all brothers can see all comments without posting'
                                         }
                                     </div>
                                 </div>

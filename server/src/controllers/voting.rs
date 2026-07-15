@@ -198,13 +198,13 @@ pub async fn clear_votes() -> Result<Json<Value>, StatusCode> {
     let mut conn = conn_arc.as_ref().clone();
 
     // 1) Delete the entire vote_log hash
-    conn.del("vote_log").await.map_err(|e| {
+    let _: () = conn.del("vote_log").await.map_err(|e| {
         println!("❌ Failed to clear vote_log: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
     // 2) Publish a notification so everyone knows votes have been reset
-    conn.publish("vote_channel", "cleared").await.map_err(|e| {
+    let _: () = conn.publish("vote_channel", "cleared").await.map_err(|e| {
         println!("❌ Failed to publish clear notification: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -242,7 +242,8 @@ pub async fn make_ineligible(
 
     println!("made Ineligible");
 
-    conn.sadd(INEGLIBLE_BROTHERS, &payload.gtid)
+    let _: () = conn
+        .sadd(INEGLIBLE_BROTHERS, &payload.gtid)
         .await
         .map_err(|e| {
             println!("Redis SADD error: {}", e);

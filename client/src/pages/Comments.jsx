@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { formatRatingValue } from '../js/ratingDisplay';
 
 const Comments = () => {
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ const Comments = () => {
                                   key={rIdx}
                                   className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"
                                 >
-                                  {rating.name}: {rating.value === 5 ? 'Satisfactory' : 'Unsatisfactory'}
+                                  {rating.name}: {formatRatingValue(rating.value)}
                                 </span>
                               ))}
                             </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import Badges from "../../components/Badge";
 import gsap from "gsap";
+import { formatRatingValue } from "../../js/ratingDisplay";
 
 export default function RusheeComments() {
   const { rushee } = useAdminVotingContext();
@@ -56,9 +57,10 @@ export default function RusheeComments() {
           <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-apple-gray-200">
             {comment.ratings.map((rating) => (
               <span
+                key={rating.name}
                 className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
               >
-                {rating.name}: {rating.value === 5 ? "Satisfactory" : "Unsatisfactory"}
+                {rating.name}: {formatRatingValue(rating.value)}
               </span>
             ))}
           </div>

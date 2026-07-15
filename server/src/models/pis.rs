@@ -102,11 +102,11 @@ pub struct CheckAccessPayload {
 
 // ========== Comment Visibility Settings ==========
 
-/// Tracks whether the comment visibility restriction is enabled
-/// When enabled, brothers must post their own comment before seeing others' comments
+/// Tracks whether the comment visibility restriction is enabled.
+/// When enabled, brothers only see their own comments on a rushee (not other brothers').
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct CommentVisibilitySettings {
-    pub require_comment_to_view: bool,  // If true, brothers must comment before seeing others
+    pub require_comment_to_view: bool,  // If true, brothers only see their own comments
     pub updated_at: Option<DateTime>,
     pub updated_by: Option<String>,
 }

@@ -15,7 +15,30 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Badges from "../components/Badge";
+import RatingSlider from "../components/RatingSlider";
+import { formatRatingValue } from "../js/ratingDisplay";
+import {
+    getVisibleComments,
+    hasOwnComment,
+    shouldShowAllComments,
+} from "../js/commentVisibility";
 
+const RATING_FIELDS = [
+    "Why AKPsi",
+    "1:1 Interactions",
+    "Group Interactions",
+    "Professionalism",
+];
+
+const DEFAULT_RATING = 3;
+
+function createDefaultRatings() {
+    return Object.fromEntries(RATING_FIELDS.map((f) => [f, DEFAULT_RATING]));
+}
+
+function createDefaultNotSeen() {
+    return Object.fromEntries(RATING_FIELDS.map((f) => [f, true]));
+}
 
 export default function RusheeZoom() {
 
@@ -38,12 +61,8 @@ export default function RusheeZoom() {
     const [newComment, setNewComment] = useState("");
     const [commentWarnings, setCommentWarnings] = useState([]);
     const [editCommentWarnings, setEditCommentWarnings] = useState([]);
-    const [ratings, setRatings] = useState({
-        "Why AKPsi": null,
-        "1:1 Interactions": null,
-        "Group Interactions": null,
-        "Professionalism": null,
-    });
+    const [ratings, setRatings] = useState(createDefaultRatings);
+    const [ratingNotSeen, setRatingNotSeen] = useState(createDefaultNotSeen);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isBidcom, setIsBidcom] = useState(false);
     const [requireCommentToView, setRequireCommentToView] = useState(true); // Default to existing behavior
@@ -65,24 +84,14 @@ export default function RusheeZoom() {
                document.referrer.includes('/bid-committee');
     };
 
-    const ratingFields = [
-        "Why AKPsi",
-        "1:1 Interactions",
-        "Group Interactions",
-        "Professionalism",
-    ];
+    const ratingFields = RATING_FIELDS;
 
-    // Function to check if current user can see comments
-    // Returns true if: requireCommentToView is disabled, user is admin/bidcom, or user has posted a comment
-    const hasUserPostedComment = () => {
-        // If the restriction is disabled, everyone can see comments
-        if (!requireCommentToView) return true;
-        // Admins and bid committee can always see comments
-        if (isAdmin || isBidcom) return true;
-        if (!rushee || !user) return false;
-        const currentUserName = user.firstname + " " + user.lastname;
-        return rushee.comments.some(comment => comment.brother_name === currentUserName);
-    };
+    const visibilityOptions = { requireCommentToView, isAdmin, isBidcom };
+    const showAllComments = shouldShowAllComments(visibilityOptions);
+    const visibleComments = rushee
+        ? getVisibleComments(rushee.comments, user, visibilityOptions)
+        : [];
+    const userHasOwnComment = rushee ? hasOwnComment(rushee.comments, user) : false;
 
     useEffect(() => {
 
@@ -154,12 +163,21 @@ export default function RusheeZoom() {
     const handleAddComment = () => {
         setIsAddingComment(true);
         setCommentWarnings([]);
+        setRatings(createDefaultRatings());
+        setRatingNotSeen(createDefaultNotSeen());
     };
 
     const handleRatingChange = (field, value) => {
         setRatings({
             ...ratings,
             [field]: value,
+        });
+    };
+
+    const handleRatingNotSeenChange = (field, notSeen) => {
+        setRatingNotSeen({
+            ...ratingNotSeen,
+            [field]: notSeen,
         });
     };
 
@@ -206,12 +224,12 @@ export default function RusheeZoom() {
 
         const actualRatings = []
 
-        for (const rating in ratings) {
-            if (ratings[rating] != null) {
+        for (const field of ratingFields) {
+            if (!ratingNotSeen[field]) {
                 actualRatings.push({
-                    name: rating,
-                    value: parseInt(ratings[rating])
-                })
+                    name: field,
+                    value: ratings[field],
+                });
             }
         }
 
@@ -264,12 +282,8 @@ export default function RusheeZoom() {
         // Reset the form after submission
         setNewComment("");
         setCommentWarnings([]);
-        setRatings({
-            "Professionalism": null,
-            "Goatedness": null,
-            "Awesomeness": null,
-            "Eye Contact": null,
-        });
+        setRatings(createDefaultRatings());
+        setRatingNotSeen(createDefaultNotSeen());
         setIsAddingComment(false);
         setLoading(false)
     };
@@ -453,7 +467,7 @@ export default function RusheeZoom() {
                                                 key={rIdx}
                                                 className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
                                             >
-                                                {rating.name}: {rating.value == 5 ? "Satisfactory" : "Unsatisfactory"}
+                                                {rating.name}: {formatRatingValue(rating.value)}
                                             </span>
                                         ))}
                                     </div>
@@ -640,8 +654,8 @@ export default function RusheeZoom() {
                                     </div>
                                 </div>
 
-                                {/* Section: Brothers who wrote comments */}
-                                {hasUserPostedComment() && (
+                                {/* Section: Brothers who wrote comments (admins/bidcom/unrestricted only) */}
+                                {showAllComments && rushee.comments.length > 0 && (
                                     <div className="card-apple p-6 mb-6">
                                         <h2 className="text-apple-title1 font-light text-black mb-4">
                                             Brothers Who Commented
@@ -691,30 +705,16 @@ export default function RusheeZoom() {
                                                 }}
                                             />
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                                                 {ratingFields.map((field) => (
-                                                    <div key={field}>
-                                                        <label
-                                                            htmlFor={field}
-                                                            className="block text-apple-body font-normal text-apple-gray-700 mb-2"
-                                                        >
-                                                            {field}
-                                                        </label>
-                                                        <select
-                                                            id={field}
-                                                            className="input-apple text-apple-footnote"
-                                                            value={ratings[field] || ""}
-                                                            onChange={(e) =>
-                                                                handleRatingChange(field, e.target.value)
-                                                            }
-                                                        >
-                                                            <option value="" disabled>
-                                                                Not Seen
-                                                            </option>
-                                                            <option value={5}>Satisfactory</option>
-                                                            <option value={0}>Unsatisfactory</option>
-                                                        </select>
-                                                    </div>
+                                                    <RatingSlider
+                                                        key={field}
+                                                        label={field}
+                                                        value={ratings[field]}
+                                                        notSeen={ratingNotSeen[field]}
+                                                        onValueChange={(value) => handleRatingChange(field, value)}
+                                                        onNotSeenChange={(notSeen) => handleRatingNotSeenChange(field, notSeen)}
+                                                    />
                                                 ))}
                                             </div>
 
@@ -727,10 +727,10 @@ export default function RusheeZoom() {
                                         </div>
                                     )}
                                     
-                                    {/* Show comments only if user has posted their own comment */}
-                                    {hasUserPostedComment() && (
+                                    {/* Visible comments (own only when restricted) */}
+                                    {visibleComments.length > 0 && (
                                         <div className="mt-6 space-y-4">
-                                            {rushee.comments.map((comment, idx) => (
+                                            {visibleComments.map((comment, idx) => (
                                                 <div
                                                     key={idx}
                                                     onClick={() => setSelectedComment(comment)}
@@ -813,7 +813,7 @@ export default function RusheeZoom() {
                                                                 key={rIdx}
                                                                 className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
                                                             >
-                                                                {rating.name}: {rating.value == 5 ? "Satisfactory" : "Unsatisfactory"}
+                                                                {rating.name}: {formatRatingValue(rating.value)}
                                                             </span>
                                                         ))}
                                                     </div>
@@ -822,11 +822,11 @@ export default function RusheeZoom() {
                                         </div>
                                     )}
 
-                                    {/* Show message if user hasn't posted a comment yet */}
-                                    {!hasUserPostedComment() && (
+                                    {/* Prompt when restricted and user hasn't commented yet */}
+                                    {requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment && (
                                         <div className="mt-6 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple text-center">
                                             <p className="text-apple-body text-apple-gray-600 font-light">
-                                                Post your comment to see other brothers' comments.
+                                                Post your comment to save your ratings and notes. You won't see other brothers' comments.
                                             </p>
                                         </div>
                                     )}

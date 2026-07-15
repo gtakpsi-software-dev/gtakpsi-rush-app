@@ -31,6 +31,11 @@ struct Params {
     second: Option<String>,
 }
 
+/// 1–5 scale ratings used for averaging; legacy 0/5 values are excluded.
+fn is_modern_rating_value(value: f32) -> bool {
+    value >= 1.0 && value <= 5.0
+}
+
 /**
  * Registers a new rushee
  */
@@ -337,14 +342,14 @@ pub async fn post_comment(
                                 // Existing comments
                                 for comment in &rushee.comments {
                                     if let Some(existing_rating) = comment.ratings.iter().find(|r| r.name == rating.name) {
-                                        if existing_rating.value == 0.0 || existing_rating.value == 5.0 {
+                                        if is_modern_rating_value(existing_rating.value) {
                                             values.push(existing_rating.value);
                                         }
                                     }
                                 }
 
                                 // Add the new rating (from the current payload)
-                                if rating.value == 0.0 || rating.value == 5.0 {
+                                if is_modern_rating_value(rating.value) {
                                     values.push(rating.value);
                                 }
 
@@ -942,7 +947,7 @@ pub async fn delete_comment(
                 // Collect all remaining ratings for this category
                 for comment in &remaining_comments {
                     if let Some(existing_rating) = comment.ratings.iter().find(|r| r.name == category) {
-                        if existing_rating.value == 0.0 || existing_rating.value == 5.0 {
+                        if is_modern_rating_value(existing_rating.value) {
                             values.push(existing_rating.value);
                         }
                     }
