@@ -75,6 +75,7 @@ async fn main() {
 
         .route("/rushee/signup", post(controllers::rushee::signup).options(|| async { StatusCode::OK }))
         .route("/rushee/get-rushees", get(controllers::rushee::get_rushees).options(|| async { StatusCode::OK }))
+        .route("/rushee/rush-nights", get(controllers::rushee::get_rush_nights).options(|| async { StatusCode::OK }))
         .route("/rushee/:id", get(controllers::rushee::get_rushee).options(|| async { StatusCode::OK }))
         .route("/rushee/post-comment/:id",post(controllers::rushee::post_comment).options(|| async { StatusCode::OK }))
         .route("/rushee/post-pis/:id", post(controllers::rushee::post_pis).options(|| async { StatusCode::OK }))

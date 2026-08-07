@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Badges from "../components/Badge";
+import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
 import RatingSlider from "../components/RatingSlider";
 import { formatRatingValue } from "../js/ratingDisplay";
 import {
@@ -609,6 +610,17 @@ export default function RusheeZoom() {
                                                 <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${((rating.value / 5) * 100).toFixed(0)}%`}</p>
                                             </div>
                                         ))}
+                                    </div>
+
+                                    <div className="mt-6 pt-4 border-t border-apple-gray-200">
+                                        <h3 className="text-apple-headline font-light text-black mb-2">
+                                            Interactions
+                                        </h3>
+                                        <RusheeInteractionsByNight
+                                            nights={rushee.interactions_by_night}
+                                            attendance={rushee.attendance}
+                                            comments={rushee.comments}
+                                        />
                                     </div>
                                 </div>
 

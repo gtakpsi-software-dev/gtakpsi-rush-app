@@ -8,6 +8,7 @@ import { useMediaQuery } from "react-responsive";
 import Error from "../components/Error";
 import Loader from "../components/Loader";
 import Badges from "../components/Badge";
+import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
 
 import Fuse from "fuse.js";
@@ -338,6 +339,10 @@ export default function Dashboard(props) {
                                                         <p className="text-apple-footnote text-apple-gray-600 font-light">
                                                             GTID: {rushee.gtid}
                                                         </p>
+                                                        <RusheeInteractionsByNight
+                                                            nights={rushee.interactions_by_night}
+                                                            compact
+                                                        />
                                                     </div>
                                                     
                                                     {rushee.ratings && rushee.ratings.length > 0 && (

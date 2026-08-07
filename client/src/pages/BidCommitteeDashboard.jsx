@@ -6,6 +6,7 @@ import { useMediaQuery } from "react-responsive";
 import Error from "../components/Error";
 import Loader from "../components/Loader";
 import Badges from "../components/Badge";
+import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
 import { verifyUser } from "../js/verifications";
 import Button from "../components/Button";
 
@@ -307,6 +308,12 @@ export default function BidCommitteeDashboard(props) {
                                                         <p className="text-apple-footnote text-apple-gray-600 font-light mb-1 truncate">
                                                             {rushee.class}
                                                         </p>
+
+                                                        <RusheeInteractionsByNight
+                                                            nights={rushee.interactions_by_night}
+                                                            compact
+                                                            className="mb-2"
+                                                        />
                                                         
                                                         <div className="flex flex-wrap gap-2 mt-2">
                                                             {rushee.ratings.map((rating, rIdx) => (

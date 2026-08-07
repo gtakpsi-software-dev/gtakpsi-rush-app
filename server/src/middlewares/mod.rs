@@ -1,3 +1,4 @@
+pub mod rush_nights;
 pub mod valid;
 pub mod attendance;
 pub mod timeHelpers;

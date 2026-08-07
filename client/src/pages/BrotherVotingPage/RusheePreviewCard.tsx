@@ -1,5 +1,6 @@
 import React from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
+import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
 
 interface Props {
     midtermMode?: boolean;
@@ -41,6 +42,11 @@ export default function RusheePreviewCard({ midtermMode = false }: Props) {
                     <p className="text-lg text-apple-gray-500 font-light">
                         {rushee.pronouns}
                     </p>
+                    <RusheeInteractionsByNight
+                        nights={rushee.interactions_by_night}
+                        attendance={rushee.attendance}
+                        comments={rushee.comments}
+                    />
                 </div>
             </div>
         );
@@ -66,6 +72,11 @@ export default function RusheePreviewCard({ midtermMode = false }: Props) {
                     <span>•</span>
                     <span>{rushee.pronouns}</span>
                 </div>
+                <RusheeInteractionsByNight
+                    nights={rushee.interactions_by_night}
+                    attendance={rushee.attendance}
+                    comments={rushee.comments}
+                />
             </div>
         </div>
     );

@@ -16,6 +16,12 @@ export interface PISItem {
     answer: string;
 }
 
+export interface NightInteractionSummary {
+    night_index: number;
+    name: string;
+    interactions: number | null;
+}
+
 export interface Rushee {
     first_name: string;
     last_name: string;
@@ -25,6 +31,8 @@ export interface Rushee {
     image_url: string;
     comments: Comment[];
     ratings: Rating[];
+    attendance?: { time: Date | string; name: string }[];
+    interactions_by_night?: NightInteractionSummary[];
     pis?: PISItem[];
     sorting_notes?: string;
     sorting_tags?: string[];

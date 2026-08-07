@@ -20,6 +20,7 @@ use crate::{
         pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, RushAppStatus, UpdateRushAppPayload, CheckAccessPayload, CommentVisibilitySettings, UpdateCommentVisibilityPayload},
         Rushee::StrippedRushee,
     },
+    middlewares::rush_nights::interactions_by_night,
     middlewares::auth::FirebaseAuth,
 };
 
@@ -507,6 +508,9 @@ pub async fn get_brother_pis(
     Json(payload): Json<IncomingBrotherName>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
+    let rush_nights = crate::middlewares::attendance::get_rush_nights_sorted()
+        .await
+        .unwrap_or_default();
 
     let result = connection
         .find({
@@ -537,6 +541,11 @@ pub async fn get_brother_pis(
                                     .eq(&payload.last_name))
                         {
 
+                            let night_interactions = interactions_by_night(
+                                &rush_nights,
+                                &doc.attendance,
+                                &doc.comments,
+                            );
                             rushees.push(StrippedRushee {
                                 name: format!("{} {}", doc.first_name, doc.last_name),
                                 first_name: doc.first_name.clone(),
@@ -551,6 +560,7 @@ pub async fn get_brother_pis(
                                 attendance: doc.attendance,
                                 registration_order: 0,  // Not used in this context
                                 pis_timeslot: Some(doc.pis_timeslot),
+                                interactions_by_night: night_interactions,
                             });
 
                         }

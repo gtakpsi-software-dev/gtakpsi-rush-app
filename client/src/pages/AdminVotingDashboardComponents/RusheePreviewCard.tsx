@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
+import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
 import { verifyUser } from "../../js/verifications";
 import axios from "axios";
 import { adminPost } from "../../js/adminAxios";
@@ -165,6 +166,12 @@ export default function RusheePreviewCard() {
                             <span><span className="text-black font-normal">Major:</span> {rushee.major}</span>
                             <span><span className="text-black font-normal">Pronouns:</span> {rushee.pronouns}</span>
                         </div>
+
+                        <RusheeInteractionsByNight
+                            nights={rushee.interactions_by_night}
+                            attendance={rushee.attendance}
+                            comments={rushee.comments}
+                        />
 
                         {rushee.ratings && rushee.ratings.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-2">

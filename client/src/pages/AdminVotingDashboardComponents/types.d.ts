@@ -31,6 +31,8 @@ export interface Rushee {
     image_url: string;
     comments: Comment[];
     ratings: Rating[];
+    attendance?: { time: Date | string; name: string }[];
+    interactions_by_night?: { night_index: number; name: string; interactions: number | null }[];
 }
 
 export interface Brother {

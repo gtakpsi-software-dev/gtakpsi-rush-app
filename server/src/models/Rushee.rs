@@ -30,6 +30,14 @@ pub struct StrippedRushee {
     pub attendance: Vec<RushNight>,
     pub registration_order: i32,  // Sequential number based on signup order
     pub pis_timeslot: Option<bson::DateTime>,
+    pub interactions_by_night: Vec<NightInteractionSummary>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NightInteractionSummary {
+    pub night_index: i32,
+    pub name: String,
+    pub interactions: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -116,6 +124,8 @@ pub struct RusheeModel {
     pub access_code: String,
     pub pis_signup: PISSignup,
     pub flex_window: bool,
+    #[serde(default, skip_deserializing)]
+    pub interactions_by_night: Vec<NightInteractionSummary>,
 }
 
 fn default_sorting_status() -> String {

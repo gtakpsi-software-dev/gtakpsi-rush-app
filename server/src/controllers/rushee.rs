@@ -20,6 +20,7 @@ use crate::middlewares::valid::check_valid_comment;
 use crate::middlewares::{attendance, pis, timeHelpers, valid};
 use crate::models::misc::RushNight;
 use crate::models::pis::PISSignup;
+use crate::middlewares::rush_nights::{enrich_interactions_by_night, interactions_by_night};
 use crate::models::Rushee::{
     Comment, IncomingComment, IncomingRushee, PisResponse, Rating, RusheeEdit, RusheeModel,
     StrippedRushee,
@@ -138,6 +139,7 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
         status_updated_at: None,
         status_updated_by: None,
         rush_number: None,
+        interactions_by_night: Vec::new(),
     };
 
     let result = collection.insert_one(new_rushee).await;
@@ -163,8 +165,24 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
  * gets all rushees in the following form: {"id", "name", "picture", "ratings" ...} (only the info needed for the homepage)
  * filters are passed in through the header
  */
+pub async fn get_rush_nights() -> Result<Json<Value>, StatusCode> {
+    match attendance::get_rush_nights_sorted().await {
+        Ok(nights) => Ok(Json(json!({
+            "status": "success",
+            "payload": nights
+        }))),
+        Err(_err) => Ok(Json(json!({
+            "status": "error",
+            "message": "could not load rush nights"
+        }))),
+    }
+}
+
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
+    let rush_nights = attendance::get_rush_nights_sorted()
+        .await
+        .unwrap_or_default();
 
     let result = collection
         .find({
@@ -181,6 +199,11 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
             while let Some(rushee) = cursor.next().await {
                 match rushee {
                     Ok(doc) => {
+                        let night_interactions = interactions_by_night(
+                            &rush_nights,
+                            &doc.attendance,
+                            &doc.comments,
+                        );
                         rushees.push(StrippedRushee {
                         name: format!("{} {}", doc.first_name, doc.last_name),
                             first_name: doc.first_name.clone(),
@@ -195,6 +218,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
                         attendance: doc.attendance,
                             registration_order: order,
                             pis_timeslot: Some(doc.pis_timeslot),
+                            interactions_by_night: night_interactions,
                         });
                         order += 1;
                     },
@@ -229,12 +253,15 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
 
     match result {
         Ok(insert_result) => match insert_result {
-            Some(rushee) => Ok(Json(
-                (json!({
+            Some(mut rushee) => {
+                if let Ok(rush_nights) = attendance::get_rush_nights_sorted().await {
+                    enrich_interactions_by_night(&mut rushee, &rush_nights);
+                }
+                Ok(Json(json!({
                     "status": "success",
                     "payload": rushee
-                })),
-            )),
+                })))
+            }
 
             None => Ok(Json(json!({
                 "status": "error",
