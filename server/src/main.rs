@@ -77,6 +77,7 @@ async fn main() {
         .route("/rushee/get-rushees", get(controllers::rushee::get_rushees).options(|| async { StatusCode::OK }))
         .route("/rushee/rush-nights", get(controllers::rushee::get_rush_nights).options(|| async { StatusCode::OK }))
         .route("/rushee/:id", get(controllers::rushee::get_rushee).options(|| async { StatusCode::OK }))
+        .route("/rushee/get-pis-questions/:id", get(controllers::rushee::get_pis_interview_questions).options(|| async { StatusCode::OK }))
         .route("/rushee/post-comment/:id",post(controllers::rushee::post_comment).options(|| async { StatusCode::OK }))
         .route("/rushee/post-pis/:id", post(controllers::rushee::post_pis).options(|| async { StatusCode::OK }))
         .route("/rushee/autosave-pis/:id", post(controllers::rushee::autosave_pis).options(|| async { StatusCode::OK }))
@@ -127,6 +128,7 @@ async fn main() {
     let admin_routes = Router::new()
         .route("/admin/add_pis_question", post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_question", post(controllers::admin::delete_pis_question).options(|| async { StatusCode::OK }))
+        .route("/admin/update_pis_question_category", post(controllers::admin::update_pis_question_category).options(|| async { StatusCode::OK }))
         // get_pis_questions is in public_routes for rushee registration
         .route("/admin/add_pis_timeslot", post(controllers::admin::add_pis_timeslot).options(|| async { StatusCode::OK }))
         .route("/admin/delete_pis_timeslot", post(controllers::admin::delete_pis_timeslot).options(|| async { StatusCode::OK }))

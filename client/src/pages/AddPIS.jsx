@@ -9,6 +9,7 @@ export default function AddPIS() {
 
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
+    const [questionCategory, setQuestionCategory] = useState("");
     const [timeslotTime, setTimeslotTime] = useState("");
     const [timeslotChange, setTimeslotChange] = useState(1);
     const [rushNightName, setRushNightName] = useState("");
@@ -76,8 +77,15 @@ export default function AddPIS() {
                     value={questionType}
                     onChange={(e) => setQuestionType(e.target.value)}
                 />
+                <input
+                    type="text"
+                    placeholder="Category (blank = always shown to every rushee)"
+                    className="border border-gray-300 rounded-md p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={questionCategory}
+                    onChange={(e) => setQuestionCategory(e.target.value)}
+                />
                 <button
-                    onClick={() => handleRequest("add_pis_question", { question, question_type: questionType })}
+                    onClick={() => handleRequest("add_pis_question", { question, question_type: questionType, category: questionCategory.trim() === "" ? undefined : questionCategory.trim() })}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-5 rounded-lg w-full transition duration-200"
                 >
                     Add Question

@@ -12,14 +12,14 @@ use mongodb::{
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use super::db;
 use crate::middlewares::timeHelpers::same_day;
 use crate::middlewares::valid::check_valid_comment;
 use crate::middlewares::{attendance, pis, timeHelpers, valid};
 use crate::models::misc::RushNight;
-use crate::models::pis::PISSignup;
+use crate::models::pis::{PISQuestion, PISSignup};
 use crate::middlewares::rush_nights::{enrich_interactions_by_night, interactions_by_night};
 use crate::models::Rushee::{
     Comment, IncomingComment, IncomingRushee, PisResponse, Rating, RusheeEdit, RusheeModel,
@@ -130,6 +130,7 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
             flex_window: payload.flex_window,
         },
         flex_window: payload.flex_window,
+        assigned_pis_questions: None,
         sorting_status: "UNSORTED".to_string(),
         sorting_notes: String::new(),
         sorting_tags: Vec::new(),
@@ -274,6 +275,162 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
             "message": "some network error occurred when fetching the rushee"
         }))),
     }
+}
+
+/// How long before a rushee's PIS timeslot their randomized bucket
+/// questions become visible/get assigned.
+const PIS_QUESTION_REVEAL_LEAD_MINUTES: i64 = 5;
+
+fn sort_pis_questions(questions: &mut Vec<PISQuestion>) {
+    questions.sort_by_key(|q| q.order.unwrap_or(i32::MAX));
+}
+
+/**
+ * Returns the PIS questions a rushee should be asked for their interview:
+ * - Any question with no category (fixed/logistics/bid-decision questions)
+ *   is always included.
+ * - Any question with a category is part of a random-draw bucket: exactly
+ *   one question per category is randomly chosen and, once chosen, persisted
+ *   permanently on the rushee's document so reloading or having multiple
+ *   brothers open the page doesn't re-roll the set.
+ * - The bucketed questions are hidden (not drawn, not returned) until
+ *   PIS_QUESTION_REVEAL_LEAD_MINUTES before the rushee's pis_timeslot.
+ */
+pub async fn get_pis_interview_questions(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
+    let rushee_connection = db::get_rushee_client().await;
+
+    let rushee = match rushee_connection.find_one(doc! {"gtid": id.clone()}).await {
+        Ok(Some(rushee)) => rushee,
+        Ok(None) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": format!("Rushee with GTID {} does not exist", id)
+            })))
+        }
+        Err(_err) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "some network error occurred when fetching the rushee"
+            })))
+        }
+    };
+
+    let questions_connection = db::get_pis_questions_client().await;
+    let mut all_questions: Vec<PISQuestion> = Vec::new();
+    match questions_connection.find(doc! {}).await {
+        Ok(mut cursor) => {
+            while let Some(question) = cursor.next().await {
+                if let Ok(q) = question {
+                    all_questions.push(q);
+                }
+            }
+        }
+        Err(_err) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "some error occurred while fetching pis questions"
+            })))
+        }
+    };
+
+    let fixed_questions: Vec<PISQuestion> = all_questions
+        .iter()
+        .filter(|q| q.category.is_none())
+        .cloned()
+        .collect();
+
+    let reveal_at_millis = rushee.pis_timeslot.timestamp_millis()
+        - (PIS_QUESTION_REVEAL_LEAD_MINUTES * 60 * 1000);
+    let now_millis = bson::DateTime::now().timestamp_millis();
+    let available = now_millis >= reveal_at_millis;
+
+    if !available {
+        let mut questions = fixed_questions;
+        sort_pis_questions(&mut questions);
+        return Ok(Json(json!({
+            "status": "success",
+            "payload": {
+                "available": false,
+                "reveal_at": rushee.pis_timeslot,
+                "questions": questions
+            }
+        })));
+    }
+
+    // Already assigned previously? Return the persisted set as-is.
+    if let Some(assigned) = rushee.assigned_pis_questions {
+        if !assigned.is_empty() {
+            let mut questions: Vec<PISQuestion> = fixed_questions
+                .into_iter()
+                .chain(assigned.into_iter())
+                .collect();
+            sort_pis_questions(&mut questions);
+            return Ok(Json(json!({
+                "status": "success",
+                "payload": {
+                    "available": true,
+                    "reveal_at": rushee.pis_timeslot,
+                    "questions": questions
+                }
+            })));
+        }
+    }
+
+    // First time within the reveal window: randomly draw one question per category.
+    let mut by_category: HashMap<String, Vec<PISQuestion>> = HashMap::new();
+    for question in all_questions.into_iter() {
+        if let Some(category) = &question.category {
+            by_category.entry(category.clone()).or_default().push(question);
+        }
+    }
+
+    // Scoped so the (non-Send) ThreadRng is dropped before any `.await` below.
+    let assigned_questions: Vec<PISQuestion> = {
+        let mut rng = rand::thread_rng();
+        let mut assigned_questions: Vec<PISQuestion> = Vec::new();
+        for (_category, bucket) in by_category.into_iter() {
+            if bucket.is_empty() {
+                continue;
+            }
+            let idx = rng.gen_range(0..bucket.len());
+            assigned_questions.push(bucket[idx].clone());
+        }
+        assigned_questions
+    };
+
+    let assigned_bson = match to_bson(&assigned_questions) {
+        Ok(b) => b,
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "failed to serialize assigned pis questions"
+            })))
+        }
+    };
+
+    let filter = doc! {"gtid": id.clone()};
+    let update = doc! { "$set": { "assigned_pis_questions": assigned_bson } };
+    if let Err(_err) = rushee_connection.update_one(filter, update).await {
+        return Ok(Json(json!({
+            "status": "error",
+            "message": "failed to persist assigned pis questions"
+        })));
+    }
+
+    let mut questions: Vec<PISQuestion> = fixed_questions
+        .into_iter()
+        .chain(assigned_questions.into_iter())
+        .collect();
+    sort_pis_questions(&mut questions);
+
+    Ok(Json(json!({
+        "status": "success",
+        "payload": {
+            "available": true,
+            "reveal_at": rushee.pis_timeslot,
+            "questions": questions
+        }
+    })))
 }
 
 /**

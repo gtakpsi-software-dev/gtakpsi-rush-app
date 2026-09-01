@@ -4,7 +4,7 @@ export default function SuccessPage({ title, description, link, gtid }) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(`https://www.gtakpsi-rush.com/rushee/${gtid}/${link}`).then(() => {
+        navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${link}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
         });
@@ -41,7 +41,7 @@ export default function SuccessPage({ title, description, link, gtid }) {
                     {/* Code-style link display */}
                     <div className="bg-apple-gray-100 rounded-apple p-4 border border-apple-gray-200">
                         <code className="text-apple-footnote text-apple-gray-800 font-mono break-all leading-relaxed">
-                            {`https://www.gtakpsi-rush.com/rushee/${gtid}/${link}`}
+                            {`${window.location.origin}/rushee/${gtid}/${link}`}
                         </code>
                     </div>
                 </div>

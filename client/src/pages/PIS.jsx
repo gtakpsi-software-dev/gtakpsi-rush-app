@@ -45,6 +45,9 @@ export default function PIS() {
     const [loading, setLoading] = useState(true);
     const [rushee, setRushee] = useState();
     const [questions, setQuestions] = useState([]);
+    const [questionsAvailable, setQuestionsAvailable] = useState(true);
+    const [revealAt, setRevealAt] = useState(null);
+    const [secondsUntilReveal, setSecondsUntilReveal] = useState(0);
     const [answers, setAnswers] = useState({}); // Stores answers for each question
     const [brotherA, setBrotherA] = useState({ firstName: '', lastName: '' });
     const [brotherB, setBrotherB] = useState({ firstName: '', lastName: '' });
@@ -221,17 +224,16 @@ export default function PIS() {
                             }
                         });
 
-                    // Fetch PIS questions
-                    await axios.get(`${api}/admin/get_pis_questions`)
+                    // Fetch this rushee's PIS questions (fixed questions always included;
+                    // randomized category questions only once within 5 min of their PIS time).
+                    await axios.get(`${api}/rushee/get-pis-questions/${gtid}`)
                         .then((response) => {
                             if (response.data.status === "success") {
-                                // Sort questions by order field (ascending)
-                                const sortedQuestions = [...response.data.payload].sort((a, b) => {
-                                    const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
-                                    const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
-                                    return orderA - orderB;
-                                });
-                                setQuestions(sortedQuestions);
+                                const { available, reveal_at, questions: fetchedQuestions } = response.data.payload;
+                                // Questions already come back sorted by `order` from the server.
+                                setQuestions(fetchedQuestions);
+                                setQuestionsAvailable(available);
+                                setRevealAt(reveal_at ? new Date(reveal_at) : null);
                             } else {
                                 navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`);
                             }
@@ -249,6 +251,32 @@ export default function PIS() {
             fetch();
         }
     }, [loading, api, gtid, navigate]);
+
+    // While the randomized questions are still hidden, keep a live countdown and
+    // re-fetch from the server once time's up so the assigned questions get drawn.
+    useEffect(() => {
+        if (loading || questionsAvailable || !revealAt) return;
+
+        const tick = () => {
+            const secondsLeft = Math.max(0, Math.round((revealAt.getTime() - Date.now()) / 1000));
+            setSecondsUntilReveal(secondsLeft);
+
+            if (secondsLeft <= 0) {
+                axios.get(`${api}/rushee/get-pis-questions/${gtid}`).then((response) => {
+                    if (response.data.status === "success") {
+                        const { available, reveal_at, questions: fetchedQuestions } = response.data.payload;
+                        setQuestions(fetchedQuestions);
+                        setQuestionsAvailable(available);
+                        setRevealAt(reveal_at ? new Date(reveal_at) : null);
+                    }
+                });
+            }
+        };
+
+        tick();
+        const interval = setInterval(tick, 1000);
+        return () => clearInterval(interval);
+    }, [loading, questionsAvailable, revealAt, api, gtid]);
 
     // Handle answer input changes (for text areas - typing handled inside CollaborativeTextarea)
     const handleAnswerChange = (question, answer, meta = {}) => {
@@ -403,6 +431,31 @@ export default function PIS() {
         <div>
             {loading ? (
                 <Loader />
+            ) : !questionsAvailable ? (
+                <div className="min-h-screen w-full bg-white overflow-y-auto">
+                    <Navbar />
+                    <div className="pt-24 p-4 flex flex-col items-center justify-center text-center">
+                        <div className="max-w-md">
+                            <h1 className="text-apple-title2 font-normal text-black mb-3">
+                                Interview questions are not ready yet
+                            </h1>
+                            <p className="text-apple-body text-apple-gray-500 mb-6">
+                                This rushee&apos;s randomized interview questions unlock 5 minutes before their PIS. You can still see the fixed questions below in the meantime.
+                            </p>
+                            <div className="text-3xl font-light text-black mb-8 tabular-nums">
+                                {Math.floor(secondsUntilReveal / 60)}:{String(secondsUntilReveal % 60).padStart(2, '0')}
+                            </div>
+                            {questions.length > 0 && (
+                                <div className="text-left bg-apple-gray-50 rounded-apple-xl p-5 space-y-3">
+                                    <h2 className="text-apple-headline font-normal text-black mb-2">Available now</h2>
+                                    {questions.map((q, idx) => (
+                                        <p key={idx} className="text-apple-body text-apple-gray-700">{q.question}</p>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             ) : (
                 <div className="min-h-screen w-full bg-white overflow-y-auto">
                     <Navbar />

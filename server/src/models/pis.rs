@@ -1,12 +1,19 @@
 use serde::{Deserialize, Serialize};
 use bson::DateTime;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PISQuestion {
     pub question: String,
     pub question_type: String,
     #[serde(default)]
     pub order: Option<i32>,
+    /// Bucket/category this question belongs to for randomized PIS assignment.
+    /// `None` means the question is fixed and always shown to every rushee
+    /// (e.g. logistics/MC questions, or brother bid-decision questions).
+    /// `Some(category)` means it's part of a category bank that one question
+    /// gets randomly drawn from per rushee.
+    #[serde(default)]
+    pub category: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

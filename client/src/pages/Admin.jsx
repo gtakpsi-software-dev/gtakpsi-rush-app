@@ -21,6 +21,10 @@ export default function Admin() {
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
     const [questionOrder, setQuestionOrder] = useState("");
+    const [questionCategory, setQuestionCategory] = useState("");
+    const [pisQuestions, setPisQuestions] = useState([]);
+    const [pisQuestionsLoading, setPisQuestionsLoading] = useState(false);
+    const [categoryEdits, setCategoryEdits] = useState({}); // question -> in-progress category text
     const [timeslotTime, setTimeslotTime] = useState("");
     const [timeslotChange, setTimeslotChange] = useState(1);
     const [rushNightName, setRushNightName] = useState("");
@@ -206,6 +210,64 @@ export default function Admin() {
             fetchInitial();
         }
     }, [loading, navigate, rusheeApiBase]);
+
+    const fetchPisQuestions = async () => {
+        setPisQuestionsLoading(true);
+        try {
+            const response = await axios.get(`${apiBase}/get_pis_questions`);
+            if (response.data.status === "success") {
+                const sorted = [...response.data.payload].sort((a, b) => {
+                    const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+                    const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+                    return orderA - orderB;
+                });
+                setPisQuestions(sorted);
+            }
+        } catch (error) {
+            toast.error("Failed to load PIS questions", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        }
+        setPisQuestionsLoading(false);
+    };
+
+    useEffect(() => {
+        fetchPisQuestions();
+    }, []);
+
+    const saveQuestionCategory = async (q) => {
+        const rawCategory = (categoryEdits[q.question] ?? q.category ?? "").trim();
+        const category = rawCategory === "" ? null : rawCategory;
+        try {
+            const response = await axios.post(`${apiBase}/update_pis_question_category`, {
+                question: q.question,
+                question_type: q.question_type,
+                category,
+            });
+            if (response.data.status === "success") {
+                toast.success("Category updated!", {
+                    position: "top-center",
+                    autoClose: 2000,
+                    theme: "dark",
+                });
+                fetchPisQuestions();
+            } else {
+                toast.error(response.data.message || "Failed to update category", {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "An error occurred", {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        }
+    };
 
     // Filter rushees based on search
     useEffect(() => {
@@ -1620,24 +1682,78 @@ export default function Admin() {
                         setQuestionOrder(value === "" ? "" : Number(value));
                     }}
                 />
+                <input
+                    type="text"
+                                        placeholder="Category (leave blank for a fixed, always-shown question)"
+                                        className="input-apple text-apple-body"
+                    value={questionCategory}
+                    onChange={(e) => setQuestionCategory(e.target.value)}
+                />
+                <p className="text-apple-caption text-apple-gray-400">
+                    Questions with the same category form a random-draw bucket &mdash; one is randomly picked per category, per rushee, 5 minutes before their PIS. Leave category blank for logistics/MC questions or anything that should always be asked.
+                </p>
                                 </div>
                                 <div className="flex gap-3">
                 <button
-                                        onClick={() => {
+                                        onClick={async () => {
                                             const order = questionOrder === "" ? undefined : Number(questionOrder);
-                                            handleRequest("add_pis_question", { question, question_type: questionType, order }, "post", "Question added!");
+                                            const category = questionCategory.trim() === "" ? undefined : questionCategory.trim();
+                                            await handleRequest("add_pis_question", { question, question_type: questionType, order, category }, "post", "Question added!");
+                                            fetchPisQuestions();
                                         }}
                                         className="flex-1 bg-black text-white py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-800 transition-all duration-200"
                                     >
                                         Add Question
                 </button>
                 <button
-                                        onClick={() => handleRequest("delete_pis_question", { question, question_type: questionType }, "post", "Question deleted!")}
+                                        onClick={async () => {
+                                            await handleRequest("delete_pis_question", { question, question_type: questionType }, "post", "Question deleted!");
+                                            fetchPisQuestions();
+                                        }}
                                         className="flex-1 bg-white text-red-600 py-3 px-4 rounded-apple-xl text-apple-body font-light border border-red-200 hover:bg-red-50 transition-all duration-200"
                 >
                     Delete Question
                 </button>
             </div>
+
+                                {/* Question bank with category assignment */}
+                                <div className="mt-6 pt-6 border-t border-apple-gray-200">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-apple-body font-normal text-black">Question Bank &amp; Categories</h4>
+                                        <button
+                                            onClick={fetchPisQuestions}
+                                            className="text-apple-caption text-apple-gray-500 hover:text-black transition-colors"
+                                        >
+                                            {pisQuestionsLoading ? "Refreshing..." : "Refresh"}
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                                        {pisQuestions.map((q, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 p-3 bg-apple-gray-50 rounded-apple-lg">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-apple-body text-black truncate">{q.question}</p>
+                                                    <p className="text-apple-caption text-apple-gray-400">{q.question_type} &middot; order {q.order ?? "—"}</p>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Fixed (no category)"
+                                                    className="input-apple text-apple-caption w-48"
+                                                    value={categoryEdits[q.question] ?? q.category ?? ""}
+                                                    onChange={(e) => setCategoryEdits((prev) => ({ ...prev, [q.question]: e.target.value }))}
+                                                />
+                                                <button
+                                                    onClick={() => saveQuestionCategory(q)}
+                                                    className="text-apple-caption bg-black text-white px-3 py-2 rounded-apple-lg hover:bg-apple-gray-800 transition-colors whitespace-nowrap"
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {pisQuestions.length === 0 && !pisQuestionsLoading && (
+                                            <p className="text-apple-caption text-apple-gray-400">No PIS questions yet.</p>
+                                        )}
+                                    </div>
+                                </div>
             </div>
 
                             {/* PIS Timeslots */}

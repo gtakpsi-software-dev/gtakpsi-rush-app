@@ -15,54 +15,64 @@
         "order": 3
     },
     {
-        "question": "Tell me/us about yourself?",
+        "question": "Bucket 1 Question 1",
         "question_type": "Long",
-        "order": 4
+        "order": 4,
+        "category": "bucket-1"
     },
     {
-        "question": "Could you share an experience where you truly understood the importance of service?",
+        "question": "Bucket 1 Question 2",
         "question_type": "Long",
-        "order": 5
+        "order": 5,
+        "category": "bucket-1"
     },
     {
-        "question": "Why do you want to join AKPsi? ",
+        "question": "Bucket 2 Question 1",
         "question_type": "Long",
-        "order": 6
+        "order": 6,
+        "category": "bucket-2"
     },
     {
-        "question": "Could you describe a time when you took steps to promote and uphold diversity, equity and inclusion principles?",
+        "question": "Bucket 2 Question 2",
         "question_type": "Long",
-        "order": 7
+        "order": 7,
+        "category": "bucket-2"
     },
     {
-        "question": "What was your memorable conversation or the coolest thing you learned about a brother during Rush?",
+        "question": "Bucket 3 Question 1",
         "question_type": "Long",
-        "order": 8
+        "order": 8,
+        "category": "bucket-3"
     },
     {
-        "question": "Could you describe a challenging experience or time that led to significant personal growth for you?",
+        "question": "Bucket 3 Question 2",
         "question_type": "Long",
-        "order": 9
+        "order": 9,
+        "category": "bucket-3"
     },
     {
-        "question": "Who's your biggest role model and why?",
+        "question": "Bucket 4 Question 1",
         "question_type": "Long",
-        "order": 10
+        "order": 10,
+        "category": "bucket-4"
     },
     {
-        "question": "If you could have any superpower what would it be and why?",
+        "question": "Bucket 4 Question 2",
         "question_type": "Long",
-        "order": 11
+        "order": 11,
+        "category": "bucket-4"
     },
     {
-        "question": "Tell us about a recent hobby you've picked up.",
+        "question": "Bucket 5 Question 1",
         "question_type": "Long",
-        "order": 12
+        "order": 12,
+        "category": "bucket-5"
     },
     {
-        "question": "(Optional) If you could have any superpower what would it be and why?",
+        "question": "Bucket 5 Question 2",
         "question_type": "Long",
-        "order": 13
+        "order": 13,
+        "category": "bucket-5"
     },
     {
         "question": "[BROTHER A] Would you extend this rushee a bid?",

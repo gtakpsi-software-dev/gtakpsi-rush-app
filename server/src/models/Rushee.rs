@@ -1,7 +1,7 @@
 use bson::DateTime;
 use serde::{Deserialize, Serialize};
 
-use super::{misc::RushNight, pis::{PISSignup, PISTimeslot}};
+use super::{misc::RushNight, pis::{PISQuestion, PISSignup, PISTimeslot}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RusheeEdit {
@@ -124,6 +124,11 @@ pub struct RusheeModel {
     pub access_code: String,
     pub pis_signup: PISSignup,
     pub flex_window: bool,
+    /// The randomly-drawn category questions assigned to this rushee for their PIS,
+    /// persisted the first time they're generated (5 min before pis_timeslot) so the
+    /// same set is shown on every subsequent load rather than re-rolled.
+    #[serde(default)]
+    pub assigned_pis_questions: Option<Vec<PISQuestion>>,
     #[serde(default, skip_deserializing)]
     pub interactions_by_night: Vec<NightInteractionSummary>,
 }
