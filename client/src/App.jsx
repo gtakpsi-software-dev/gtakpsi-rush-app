@@ -77,19 +77,19 @@ function AppInner() {
       {!isMidtermMode && (
         <div className="fixed z-20 bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-apple-gray-200 text-center py-3">
           <p className="text-apple-footnote text-apple-gray-600 font-light">
-            Contact us at{" "}   
+            Contact us at{" "}
             <a
-              href="mailto:vmiriyapalli@gatech.edu"
+              href="mailto:gavinchen@gatech.edu"
               className="text-black font-normal hover:text-apple-gray-600 transition-colors duration-200 no-underline hover:underline"
             >
-              vmiriyapalli@gatech.edu
+              gavinchen@gatech.edu
             </a>
-            {" "}or{" "} 
+            {" "}or{" "}
             <a
-              href="mailto:spanchamia6@gatech.edu"
+              href="mailto:svuduta6@gatech.edu"
               className="text-black font-normal hover:text-apple-gray-600 transition-colors duration-200 no-underline hover:underline"
             >
-              spanchamia6@gatech.edu
+              svuduta6@gatech.edu
             </a>
           </p>
         </div>
