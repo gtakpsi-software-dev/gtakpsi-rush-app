@@ -170,6 +170,61 @@ impl FirebaseAuth {
     }
 
     /// Verify token for bidcom access (allows both admin and bidcom users)
+    /// Verifies the token is a valid, unexpired Firebase ID token for this
+    /// project -- with NO role/allowlist gate. Use for endpoints any signed-in
+    /// brother should be able to hit (e.g. "my own" data), as opposed to
+    /// verify_token/verify_token_bidcom which additionally require
+    /// admin/bidcom/allowlist status.
+    pub async fn verify_token_any_brother(&self, id_token: &str) -> Result<FirebaseUser, AuthError> {
+        let header = decode_header(id_token).map_err(|_| AuthError::InvalidToken)?;
+        let kid = header.kid.ok_or(AuthError::InvalidToken)?;
+
+        let certs = self.fetch_certs().await.map_err(|_| AuthError::Internal)?;
+        let cert_pem = certs.get(&kid).ok_or(AuthError::InvalidToken)?;
+
+        let decoding_key =
+            DecodingKey::from_rsa_pem(cert_pem.as_bytes()).map_err(|_| AuthError::InvalidToken)?;
+
+        let mut validation = Validation::new(Algorithm::RS256);
+        validation.set_audience(&[self.project_id.clone()]);
+        validation.set_issuer(&[format!(
+            "https://securetoken.google.com/{}",
+            self.project_id
+        )]);
+        validation.validate_exp = true;
+        validation.required_spec_claims.insert("sub".to_string());
+
+        let token_data = decode::<FirebaseClaims>(id_token, &decoding_key, &validation)
+            .map_err(|_| AuthError::InvalidToken)?;
+
+        let claims = token_data.claims;
+        let is_admin = claims
+            .custom
+            .get("admin")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let is_bidcom = claims
+            .custom
+            .get("bidcom")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let email = claims.email.clone();
+        let allowlist_ok = email
+            .as_ref()
+            .map(|e| self.allowlist.contains(&e.to_ascii_lowercase()))
+            .unwrap_or(false);
+
+        // No role check here -- any valid, unexpired token for this Firebase
+        // project is accepted. Since only brothers have accounts in this
+        // project (rushees never sign in), a valid token means a brother.
+        Ok(FirebaseUser {
+            uid: claims.sub,
+            email,
+            is_admin: is_admin || allowlist_ok,
+            is_bidcom,
+        })
+    }
+
     pub async fn verify_token_bidcom(&self, id_token: &str) -> Result<FirebaseUser, AuthError> {
         let header = decode_header(id_token).map_err(|_| AuthError::InvalidToken)?;
         let kid = header.kid.ok_or(AuthError::InvalidToken)?;
@@ -523,6 +578,41 @@ where
         AuthError::NotAdmin => StatusCode::FORBIDDEN,
         _ => StatusCode::UNAUTHORIZED,
     })?;
+
+    req.extensions_mut().insert(user);
+    Ok(next.run(req).await)
+}
+
+/// Middleware that allows ANY signed-in brother (no admin/bidcom/allowlist
+/// gate) -- for endpoints like "my own PIS assignments" that every brother
+/// needs, not just admins.
+pub async fn require_any_brother<B>(
+    State(auth): State<Arc<FirebaseAuth>>,
+    mut req: axum::http::Request<B>,
+    next: Next<B>,
+) -> Result<axum::response::Response, StatusCode>
+where
+    B: Send + 'static,
+{
+    let token = req
+        .headers()
+        .get(axum::http::header::AUTHORIZATION)
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| {
+            if let Some(rest) = s.strip_prefix("Bearer ") {
+                Some(rest.to_string())
+            } else if let Some(rest) = s.strip_prefix("bearer ") {
+                Some(rest.to_string())
+            } else {
+                None
+            }
+        })
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    let user = auth
+        .verify_token_any_brother(&token)
+        .await
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)

@@ -114,6 +114,16 @@ async fn main() {
         // Comment visibility check - public route for rushee page
         .route("/brother/comment-visibility/status", get(controllers::admin::get_comment_visibility_status).options(|| async { StatusCode::OK }));
 
+    // Routes accessible by any signed-in brother (no admin/bidcom/allowlist
+    // gate) -- e.g. viewing your own PIS assignments.
+    let brother_routes = Router::new()
+        .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
+        .route_layer(middleware::from_fn_with_state(
+            firebase_auth.clone(),
+            middlewares::auth::require_any_brother,
+        ))
+        .with_state(firebase_auth.clone());
+
     // Routes accessible by both admin and bid committee
     let bidcom_routes = Router::new()
         .route("/bidcom/rushees/sorting", get(controllers::admin::get_sorting_rushees).options(|| async { StatusCode::OK }))
@@ -136,7 +146,7 @@ async fn main() {
         .route("/admin/add-rush-night", post(controllers::admin::add_rush_night).options(|| async { StatusCode::OK }))
         .route("/admin/delete_rush_night", post(controllers::admin::delete_rush_night).options(|| async { StatusCode::OK }))
         .route("/admin/pis-signup/:id", post(controllers::admin::brother_pis_sign_up).options(|| async { StatusCode::OK }))
-        .route("/admin/get-brother-pis", post(controllers::admin::get_brother_pis).options(|| async { StatusCode::OK }))
+        // get-brother-pis moved to brother_routes (any signed-in brother, not admin-only)
         .route("/admin/export-rushee-numbers", get(controllers::admin::export_rushee_numbers).options(|| async { StatusCode::OK }))
         .route("/admin/export-rushee-info", get(controllers::admin::export_rushee_personal_info).options(|| async { StatusCode::OK }))
         .route("/admin/rushees/sorting", get(controllers::admin::get_sorting_rushees).options(|| async { StatusCode::OK }))
@@ -175,6 +185,7 @@ async fn main() {
         .with_state(firebase_auth.clone());
 
     let app = public_routes
+        .merge(brother_routes)
         .merge(bidcom_routes)
         .merge(admin_routes)
         // API key middleware - validates X-API-Key header on all requests
