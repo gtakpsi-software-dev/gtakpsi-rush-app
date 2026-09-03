@@ -180,7 +180,7 @@ export default function RusheePreviewCard() {
                                         key={idx}
                                         className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"
                                     >
-                                        {rating.name}: {((rating.value / 5) * 100).toFixed(0)}%
+                                        {rating.name}: {rating.value.toFixed(2)}/5
                                     </span>
                                 ))}
                             </div>

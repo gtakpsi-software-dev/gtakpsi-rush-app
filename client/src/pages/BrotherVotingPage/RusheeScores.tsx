@@ -36,7 +36,7 @@ export default function RusheeScores() {
                             <span className={`text-lg font-semibold ${
                                 isGood ? 'text-green-600' : isMedium ? 'text-amber-600' : 'text-red-600'
                             }`}>
-                                {percentage.toFixed(0)}%
+                                {rating.value.toFixed(2)}/5
                             </span>
                         </div>
                         <div className="w-full h-3 bg-apple-gray-200 rounded-full overflow-hidden">
@@ -59,7 +59,7 @@ export default function RusheeScores() {
                             Overall Score
                         </span>
                         <span className="text-2xl font-bold text-black">
-                            {(rushee.ratings.reduce((sum, r) => sum + r.value, 0) / rushee.ratings.length / 5 * 100).toFixed(0)}%
+                            {(rushee.ratings.reduce((sum, r) => sum + r.value, 0) / rushee.ratings.length).toFixed(2)}/5
                         </span>
                     </div>
                 </div>

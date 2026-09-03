@@ -208,7 +208,7 @@ export default function MyPISPage() {
                                                                         />
                                                                     </div>
                                                                     <span className="text-apple-caption1 text-black font-normal">
-                                                                        {((rating.value / 5) * 100).toFixed(0)}%
+                                                                        {rating.value.toFixed(2)}/5
                                                                     </span>
                                                                 </div>
                                                             </div>
