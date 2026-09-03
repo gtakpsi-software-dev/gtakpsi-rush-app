@@ -39,6 +39,17 @@ const getStableUserId = (backendId) => {
     return newId;
 };
 
+// Backend dates come back as BSON extended JSON ({ $date: { $numberLong: "..." } })
+// rather than a plain ISO string, so `new Date(value)` alone would produce an
+// Invalid Date. Handle both shapes.
+const parseServerDate = (value) => {
+    if (!value) return null;
+    const millis = value?.$date?.$numberLong;
+    if (millis !== undefined) return new Date(parseInt(millis, 10));
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
+};
+
 export default function PIS() {
     const { gtid } = useParams();
 
@@ -233,7 +244,7 @@ export default function PIS() {
                                 // Questions already come back sorted by `order` from the server.
                                 setQuestions(fetchedQuestions);
                                 setQuestionsAvailable(available);
-                                setRevealAt(reveal_at ? new Date(reveal_at) : null);
+                                setRevealAt(parseServerDate(reveal_at));
                             } else {
                                 navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`);
                             }
@@ -267,7 +278,7 @@ export default function PIS() {
                         const { available, reveal_at, questions: fetchedQuestions } = response.data.payload;
                         setQuestions(fetchedQuestions);
                         setQuestionsAvailable(available);
-                        setRevealAt(reveal_at ? new Date(reveal_at) : null);
+                        setRevealAt(parseServerDate(reveal_at));
                     }
                 });
             }
@@ -443,7 +454,9 @@ export default function PIS() {
                                 This rushee&apos;s randomized interview questions unlock 5 minutes before their PIS. You can still see the fixed questions below in the meantime.
                             </p>
                             <div className="text-3xl font-light text-black mb-8 tabular-nums">
-                                {Math.floor(secondsUntilReveal / 60)}:{String(secondsUntilReveal % 60).padStart(2, '0')}
+                                {Number.isFinite(secondsUntilReveal)
+                                    ? `${Math.floor(secondsUntilReveal / 60)}:${String(secondsUntilReveal % 60).padStart(2, '0')}`
+                                    : "--:--"}
                             </div>
                             {questions.length > 0 && (
                                 <div className="text-left bg-apple-gray-50 rounded-apple-xl p-5 space-y-3">
