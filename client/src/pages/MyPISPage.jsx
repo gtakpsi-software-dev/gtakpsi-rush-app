@@ -187,35 +187,6 @@ export default function MyPISPage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
-                                            {/* Ratings */}
-                                            {rushee.ratings && rushee.ratings.length > 0 && (
-                                                <div className="mt-5 pt-5 border-t border-apple-gray-200">
-                                                    <p className="text-apple-footnote text-apple-gray-600 font-light mb-3 uppercase tracking-wide">
-                                                        Current Ratings
-                                                    </p>
-                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                                        {rushee.ratings.map((rating, rIdx) => (
-                                                            <div key={rIdx} className="bg-apple-gray-50 rounded-apple p-3">
-                                                                <p className="text-apple-caption1 text-apple-gray-600 font-light mb-1">
-                                                                    {rating.name}
-                                                                </p>
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="flex-1 bg-apple-gray-200 rounded-full h-1.5">
-                                                                        <div 
-                                                                            className="bg-black h-1.5 rounded-full"
-                                                                            style={{ width: `${(rating.value / 5) * 100}%` }}
-                                                                        />
-                                                                    </div>
-                                                                    <span className="text-apple-caption1 text-black font-normal">
-                                                                        {rating.value.toFixed(2)}/5.00
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
                                         
                                         {/* Footer - Schedule & Action */}
