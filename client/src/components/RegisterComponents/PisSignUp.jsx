@@ -120,7 +120,7 @@ export default function PisSignUp(props) {
                                                                         Only select Monday if you absolutely cannot attend Sunday.
                                                                     </p>
                                                                     <p className="text-apple-caption2 text-yellow-700 font-light mt-1">
-                                                                        Email <a href="mailto:vmiryapalli@gatech.edu" className="underline font-medium">vmiryapalli@gatech.edu</a> with your reason.
+                                                                        Email <a href="mailto:svuduta6@gatech.edu" className="underline font-medium">svuduta6@gatech.edu</a> with your reason.
                                                                     </p>
                                                                 </div>
                                                             </div>
