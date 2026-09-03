@@ -557,12 +557,16 @@ export default function RusheeZoom() {
                                                         </p>
                                                     </>
                                                 )}
-                                                <p className="text-apple-gray-600 font-light">
-                                                    <span className="text-black font-normal">Major:</span> {rushee.major}
-                                                </p>
-                                                <p className="text-apple-gray-600 font-light">
-                                                    <span className="text-black font-normal">Class:</span> {rushee.class}
-                                                </p>
+                                                {!isBidCommitteeMode() && (
+                                                    <>
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">Major:</span> {rushee.major}
+                                                        </p>
+                                                        <p className="text-apple-gray-600 font-light">
+                                                            <span className="text-black font-normal">Class:</span> {rushee.class}
+                                                        </p>
+                                                    </>
+                                                )}
                                                 {!isBidCommitteeMode() && (
                                                     <p className="text-apple-gray-600 font-light">
                                                         <span className="text-black font-normal">Housing:</span> {rushee.housing}

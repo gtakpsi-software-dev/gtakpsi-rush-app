@@ -301,14 +301,6 @@ export default function BidCommitteeDashboard(props) {
                                                             ))}
                                                         </div>
                                                         
-                                                        <p className="text-apple-footnote text-apple-gray-600 font-light mb-1 truncate">
-                                                            {rushee.major}
-                                                        </p>
-                                                        
-                                                        <p className="text-apple-footnote text-apple-gray-600 font-light mb-1 truncate">
-                                                            {rushee.class}
-                                                        </p>
-
                                                         <RusheeInteractionsByNight
                                                             nights={rushee.interactions_by_night}
                                                             compact
