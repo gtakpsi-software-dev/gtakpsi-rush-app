@@ -58,7 +58,6 @@ export default function PIS() {
     const [questions, setQuestions] = useState([]);
     const [questionsAvailable, setQuestionsAvailable] = useState(true);
     const [revealAt, setRevealAt] = useState(null);
-    const [secondsUntilReveal, setSecondsUntilReveal] = useState(0);
     const [answers, setAnswers] = useState({}); // Stores answers for each question
     const [brotherA, setBrotherA] = useState({ firstName: '', lastName: '' });
     const [brotherB, setBrotherB] = useState({ firstName: '', lastName: '' });
@@ -263,14 +262,13 @@ export default function PIS() {
         }
     }, [loading, api, gtid, navigate]);
 
-    // While the randomized questions are still hidden, keep a live countdown and
-    // re-fetch from the server once time's up so the assigned questions get drawn.
+    // While the randomized questions are still hidden, poll and re-fetch from
+    // the server once time's up so the assigned questions get drawn.
     useEffect(() => {
         if (loading || questionsAvailable || !revealAt) return;
 
         const tick = () => {
             const secondsLeft = Math.max(0, Math.round((revealAt.getTime() - Date.now()) / 1000));
-            setSecondsUntilReveal(secondsLeft);
 
             if (secondsLeft <= 0) {
                 axios.get(`${api}/rushee/get-pis-questions/${gtid}`).then((response) => {
@@ -453,10 +451,10 @@ export default function PIS() {
                             <p className="text-apple-body text-apple-gray-500 mb-6">
                                 This rushee&apos;s randomized interview questions unlock 5 minutes before their PIS. You can still see the fixed questions below in the meantime.
                             </p>
-                            <div className="text-3xl font-light text-black mb-8 tabular-nums">
-                                {Number.isFinite(secondsUntilReveal)
-                                    ? `${Math.floor(secondsUntilReveal / 60)}:${String(secondsUntilReveal % 60).padStart(2, '0')}`
-                                    : "--:--"}
+                            <div className="text-2xl font-light text-black mb-8">
+                                {revealAt
+                                    ? `Unlocks at ${revealAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+                                    : "Unlocks 5 minutes before PIS"}
                             </div>
                             {questions.length > 0 && (
                                 <div className="text-left bg-apple-gray-50 rounded-apple-xl p-5 space-y-3">
