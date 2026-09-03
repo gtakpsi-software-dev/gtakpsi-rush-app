@@ -607,7 +607,7 @@ export default function RusheeZoom() {
                                                         style={{ width: `${(rating.value / 5) * 100}%` }}
                                                     ></div>
                                                 </div>
-                                                <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${rating.value.toFixed(2)}/5`}</p>
+                                                <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${rating.value.toFixed(2)}/5.00`}</p>
                                             </div>
                                         ))}
                                     </div>
