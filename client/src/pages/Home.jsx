@@ -34,7 +34,7 @@ export default function Home() {
                             </>
                         ) : (
                             <>
-                                Join Georgia Tech's premier business fraternity for Spring 2026 Rush.<br />
+                                Join Georgia Tech's premier business fraternity for Fall 2026 Rush.<br />
                                 Experience professional development, networking, and brotherhood.
                             </>
                         )}
