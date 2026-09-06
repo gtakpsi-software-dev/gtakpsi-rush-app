@@ -1,10 +1,10 @@
 const RUSH_TZ = "America/New_York";
 
+// Fall 2026 rush nights. Times are 7:00 PM ET (23:00 UTC during EDT).
 const CANONICAL_RUSH_NIGHTS = [
-    { name: "Night 1", time: "2026-01-28T22:00:00.000Z" },
-    { name: "Night 2", time: "2026-01-29T22:00:00.000Z" },
-    { name: "Closed Night", time: "2026-02-03T22:00:00.000Z" },
-    { name: "Dev Night", time: "2099-12-31T22:00:00.000Z" },
+    { name: "Night 1", time: "2026-09-09T23:00:00.000Z" },
+    { name: "Night 2", time: "2026-09-10T23:00:00.000Z" },
+    { name: "Closed Night", time: "2026-09-15T23:00:00.000Z" },
 ];
 
 function rushNightTime(night) {

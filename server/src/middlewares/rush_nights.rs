@@ -7,22 +7,19 @@ use crate::models::Rushee::{Comment, NightInteractionSummary, RusheeModel};
 /// Default rush nights for interaction display (merged with Mongo when missing).
 /// Times are used for ordering and same-day matching when not overridden by DB.
 fn canonical_rush_nights() -> Vec<RushNight> {
+    // Fall 2026 rush nights. Times are 7:00 PM ET (23:00 UTC during EDT).
     vec![
         RushNight {
             name: "Night 1".to_string(),
-            time: DateTime::parse_rfc3339_str("2026-01-28T22:00:00Z").unwrap(),
+            time: DateTime::parse_rfc3339_str("2026-09-09T23:00:00Z").unwrap(),
         },
         RushNight {
             name: "Night 2".to_string(),
-            time: DateTime::parse_rfc3339_str("2026-01-29T22:00:00Z").unwrap(),
+            time: DateTime::parse_rfc3339_str("2026-09-10T23:00:00Z").unwrap(),
         },
         RushNight {
             name: "Closed Night".to_string(),
-            time: DateTime::parse_rfc3339_str("2026-02-03T22:00:00Z").unwrap(),
-        },
-        RushNight {
-            name: "Dev Night".to_string(),
-            time: DateTime::parse_rfc3339_str("2099-12-31T22:00:00Z").unwrap(),
+            time: DateTime::parse_rfc3339_str("2026-09-15T23:00:00Z").unwrap(),
         },
     ]
 }
