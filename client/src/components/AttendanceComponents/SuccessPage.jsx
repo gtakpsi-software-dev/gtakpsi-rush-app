@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SuccessPage() {
+export default function SuccessPage(props) {
 
     return (
         <div className="min-h-screen w-full bg-white flex items-center justify-center p-4">
@@ -31,6 +31,15 @@ export default function SuccessPage() {
                 <p className="text-apple-title2 text-apple-gray-600 font-light leading-relaxed">
                     Make sure to grab a name tag and proceed inside the room.
                 </p>
+
+                {props.goBack && (
+                    <button
+                        onClick={props.goBack}
+                        className="btn-apple px-8 py-4 text-apple-headline font-light mt-10"
+                    >
+                        Back
+                    </button>
+                )}
             </div>
         </div>
     )

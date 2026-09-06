@@ -187,7 +187,7 @@ export default function Attendance() {
                         rushee={rushee}
                         goBack={goBack}
                         checkIn={checkIn}
-                    /> : <SuccessPage/>}
+                    /> : <SuccessPage goBack={goBack} />}
 
                 </div>}
 
