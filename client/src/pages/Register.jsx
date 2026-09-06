@@ -249,7 +249,7 @@ export default function Register() {
         return (
             <SuccessPage
                 title={"Congrats! You've successfully registered for AKPsi Fall 2026 Rush."}
-                description={"If you need to reschedule your PIS, change your information, or update your picture, please use the link below. You can close this page when you are done."}
+                description={"If you need to change your information or update your picture, please use the link below. To reschedule your PIS, reach out to us directly. You can close this page when you are done."}
                 gtid={gtidVal}
                 link={accessCode}
             />
