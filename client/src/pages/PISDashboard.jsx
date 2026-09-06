@@ -8,10 +8,12 @@ import MyError from "../components/Error";
 import Badges from "../components/Badge";
 
 import { verifyUser } from "../js/verifications";
+import { useCommentVisibility } from "../js/commentVisibility";
 
 export default function PISDashboard() {
 
     const user = JSON.parse(localStorage.getItem('user'))
+    const { showAll: showRatings } = useCommentVisibility()
 
     const [rushees, setRushees] = useState([])
     const [loading, setLoading] = useState(true)
@@ -132,16 +134,18 @@ export default function PISDashboard() {
                                                         {rushee.major}
                                                     </p>
                                                     <p className="text-sm text-gray-400">GTID: {rushee.gtid}</p>
-                                                    <div className="flex flex-wrap gap-2 mt-2">
-                                                        {rushee.ratings.map((rating, rIdx) => (
-                                                            <span
-                                                                key={rIdx}
-                                                                className="bg-slate-500 text-gray-200 px-2 py-1 rounded text-sm"
-                                                            >
-                                                                {rating.name}: {rating.value}
-                                                            </span>
-                                                        ))}
-                                                    </div>
+                                                    {showRatings && (
+                                                        <div className="flex flex-wrap gap-2 mt-2">
+                                                            {rushee.ratings.map((rating, rIdx) => (
+                                                                <span
+                                                                    key={rIdx}
+                                                                    className="bg-slate-500 text-gray-200 px-2 py-1 rounded text-sm"
+                                                                >
+                                                                    {rating.name}: {rating.value}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}

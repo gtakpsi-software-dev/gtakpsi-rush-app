@@ -18,9 +18,11 @@ import Button from "../components/Button";
 import PISAvailabilityModal from "../components/PISAvailabilityModal";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useCommentVisibility } from "../js/commentVisibility";
 
 export default function Dashboard(props) {
     const { isMidtermMode } = useMidtermMode();
+    const { showAll: showRatings } = useCommentVisibility();
     const [user, setUser] = useState(
         props.user ? props.user : JSON.parse(localStorage.getItem("user"))
     );
@@ -345,7 +347,7 @@ export default function Dashboard(props) {
                                                         />
                                                     </div>
                                                     
-                                                    {rushee.ratings && rushee.ratings.length > 0 && (
+                                                    {showRatings && rushee.ratings && rushee.ratings.length > 0 && (
                                                         <div className="flex flex-wrap gap-1">
                                                             {rushee.ratings.map((rating, rIdx) => (
                                                                 <span

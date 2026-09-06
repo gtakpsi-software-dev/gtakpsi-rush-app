@@ -597,24 +597,30 @@ export default function RusheeZoom() {
                                     </div>
                                 )}
 
-                                {/* Ratings */}
+                                {/* Ratings — gated on the same switch as comments */}
                                 <div className="card-apple p-6 mb-6">
                                     <h2 className="text-apple-title1 font-light text-black mb-4">Ratings</h2>
 
-                                    <div className="flex flex-col gap-4">
-                                        {rushee.ratings.map((rating, idx) => (
-                                            <div key={idx} className="w-full">
-                                                <p className="text-apple-body text-black font-normal mb-2">{rating.name}</p>
-                                                <div className="w-full bg-apple-gray-100 rounded-apple h-3">
-                                                    <div
-                                                        className="bg-black h-3 rounded-apple transition-all duration-300"
-                                                        style={{ width: `${(rating.value / 5) * 100}%` }}
-                                                    ></div>
+                                    {showAllComments ? (
+                                        <div className="flex flex-col gap-4">
+                                            {rushee.ratings.map((rating, idx) => (
+                                                <div key={idx} className="w-full">
+                                                    <p className="text-apple-body text-black font-normal mb-2">{rating.name}</p>
+                                                    <div className="w-full bg-apple-gray-100 rounded-apple h-3">
+                                                        <div
+                                                            className="bg-black h-3 rounded-apple transition-all duration-300"
+                                                            style={{ width: `${(rating.value / 5) * 100}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${rating.value.toFixed(2)}/5.00`}</p>
                                                 </div>
-                                                <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${rating.value.toFixed(2)}/5.00`}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-apple-footnote text-apple-gray-500 font-light italic">
+                                            Ratings are hidden until comment viewing is enabled
+                                        </p>
+                                    )}
 
                                     <div className="mt-6 pt-4 border-t border-apple-gray-200">
                                         <h3 className="text-apple-headline font-light text-black mb-2">

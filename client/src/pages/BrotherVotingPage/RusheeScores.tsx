@@ -1,13 +1,24 @@
 import React from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { useCommentVisibility } from "../../js/commentVisibility";
 
 export default function RusheeScores() {
     const { rushee } = useBrotherVotingContext();
+    const { showAll } = useCommentVisibility();
 
     if (!rushee) {
         return (
             <p className="text-lg text-apple-gray-500 font-light italic">
                 No rushee selected
+            </p>
+        );
+    }
+
+    // Ratings follow the comment-visibility switch — hidden whenever comments are.
+    if (!showAll) {
+        return (
+            <p className="text-lg text-apple-gray-500 font-light italic">
+                Scores are hidden until comment viewing is enabled
             </p>
         );
     }
