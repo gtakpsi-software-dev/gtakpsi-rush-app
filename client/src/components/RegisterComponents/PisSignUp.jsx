@@ -9,6 +9,9 @@ export default function PisSignUp(props) {
     // maps datetime object to an array of timeslots
     const [days, setDays] = useState(new Map());
 
+    // Monday timeslots stay hidden until the rushee says they can't do Sunday
+    const [showMonday, setShowMonday] = useState(false);
+
     useEffect(() => {
         async function fetch() {
             // const api = process.env.REACT_APP_API_PREFIX
@@ -91,6 +94,7 @@ export default function PisSignUp(props) {
                             <div>
                                 <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
                                     {[...days.entries()]
+                                        .filter(([day]) => new Date(day).getDay() !== 1 || showMonday)
                                         .map(([day, timeslots]) => {
                                             const jsDate = new Date(day);
                                             const isMonday = jsDate.getDay() === 1;
@@ -169,6 +173,21 @@ export default function PisSignUp(props) {
                                             );
                                         })}
                                 </div>
+
+                                {/* Monday reveal: hidden until the rushee can't do Sunday */}
+                                {!showMonday &&
+                                    [...days.entries()].some(
+                                        ([day]) => new Date(day).getDay() === 1
+                                    ) && (
+                                        <div className="mt-6 flex justify-center">
+                                            <button
+                                                onClick={() => setShowMonday(true)}
+                                                className="py-3 px-6 rounded-apple-xl border border-apple-gray-300 text-apple-footnote font-medium text-black bg-white hover:bg-apple-gray-50 hover:border-apple-gray-400 active:scale-95 transition-all duration-200"
+                                            >
+                                                {"I can't attend Sunday — show Monday times"}
+                                            </button>
+                                        </div>
+                                    )}
                             </div>
                             {/* Flexibility Checkbox */}
                             {props.selectedSlot && (
