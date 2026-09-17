@@ -15,6 +15,45 @@ pub struct Rating {
     pub value: f32
 }
 
+/// Safe subset of a rushee's own record for the self-service rushee page
+/// (`/rushee/:gtid/:link`). Deliberately excludes comments, sorting notes,
+/// sorting status, ratings, and the access code itself — fields brothers
+/// write about the rushee that the rushee should never see.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RusheeSelfView {
+    pub first_name: String,
+    pub last_name: String,
+    pub housing: String,
+    pub phone_number: String,
+    pub email: String,
+    pub gtid: String,
+    pub major: String,
+    pub class: String,
+    pub pronouns: String,
+    pub image_url: String,
+    pub attendance: Vec<RushNight>,
+    pub pis_timeslot: bson::DateTime,
+}
+
+impl From<RusheeModel> for RusheeSelfView {
+    fn from(r: RusheeModel) -> Self {
+        RusheeSelfView {
+            first_name: r.first_name,
+            last_name: r.last_name,
+            housing: r.housing,
+            phone_number: r.phone_number,
+            email: r.email,
+            gtid: r.gtid,
+            major: r.major,
+            class: r.class,
+            pronouns: r.pronouns,
+            image_url: r.image_url,
+            attendance: r.attendance,
+            pis_timeslot: r.pis_timeslot,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrippedRushee {
     pub name: String,

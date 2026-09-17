@@ -1,5 +1,5 @@
 use axum::{
-    extract::Path,
+    extract::{Path, Query},
     http::StatusCode,
     response::Json,
 };
@@ -23,7 +23,7 @@ use crate::models::pis::{PISQuestion, PISSignup};
 use crate::middlewares::rush_nights::{enrich_interactions_by_night, interactions_by_night};
 use crate::models::Rushee::{
     Comment, IncomingComment, IncomingRushee, PisResponse, Rating, RusheeEdit, RusheeModel,
-    StrippedRushee,
+    RusheeSelfView, StrippedRushee,
 };
 
 #[derive(Deserialize, Serialize)]
@@ -277,9 +277,56 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct SelfViewParams {
+    code: Option<String>,
+}
+
+/// Public self-service view for a rushee's own record (used by the
+/// `/rushee/:gtid/:link` page). Requires the rushee's access code as a
+/// `?code=` query param, validated server-side, and returns only a safe
+/// subset of fields — never comments, sorting notes/status, ratings, or the
+/// access code itself, since those are internal to bid committee/brothers.
+pub async fn get_rushee_self(
+    Path(id): Path<String>,
+    Query(params): Query<SelfViewParams>,
+) -> Result<Json<Value>, StatusCode> {
+    let connection = db::get_rushee_client().await;
+
+    let result = connection.find_one(doc! {"gtid": id.clone()}).await;
+
+    match result {
+        Ok(Some(rushee)) => {
+            let provided_code = params.code.unwrap_or_default();
+            if provided_code.is_empty() || provided_code != rushee.access_code {
+                return Ok(Json(json!({
+                    "status": "error",
+                    "message": "Invalid access code"
+                })));
+            }
+
+            let view: RusheeSelfView = rushee.into();
+            Ok(Json(json!({
+                "status": "success",
+                "payload": view
+            })))
+        }
+
+        Ok(None) => Ok(Json(json!({
+            "status": "error",
+            "message": format!("Rushee with GTID {} does not exist", id)
+        }))),
+
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "some network error occurred when fetching the rushee"
+        }))),
+    }
+}
+
 /// How long before a rushee's PIS timeslot their randomized bucket
 /// questions become visible/get assigned.
-const PIS_QUESTION_REVEAL_LEAD_MINUTES: i64 = 5;
+const PIS_QUESTION_REVEAL_LEAD_MINUTES: i64 = 10;
 
 fn sort_pis_questions(questions: &mut Vec<PISQuestion>) {
     questions.sort_by_key(|q| q.order.unwrap_or(i32::MAX));

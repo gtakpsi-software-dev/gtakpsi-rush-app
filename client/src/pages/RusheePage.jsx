@@ -44,17 +44,14 @@ export default function RusheePage() {
     useEffect(() => {
         async function fetch() {
             await axios
-                .get(`${api}/rushee/${gtid}`)
+                .get(`${api}/rushee/self/${gtid}`, { params: { code: link } })
                 .then((response) => {
                     if (response.data.status === "success") {
                         const fetchedRushee = response.data.payload;
-
-                        if (fetchedRushee.access_code !== link) {
-                            navigate(`/error/${"Incorrect Access Code"}/${"Reach out to the Support Team for assistance"}`);
-                        } else {
-                            setRushee(fetchedRushee);
-                            setInitialRushee(fetchedRushee); // Save the initial state for comparison
-                        }
+                        setRushee(fetchedRushee);
+                        setInitialRushee(fetchedRushee); // Save the initial state for comparison
+                    } else if (response.data.message === "Invalid access code") {
+                        navigate(`/error/${"Incorrect Access Code"}/${"Reach out to the Support Team for assistance"}`);
                     } else {
                         navigate(`/error/${"Rushee with this GTID does not exist"}`);
                     }
