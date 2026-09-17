@@ -8,7 +8,7 @@ use dashmap::DashMap;
 use redis::AsyncCommands;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::sync::mpsc;
-use crate::db::{get_redis_conn, get_redis_pubsub};
+use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
 use futures_util::{SinkExt, StreamExt};
 
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -111,44 +111,53 @@ async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList,
     let mut initial_messages = Vec::new();
 
     // Initial rushee snapshot
-    match conn.get::<_, Option<String>>("rushee").await {
-        Ok(Some(data)) => {
+    match tokio::time::timeout(REDIS_CALL_TIMEOUT, conn.get::<_, Option<String>>("rushee")).await {
+        Ok(Ok(Some(data))) => {
             let msg = serde_json::json!({
                 "type": "rushee_update",
                 "rushee": data
             });
             initial_messages.push(Message::Text(msg.to_string()));
         }
-        Ok(None) => {
+        Ok(Ok(None)) => {
             let msg = serde_json::json!({
                 "type": "rushee_update",
                 "rushee": null
             });
             initial_messages.push(Message::Text(msg.to_string()));
         }
-        Err(e) => {
+        Ok(Err(e)) => {
             println!("❌ Redis error while fetching 'rushee': {e}");
+        }
+        Err(_) => {
+            println!("❌ Redis timed out while fetching 'rushee', resetting connection");
+            reset_redis_conn().await;
         }
     }
 
     // Initial question snapshot
-    match conn.get::<_, Option<String>>("question").await {
-        Ok(Some(data)) => {
+    match tokio::time::timeout(REDIS_CALL_TIMEOUT, conn.get::<_, Option<String>>("question")).await
+    {
+        Ok(Ok(Some(data))) => {
             let msg = serde_json::json!({
                 "type": "question_update",
                 "question": data
             });
             initial_messages.push(Message::Text(msg.to_string()));
         }
-        Ok(None) => {
+        Ok(Ok(None)) => {
             let msg = serde_json::json!({
                 "type": "question_update",
                 "question": null
             });
             initial_messages.push(Message::Text(msg.to_string()));
         }
-        Err(e) => {
+        Ok(Err(e)) => {
             println!("❌ Redis error while fetching 'question': {e}");
+        }
+        Err(_) => {
+            println!("❌ Redis timed out while fetching 'question', resetting connection");
+            reset_redis_conn().await;
         }
     }
 
