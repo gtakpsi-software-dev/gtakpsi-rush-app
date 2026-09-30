@@ -68,6 +68,9 @@ internal names are standardized.
 9. Sorting naming: internal fields use snake_case with explicit Serde camelCase
    mapping. Existing request/response names and signed indices are covered by
    15 passing API tests. Compiler warnings decrease from 76 to 62.
+10. Admin access extraction: role management, app-access settings, and comment
+    visibility now have separate modules. All 10 moved handlers match the
+    originals after formatting; the 15 API tests still pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -1,3 +1,12 @@
+mod roles;
+pub use roles::{make_admin, get_admin_status, make_bidcom};
+
+mod access;
+pub use access::{update_rush_app_settings, get_rush_app_status, get_midterm_mode_status, check_rush_app_access};
+
+mod comment_visibility;
+pub use comment_visibility::{update_comment_visibility_settings, get_comment_visibility_settings, get_comment_visibility_status};
+
 mod sorting;
 pub use sorting::{get_sorting_rushees, get_sorting_rushees_public, get_rushee_notes, update_rushee_notes, update_rushee_sorting, bulk_reorder, move_rushee};
 
@@ -11,7 +20,7 @@ mod rush_nights;
 pub use rush_nights::{add_rush_night, delete_rush_night};
 
 use axum::{
-    extract::{Path, State},
+    extract::Path,
     http::StatusCode,
     response::Json,
 };
@@ -19,18 +28,16 @@ use futures::stream::StreamExt;
 use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
 use serde::Deserialize;
-use axum::extract::Extension;
 use std::collections::HashMap;
 
 use crate::{
     middlewares::time_helpers::string_to_bson_datetime,
     models::{
         misc::{IncomingBrotherName},
-        pis::{IncomingPISSignup, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, RushAppStatus, UpdateRushAppPayload, CheckAccessPayload, CommentVisibilitySettings, UpdateCommentVisibilityPayload},
+        pis::{IncomingPISSignup, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability},
         rushee::StrippedRushee,
     },
     middlewares::rush_nights::interactions_by_night,
-    middlewares::auth::FirebaseAuth,
 };
 
 use super::db;
@@ -346,93 +353,6 @@ pub async fn export_rushee_personal_info() -> Result<Json<Value>, StatusCode> {
         Err(_err) => Ok(Json(json!({
             "status": "error",
             "message": "Database error"
-        }))),
-    }
-}
-
-#[derive(serde::Deserialize)]
-pub struct AdminTogglePayload {
-    pub uid: String,
-    #[serde(default)]
-    pub make_admin: Option<bool>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct AdminStatusPayload {
-    pub uid: String,
-}
-
-/// Promote/demote a brother to admin (protected by admin middleware)
-pub async fn make_admin(
-    State(auth): State<std::sync::Arc<FirebaseAuth>>,
-    Json(payload): Json<AdminTogglePayload>,
-) -> Result<Json<Value>, StatusCode> {
-    let make_admin = payload.make_admin.unwrap_or(true);
-
-    match auth.set_admin_claim(&payload.uid, make_admin).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": if make_admin { "Admin access granted" } else { "Admin access removed" }
-        }))),
-        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
-            "status": "error",
-            "message": "Service account missing on server; cannot update admin claim"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update admin claim"
-        }))),
-    }
-}
-
-/// Check admin and bidcom status for a given uid
-pub async fn get_admin_status(
-    State(auth): State<std::sync::Arc<FirebaseAuth>>,
-    Json(payload): Json<AdminStatusPayload>,
-) -> Result<Json<Value>, StatusCode> {
-    match auth.get_user_roles(&payload.uid).await {
-        Ok((is_admin, is_bidcom)) => Ok(Json(json!({
-            "status": "success",
-            "admin": is_admin,
-            "bidcom": is_bidcom
-        }))),
-        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
-            "status": "error",
-            "message": "Service account missing on server; cannot read user roles"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to read user roles"
-        }))),
-    }
-}
-
-#[derive(serde::Deserialize)]
-pub struct BidcomTogglePayload {
-    pub uid: String,
-    #[serde(default)]
-    pub make_bidcom: Option<bool>,
-}
-
-/// Promote/demote a brother to bid committee (protected by admin middleware)
-pub async fn make_bidcom(
-    State(auth): State<std::sync::Arc<FirebaseAuth>>,
-    Json(payload): Json<BidcomTogglePayload>,
-) -> Result<Json<Value>, StatusCode> {
-    let make_bidcom = payload.make_bidcom.unwrap_or(true);
-
-    match auth.set_bidcom_claim(&payload.uid, make_bidcom).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": if make_bidcom { "Bid committee access granted" } else { "Bid committee access removed" }
-        }))),
-        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
-            "status": "error",
-            "message": "Service account missing on server; cannot update bidcom claim"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update bidcom claim"
         }))),
     }
 }
@@ -965,233 +885,6 @@ pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCod
         Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "Failed to deactivate form"
-        }))),
-    }
-}
-
-// ========== Rush App Disable System Endpoints ==========
-
-/// Update Rush App access settings (independent toggles for bidcom and regular brothers)
-pub async fn update_rush_app_settings(
-    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
-    Json(payload): Json<UpdateRushAppPayload>,
-) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
-    
-    // Delete any existing status document
-    let _ = collection.delete_many(doc! {}).await;
-    
-    // Insert new status
-    let status = RushAppStatus {
-        disable_bidcom: payload.disable_bidcom,
-        disable_regular: payload.disable_regular,
-        midterm_mode: payload.midterm_mode,
-        updated_at: Some(DateTime::now()),
-        updated_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
-    };
-    
-    match collection.insert_one(status).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": "Rush App settings updated"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update Rush App settings"
-        }))),
-    }
-}
-
-/// Get current Rush App status (admin only)
-pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
-    
-    match collection.find_one(doc! {}).await {
-        Ok(Some(status)) => Ok(Json(json!({
-            "status": "success",
-            "disable_bidcom": status.disable_bidcom,
-            "disable_regular": status.disable_regular,
-            "midterm_mode": status.midterm_mode,
-            "updated_at": status.updated_at,
-            "updated_by": status.updated_by
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "disable_bidcom": false,
-            "disable_regular": false,
-            "midterm_mode": false,
-            "updated_at": null,
-            "updated_by": null
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to fetch Rush App status"
-        }))),
-    }
-}
-
-/// Get midterm mode status (public endpoint, no auth required)
-pub async fn get_midterm_mode_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
-
-    match collection.find_one(doc! {}).await {
-        Ok(Some(status)) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": status.midterm_mode
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": false
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": false
-        }))),
-    }
-}
-
-/// Check if a brother can access the Rush App (public endpoint)
-/// Admins always have access, regardless of disable settings
-pub async fn check_rush_app_access(
-    Json(payload): Json<CheckAccessPayload>,
-) -> Result<Json<Value>, StatusCode> {
-    // Admins always have access
-    if payload.is_admin {
-        return Ok(Json(json!({
-            "status": "success",
-            "allowed": true,
-            "reason": null
-        })));
-    }
-    
-    let collection = db::get_rush_app_status_client().await;
-    
-    match collection.find_one(doc! {}).await {
-        Ok(Some(status)) => {
-            // Check if user is bid committee (but not admin - already checked above)
-            if payload.is_bidcom {
-                // User is bid committee member
-                if status.disable_bidcom {
-                    return Ok(Json(json!({
-                        "status": "success",
-                        "allowed": false,
-                        "reason": "The Rush App has been temporarily disabled for bid committee members."
-                    })));
-                } else {
-                    return Ok(Json(json!({
-                        "status": "success",
-                        "allowed": true,
-                        "reason": null
-                    })));
-                }
-            }
-            
-            // User is a regular brother (not admin, not bidcom)
-            if status.disable_regular {
-                return Ok(Json(json!({
-                    "status": "success",
-                    "allowed": false,
-                    "reason": "The Rush App has been temporarily disabled by an administrator."
-                })));
-            }
-            
-            // Not disabled for this user type
-            Ok(Json(json!({
-                "status": "success",
-                "allowed": true,
-                "reason": null
-            })))
-        }
-        Ok(None) => {
-            // No status document means app is enabled for everyone
-            Ok(Json(json!({
-                "status": "success",
-                "allowed": true,
-                "reason": null
-            })))
-        }
-        Err(_) => {
-            // On error, allow access to be safe
-            Ok(Json(json!({
-                "status": "error",
-                "message": "Failed to check access status"
-            })))
-        }
-    }
-}
-
-// ========== Comment Visibility Settings Endpoints ==========
-
-/// Update comment visibility settings (admin only)
-/// When enabled, brothers only see their own comments on a rushee
-pub async fn update_comment_visibility_settings(
-    Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
-    Json(payload): Json<UpdateCommentVisibilityPayload>,
-) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
-    
-    // Delete any existing settings document
-    let _ = collection.delete_many(doc! {}).await;
-    
-    // Insert new settings
-    let settings = CommentVisibilitySettings {
-        require_comment_to_view: payload.require_comment_to_view,
-        updated_at: Some(DateTime::now()),
-        updated_by: Some(user.email.clone().unwrap_or(user.uid.clone())),
-    };
-    
-    match collection.insert_one(settings).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": "Comment visibility settings updated"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update comment visibility settings"
-        }))),
-    }
-}
-
-/// Get current comment visibility settings (admin only)
-pub async fn get_comment_visibility_settings() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
-    
-    match collection.find_one(doc! {}).await {
-        Ok(Some(settings)) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": settings.require_comment_to_view,
-            "updated_at": settings.updated_at,
-            "updated_by": settings.updated_by
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": true,  // Default to enabled (existing behavior)
-            "updated_at": null,
-            "updated_by": null
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to fetch comment visibility settings"
-        }))),
-    }
-}
-
-/// Public endpoint to check if comment visibility restriction is enabled
-pub async fn get_comment_visibility_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
-    
-    match collection.find_one(doc! {}).await {
-        Ok(Some(settings)) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": settings.require_comment_to_view
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": true  // Default to enabled (existing behavior)
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": true  // On error, default to existing behavior
         }))),
     }
 }
