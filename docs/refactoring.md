@@ -316,6 +316,14 @@ internal names are standardized.
     bindings. `Admin.jsx` now has zero ESLint errors; its two existing effect
     dependency warnings remain for a separate behavior-verified slice. All 54
     client tests pass, the build succeeds, and CSS remains byte-identical.
+56. PIS question replacement script: moved environment loading and URI
+    validation inside `main()`, so importing the script cannot connect or
+    trigger its destructive replacement. The direct-command database and output
+    body matches the original parsed Python AST after the URI variable rename.
+    Three offline tests cover import safety, missing configuration, and the
+    original connect/read/count/delete/insert/verify/close order. All 14
+    maintenance-script tests and Python compilation pass; no live database
+    operation ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -363,7 +371,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 54 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 11 maintenance-script tests. The last
+tests with the integration feature, plus 14 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full

@@ -4,7 +4,7 @@ Script to replace all PIS questions in MongoDB with those from pis_questions.jso
 This will DELETE all existing questions and INSERT the new ones.
 
 Usage:
-    cd /path/to/gtakpsi-rush-app/scripts
+    cd /path/to/gtakpsi-rush-app/scripts-migrations
     source ../server/bin/activate
     python3 add_pis_question_order.py
 """
@@ -14,21 +14,21 @@ import json
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-# Load environment variables
-env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-print(f"Loading .env from: {os.path.abspath(env_path)}")
-load_dotenv(dotenv_path=env_path)
-
-MONGO_URI = os.getenv('MONGO_URI')
-
-if not MONGO_URI:
-    print("Error: MONGO_URI environment variable not set")
-    print("Make sure you have a .env file with MONGO_URI in the project root")
-    exit(1)
-
 def main():
+    # Keep configuration and destructive writes in the direct-command path.
+    env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+    print(f"Loading .env from: {os.path.abspath(env_path)}")
+    load_dotenv(dotenv_path=env_path)
+
+    mongo_uri = os.getenv('MONGO_URI')
+
+    if not mongo_uri:
+        print("Error: MONGO_URI environment variable not set")
+        print("Make sure you have a .env file with MONGO_URI in the project root")
+        exit(1)
+
     print("Connecting to MongoDB...")
-    client = MongoClient(MONGO_URI)
+    client = MongoClient(mongo_uri)
     db = client['rush-app']
     collection = db['pis-questions']
     
