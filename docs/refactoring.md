@@ -191,6 +191,14 @@ internal names are standardized.
     fallback, ordering, fresh state arrays, and input identity. All 17 client
     tests pass; the production build succeeds, generated CSS is byte-identical
     to the starting baseline, and the affected JSX remains unchanged.
+35. Shared editable notes panel: admin and bid-committee sorting pages now use
+    one panel component while keeping their exact role-specific headings,
+    navigation URLs, callbacks, and existing page-owned autosave logic. Markup
+    snapshots from the original panels match in idle and loading states for both
+    roles, including the bid committee's number-only heading. Handler tests
+    cover closing, tag toggles, text changes, and navigation attachment. All 19
+    client tests pass, the production build succeeds, and generated CSS remains
+    byte-identical to the starting baseline.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -230,7 +238,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 17 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 19 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
