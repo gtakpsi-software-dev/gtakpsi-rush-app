@@ -51,6 +51,9 @@ internal names are standardized.
    React; `hooks/useCommentVisibility.js` owns the existing effect. The hook body
    is unchanged, the build passes, generated CSS matches the baseline byte for
    byte, and the policy/hook/test files pass ESLint.
+6. Rust naming: renamed `models/Rushee.rs` to `models/rushee.rs` and
+   `middlewares/timeHelpers.rs` to `middlewares/time_helpers.rs`, updating every
+   reference. All 8 API tests pass; compiler warnings decrease from 78 to 76.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

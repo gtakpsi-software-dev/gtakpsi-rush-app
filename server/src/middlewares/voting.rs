@@ -1,7 +1,7 @@
 use crate::{
     controllers::db, 
     middlewares::rushee::RusheeError, 
-    models::Rushee::RusheeModel,
+    models::rushee::RusheeModel,
     controllers::voting::QuestionAndRushee
 };
 use std::fmt;

@@ -1,5 +1,5 @@
 use crate::middlewares::rushee;
-use crate::models::Rushee::{IncomingRusheeVote, RusheeVote, VoteOption};
+use crate::models::rushee::{IncomingRusheeVote, RusheeVote, VoteOption};
 use anyhow::{Error, Result};
 use axum::{
     extract::Path,
@@ -18,7 +18,7 @@ use crate::middlewares::attendance;
 use crate::middlewares::rushee::fetch_rushee;
 use crate::middlewares::voting::{fetch_question, fetch_rushee_from_redis};
 use crate::middlewares::rush_nights::enrich_interactions_by_night;
-use crate::models::Rushee::RusheeModel;
+use crate::models::rushee::RusheeModel;
 
 use serde_json::from_str;
 

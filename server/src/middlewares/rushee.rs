@@ -1,4 +1,4 @@
-use crate::{controllers::db, models::Rushee::RusheeModel};
+use crate::{controllers::db, models::rushee::RusheeModel};
 use mongodb::bson::doc;
 use std::fmt;
 

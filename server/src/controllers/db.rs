@@ -7,7 +7,7 @@ use tokio::sync::OnceCell;
 use crate::models::{
     misc::RushNight, 
     pis::{PISQuestion, PISTimeslot, PISAvailabilityFormStatus, BrotherPISAvailability, RushAppStatus, CommentVisibilitySettings}, 
-    Rushee::RusheeModel
+    rushee::RusheeModel
 };
 
 pub static MONGO_CLIENT: OnceCell<Arc<Client>> = OnceCell::const_new();

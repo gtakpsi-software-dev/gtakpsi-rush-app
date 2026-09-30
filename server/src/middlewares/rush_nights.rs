@@ -1,8 +1,8 @@
 use bson::DateTime;
 
-use crate::middlewares::timeHelpers::same_day;
+use crate::middlewares::time_helpers::same_day;
 use crate::models::misc::RushNight;
-use crate::models::Rushee::{Comment, NightInteractionSummary, RusheeModel};
+use crate::models::rushee::{Comment, NightInteractionSummary, RusheeModel};
 
 /// Default rush nights for interaction display (merged with Mongo when missing).
 /// Times are used for ordering and same-day matching when not overridden by DB.

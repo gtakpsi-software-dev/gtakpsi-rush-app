@@ -15,13 +15,13 @@ use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
 use super::db;
-use crate::middlewares::timeHelpers::same_day;
+use crate::middlewares::time_helpers::same_day;
 use crate::middlewares::valid::check_valid_comment;
-use crate::middlewares::{attendance, pis, timeHelpers, valid};
+use crate::middlewares::{attendance, pis, time_helpers, valid};
 use crate::models::misc::RushNight;
 use crate::models::pis::{PISQuestion, PISSignup};
 use crate::middlewares::rush_nights::{enrich_interactions_by_night, interactions_by_night};
-use crate::models::Rushee::{
+use crate::models::rushee::{
     Comment, IncomingComment, IncomingRushee, PisResponse, Rating, RusheeEdit, RusheeModel,
     RusheeSelfView, StrippedRushee,
 };
@@ -44,7 +44,7 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
 
     // convert incoming timeslot to a bson DateTime type
-    let date_converstion = timeHelpers::string_to_bson_datetime(&payload.pis_timeslot.to_string());
+    let date_converstion = time_helpers::string_to_bson_datetime(&payload.pis_timeslot.to_string());
 
     // TODO: verify all fields
 
@@ -1041,7 +1041,7 @@ pub async fn reschedule_pis(
     Path(id): Path<String>,
     Json(payload): Json<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let new_time = timeHelpers::string_to_bson_datetime(&payload);
+    let new_time = time_helpers::string_to_bson_datetime(&payload);
     let connection = db::get_rushee_client().await;
 
     // First, fetch the rushee to get their current timeslot

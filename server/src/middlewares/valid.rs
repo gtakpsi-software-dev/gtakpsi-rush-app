@@ -6,9 +6,9 @@ use std::{collections::HashSet, io::Error};
 
 use bson::doc;
 
-use crate::{controllers::db, models::{misc::RushNight, Rushee::Comment}};
+use crate::{controllers::db, models::{misc::RushNight, rushee::Comment}};
 
-use super::timeHelpers::same_day;
+use super::time_helpers::same_day;
 
 /**
  * Changes we have to handle specially

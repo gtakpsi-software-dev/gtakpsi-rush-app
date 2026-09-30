@@ -14,11 +14,11 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::{
-    middlewares::timeHelpers::{self, string_to_bson_datetime},
+    middlewares::time_helpers::{self, string_to_bson_datetime},
     models::{
         misc::{IncomingBrotherName, IncomingRushNight, RushNight},
         pis::{IncomingPISSignup, PISQuestion, PISTimeslot, PISTimeslotIncoming, PISAvailabilityFormStatus, BrotherPISAvailability, IncomingBrotherAvailability, RushAppStatus, UpdateRushAppPayload, CheckAccessPayload, CommentVisibilitySettings, UpdateCommentVisibilityPayload},
-        Rushee::StrippedRushee,
+        rushee::StrippedRushee,
     },
     middlewares::rush_nights::interactions_by_night,
     middlewares::auth::FirebaseAuth,
@@ -190,7 +190,7 @@ pub async fn add_pis_timeslot(
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_timeslots_client().await;
 
-    let time = timeHelpers::string_to_bson_datetime(&payload.time);
+    let time = time_helpers::string_to_bson_datetime(&payload.time);
 
     // check if timeslot exists
     let filter = doc! {"time": time};
@@ -266,7 +266,7 @@ pub async fn delete_pis_timeslot(
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_timeslots_client().await;
 
-    let time = timeHelpers::string_to_bson_datetime(&payload.time);
+    let time = time_helpers::string_to_bson_datetime(&payload.time);
 
     // check if timeslot exists
     let filter = doc! {"time": payload.time};
@@ -781,7 +781,7 @@ fn validate_status(status: &str) -> bool {
 
 /// Fetch all rushees for sorting board
 pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
 
     let cursor_result = collection.find(doc! {}).await;
     match cursor_result {
@@ -840,7 +840,7 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
 /// Public endpoint: Fetch rushees for sorting board (view-only, shows names)
 /// Accessible to all authenticated brothers
 pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
 
     let cursor_result = collection.find(doc! {}).await;
     match cursor_result {
@@ -896,7 +896,7 @@ pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
 
 /// Get notes for rushee
 pub async fn get_rushee_notes(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
     let filter = doc! { "gtid": id.clone() };
     match collection.find_one(filter).await {
         Ok(Some(doc)) => Ok(Json(json!({
@@ -924,7 +924,7 @@ pub async fn update_rushee_notes(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<NotesPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
     let filter = doc! { "gtid": id.clone() };
 
     if payload.sortingNotes.len() > 5000 {
@@ -975,7 +975,7 @@ pub async fn update_rushee_sorting(
         })));
     }
 
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
     let filter = doc! { "gtid": id.clone() };
 
     let update = doc! {
@@ -1012,7 +1012,7 @@ pub async fn bulk_reorder(
         })));
     }
 
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> = db::get_rushee_client().await;
 
     for (idx, id_str) in payload.orderedRusheeIds.iter().enumerate() {
         let filter = doc! { "gtid": id_str };
@@ -1080,11 +1080,11 @@ pub async fn move_rushee(
         None
     };
 
-    let collection: mongodb::Collection<crate::models::Rushee::RusheeModel> =
+    let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
         db::get_rushee_client().await;
 
     async fn fetch_ids(
-        collection: &mongodb::Collection<crate::models::Rushee::RusheeModel>,
+        collection: &mongodb::Collection<crate::models::rushee::RusheeModel>,
         column: &str,
     ) -> Result<Vec<String>, StatusCode> {
         let cursor = collection.find(doc! { "sorting_status": column }).await;
@@ -1545,7 +1545,7 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
     };
     
     // Collect all rushees first
-    let mut rushees: Vec<crate::models::Rushee::RusheeModel> = Vec::new();
+    let mut rushees: Vec<crate::models::rushee::RusheeModel> = Vec::new();
     while let Some(item) = rushee_cursor.next().await {
         if let Ok(rushee) = item {
             rushees.push(rushee);
