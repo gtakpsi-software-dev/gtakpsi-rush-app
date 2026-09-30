@@ -33,6 +33,15 @@ internal names are standardized.
 1. Client characterization tests: real assertions for rating labels/classes,
    speculative warnings, name matching, rush-night merging, and interaction counts.
    `npm --prefix client test`: 11 passing. Test files pass ESLint.
+2. Collaboration protocol baseline: 7 integration tests pass against the original
+   server using real local HTTP and Socket.IO connections. They cover membership,
+   health/stats, full-text acknowledgments, stale-version rejection, hydration,
+   presence, room isolation, legacy transforms, and bounded history.
+
+The API baseline builds with 78 existing warnings and zero tests. On this Mac,
+select the installed command-line tools for Cargo with
+`DEVELOPER_DIR=/Library/Developer/CommandLineTools`; the selected Xcode app has an
+unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
@@ -57,5 +66,7 @@ for the test runner. Run `npm --prefix client run lint` for repository-wide lint
 the starting failures above are tracked debt, not a passing check.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
+Collaboration tests use `npm --prefix websocket-server test` and require permission
+to bind local ports; their pinned Socket.IO client is a development dependency.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
