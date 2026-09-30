@@ -71,6 +71,11 @@ internal names are standardized.
 10. Admin access extraction: role management, app-access settings, and comment
     visibility now have separate modules. All 10 moved handlers match the
     originals after formatting; the 15 API tests still pass.
+11. Admin controller extraction complete: the former 2,044-line file is now a
+    46-line module index plus resource modules. PIS signup, availability,
+    assignment, and exports are separated; all 14 remaining handler bodies
+    match the originals after formatting. The largest admin implementation
+    module is 304 lines. All 15 API tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -79,13 +84,14 @@ unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
-- Characterize collaboration room lifecycle, text updates, version rejection,
-  presence, and operation history; separate startup, HTTP routes, room state,
-  and event handlers.
+- Decompose `controllers/rushee.rs` with model, rating, PIS, and request-contract
+  tests. Keep database operations and their ordering unchanged.
+- Extract and test API routing/auth boundaries without contacting Firebase or
+  production databases. Add isolated database integration coverage where feasible.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
-- Characterize Rust models, validation, routing, and real-time message contracts;
-  split controllers and socket services by responsibility.
+- Characterize and split the Rust voting and sorting real-time services; align
+  internal service naming while preserving deployment roots and protocols.
 - Decompose large client pages into feature components and hooks while preserving
   JSX, classes, effect dependencies, request order, and state ownership.
 - Organize maintenance scripts and seed data without running destructive scripts.
@@ -104,3 +110,8 @@ Collaboration tests use `npm --prefix websocket-server test` and require permiss
 to bind local ports; their pinned Socket.IO client is a development dependency.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
+
+Current verified totals: 14 client tests, 10 collaboration tests, and 15 API
+tests. The last client build passes with baseline CSS unchanged. Full browser
+flow/visual testing and database-backed endpoint integration are still pending;
+unit tests and mechanical code comparisons alone do not establish full parity.
