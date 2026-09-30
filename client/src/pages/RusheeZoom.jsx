@@ -11,6 +11,7 @@ import ZoomModals from "../features/rushee/zoom/ZoomModals";
 import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
 import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
 import RusheePisDetails from "../features/rushee/zoom/RusheePisDetails";
+import ExistingCommentList from "../features/rushee/zoom/ExistingCommentList";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import CommentWarning from "../components/CommentWarning";
@@ -19,10 +20,7 @@ import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { FaEdit, FaTrash } from "react-icons/fa";
-import Badges from "../components/Badge";
 import RatingSlider from "../components/RatingSlider";
-import { formatRatingValue } from "../js/ratingDisplay";
 import {
     getVisibleComments,
     hasOwnComment,
@@ -309,100 +307,20 @@ export default function RusheeZoom() {
                                         </div>
                                     )}
                                     
-                                    {/* Visible comments (own only when restricted) */}
-                                    {visibleComments.length > 0 && (
-                                        <div className="mt-6 space-y-4">
-                                            {visibleComments.map((comment, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => setSelectedComment(comment)}
-                                                    className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
-                                                >
-                                                    {/* Buttons in the top-right corner */}
-                                                    <div
-                                                        className={
-                                                            user.firstname + " " + user.lastname === comment.brother_name &&
-                                                                editingCommentId !== comment.comment
-                                                                ? "absolute top-3 right-3 flex space-x-2"
-                                                                : "hidden"
-                                                        }
-                                                    >
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleEditComment(comment);
-                                                            }}
-                                                            className="text-apple-gray-500 hover:text-black text-lg transition-colors"
-                                                        >
-                                                            <FaEdit />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteComment(comment);
-                                                            }}
-                                                            className="text-apple-gray-500 hover:text-red-600 text-lg transition-colors"
-                                                        >
-                                                            <FaTrash />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Comment Content or Edit Field */}
-                                                    {editingCommentId === comment.comment ? (
-                                                        <div onClick={(e) => e.stopPropagation()}>
-                                                            <textarea
-                                                                className="input-apple mb-4 resize-none min-h-[120px]"
-                                                                value={editedCommentText}
-                                                                onClick={(e) => e.stopPropagation()}
-                                                                onChange={(e) => {
-                                                                    setEditedCommentText(e.target.value);
-                                                                    validateEditComment(e.target.value);
-                                                                }}
-                                                            ></textarea>
-                                                            
-                                                            <CommentWarning 
-                                                                warnings={editCommentWarnings} 
-                                                                onDismiss={(index) => {
-                                                                    const newWarnings = editCommentWarnings.filter((_, i) => i !== index);
-                                                                    setEditCommentWarnings(newWarnings);
-                                                                }}
-                                                            />
-                                                            
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleSubmitEdit(comment);
-                                                                }}
-                                                                className="btn-apple px-4 py-2 text-apple-footnote font-light"
-                                                            >
-                                                                Update Comment
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div>
-                                                            <div className="flex items-center gap-2 mb-3">
-                                                                <Badges text={comment.night.name} />
-                                                            </div>
-                                                            <p className="text-apple-body text-black font-light leading-relaxed">
-                                                                <span className="font-normal">{comment.brother_name}:</span> {comment.comment}
-                                                            </p>
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-apple-gray-200">
-                                                        {comment.ratings.map((rating, rIdx) => (
-                                                            <span
-                                                                key={rIdx}
-                                                                className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
-                                                            >
-                                                                {rating.name}: {formatRatingValue(rating.value)}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <ExistingCommentList
+                                        visibleComments={visibleComments}
+                                        user={user}
+                                        editingCommentId={editingCommentId}
+                                        editedCommentText={editedCommentText}
+                                        setSelectedComment={setSelectedComment}
+                                        handleEditComment={handleEditComment}
+                                        handleDeleteComment={handleDeleteComment}
+                                        setEditedCommentText={setEditedCommentText}
+                                        validateEditComment={validateEditComment}
+                                        editCommentWarnings={editCommentWarnings}
+                                        setEditCommentWarnings={setEditCommentWarnings}
+                                        handleSubmitEdit={handleSubmitEdit}
+                                    />
 
                                     {/* Prompt when restricted and user hasn't commented yet */}
                                     {requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment && (
