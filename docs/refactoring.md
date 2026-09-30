@@ -181,6 +181,10 @@ internal names are standardized.
     role-specific snapshot modules, leaving both session files at 112 lines.
     Each query and serialization block matches the original after formatting;
     the live Redis/WebSocket suite confirms snapshot order and payloads.
+33. Voting cleanup: both role modules use `NEXT_CLIENT_ID`, explain the
+    snapshot-before-registration ordering, and remove redundant comments.
+    Compiler-confirmed unused Redis imports are gone. The voting crate's normal
+    test command passes with no compiler warnings; runtime behavior is unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -193,8 +197,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
   under those tests.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
-- Characterize and split the Rust voting real-time service using the same clear
-  state/protocol/session boundaries; preserve deployment roots and protocols.
+- Extend real-time tests to failure/reconnect paths and cover any remaining
+  protocol branches while preserving deployment roots and protocols.
 - Decompose large client pages into feature components and hooks while preserving
   JSX, classes, effect dependencies, request order, and state ownership.
 - Organize maintenance scripts and seed data without running destructive scripts.

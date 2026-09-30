@@ -12,7 +12,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 
-static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
+static NEXT_CLIENT_ID: AtomicUsize = AtomicUsize::new(1);
 
 pub async fn ws_handler(
     Path(id): Path<String>,
@@ -35,16 +35,15 @@ async fn handle_socket(
     let (tx, mut rx) = mpsc::unbounded_channel::<Message>();
     let id: usize = client_id
         .and_then(|s| s.parse().ok())
-        .unwrap_or_else(|| NEXT_ID.fetch_add(1, Ordering::Relaxed));
+        .unwrap_or_else(|| NEXT_CLIENT_ID.fetch_add(1, Ordering::Relaxed));
 
-    // IMPORTANT: Send initial snapshots BEFORE registering client
-    // This prevents race conditions where updates arrive before initial state
+    // INVARIANT: initial snapshots must reach the socket before it joins live broadcasts.
+    // Registering first could deliver newer updates ahead of the older snapshot.
     let redis = get_redis_conn().await;
     let conn = (*redis).clone();
 
     let initial_messages = super::snapshot::load_initial_messages(conn).await;
 
-    // Send all initial messages directly before registering
     for msg in initial_messages {
         if ws_sender.send(msg).await.is_err() {
             println!(
@@ -55,7 +54,6 @@ async fn handle_socket(
         }
     }
 
-    // NOW register the client for future broadcasts
     clients.insert(id, tx.clone());
     println!("✅ Voter client {} registered for broadcasts", id);
 
@@ -71,7 +69,6 @@ async fn handle_socket(
         }
     });
 
-    // Clone tx for ping responses
     let tx_for_pong = tx.clone();
 
     let recv_task = tokio::spawn(async move {
@@ -82,7 +79,6 @@ async fn handle_socket(
                     break;
                 }
                 Ok(Message::Ping(data)) => {
-                    // Respond to ping with pong
                     if tx_for_pong.send(Message::Pong(data)).is_err() {
                         println!("Failed to send pong to client {}", id);
                         break;

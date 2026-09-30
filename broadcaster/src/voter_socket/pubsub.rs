@@ -17,7 +17,6 @@ pub async fn spawn_pubsub_listener(clients: ClientList) {
                 }
             }
 
-            // Wait before reconnecting
             tokio::time::sleep(Duration::from_secs(3)).await;
         }
     });

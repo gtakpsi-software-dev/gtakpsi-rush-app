@@ -18,7 +18,6 @@ pub async fn spawn_pubsub_listener(clients: ClientList) {
                 }
             }
 
-            // Wait before reconnecting
             tokio::time::sleep(Duration::from_secs(3)).await;
         }
     });
@@ -42,7 +41,7 @@ async fn run_admin_pubsub_listener(
         if let Ok(payload) = msg.get_payload::<String>() {
             match channel.as_str() {
                 "vote_channel" => {
-                    // Fetch all votes from Redis (payload contains the new vote data)
+                    // The pubsub payload signals a change; the admin board needs the full vote log.
                     let redis = get_redis_conn().await;
                     let mut conn = redis.as_ref().clone();
 

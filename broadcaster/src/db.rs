@@ -1,6 +1,4 @@
 use redis::aio::ConnectionManager;
-use redis::AsyncCommands;
-use redis::PubSub;
 use std::env;
 use std::sync::Arc;
 use std::time::Duration;

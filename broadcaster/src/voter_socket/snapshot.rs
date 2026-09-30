@@ -3,10 +3,9 @@ use axum::extract::ws::Message;
 use redis::{aio::ConnectionManager, AsyncCommands};
 
 pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Message> {
-    // Collect initial messages to send
     let mut initial_messages = Vec::new();
 
-    // Initial rushee snapshot
+    // Keep rushee JSON as a string because the clients decode it after the event envelope.
     match tokio::time::timeout(REDIS_CALL_TIMEOUT, conn.get::<_, Option<String>>("rushee")).await {
         Ok(Ok(Some(data))) => {
             let msg = serde_json::json!({
@@ -31,7 +30,6 @@ pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Me
         }
     }
 
-    // Initial question snapshot
     match tokio::time::timeout(
         REDIS_CALL_TIMEOUT,
         conn.get::<_, Option<String>>("question"),
