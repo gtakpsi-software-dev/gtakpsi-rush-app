@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 
 import Navbar from "../components/Navbar";
 import { verifyUser } from "../js/verifications";
+import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import CommentWarning from "../components/CommentWarning";
@@ -95,70 +96,30 @@ export default function RusheeZoom() {
     const userHasOwnComment = rushee ? hasOwnComment(rushee.comments, user) : false;
 
     useEffect(() => {
-
         async function fetch() {
-
-            await verifyUser()
-                .then(async (response) => {
-
-                    if (response == false) {
-                        navigate(`/error/${errorTitle}/${errorDescription}`);
-                    }
-
-                    // Check if user is admin or bidcom
-                    const currentUser = auth.currentUser;
-                    if (currentUser) {
-                        try {
-                            const tokenResult = await currentUser.getIdTokenResult(true);
-                            setIsAdmin(tokenResult.claims?.admin === true);
-                            setIsBidcom(tokenResult.claims?.bidcom === true);
-                        } catch (e) {
-                            console.error("Error checking admin/bidcom status:", e);
-                        }
-                    }
-
-                    await axios.get(`${api}/rushee/${gtid}`)
-                        .then((response) => {
-
-                            if (response.data.status === "success") {
-
-                                console.log(response.data.payload);
-                                setRushee(response.data.payload);
-
-                            } else {
-
-                                navigate(`/error/${errorTitle}/${"Rushee with this GTID does not exist"}`);
-                            }
-
-                        });
-
-                    // Fetch comment visibility settings
-                    try {
-                        const visibilityResponse = await axios.get(`${api}/brother/comment-visibility/status`);
-                        if (visibilityResponse.data.status === "success") {
-                            setRequireCommentToView(visibilityResponse.data.require_comment_to_view);
-                        }
-                    } catch (e) {
-                        console.error("Error fetching comment visibility settings:", e);
-                        // Keep default (require comment to view) on error
-                    }
-
-                })
-                .catch((error) => {
-
-                    setError(true);
-                    navigate(`/error/${errorTitle}/${errorDescription}`);
-
-                });
-
-            setLoading(false);
-
+            await loadRusheeZoom({
+                verifyUser,
+                navigate,
+                errorTitle,
+                errorDescription,
+                auth,
+                setIsAdmin,
+                setIsBidcom,
+                axios,
+                api,
+                gtid,
+                setRushee,
+                setRequireCommentToView,
+                setError,
+                setLoading,
+                logError: (message, error) => console.error(message, error),
+                logData: (value) => console.log(value),
+            });
         }
 
         if (loading == true) {
             fetch();
         }
-
     });
 
     const handleAddComment = () => {
