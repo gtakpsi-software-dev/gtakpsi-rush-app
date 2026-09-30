@@ -1,0 +1,65 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type")]
+pub(crate) enum IncomingMessage {
+    #[serde(rename = "join")]
+    Join {
+        is_admin: bool,
+        name: Option<String>,
+    },
+    #[serde(rename = "drag_start")]
+    DragStart {
+        rushee_id: String,
+        rushee_name: String,
+        x: f64,
+        y: f64,
+    },
+    #[serde(rename = "drag_move")]
+    DragMove { rushee_id: String, x: f64, y: f64 },
+    #[serde(rename = "drag_end")]
+    DragEnd { rushee_id: String },
+    #[serde(rename = "card_saved")]
+    CardSaved {
+        rushee_id: String,
+        new_status: String,
+    },
+}
+
+#[derive(Serialize, Debug)]
+#[serde(tag = "type")]
+pub(crate) enum OutgoingMessage {
+    #[serde(rename = "drag_start")]
+    DragStart {
+        dragger_name: String,
+        rushee_id: String,
+        rushee_name: String,
+        x: f64,
+        y: f64,
+    },
+    #[serde(rename = "drag_move")]
+    DragMove { rushee_id: String, x: f64, y: f64 },
+    #[serde(rename = "drag_end")]
+    DragEnd { rushee_id: String },
+    #[serde(rename = "card_moved")]
+    CardMoved {
+        rushee_id: String,
+        new_status: String,
+    },
+    #[serde(rename = "drag_denied")]
+    DragDenied {
+        rushee_id: String,
+        dragger_name: String,
+    },
+    #[serde(rename = "viewer_count")]
+    ViewerCount { count: usize },
+    #[serde(rename = "current_drag")]
+    CurrentDrag {
+        active: bool,
+        dragger_name: Option<String>,
+        rushee_id: Option<String>,
+        rushee_name: Option<String>,
+        x: f64,
+        y: f64,
+    },
+}

@@ -1,4 +1,6 @@
 use super::*;
+use futures_util::{SinkExt, StreamExt};
+use std::{net::SocketAddr, time::Duration};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
@@ -12,9 +14,7 @@ struct TestServer {
 impl TestServer {
     fn start() -> Self {
         let (state, _) = state();
-        let app = Router::new()
-            .route("/ws", get(ws_handler))
-            .with_state(state);
+        let app = crate::app::create_router(state);
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         listener.set_nonblocking(true).unwrap();
         let address = listener.local_addr().unwrap();

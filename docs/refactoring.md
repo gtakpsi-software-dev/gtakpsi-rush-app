@@ -137,6 +137,12 @@ internal names are standardized.
     broadcast delivery, and drag release/viewer counts on disconnect. All pass
     against the original implementation. The test client uses the already locked
     Tungstenite version; no existing dependency versions changed.
+22. Sorting service extraction: startup is 33 lines, with separate state,
+    protocol, router, session, message-handler, and stale-drag cleanup modules.
+    The four protocol/session functions and cleanup loop match their originals
+    after formatting. All seven tests pass, and the real WebSocket test now uses
+    the production router. Port defaults, health text, CORS, queue capacities,
+    cleanup timing, message names, and deployment paths are unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
