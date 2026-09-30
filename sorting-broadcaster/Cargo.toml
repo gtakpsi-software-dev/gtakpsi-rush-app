@@ -15,3 +15,5 @@ futures-util = "0.3"
 uuid = { version = "1", features = ["v4"] }
 tower-http = { version = "0.4", features = ["cors"] }
 
+[dev-dependencies]
+tokio-tungstenite = "=0.20.1"

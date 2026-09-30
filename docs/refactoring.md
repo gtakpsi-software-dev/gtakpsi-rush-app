@@ -131,6 +131,12 @@ internal names are standardized.
     bearer parser. Removed 131 lines of duplicated validation/parsing without
     changing role rules or rejection codes. All 32 API tests pass with the
     disposable MongoDB harness and API key enabled.
+21. Sorting WebSocket baseline: seven tests cover join/viewer counts, malformed
+    messages, admin-only actions, drag ownership, conflicts, and save notifications.
+    A real loopback WebSocket test covers connection snapshots, direct denial,
+    broadcast delivery, and drag release/viewer counts on disconnect. All pass
+    against the original implementation. The test client uses the already locked
+    Tungstenite version; no existing dependency versions changed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -170,8 +176,8 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 14 client tests, 10 collaboration tests, and 32 API
-tests with the integration feature. The last client build passes with baseline
+Current verified totals: 14 client tests, 10 collaboration tests, 7 sorting
+WebSocket tests, and 32 API tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
 application parity.

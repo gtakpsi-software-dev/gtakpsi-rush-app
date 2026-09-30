@@ -14,6 +14,9 @@ use std::{collections::HashMap, env, net::SocketAddr, sync::Arc, time::{Duration
 use tokio::sync::broadcast;
 use tower_http::cors::{Any, CorsLayer};
 
+#[cfg(test)]
+mod tests;
+
 /// Represents a connected client
 #[derive(Clone)]
 struct Client {
@@ -447,4 +450,3 @@ async fn broadcast_viewer_count(state: &Arc<AppState>) {
         let _ = state.broadcast_tx.send(json);
     }
 }
-
