@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import Navbar from "../components/Navbar";
 import { verifyUser } from "../js/verifications";
 import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
+import { createCommentCreateActions } from "../features/rushee/zoom/commentCreateActions";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import CommentWarning from "../components/CommentWarning";
@@ -122,34 +123,37 @@ export default function RusheeZoom() {
         }
     });
 
-    const handleAddComment = () => {
-        setIsAddingComment(true);
-        setCommentWarnings([]);
-        setRatings(createDefaultRatings());
-        setRatingNotSeen(createDefaultNotSeen());
-    };
-
-    const handleRatingChange = (field, value) => {
-        setRatings({
-            ...ratings,
-            [field]: value,
-        });
-    };
-
-    const handleRatingNotSeenChange = (field, notSeen) => {
-        setRatingNotSeen({
-            ...ratingNotSeen,
-            [field]: notSeen,
-        });
-    };
-
-    const validateNewComment = (commentText) => {
-        if (!rushee) return;
-        
-        const validationResult = validateComment(commentText, rushee.first_name, rushee.last_name);
-        const warnings = generateWarnings(validationResult);
-        setCommentWarnings(warnings);
-    };
+    const {
+        handleAddComment,
+        handleRatingChange,
+        handleRatingNotSeenChange,
+        validateNewComment,
+        handleSubmitComment,
+    } = createCommentCreateActions({
+        rushee,
+        user,
+        gtid,
+        api,
+        navigate,
+        ratings,
+        ratingNotSeen,
+        newComment,
+        ratingFields,
+        setIsAddingComment,
+        setCommentWarnings,
+        setRatings,
+        setRatingNotSeen,
+        setLoading,
+        setNewComment,
+        createDefaultRatings,
+        createDefaultNotSeen,
+        validateComment,
+        generateWarnings,
+        toast,
+        axios,
+        reload: () => window.location.reload(),
+        log: (value) => console.log(value),
+    });
 
     const validateEditComment = (commentText) => {
         if (!rushee) return;
@@ -157,97 +161,6 @@ export default function RusheeZoom() {
         const validationResult = validateComment(commentText, rushee.first_name, rushee.last_name);
         const warnings = generateWarnings(validationResult);
         setEditCommentWarnings(warnings);
-    };
-
-    const handleSubmitComment = async () => {
-        // Validate comment before submission
-        if (!rushee) return;
-        
-        const validationResult = validateComment(newComment, rushee.first_name, rushee.last_name);
-        
-        if (validationResult.hasWarnings) {
-            const warnings = generateWarnings(validationResult);
-            setCommentWarnings(warnings);
-            
-            // Show warning toast but allow submission
-            toast.warning("Comment contains potentially problematic language. Please review before submitting.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-        }
-
-        setLoading(true)
-
-        const actualRatings = []
-
-        for (const field of ratingFields) {
-            if (!ratingNotSeen[field]) {
-                actualRatings.push({
-                    name: field,
-                    value: ratings[field],
-                });
-            }
-        }
-
-        const payload = {
-            brother_id: "000000",
-            brother_name: user.firstname + " " + user.lastname,
-            comment: newComment,
-            ratings: actualRatings,
-        }
-
-        console.log(user)
-
-        await axios.post(`${api}/rushee/post-comment/${gtid}`, payload)
-            .then((response) => {
-
-                if (response.data.status === "success") {
-
-                    window.location.reload();
-
-                } else {
-
-                    const title = "Uh Oh! Something weird happened..."
-                    const description = "Something odd happened while submitting your comment..."
-
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
-
-                }
-
-            })
-            .catch((error) => {
-
-                console.log(error)
-
-                const title = "Uh Oh! Something weird happened..."
-                const description = "Some network error happened while submitting your comment..."
-
-                navigate(`/error/${title}/${description}`)
-
-            })
-
-        // Reset the form after submission
-        setNewComment("");
-        setCommentWarnings([]);
-        setRatings(createDefaultRatings());
-        setRatingNotSeen(createDefaultNotSeen());
-        setIsAddingComment(false);
-        setLoading(false)
     };
 
     const [copied, setCopied] = useState(false);

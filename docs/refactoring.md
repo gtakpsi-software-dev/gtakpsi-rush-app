@@ -451,6 +451,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     failed role/visibility reads, and profile request errors. All 87 client
     tests pass, the build succeeds, and CSS matches the baseline. The new files
     pass lint; the page retains its inherited lint errors and no new warnings.
+77. Rushee Zoom comment creation: moved rating and warning state handlers plus
+    submission into the zoom feature. Tests cover default ratings, live
+    validation, warning-but-submit behavior, seen-only rating payloads,
+    reload, errors, and form reset. All 91 client tests pass, the build succeeds,
+    and CSS matches the baseline. The new files pass lint; inherited page lint
+    errors are down to six.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -496,7 +502,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 87 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 91 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
