@@ -12,6 +12,7 @@ import { createAvailabilityEditorActions } from "../features/admin/availability/
 import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
 import PisQuestionsCard from "../features/admin/pis/PisQuestionsCard";
+import { createQuestionActions } from "../features/admin/pis/questionActions";
 import {
     formatCurrentPISTime,
     formatSlotTime,
@@ -232,63 +233,18 @@ export default function Admin() {
         }
     }, [loading, navigate, rusheeApiBase]);
 
-    const fetchPisQuestions = async () => {
-        setPisQuestionsLoading(true);
-        try {
-            const response = await axios.get(`${apiBase}/get_pis_questions`);
-            if (response.data.status === "success") {
-                const sorted = [...response.data.payload].sort((a, b) => {
-                    const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
-                    const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
-                    return orderA - orderB;
-                });
-                setPisQuestions(sorted);
-            }
-        } catch {
-            toast.error("Failed to load PIS questions", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-        setPisQuestionsLoading(false);
-    };
+    const { fetchPisQuestions, saveQuestionCategory } = createQuestionActions({
+        apiBase,
+        categoryEdits,
+        setPisQuestions,
+        setPisQuestionsLoading,
+        axios,
+        toast,
+    });
 
     useEffect(() => {
         fetchPisQuestions();
     }, []);
-
-    const saveQuestionCategory = async (q) => {
-        const rawCategory = (categoryEdits[q.question] ?? q.category ?? "").trim();
-        const category = rawCategory === "" ? null : rawCategory;
-        try {
-            const response = await axios.post(`${apiBase}/update_pis_question_category`, {
-                question: q.question,
-                question_type: q.question_type,
-                category,
-            });
-            if (response.data.status === "success") {
-                toast.success("Category updated!", {
-                    position: "top-center",
-                    autoClose: 2000,
-                    theme: "dark",
-                });
-                fetchPisQuestions();
-            } else {
-                toast.error(response.data.message || "Failed to update category", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "An error occurred", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-    };
 
     // Filter rushees based on search
     useEffect(() => {

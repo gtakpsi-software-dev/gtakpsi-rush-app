@@ -432,6 +432,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     after a successful mutation. All 75 client tests pass, the build succeeds,
     and CSS matches the baseline. `Admin.jsx` is now 580 lines; the new files
     pass lint and the two existing hook warnings remain.
+74. Admin PIS questions: moved question loading, stable order fallback, category
+    normalization, and save/refetch behavior into the PIS feature. Tests cover
+    copying before sorting, unnumbered questions, null categories, write
+    failures, and loading cleanup. All 79 client tests pass, the build succeeds,
+    and CSS matches the baseline. `Admin.jsx` is now 536 lines; the new files
+    pass lint and the two existing hook warnings remain.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -477,7 +483,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 75 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 79 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
