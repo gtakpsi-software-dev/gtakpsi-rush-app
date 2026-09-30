@@ -163,6 +163,9 @@ internal names are standardized.
 27. Voting fanout cleanup: admin and voter sockets now share one client map type
     and broadcast routine. Both original broadcast bodies match the shared one
     after formatting normalization. The real Redis/WebSocket suite still passes.
+28. Admin voting socket extraction: moved pub/sub subscriptions and retries away
+    from connection, snapshot, and ping/pong handling. All four function bodies
+    match the original after formatting; the Redis/WebSocket tests still pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
