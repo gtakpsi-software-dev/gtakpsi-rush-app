@@ -185,6 +185,12 @@ internal names are standardized.
     snapshot-before-registration ordering, and remove redundant comments.
     Compiler-confirmed unused Redis imports are gone. The voting crate's normal
     test command passes with no compiler warnings; runtime behavior is unchanged.
+34. Shared sorting board data: admin, bid-committee, and brother pages now use
+    one set of column labels, tag styles, zoom limits, empty columns, and stable
+    grouping logic. Three new tests cover visible labels/classes, unknown-status
+    fallback, ordering, fresh state arrays, and input identity. All 17 client
+    tests pass; the production build succeeds, generated CSS is byte-identical
+    to the starting baseline, and the affected JSX remains unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -224,7 +230,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 14 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 17 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated

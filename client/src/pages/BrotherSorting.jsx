@@ -5,29 +5,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import axios from "axios";
+import { STATUSES, TAGS, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
-
-const STATUSES = [
-    { key: "UNSORTED", label: "Unsorted" },
-    { key: "IN_CLOUD", label: "In Cloud" },
-    { key: "MID_CLOUD", label: "Mid Cloud" },
-    { key: "OUT_CLOUD", label: "Out Cloud" },
-    { key: "DISCUSSED", label: "Discussed Rushees" },
-    { key: "INELIGIBLE", label: "Ineligible" },
-];
-
-const TAGS = [
-    { key: "night_1", label: "Night 1", color: "bg-blue-100 text-blue-700 border-blue-200" },
-    { key: "night_2", label: "Night 2", color: "bg-purple-100 text-purple-700 border-purple-200" },
-    { key: "closed_night", label: "Closed Night", color: "bg-amber-100 text-amber-700 border-amber-200" },
-    { key: "closed_night_invite", label: "Closed Night Invite", color: "bg-orange-100 text-orange-700 border-orange-200" },
-    { key: "pis", label: "PIS", color: "bg-green-100 text-green-700 border-green-200" },
-    { key: "hard_no", label: "Hard No", color: "bg-red-100 text-red-600 border-red-200" },
-];
-
-const MIN_SCALE = 0.5;
-const MAX_SCALE = 2;
 
 export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
@@ -35,14 +15,7 @@ export default function BrotherSorting() {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
-    const [columns, setColumns] = useState({
-        UNSORTED: [],
-        IN_CLOUD: [],
-        MID_CLOUD: [],
-        OUT_CLOUD: [],
-        DISCUSSED: [],
-        INELIGIBLE: [],
-    });
+    const [columns, setColumns] = useState(createEmptyColumns());
     const [selectedRushee, setSelectedRushee] = useState(null);
     const [notes, setNotes] = useState("");
     const [notesLoading, setNotesLoading] = useState(false);
@@ -73,25 +46,7 @@ export default function BrotherSorting() {
 
             const response = await axios.get(`${apiBase}/sorting`);
             if (response.data.status === "success") {
-                const grouped = {
-                    UNSORTED: [],
-                    IN_CLOUD: [],
-                    MID_CLOUD: [],
-                    OUT_CLOUD: [],
-                    DISCUSSED: [],
-                    INELIGIBLE: [],
-                };
-                response.data.payload.forEach((r) => {
-                    if (grouped[r.sortingStatus]) {
-                        grouped[r.sortingStatus].push(r);
-                    } else {
-                        grouped.UNSORTED.push(r);
-                    }
-                });
-                Object.keys(grouped).forEach((k) => {
-                    grouped[k].sort((a, b) => a.sortingOrder - b.sortingOrder);
-                });
-                setColumns(grouped);
+                setColumns(groupSortingRows(response.data.payload));
             } else {
                 toast.error("Failed to load rushees");
             }
