@@ -407,6 +407,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and loading cleanup. All 60 client tests pass, the build succeeds, and CSS
     matches the baseline. `Admin.jsx` is now 944 lines with its two existing
     hook warnings; the new files pass lint.
+70. Admin availability editor actions: moved slot normalization, selection,
+    bulk actions, and save/refresh logic into the availability feature. Tests
+    cover both date formats, Set behavior, exact save payload and request order,
+    rejected saves, and failed refresh behavior. All 64 client tests pass, the
+    build succeeds, and CSS matches the baseline. `Admin.jsx` is now 874 lines;
+    the new files pass lint and the two existing hook warnings remain.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -452,7 +458,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 60 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 64 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
