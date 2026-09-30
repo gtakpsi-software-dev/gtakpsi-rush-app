@@ -305,6 +305,13 @@ internal names are standardized.
     handling. Two fake-browser tests cover supported and unsupported links.
     All 50 client tests pass, new files pass lint, the build succeeds, and CSS
     remains byte-identical. `Admin.jsx` is now 1,234 lines.
+54. Admin access settings actions: moved the Rush App, midterm, and comment
+    visibility request handlers into one access module. State stays on the page;
+    the module receives the current render's settings and preserves each full
+    update payload, actor, toast, and loading transition. Four tests cover
+    success, rejected responses, and transport failures. All 54 client tests
+    pass, the new files pass lint, the build succeeds, and CSS remains
+    byte-identical. `Admin.jsx` is now 1,129 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -350,7 +357,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 50 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 54 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
