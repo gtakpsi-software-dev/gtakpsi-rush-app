@@ -262,6 +262,12 @@ internal names are standardized.
     AST matches the original, and offline fake-service tests verify dry-run
     output, the `--apply` deletion queries and order, and import safety. All 11
     maintenance-script tests and Python compilation pass; no live cleanup ran.
+47. Admin access settings: moved the three Rush App, comment-visibility, and
+    midterm cards into one component while retaining state and update requests
+    on `Admin.jsx`. Original HTML matches normal, restricted, busy, and partial
+    disable states. Tests verify all four toggle fields and values. All 35 client
+    tests pass, the build succeeds, and CSS remains byte-identical. `Admin.jsx`
+    is now 1,692 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -307,7 +313,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 33 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 35 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
