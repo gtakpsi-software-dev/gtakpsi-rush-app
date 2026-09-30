@@ -9,6 +9,7 @@ import { STATUSES, TAGS, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingR
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
 import SortingZoomControls from "../features/sorting/SortingZoomControls";
 import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
+import SortingGhostCards from "../features/sorting/SortingGhostCards";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -489,26 +490,7 @@ export default function BidComSorting() {
             />
 
             {/* Ghost Cards - Shows when admin is dragging */}
-            {Object.values(ghostCards).map((ghost) => (
-                <div
-                    key={ghost.rusheeId}
-                    className="fixed z-50 pointer-events-none"
-                    style={{
-                        left: ghost.x,
-                        top: ghost.y,
-                        transform: "translate(-50%, -50%)",
-                    }}
-                >
-                    <div className="p-3 rounded-apple-lg border-2 border-blue-400 bg-blue-50/90 shadow-xl backdrop-blur-sm animate-pulse w-48">
-                        <div className="text-apple-body text-blue-700 font-semibold">
-                            {ghost.rusheeName}
-                        </div>
-                        <div className="text-apple-caption2 text-blue-500 mt-1">
-                            Being moved by {ghost.draggerName}
-                        </div>
-                    </div>
-                </div>
-            ))}
+            <SortingGhostCards ghostCards={ghostCards} wide={false} />
 
             {/* Fixed Zoom Controls - Bottom Left */}
             <SortingZoomControls

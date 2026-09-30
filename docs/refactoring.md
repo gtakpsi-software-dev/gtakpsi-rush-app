@@ -215,6 +215,11 @@ internal names are standardized.
     Original markup matches across disconnected, alone, multiple-viewer, and
     one/two-active-editor states for all three boards. All 24 client tests pass,
     the production build succeeds, and CSS remains byte-identical.
+39. Sorting ghost cards: moved the shared overlay markup out of all three boards,
+    retaining card order, keys, positions, editor names, and the admin-only wider
+    card class. Original markup matches in empty, single-card, and two-card
+    states for every board. All 25 client tests pass, the production build
+    succeeds, and CSS remains byte-identical.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -254,7 +259,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 24 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 25 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated

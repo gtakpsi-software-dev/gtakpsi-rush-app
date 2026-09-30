@@ -1,0 +1,51 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { runInNewContext } from "node:vm";
+
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { transformWithEsbuild } from "vite";
+
+const fixturePath = fileURLToPath(new URL("./fixtures/sortingGhostCards.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/sorting/SortingGhostCards.tsx", import.meta.url));
+const require = createRequire(import.meta.url);
+
+async function loadGhostCards() {
+    const source = await readFile(componentPath, "utf8");
+    const compiled = await transformWithEsbuild(source, componentPath, {
+        loader: "tsx",
+        format: "cjs",
+        jsx: "automatic",
+    });
+    const module = { exports: {} };
+    runInNewContext(compiled.code, { module, exports: module.exports, require }, { filename: componentPath });
+    return module.exports.default;
+}
+
+test("all sorting boards retain ghost card positions, names, and widths", async () => {
+    const expected = JSON.parse(await readFile(fixturePath, "utf8"));
+    const SortingGhostCards = await loadGhostCards();
+    const scenarios = {
+        empty: {},
+        single: { a: { rusheeId: "a", rusheeName: "Ada Example", draggerName: "Alex", x: 30, y: 50 } },
+        multiple: {
+            a: { rusheeId: "a", rusheeName: "Ada Example", draggerName: "Alex", x: 30, y: 50 },
+            b: { rusheeId: "b", rusheeName: "Bea Example", draggerName: "Blair", x: 80, y: 90 },
+        },
+    };
+
+    for (const page of ["AdminSorting.jsx", "BidComSorting.jsx", "BrotherSorting.jsx"]) {
+        for (const [scenario, ghostCards] of Object.entries(scenarios)) {
+            const html = renderToStaticMarkup(React.createElement(SortingGhostCards, {
+                ghostCards,
+                wide: page === "AdminSorting.jsx",
+            }));
+            const hash = createHash("sha256").update(html).digest("hex");
+            assert.equal(hash, expected[`${page}_${scenario}`], `${page} ${scenario} changed`);
+        }
+    }
+});
