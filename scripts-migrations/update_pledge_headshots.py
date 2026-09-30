@@ -3,7 +3,6 @@ Upload pledge headshots to Firebase Storage and update image_url in MongoDB.
 """
 
 import os
-import sys
 import time
 import io
 from pymongo import MongoClient
@@ -11,23 +10,6 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, storage
 from PIL import Image, ImageOps
-
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
-
-mongo_uri = os.getenv("MONGO_URI")
-firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
-firebase_storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
-
-if not firebase_admin._apps:
-    cred = credentials.Certificate(firebase_credentials_path)
-    firebase_admin.initialize_app(cred, {'storageBucket': firebase_storage_bucket})
-
-print("Connecting to MongoDB...")
-client = MongoClient(mongo_uri, serverSelectionTimeoutMS=10000)
-client.admin.command('ping')
-db = client["rush-app"]
-collection = db["rushees"]
-print("Connected!")
 
 # Map filename (without extension) → GTID
 FILENAME_TO_GTID = {
@@ -62,67 +44,92 @@ FILENAME_TO_GTID = {
     "vivaan-sahni":        "904100267",
 }
 
-headshots_dir = os.path.join(os.path.dirname(__file__), '..', 'Pledge Headshots')
-bucket = storage.bucket()
 
-success = 0
-errors = []
+def main():
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-for filename in sorted(os.listdir(headshots_dir)):
-    if not filename.lower().endswith(('.jpeg', '.jpg', '.png')):
-        continue
+    mongo_uri = os.getenv("MONGO_URI")
+    firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
+    firebase_storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
 
-    stem = os.path.splitext(filename)[0]
-    gtid = FILENAME_TO_GTID.get(stem)
+    # Service credentials are loaded only during direct execution and must stay server-side.
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(firebase_credentials_path)
+        firebase_admin.initialize_app(cred, {'storageBucket': firebase_storage_bucket})
 
-    if not gtid:
-        errors.append(f"  No GTID mapping for: {filename}")
-        continue
+    print("Connecting to MongoDB...")
+    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=10000)
+    client.admin.command('ping')
+    db = client["rush-app"]
+    collection = db["rushees"]
+    print("Connected!")
 
-    rushee = collection.find_one({"gtid": gtid})
-    if not rushee:
-        errors.append(f"  Rushee not found in DB for GTID {gtid} ({stem})")
-        continue
+    headshots_dir = os.path.join(os.path.dirname(__file__), '..', 'Pledge Headshots')
+    bucket = storage.bucket()
 
-    file_path = os.path.join(headshots_dir, filename)
-    timestamp = int(time.time() * 1000)
-    blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
+    success = 0
+    errors = []
 
-    try:
-        # Compress: fix EXIF rotation first, then resize to max 600px, quality 82
-        img = Image.open(file_path)
-        img = ImageOps.exif_transpose(img)  # Apply EXIF orientation before stripping metadata
-        img = img.convert("RGB")
-        img.thumbnail((600, 600), Image.LANCZOS)
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=82, optimize=True)
-        compressed_size = buffer.tell()
-        buffer.seek(0)
+    for filename in sorted(os.listdir(headshots_dir)):
+        if not filename.lower().endswith(('.jpeg', '.jpg', '.png')):
+            continue
 
-        original_size = os.path.getsize(file_path)
-        print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")
+        stem = os.path.splitext(filename)[0]
+        gtid = FILENAME_TO_GTID.get(stem)
 
-        blob = bucket.blob(blob_name)
-        blob.upload_from_file(buffer, content_type="image/jpeg")
-        blob.make_public()
-        url = blob.public_url
+        if not gtid:
+            errors.append(f"  No GTID mapping for: {filename}")
+            continue
 
-        collection.update_one({"gtid": gtid}, {"$set": {"image_url": url}})
+        rushee = collection.find_one({"gtid": gtid})
+        if not rushee:
+            errors.append(f"  Rushee not found in DB for GTID {gtid} ({stem})")
+            continue
 
-        name = f"{rushee.get('first_name')} {rushee.get('last_name')}"
-        print(f"✓ {name}")
-        success += 1
+        file_path = os.path.join(headshots_dir, filename)
+        timestamp = int(time.time() * 1000)
+        blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
 
-    except Exception as e:
-        errors.append(f"  ✗ {stem} ({gtid}): {e}")
+        try:
+            # Compress: fix EXIF rotation first, then resize to max 600px, quality 82
+            img = Image.open(file_path)
+            img = ImageOps.exif_transpose(img)  # Apply EXIF orientation before stripping metadata
+            img = img.convert("RGB")
+            img.thumbnail((600, 600), Image.LANCZOS)
+            buffer = io.BytesIO()
+            img.save(buffer, format="JPEG", quality=82, optimize=True)
+            compressed_size = buffer.tell()
+            buffer.seek(0)
 
-print(f"\n── Results ──────────────────────────────")
-print(f"Updated: {success} rushees")
-if errors:
-    print(f"Errors ({len(errors)}):")
-    for e in errors:
-        print(e)
-else:
-    print("No errors!")
+            original_size = os.path.getsize(file_path)
+            print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")
 
-client.close()
+            blob = bucket.blob(blob_name)
+            blob.upload_from_file(buffer, content_type="image/jpeg")
+            # The stored image_url uses this public URL; changing access breaks existing profile images.
+            blob.make_public()
+            url = blob.public_url
+
+            collection.update_one({"gtid": gtid}, {"$set": {"image_url": url}})
+
+            name = f"{rushee.get('first_name')} {rushee.get('last_name')}"
+            print(f"✓ {name}")
+            success += 1
+
+        except Exception as e:
+            errors.append(f"  ✗ {stem} ({gtid}): {e}")
+
+    print(f"\n── Results ──────────────────────────────")
+    print(f"Updated: {success} rushees")
+    if errors:
+        print(f"Errors ({len(errors)}):")
+        for e in errors:
+            print(e)
+    else:
+        print("No errors!")
+
+    client.close()
+
+
+if __name__ == "__main__":
+    main()
