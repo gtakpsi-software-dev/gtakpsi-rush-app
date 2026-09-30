@@ -6,7 +6,7 @@ use crate::{
 };
 use std::fmt;
 use serde_json::from_str;
-use redis::{AsyncCommands, aio::ConnectionManager};
+use redis::AsyncCommands;
 
 #[derive(Debug)]
 pub struct VotingError {

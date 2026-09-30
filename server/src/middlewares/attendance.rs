@@ -1,10 +1,6 @@
-use std::collections::HashSet;
 use std::io::Error;
 use futures::stream::StreamExt;
-use mongodb::{
-    bson::{doc, to_bson, Document},
-    Client, Collection,
-};
+use mongodb::bson::doc;
 
 use crate::models::misc::RushNight;
 use crate::controllers::db;

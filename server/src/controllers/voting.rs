@@ -1,22 +1,13 @@
-use crate::middlewares::rushee;
 use crate::models::rushee::{IncomingRusheeVote, RusheeVote, VoteOption};
 use anyhow::{Error, Result};
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::{get, post},
-    Router,
-};
+use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_string, Value};
-use std::sync::Arc;
 
 use super::db::get_redis_conn;
 use crate::middlewares::attendance;
 use crate::middlewares::rushee::fetch_rushee;
-use crate::middlewares::voting::{fetch_question, fetch_rushee_from_redis};
 use crate::middlewares::rush_nights::enrich_interactions_by_night;
 use crate::models::rushee::RusheeModel;
 

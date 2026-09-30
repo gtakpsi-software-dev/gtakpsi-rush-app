@@ -1,7 +1,7 @@
 use bson::DateTime;
 use serde::{Deserialize, Serialize};
 
-use super::{misc::RushNight, pis::{PISQuestion, PISSignup, PISTimeslot}};
+use super::{misc::RushNight, pis::{PISQuestion, PISSignup}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RusheeEdit {

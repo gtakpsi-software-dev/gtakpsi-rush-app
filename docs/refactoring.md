@@ -151,6 +151,9 @@ internal names are standardized.
     authoritative), simplified state/router construction, and replaced redundant
     comments with ownership and lifecycle rationale. Test fixtures now use the
     production state constructor. All eight tests pass with no compiler warnings.
+25. API import cleanup: removed compiler-confirmed unused imports in registration,
+    voting, attendance, and rushee models. `cargo check --locked` passes; this
+    slice changes imports only. Other existing API warnings remain tracked debt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

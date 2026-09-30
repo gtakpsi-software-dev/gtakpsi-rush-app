@@ -6,7 +6,6 @@ use crate::models::{
     rushee::{Comment, IncomingRushee, PisResponse, Rating, RusheeModel},
 };
 use axum::{http::StatusCode, response::Json};
-use mongodb::bson::doc;
 use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};
 use serde_json::{json, Value};
