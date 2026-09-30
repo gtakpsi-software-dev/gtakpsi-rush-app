@@ -9,6 +9,7 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::broadcast;
 use tokio::sync::broadcast::{error::TryRecvError, Receiver};
 
+mod cleanup;
 mod drag;
 mod protocol;
 mod websocket;
