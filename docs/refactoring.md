@@ -372,6 +372,11 @@ internal names are standardized.
     version zero for text written by legacy operations. Two tests cover both
     entry paths, unjoined/missing-room requests, and fresh snapshot objects.
     All 14 collaboration tests pass against the real loopback Socket.IO server.
+65. Sorting WebSocket ownership checks: shared the joined-admin and active-drag
+    owner checks across start/save and move/end messages. The checks retain
+    viewer defaults and allow an existing owner to finish after a role change.
+    A new test covers missing clients and unknown cards. All 9 sorting service
+    tests, including a real loopback WebSocket test, pass; rustfmt is clean.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -417,7 +422,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 54 client tests, 14 collaboration tests, 8 sorting
+Current verified totals: 54 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing

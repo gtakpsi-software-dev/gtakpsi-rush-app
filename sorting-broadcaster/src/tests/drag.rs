@@ -79,3 +79,43 @@ async fn conflicting_drag_is_denied_only_to_requester_and_same_owner_can_restart
     assert_eq!(receive(&mut broadcasts)["rushee_id"], "second-card");
     assert_eq!(state.drag_state.read().await.len(), 2);
 }
+
+#[tokio::test]
+async fn missing_clients_and_unknown_cards_cannot_move_or_end_drags() {
+    let (state, mut broadcasts) = state();
+    add_client(&state, "owner");
+    join_admin(&state, "owner", None).await;
+
+    for client in ["owner", "missing"] {
+        send(
+            &state,
+            client,
+            json!({"type": "drag_move", "rushee_id": "unknown", "x": 4.0, "y": 5.0}),
+        )
+        .await;
+        send(
+            &state,
+            client,
+            json!({"type": "drag_end", "rushee_id": "unknown"}),
+        )
+        .await;
+    }
+    assert_empty(&mut broadcasts);
+
+    start_drag(&state, "owner", "card").await;
+    receive(&mut broadcasts);
+    send(
+        &state,
+        "missing",
+        json!({"type": "drag_move", "rushee_id": "card", "x": 4.0, "y": 5.0}),
+    )
+    .await;
+    send(
+        &state,
+        "missing",
+        json!({"type": "drag_end", "rushee_id": "card"}),
+    )
+    .await;
+    assert_empty(&mut broadcasts);
+    assert_eq!(state.drag_state.read().await["card"].position_x, 10.5);
+}

@@ -4,6 +4,23 @@ use crate::{
 };
 use std::{sync::Arc, time::Instant};
 
+fn joined_as_admin(state: &AppState, client_id: &str) -> bool {
+    // Unjoined clients remain viewers until a join message supplies their role.
+    state
+        .clients
+        .get(client_id)
+        .map(|client| client.is_admin)
+        .unwrap_or(false)
+}
+
+async fn owns_drag(state: &AppState, client_id: &str, rushee_id: &str) -> bool {
+    // A drag owner may finish moving after a role change; other clients cannot take it over.
+    let drag = state.drag_state.read().await;
+    drag.get(rushee_id)
+        .map(|drag| drag.dragger_id == client_id)
+        .unwrap_or(false)
+}
+
 pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
     let msg: Result<IncomingMessage, _> = serde_json::from_str(text);
 
@@ -25,14 +42,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
             x,
             y,
         }) => {
-            // The existing join protocol supplies the role; viewers cannot initiate card movement.
-            let is_admin = state
-                .clients
-                .get(client_id)
-                .map(|c| c.is_admin)
-                .unwrap_or(false);
-
-            if !is_admin {
+            if !joined_as_admin(state, client_id) {
                 return;
             }
 
@@ -87,15 +97,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
         }
 
         Ok(IncomingMessage::DragMove { rushee_id, x, y }) => {
-            // Ignore other clients so they cannot overwrite the current owner's position.
-            let is_dragger = {
-                let drag = state.drag_state.read().await;
-                drag.get(&rushee_id)
-                    .map(|state| state.dragger_id == client_id)
-                    .unwrap_or(false)
-            };
-
-            if !is_dragger {
+            if !owns_drag(state, client_id, &rushee_id).await {
                 return;
             }
 
@@ -115,15 +117,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
         }
 
         Ok(IncomingMessage::DragEnd { rushee_id }) => {
-            // Ignore other clients so they cannot release the current owner's card.
-            let is_dragger = {
-                let drag = state.drag_state.read().await;
-                drag.get(&rushee_id)
-                    .map(|state| state.dragger_id == client_id)
-                    .unwrap_or(false)
-            };
-
-            if !is_dragger {
+            if !owns_drag(state, client_id, &rushee_id).await {
                 return;
             }
 
@@ -142,14 +136,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
             rushee_id,
             new_status,
         }) => {
-            // Viewers do not publish save notifications to the shared board.
-            let is_admin = state
-                .clients
-                .get(client_id)
-                .map(|c| c.is_admin)
-                .unwrap_or(false);
-
-            if !is_admin {
+            if !joined_as_admin(state, client_id) {
                 return;
             }
 
