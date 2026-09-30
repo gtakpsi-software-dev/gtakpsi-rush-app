@@ -37,6 +37,12 @@ internal names are standardized.
    server using real local HTTP and Socket.IO connections. They cover membership,
    health/stats, full-text acknowledgments, stale-version rejection, hydration,
    presence, room isolation, legacy transforms, and bounded history.
+3. Collaboration server extraction: the 365-line entrypoint is now 26 lines;
+   `src/app.js` composes HTTP routes, room cleanup, and focused membership,
+   operation, update, and presence handlers. All 10 tests pass, including cleanup
+   boundaries and reconnect retention. Executable AST comparison confirms all
+   10 original HTTP/socket callbacks are unchanged except injected timer access.
+   The deployment command, port, signals, event names, and payloads are retained.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

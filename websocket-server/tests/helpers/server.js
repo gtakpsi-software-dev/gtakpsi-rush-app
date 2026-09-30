@@ -1,18 +1,11 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const vm = require('node:vm');
-const { createRequire } = require('node:module');
+const { createCollaborationServer } = require('../../src/app');
 const { once } = require('node:events');
 const { io: connect } = require('socket.io-client');
 
 async function startServer(t) {
-    const entrypoint = path.resolve(__dirname, '../../server.js');
     const timeouts = [];
     const intervals = [];
-    const context = {
-        require: createRequire(entrypoint),
-        process: { env: { PORT: '0' }, on() {} },
-        console: { log() {} },
+    const timers = {
         setTimeout: (...args) => {
             const timer = setTimeout(...args);
             timeouts.push(timer);
@@ -25,9 +18,7 @@ async function startServer(t) {
         },
     };
 
-    // Exercise the unmodified entrypoint while isolating signal handlers and timers.
-    vm.runInNewContext(`${fs.readFileSync(entrypoint, 'utf8')}\nthis.service = { server, io };`, context);
-    const { server, io } = context.service;
+    const { server, io } = createCollaborationServer({ timers });
     const clients = [];
     t.after(async () => {
         for (const client of clients) client.disconnect();
@@ -35,7 +26,8 @@ async function startServer(t) {
         for (const timer of timeouts) clearTimeout(timer);
         for (const timer of intervals) clearInterval(timer);
     });
-    if (!server.listening) await once(server, 'listening');
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
     const url = `http://127.0.0.1:${server.address().port}`;
 
     return {
