@@ -88,6 +88,10 @@ internal names are standardized.
     code. The integration command runs 20 passing Rust tests (19 unit tests plus
     one database scenario suite); it tests real handlers and persistence, with
     HTTP routing/auth integration still to follow.
+14. Rushee comments extraction: creation, deletion, editing, and brother comment
+    lookup live in separate files with the existing rating predicate. All four
+    handler bodies match their originals after formatting. All 20 API tests,
+    including real MongoDB comment/rating scenarios, pass after extraction.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
