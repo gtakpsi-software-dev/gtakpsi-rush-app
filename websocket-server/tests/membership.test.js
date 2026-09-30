@@ -1,0 +1,61 @@
+const assert = require('node:assert/strict');
+const test = require('node:test');
+const { registerMembershipHandlers } = require('../src/handlers/membership');
+
+function setup() {
+    const handlers = new Map();
+    const direct = [];
+    const broadcasts = [];
+    const socket = {
+        id: 'socket-1',
+        on: (name, handler) => handlers.set(name, handler),
+        join: (roomId) => broadcasts.push(['join', roomId]),
+        emit: (name, payload) => direct.push([name, payload]),
+        to: (roomId) => ({ emit: (name, payload) => broadcasts.push([roomId, name, payload]) }),
+    };
+    const io = {
+        to: (roomId) => ({ emit: (name, payload) => broadcasts.push([roomId, name, payload]) }),
+    };
+    const rooms = new Map();
+    const userSockets = new Map();
+    registerMembershipHandlers(io, socket, rooms, userSockets, { setTimeout() {} });
+    return { handlers, direct, broadcasts, rooms, userSockets };
+}
+
+test('join and explicit requests serialize the same document fields and legacy version zero', () => {
+    const state = setup();
+    const room = {
+        users: new Map(), operations: [],
+        document: new Map([['notes', 'Saved text'], ['legacy', 'Older text']]),
+        versions: new Map([['notes', 3]]),
+        lastActivity: 'old',
+    };
+    state.rooms.set('pis-1', room);
+
+    state.handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother-1', userName: 'Brother One' });
+    state.handlers.get('request-document-state')();
+
+    assert.deepEqual(state.direct, [
+        ['document-state', {
+            notes: { value: 'Saved text', version: 3 },
+            legacy: { value: 'Older text', version: 0 },
+        }],
+        ['document-state', {
+            notes: { value: 'Saved text', version: 3 },
+            legacy: { value: 'Older text', version: 0 },
+        }],
+    ]);
+    assert.notEqual(state.direct[0][1], state.direct[1][1]);
+    assert.equal(state.userSockets.get('socket-1').roomId, 'pis-1');
+    assert.equal(room.users.get('brother-1').name, 'Brother One');
+    assert.ok(Number.isFinite(Date.parse(room.lastActivity)));
+    assert.equal(state.broadcasts[1][1], 'users-updated');
+});
+
+test('document-state requests without a joined room remain silent', () => {
+    const state = setup();
+    state.handlers.get('request-document-state')();
+    state.userSockets.set('socket-1', { roomId: 'missing' });
+    state.handlers.get('request-document-state')();
+    assert.deepEqual(state.direct, []);
+});

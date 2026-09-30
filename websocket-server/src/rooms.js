@@ -12,4 +12,14 @@ function scheduleRoomCleanup(rooms, timers) {
     }, 10 * 60 * 1000); // Run every 10 minutes
 }
 
-module.exports = { scheduleRoomCleanup };
+function snapshotDocument(room) {
+    const documentState = {};
+    for (const [field, content] of room.document.entries()) {
+        // Legacy operations can change text without a version entry; clients still receive version zero.
+        const version = room.versions.get(field) || 0;
+        documentState[field] = { value: content, version };
+    }
+    return documentState;
+}
+
+module.exports = { scheduleRoomCleanup, snapshotDocument };

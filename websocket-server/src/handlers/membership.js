@@ -1,3 +1,5 @@
+const { snapshotDocument } = require('../rooms');
+
 function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
     socket.on('join-room', ({ roomId, userId, userName }) => {
         socket.join(roomId);
@@ -24,12 +26,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
         room.users.set(userId, userInfo);
         room.lastActivity = new Date().toISOString();
 
-        const documentState = {};
-        for (const [field, content] of room.document.entries()) {
-            const version = room.versions.get(field) || 0;
-            documentState[field] = { value: content, version };
-        }
-        socket.emit('document-state', documentState);
+        socket.emit('document-state', snapshotDocument(room));
 
         const userList = Array.from(room.users.values());
         io.to(roomId).emit('users-updated', userList);
@@ -43,12 +40,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
         const room = rooms.get(roomId);
         if (!room) return;
 
-        const documentState = {};
-        for (const [field, content] of room.document.entries()) {
-            const version = room.versions.get(field) || 0;
-            documentState[field] = { value: content, version };
-        }
-        socket.emit('document-state', documentState);
+        socket.emit('document-state', snapshotDocument(room));
     });
 
     socket.on('disconnect', () => {

@@ -367,6 +367,11 @@ internal names are standardized.
     retaining both event names and payloads. Two unit tests cover unjoined and
     missing-room drops, identity override, and activity updates. All 12
     collaboration tests pass against the real loopback Socket.IO server.
+64. Collaboration document snapshots: join hydration and explicit state
+    requests now use one room serializer. It retains per-field versions and
+    version zero for text written by legacy operations. Two tests cover both
+    entry paths, unjoined/missing-room requests, and fresh snapshot objects.
+    All 14 collaboration tests pass against the real loopback Socket.IO server.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -412,7 +417,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 54 client tests, 12 collaboration tests, 8 sorting
+Current verified totals: 54 client tests, 14 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
