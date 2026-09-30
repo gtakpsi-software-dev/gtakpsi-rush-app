@@ -177,6 +177,10 @@ internal names are standardized.
     harness uses that production router and verifies the health response plus
     both WebSocket paths against disposable Redis. Startup still binds the same
     default port and starts both subscription loops before serving.
+32. Voting snapshot extraction: admin and voter initial Redis reads now live in
+    role-specific snapshot modules, leaving both session files at 112 lines.
+    Each query and serialization block matches the original after formatting;
+    the live Redis/WebSocket suite confirms snapshot order and payloads.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
