@@ -92,6 +92,13 @@ internal names are standardized.
     lookup live in separate files with the existing rating predicate. All four
     handler bodies match their originals after formatting. All 20 API tests,
     including real MongoDB comment/rating scenarios, pass after extraction.
+15. Rushee controller extraction complete: the former 1,491-line file is now a
+    20-line module index. Registration, lookup, profile edits, and attendance
+    have separate modules; all nine remaining handler bodies match the originals.
+    Added database assertions for duplicate check-in prevention, profile/PIS
+    name synchronization, sequential partial writes, and lookup responses before
+    moving those handlers. All 20 API tests pass after extraction. Removed the
+    unused private `Params` struct while removing the old controller file.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -100,10 +107,9 @@ unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
-- Decompose `controllers/rushee.rs` with model, rating, PIS, and request-contract
-  tests. Keep database operations and their ordering unchanged.
 - Extract and test API routing/auth boundaries without contacting Firebase or
-  production databases. Add isolated database integration coverage where feasible.
+  production databases. Expand the isolated database scenarios for remaining
+  branches and simplify long handler functions under those tests.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
 - Characterize and split the Rust voting and sorting real-time services; align
