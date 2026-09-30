@@ -7,6 +7,7 @@ import { auth } from "../firebase";
 import axios from "axios";
 import { STATUSES, TAGS, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
+import SortingZoomControls from "../features/sorting/SortingZoomControls";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -438,33 +439,12 @@ export default function BrotherSorting() {
             ))}
 
             {/* Fixed Zoom Controls - Bottom Left */}
-            <div className="fixed bottom-20 left-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-2xl px-4 py-3 shadow-lg">
-                <button
-                    onClick={zoomOut}
-                    className="w-10 h-10 flex items-center justify-center text-apple-gray-700 hover:text-black hover:bg-apple-gray-100 rounded-xl transition-colors text-2xl font-light"
-                    title="Zoom out"
-                >
-                    −
-                </button>
-                <span className="text-sm text-apple-gray-600 w-14 text-center font-medium">
-                    {Math.round(scale * 100)}%
-                </span>
-                <button
-                    onClick={zoomIn}
-                    className="w-10 h-10 flex items-center justify-center text-apple-gray-700 hover:text-black hover:bg-apple-gray-100 rounded-xl transition-colors text-2xl font-light"
-                    title="Zoom in"
-                >
-                    +
-                </button>
-                <div className="w-px h-8 bg-apple-gray-200 mx-2"></div>
-                <button
-                    onClick={resetView}
-                    className="px-3 h-10 flex items-center justify-center text-sm text-apple-gray-600 hover:text-black hover:bg-apple-gray-100 rounded-xl transition-colors font-medium"
-                    title="Reset view"
-                >
-                    Reset
-                </button>
-            </div>
+            <SortingZoomControls
+                scale={scale}
+                onZoomOut={zoomOut}
+                onZoomIn={zoomIn}
+                onResetView={resetView}
+            />
 
             <div className="relative w-full h-[calc(100vh-80px)] mt-16 overflow-hidden">
                 <div
