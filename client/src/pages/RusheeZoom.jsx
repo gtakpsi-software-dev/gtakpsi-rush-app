@@ -10,6 +10,7 @@ import { createCommentCreateActions } from "../features/rushee/zoom/commentCreat
 import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";
 import ZoomModals from "../features/rushee/zoom/ZoomModals";
 import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
+import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import CommentWarning from "../components/CommentWarning";
@@ -20,7 +21,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Badges from "../components/Badge";
-import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
 import RatingSlider from "../components/RatingSlider";
 import { formatRatingValue } from "../js/ratingDisplay";
 import {
@@ -232,42 +232,7 @@ export default function RusheeZoom() {
                                     </div>
                                 )}
 
-                                {/* Ratings — gated on the same switch as comments */}
-                                <div className="card-apple p-6 mb-6">
-                                    <h2 className="text-apple-title1 font-light text-black mb-4">Ratings</h2>
-
-                                    {showAllComments ? (
-                                        <div className="flex flex-col gap-4">
-                                            {rushee.ratings.map((rating, idx) => (
-                                                <div key={idx} className="w-full">
-                                                    <p className="text-apple-body text-black font-normal mb-2">{rating.name}</p>
-                                                    <div className="w-full bg-apple-gray-100 rounded-apple h-3">
-                                                        <div
-                                                            className="bg-black h-3 rounded-apple transition-all duration-300"
-                                                            style={{ width: `${(rating.value / 5) * 100}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <p className="text-apple-footnote text-apple-gray-600 font-light mt-1">{`${rating.value.toFixed(2)}/5.00`}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-apple-footnote text-apple-gray-500 font-light italic">
-                                            Ratings are hidden until comment viewing is enabled
-                                        </p>
-                                    )}
-
-                                    <div className="mt-6 pt-4 border-t border-apple-gray-200">
-                                        <h3 className="text-apple-headline font-light text-black mb-2">
-                                            Interactions
-                                        </h3>
-                                        <RusheeInteractionsByNight
-                                            nights={rushee.interactions_by_night}
-                                            attendance={rushee.attendance}
-                                            comments={rushee.comments}
-                                        />
-                                    </div>
-                                </div>
+                                <RusheeRatings rushee={rushee} showAllComments={showAllComments} />
 
                                 {/* PIS Responses */}
                                 <div className="card-apple p-6 mb-6 max-h-[40rem] overflow-y-auto">
