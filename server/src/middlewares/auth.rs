@@ -13,6 +13,9 @@ use serde::Deserialize;
 use serde_json::Value;
 use tokio::sync::RwLock;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone)]
 pub struct FirebaseAuth {
     project_id: String,
@@ -617,4 +620,3 @@ where
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)
 }
-

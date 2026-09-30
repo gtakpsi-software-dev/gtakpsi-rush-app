@@ -114,6 +114,14 @@ internal names are standardized.
     tests pass with MongoDB/API-key validation enabled, and all five HTTP tests
     pass again without a configured key after the final cleanup.
 
+18. Authentication baseline: seven offline tests exercise the full admin/bidcom/
+    allowlist matrix with locally signed RSA tokens, claim/signature rejection,
+    missing service accounts, HTTP role gates, and bearer parsing. They preserve
+    the existing distinction between extractor rejection (403 for invalid tokens)
+    and middleware rejection (401). The fixture keys are disposable public test
+    data, and the populated certificate cache prevents Firebase requests. All
+    seven tests pass against the original authentication implementation.
+
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`; the selected Xcode app has an
@@ -121,7 +129,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
-- Add offline signed-token role tests, split the authentication module, expand
+- Split the authentication module under the offline signed-token tests, expand
   database scenarios for remaining branches, and simplify long handler functions
   under those tests.
 - Separate client domain helpers from hooks and external services; standardize
