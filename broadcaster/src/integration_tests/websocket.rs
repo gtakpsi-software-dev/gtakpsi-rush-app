@@ -88,8 +88,32 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
             .is_err()
     );
 
+    let _: i64 = conn.del("rushee").await.unwrap();
+    let _: () = conn.set("question", r#"{"prompt":"saved"}"#).await.unwrap();
+    let mut later_admin = connect(&format!("{}/admin/19", server.url)).await;
+    assert_eq!(receive(&mut later_admin).await["type"], "vote_update");
+    assert_eq!(
+        receive(&mut later_admin).await,
+        json!({"type":"rushee_update","rushee":null})
+    );
+    assert_eq!(
+        receive(&mut later_admin).await,
+        json!({"type":"question_update","question":r#"{"prompt":"saved"}"#})
+    );
+    let mut later_voter = connect(&format!("{}/voter/20", server.url)).await;
+    assert_eq!(
+        receive(&mut later_voter).await,
+        json!({"type":"rushee_update","rushee":null})
+    );
+    assert_eq!(
+        receive(&mut later_voter).await,
+        json!({"type":"question_update","question":r#"{"prompt":"saved"}"#})
+    );
+
     admin.close(None).await.unwrap();
     voter.close(None).await.unwrap();
+    later_admin.close(None).await.unwrap();
+    later_voter.close(None).await.unwrap();
     tokio::time::timeout(Duration::from_secs(2), async {
         while !server.admins.is_empty() || !server.voters.is_empty() {
             tokio::time::sleep(Duration::from_millis(10)).await;

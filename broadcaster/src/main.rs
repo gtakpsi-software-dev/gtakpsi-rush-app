@@ -2,6 +2,7 @@ mod admin_socket;
 mod app;
 mod clients;
 mod db;
+mod snapshot;
 mod voter_socket;
 
 #[cfg(test)]

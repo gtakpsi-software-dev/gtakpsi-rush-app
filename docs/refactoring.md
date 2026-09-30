@@ -377,6 +377,12 @@ internal names are standardized.
     viewer defaults and allow an existing owner to finish after a role change.
     A new test covers missing clients and unknown cards. All 9 sorting service
     tests, including a real loopback WebSocket test, pass; rustfmt is clean.
+66. Voting WebSocket snapshot reads: both roles now use one Redis reader for
+    rushee and question fields. Admins still receive votes first; voters do
+    not receive votes. The reader retains stored JSON as a string, nulls for
+    absent values, per-field timeouts, and the existing error logs. Expanded
+    disposable-Redis coverage checks both roles with a missing rushee and a
+    saved question. Both voting service tests pass; rustfmt is clean.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
