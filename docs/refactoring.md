@@ -506,6 +506,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     restricted. All 109 client tests pass, the build succeeds, and CSS matches
     the baseline. The generated JavaScript bundle is unchanged from slice 84;
     `RusheeZoom.jsx` is now 306 lines.
+86. PIS autosave status: moved the status values and repeated status display
+    into the PIS feature. Rendered HTML hashes captured from the original page
+    match saving, saved, error, idle, and last-saved states. All 110 client
+    tests pass, the build succeeds, and CSS matches the baseline. `PIS.jsx` is
+    now 671 lines; the new JavaScript module and test pass lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -551,7 +556,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 109 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 110 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
