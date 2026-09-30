@@ -12,6 +12,12 @@ import PisQuestionsCard from "../features/admin/pis/PisQuestionsCard";
 import ReschedulePisCard from "../features/admin/pis/ReschedulePisCard";
 import AdminSchedulingCards from "../features/admin/scheduling/AdminSchedulingCards";
 import AdminDataActions from "../features/admin/data/AdminDataActions";
+import {
+    buildRusheePersonalInfoCsv,
+    buildRusheeNumbersCsv,
+    buildPisScheduleCsv,
+    buildPisScheduleWithBrothersCsv,
+} from "../features/admin/data/exportCsv";
 import AdminAccessCard from "../features/admin/access/AdminAccessCard";
 import AccessSettingsCards from "../features/admin/access/AccessSettingsCards";
 import { auth, db } from "../firebase";
@@ -346,26 +352,7 @@ export default function Admin() {
             if (response.data.status === "success") {
                 const rushees = response.data.payload;
 
-                const csvHeaders = ["First Name", "Last Name", "GTID", "Email", "Phone Number", "Housing", "Major", "Class", "Pronouns", "Exposure"];
-                const csvRows = [
-                    csvHeaders.join(","),
-                    ...rushees.map(r => 
-                        [
-                            `"${(r.first_name || '').replace(/"/g, '""')}"`,
-                            `"${(r.last_name || '').replace(/"/g, '""')}"`,
-                            `"${r.gtid || ''}"`,
-                            `"${r.email || ''}"`,
-                            `"${r.phone_number || ''}"`,
-                            `"${(r.housing || '').replace(/"/g, '""')}"`,
-                            `"${(r.major || '').replace(/"/g, '""')}"`,
-                            `"${r.class || ''}"`,
-                            `"${(r.pronouns || '').replace(/"/g, '""')}"`,
-                            `"${(r.exposure || '').replace(/"/g, '""')}"`
-                        ].join(",")
-                    )
-                ];
-
-                const csvContent = csvRows.join("\n");
+                const csvContent = buildRusheePersonalInfoCsv(rushees);
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
 
@@ -407,13 +394,7 @@ export default function Admin() {
             if (response.data.status === "success") {
                 const mappings = response.data.payload;
 
-                const csvHeaders = ["Rushee Number", "Name", "GTID"];
-                const csvRows = [
-                    csvHeaders.join(","),
-                    ...mappings.map(m => `"${m.rushee_number}","${m.name}","${m.gtid}"`)
-                ];
-
-                const csvContent = csvRows.join("\n");
+                const csvContent = buildRusheeNumbersCsv(mappings);
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
 
@@ -666,29 +647,7 @@ export default function Admin() {
             if (response.data.status === "success") {
                 const timeslots = response.data.payload;
                 
-                const csvHeaders = ["Date", "Time", "Rushee Name", "Flexible"];
-                
-                const processedSlots = timeslots.map(slot => {
-                    const jsDate = new Date(parseInt(slot.time.$date.$numberLong));
-                    const date = jsDate.toLocaleDateString();
-                    const time = jsDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-                    const rusheeName = `${slot.rushee_first_name} ${slot.rushee_last_name}`;
-                    const flexWindow = slot.flex_window ? "Yes" : "No";
-                    
-                    const csvRow = [
-                        `"${date}"`,
-                        `"${time}"`,
-                        `"${rusheeName}"`,
-                        `"${flexWindow}"`
-                    ].join(",");
-                    
-                    return { originalDate: jsDate, csvRow };
-                });
-                
-                processedSlots.sort((a, b) => a.originalDate - b.originalDate);
-                
-                const csvRows = [csvHeaders.join(","), ...processedSlots.map(slot => slot.csvRow)];
-                const csvContent = csvRows.join("\n");
+                const csvContent = buildPisScheduleCsv(timeslots);
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 
@@ -879,36 +838,7 @@ export default function Admin() {
             if (response.data.status === "success") {
                 const data = response.data.payload;
                 
-                const csvHeaders = ["Rushee", "Date", "Time", "Brother 1", "Brother 2"];
-                
-                const processedData = data.map(item => {
-                    let jsDate;
-                    if (item.timeslot && item.timeslot.$date && item.timeslot.$date.$numberLong) {
-                        jsDate = new Date(parseInt(item.timeslot.$date.$numberLong));
-                    } else {
-                        jsDate = new Date(item.timeslot);
-                    }
-                    const date = jsDate.toLocaleDateString();
-                    const time = jsDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-                    
-                    const brother1 = item.brother_1 === "none none" ? "" : item.brother_1;
-                    const brother2 = item.brother_2 === "none none" ? "" : item.brother_2;
-                    
-                    const csvRow = [
-                        `"${item.rushee_name}"`,
-                        `"${date}"`,
-                        `"${time}"`,
-                        `"${brother1}"`,
-                        `"${brother2}"`
-                    ].join(",");
-                    
-                    return { originalDate: jsDate, csvRow };
-                });
-                
-                processedData.sort((a, b) => a.originalDate - b.originalDate);
-                
-                const csvRows = [csvHeaders.join(","), ...processedData.map(d => d.csvRow)];
-                const csvContent = csvRows.join("\n");
+                const csvContent = buildPisScheduleWithBrothersCsv(data);
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 
