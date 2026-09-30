@@ -12,15 +12,14 @@ import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
 import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
 import RusheePisDetails from "../features/rushee/zoom/RusheePisDetails";
 import ExistingCommentList from "../features/rushee/zoom/ExistingCommentList";
+import NewCommentForm from "../features/rushee/zoom/NewCommentForm";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
-import CommentWarning from "../components/CommentWarning";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import RatingSlider from "../components/RatingSlider";
 import {
     getVisibleComments,
     hasOwnComment,
@@ -258,55 +257,22 @@ export default function RusheeZoom() {
                                     <h2 className="text-apple-title1 font-light text-black mb-4">
                                         Comments
                                     </h2>
-                                    {!isAddingComment ? (
-                                        <div
-                                            onClick={handleAddComment}
-                                            className="border-2 border-dashed border-apple-gray-300 p-8 rounded-apple cursor-pointer flex items-center justify-center hover:bg-apple-gray-50 hover:border-apple-gray-400 transition-all duration-300"
-                                        >
-                                            <span className="text-3xl text-apple-gray-400 font-light">+</span>
-                                        </div>
-                                    ) : (
-                                        <div className="bg-apple-gray-50 border border-apple-gray-200 p-6 rounded-apple">
-                                            <textarea
-                                                className="input-apple mb-4 resize-none min-h-[120px]"
-                                                placeholder="Add your comment..."
-                                                value={newComment}
-                                                onChange={(e) => {
-                                                    setNewComment(e.target.value);
-                                                    validateNewComment(e.target.value);
-                                                }}
-                                            ></textarea>
-                                            
-                                            <CommentWarning 
-                                                warnings={commentWarnings} 
-                                                onDismiss={(index) => {
-                                                    const newWarnings = commentWarnings.filter((_, i) => i !== index);
-                                                    setCommentWarnings(newWarnings);
-                                                }}
-                                            />
+                                    <NewCommentForm
+                                        isAddingComment={isAddingComment}
+                                        handleAddComment={handleAddComment}
+                                        newComment={newComment}
+                                        setNewComment={setNewComment}
+                                        validateNewComment={validateNewComment}
+                                        commentWarnings={commentWarnings}
+                                        setCommentWarnings={setCommentWarnings}
+                                        ratingFields={ratingFields}
+                                        ratings={ratings}
+                                        ratingNotSeen={ratingNotSeen}
+                                        handleRatingChange={handleRatingChange}
+                                        handleRatingNotSeenChange={handleRatingNotSeenChange}
+                                        handleSubmitComment={handleSubmitComment}
+                                    />
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                                                {ratingFields.map((field) => (
-                                                    <RatingSlider
-                                                        key={field}
-                                                        label={field}
-                                                        value={ratings[field]}
-                                                        notSeen={ratingNotSeen[field]}
-                                                        onValueChange={(value) => handleRatingChange(field, value)}
-                                                        onNotSeenChange={(notSeen) => handleRatingNotSeenChange(field, notSeen)}
-                                                    />
-                                                ))}
-                                            </div>
-
-                                            <button
-                                                onClick={handleSubmitComment}
-                                                className="btn-apple px-6 py-3 text-apple-body font-light"
-                                            >
-                                                Submit Comment
-                                            </button>
-                                        </div>
-                                    )}
-                                    
                                     <ExistingCommentList
                                         visibleComments={visibleComments}
                                         user={user}

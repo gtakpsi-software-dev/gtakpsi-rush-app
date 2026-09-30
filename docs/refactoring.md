@@ -495,6 +495,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     order, warning dismissal, and edit submission. All 106 client tests pass,
     the build succeeds, and CSS matches the baseline. `RusheeZoom.jsx` is now
     353 lines; the new test passes lint.
+84. Rushee Zoom new-comment form: extracted the add control, draft editor,
+    warnings, rating sliders, and submit button. Original rendered HTML hashes
+    match collapsed and expanded states; tests cover input validation order,
+    warning dismissal, field-to-rating bindings, and submit callbacks. All 109
+    client tests pass, the build succeeds, and CSS matches the baseline.
+    `RusheeZoom.jsx` is now 319 lines; the new test passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -540,7 +546,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 106 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 109 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
