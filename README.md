@@ -42,6 +42,21 @@ FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
 
+## Tests
+
+```bash
+npm --prefix client test
+npm --prefix websocket-server test
+cargo test --locked --manifest-path server/Cargo.toml
+scripts/testing/api-integration.sh
+```
+
+The integration command requires Docker. It creates a fresh MongoDB container,
+runs database-backed behavior checks, and removes the container on exit. It does
+not use the app's `.env` or an existing database. See
+[the verification notes](docs/refactoring.md#verification) for local toolchain
+requirements and remaining coverage.
+
 ## Deploy
 
 ### Frontend (Vercel)

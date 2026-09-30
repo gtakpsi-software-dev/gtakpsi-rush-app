@@ -80,6 +80,14 @@ internal names are standardized.
     stable question order, autosave fields, and self-service query codes. Six
     interview handlers now live in question, response, and scheduling modules;
     each body matches its original after formatting. All 19 API tests pass.
+13. Isolated MongoDB integration: added a Docker harness with a pinned MongoDB
+    image, ephemeral storage, loopback-only port, per-run database marker, and
+    cleanup trap. Four scenario groups cover registration/capacity/rescheduling,
+    self-service privacy, PIS reveal/persistence/autosave, comments/ratings, and
+    sorting notes. The same assertions pass on the original `5250f4b` and current
+    code. The integration command runs 20 passing Rust tests (19 unit tests plus
+    one database scenario suite); it tests real handlers and persistence, with
+    HTTP routing/auth integration still to follow.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -115,7 +123,13 @@ to bind local ports; their pinned Socket.IO client is a development dependency.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
 
-Current verified totals: 14 client tests, 10 collaboration tests, and 15 API
-tests. The last client build passes with baseline CSS unchanged. Full browser
-flow/visual testing and database-backed endpoint integration are still pending;
-unit tests and mechanical code comparisons alone do not establish full parity.
+Run `scripts/testing/api-integration.sh` for the isolated database scenarios.
+This requires Docker and enables the test-only `integration-tests` Cargo feature.
+On this Mac, prefix the command with
+`DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
+fixture resets unless the newly created container's marker is present.
+
+Current verified totals: 14 client tests, 10 collaboration tests, and 20 API
+tests with the integration feature. The last client build passes with baseline
+CSS unchanged. Full browser flow/visual testing and HTTP routing/auth integration
+are still pending; these checks do not yet establish full application parity.

@@ -14,6 +14,9 @@ mod controllers;
 mod models;
 mod middlewares;
 
+#[cfg(all(test, feature = "integration-tests"))]
+mod integration_tests;
+
 /// Example on how to return status codes and data from an Axum function
 async fn health_check() -> (StatusCode, String) {
     let health = true;
@@ -208,6 +211,5 @@ async fn main() {
         .await
         .expect("Failed to start server");
 } 
-
 
 
