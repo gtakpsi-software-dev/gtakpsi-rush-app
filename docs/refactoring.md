@@ -463,6 +463,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     backdrops, close buttons, and inner click propagation. All 93 client tests
     pass, the build succeeds, and CSS matches the baseline. `RusheeZoom.jsx` is
     now 687 lines; ESLint currently ignores TSX components.
+79. Rushee Zoom existing comments: moved live edit validation, edit submission,
+    and delete submission into a focused module. Tests cover warning-but-submit
+    behavior, exact edit/delete payloads, reload, server failures, and network
+    cleanup. The edit network path intentionally still logs the page's `error`
+    state, as the original closure did. All 97 client tests pass, the build
+    succeeds, and CSS matches the baseline. `RusheeZoom.jsx` is now 572 lines;
+    the new files pass lint and inherited page errors are down to five.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -508,7 +515,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 93 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 97 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing

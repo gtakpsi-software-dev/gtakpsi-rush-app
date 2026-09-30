@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import { verifyUser } from "../js/verifications";
 import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
 import { createCommentCreateActions } from "../features/rushee/zoom/commentCreateActions";
+import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";
 import ZoomModals from "../features/rushee/zoom/ZoomModals";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
@@ -156,13 +157,28 @@ export default function RusheeZoom() {
         log: (value) => console.log(value),
     });
 
-    const validateEditComment = (commentText) => {
-        if (!rushee) return;
-        
-        const validationResult = validateComment(commentText, rushee.first_name, rushee.last_name);
-        const warnings = generateWarnings(validationResult);
-        setEditCommentWarnings(warnings);
-    };
+    const {
+        validateEditComment,
+        handleEditComment,
+        handleSubmitEdit,
+        handleDeleteComment,
+    } = createExistingCommentActions({
+        rushee,
+        error,
+        editedCommentText,
+        gtid,
+        api,
+        setEditingCommentId,
+        setEditedCommentText,
+        setEditCommentWarnings,
+        setLoading,
+        validateComment,
+        generateWarnings,
+        toast,
+        axios,
+        reload: () => window.location.reload(),
+        log: (value) => console.log(value),
+    });
 
     const [copied, setCopied] = useState(false);
 
@@ -172,137 +188,6 @@ export default function RusheeZoom() {
             setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
         });
     };
-
-    const handleEditComment = (comment) => {
-        setEditingCommentId(comment.comment); // Track the comment being edited
-        setEditedCommentText(comment.comment); // Pre-populate with the existing comment text
-        setEditCommentWarnings([]); // Clear previous warnings
-    };
-
-    const handleSubmitEdit = async (comment) => {
-
-        console.log(comment)
-
-        // Validate edited comment before submission
-        if (!rushee) return;
-        
-        const validationResult = validateComment(editedCommentText, rushee.first_name, rushee.last_name);
-        
-        if (validationResult.hasWarnings) {
-            const warnings = generateWarnings(validationResult);
-            setEditCommentWarnings(warnings);
-            
-            // Show warning toast but allow submission
-            toast.warning("Edited comment contains potentially problematic language. Please review before submitting.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-        }
-
-        setLoading(true)
-        const payload = {
-            brother_id: "000000",
-            brother_name: comment.brother_name,
-            comment: editedCommentText,
-            ratings: comment.ratings,
-            night: comment.night,
-        }
-
-        await axios.post(`${api}/rushee/edit-comment/${gtid}`, payload)
-            .then((response) => {
-
-                if (response.data.status === "success") {
-
-                    window.location.reload();
-                    // console.log("worked")
-
-                } else {
-
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
-
-                }
-
-            })
-            .catch((err) => {
-
-                console.log(error)
-                toast.error(`Some network error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-
-            })
-
-        setEditingCommentId(null); // Reset editing state
-        setEditedCommentText("");
-        setEditCommentWarnings([]); // Clear warnings
-        setLoading(false)
-
-    }
-
-    const handleDeleteComment = async (comment) => {
-
-        setLoading(true)
-
-        await axios.post(`${api}/rushee/delete-comment/${gtid}`, comment)
-            .then((response) => {
-
-                if (response.data.status === "success") {
-                    window.location.reload();
-                } else {
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
-                }
-
-            })
-            .catch((error) => {
-
-                console.log(error)
-
-                toast.error(`Some network error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            })
-
-        setLoading(false)
-
-    }
 
     return (
         <div>
