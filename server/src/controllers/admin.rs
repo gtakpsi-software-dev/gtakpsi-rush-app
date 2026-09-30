@@ -1673,3 +1673,7 @@ pub async fn get_comment_visibility_status() -> Result<Json<Value>, StatusCode> 
         }))),
     }
 }
+
+#[cfg(test)]
+#[path = "admin/sorting/tests.rs"]
+mod sorting_tests;
