@@ -48,6 +48,7 @@ FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 npm --prefix client test
 npm --prefix websocket-server test
 cargo test --locked --manifest-path server/Cargo.toml
+cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
 scripts/testing/api-integration.sh
 ```
 
