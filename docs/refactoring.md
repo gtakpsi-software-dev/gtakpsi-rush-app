@@ -54,6 +54,11 @@ internal names are standardized.
 6. Rust naming: renamed `models/Rushee.rs` to `models/rushee.rs` and
    `middlewares/timeHelpers.rs` to `middlewares/time_helpers.rs`, updating every
    reference. All 8 API tests pass; compiler warnings decrease from 78 to 76.
+7. Admin scheduling extraction: 9 handlers now live in focused questions,
+   timeslots, and rush-night modules. Each moved handler matches the original
+   after rustfmt normalization. All 10 API tests pass, including question payload
+   defaults and category-clearing contracts. Database-backed endpoint execution
+   still needs an isolated MongoDB integration environment.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
