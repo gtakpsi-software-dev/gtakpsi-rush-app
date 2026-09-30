@@ -9,7 +9,6 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
 
     match msg {
         Ok(IncomingMessage::Join { is_admin, name }) => {
-            // Update client info
             if let Some(mut client) = state.clients.get_mut(client_id) {
                 client.is_admin = is_admin;
                 client.name = name.clone();
@@ -26,7 +25,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
             x,
             y,
         }) => {
-            // Only admins can drag
+            // The existing join protocol supplies the role; viewers cannot initiate card movement.
             let is_admin = state
                 .clients
                 .get(client_id)
@@ -37,7 +36,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
                 return;
             }
 
-            // Check if someone else is already dragging this card
+            // Deny competing owners directly so the current drag remains visible to everyone else.
             if let Some(existing) = state.drag_state.read().await.get(&rushee_id).cloned() {
                 if existing.dragger_id != client_id {
                     if let Some(client) = state.clients.get(client_id) {
@@ -59,7 +58,6 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
                 .and_then(|c| c.name.clone())
                 .unwrap_or_else(|| "Admin".to_string());
 
-            // Update drag state for this rushee
             {
                 let mut drag = state.drag_state.write().await;
                 drag.insert(
@@ -76,7 +74,6 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
                 );
             }
 
-            // Broadcast to all clients
             let msg = OutgoingMessage::DragStart {
                 dragger_name,
                 rushee_id,
@@ -90,7 +87,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
         }
 
         Ok(IncomingMessage::DragMove { rushee_id, x, y }) => {
-            // Only the current dragger can send move updates
+            // Ignore other clients so they cannot overwrite the current owner's position.
             let is_dragger = {
                 let drag = state.drag_state.read().await;
                 drag.get(&rushee_id)
@@ -118,7 +115,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
         }
 
         Ok(IncomingMessage::DragEnd { rushee_id }) => {
-            // Only the current dragger can end
+            // Ignore other clients so they cannot release the current owner's card.
             let is_dragger = {
                 let drag = state.drag_state.read().await;
                 drag.get(&rushee_id)
@@ -145,7 +142,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
             rushee_id,
             new_status,
         }) => {
-            // Only admins can notify of saves
+            // Viewers do not publish save notifications to the shared board.
             let is_admin = state
                 .clients
                 .get(client_id)

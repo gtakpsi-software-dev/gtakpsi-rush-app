@@ -147,6 +147,10 @@ internal names are standardized.
     delay, release events for multiple stale drags, preservation of fresh drags,
     and no repeated release events on the next tick. Backdated monotonic timestamps
     avoid minute-long test waits. All eight sorting tests pass.
+24. Sorting cleanup: removed the unused duplicate client ID (the map key remains
+    authoritative), simplified state/router construction, and replaced redundant
+    comments with ownership and lifecycle rationale. Test fixtures now use the
+    production state constructor. All eight tests pass with no compiler warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -159,8 +163,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
   under those tests.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
-- Characterize and split the Rust voting and sorting real-time services; align
-  internal service naming while preserving deployment roots and protocols.
+- Characterize and split the Rust voting real-time service using the same clear
+  state/protocol/session boundaries; preserve deployment roots and protocols.
 - Decompose large client pages into feature components and hooks while preserving
   JSX, classes, effect dependencies, request order, and state ownership.
 - Organize maintenance scripts and seed data without running destructive scripts.

@@ -2,9 +2,10 @@ use crate::{protocol::OutgoingMessage, state::AppState};
 use std::{sync::Arc, time::Duration};
 
 pub(crate) async fn run(cleanup_state: Arc<AppState>) {
-    let stale_threshold = Duration::from_secs(60); // 60 seconds
+    // Release abandoned drags after the existing inactivity window, even if their socket stays open.
+    let stale_threshold = Duration::from_secs(60);
     loop {
-        tokio::time::sleep(Duration::from_secs(10)).await; // Check every 10 seconds
+        tokio::time::sleep(Duration::from_secs(10)).await;
 
         let stale_ids: Vec<String> = {
             let drag = cleanup_state.drag_state.read().await;
@@ -22,7 +23,6 @@ pub(crate) async fn run(cleanup_state: Arc<AppState>) {
             }
             drop(drag);
 
-            // Broadcast drag_end for each stale drag
             for rushee_id in stale_ids {
                 let msg = OutgoingMessage::DragEnd { rushee_id };
                 if let Ok(json) = serde_json::to_string(&msg) {

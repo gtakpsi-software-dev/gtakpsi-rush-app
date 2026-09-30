@@ -3,9 +3,8 @@ use crate::{
     session::broadcast_viewer_count,
     state::{AppState, Client},
 };
-use dashmap::DashMap;
 use serde_json::{json, Value};
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::broadcast;
 use tokio::sync::broadcast::{error::TryRecvError, Receiver};
 
@@ -15,15 +14,9 @@ mod protocol;
 mod websocket;
 
 fn state() -> (Arc<AppState>, Receiver<String>) {
-    let (broadcast_tx, rx) = broadcast::channel(1000);
-    (
-        Arc::new(AppState {
-            clients: Arc::new(DashMap::new()),
-            drag_state: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
-            broadcast_tx,
-        }),
-        rx,
-    )
+    let state = crate::state::new_state();
+    let rx = state.broadcast_tx.subscribe();
+    (state, rx)
 }
 
 fn add_client(state: &AppState, id: &str) -> Receiver<String> {
@@ -31,7 +24,6 @@ fn add_client(state: &AppState, id: &str) -> Receiver<String> {
     state.clients.insert(
         id.to_string(),
         Client {
-            id: id.to_string(),
             is_admin: false,
             name: None,
             tx,

@@ -9,11 +9,10 @@ pub(crate) fn create_router(state: Arc<AppState>) -> Router {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    let app = Router::new()
+    Router::new()
         .route("/", get(|| async { "Sorting Broadcaster OK" }))
         .route("/health", get(|| async { "OK" }))
         .route("/ws", get(ws_handler))
         .layer(cors)
-        .with_state(state);
-    app
+        .with_state(state)
 }

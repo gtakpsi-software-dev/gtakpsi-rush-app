@@ -26,15 +26,12 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     let client_id = uuid::Uuid::new_v4().to_string();
     let (mut sender, mut receiver) = socket.split();
 
-    // Create a channel for this client
     let (tx, mut rx) = broadcast::channel::<String>(100);
 
-    // Subscribe to global broadcasts
     let mut global_rx = state.broadcast_tx.subscribe();
 
-    // Add client to map (initially as viewer)
+    // Connections remain viewers until their join message supplies a role.
     let client = Client {
-        id: client_id.clone(),
         is_admin: false,
         name: None,
         tx: tx.clone(),
@@ -43,10 +40,9 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
 
     println!("Client connected: {} from {}", client_id, addr);
 
-    // Broadcast updated viewer count
     broadcast_viewer_count(&state).await;
 
-    // Send current drag state to new client
+    // Hydrate active drags so a new viewer sees in-progress movement immediately.
     {
         let drag = state.drag_state.read().await;
         for state in drag.values() {
@@ -64,7 +60,6 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
         }
     }
 
-    // Spawn task to forward messages to this client
     let send_task = tokio::spawn(async move {
         loop {
             tokio::select! {
@@ -84,7 +79,6 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
         }
     });
 
-    // Handle incoming messages
     let state_clone = state.clone();
     let client_id_clone = client_id.clone();
 
@@ -94,10 +88,9 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
         }
     }
 
-    // Cleanup on disconnect
     send_task.abort();
 
-    // Check if this client was dragging
+    // Release owned cards on disconnect so other clients can drag them again.
     let released = {
         let mut drag = state.drag_state.write().await;
         let released_ids: Vec<String> = drag

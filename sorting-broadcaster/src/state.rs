@@ -2,10 +2,8 @@ use dashmap::DashMap;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::broadcast;
 
-/// Represents a connected client
 #[derive(Clone)]
 pub(crate) struct Client {
-    pub(crate) id: String,
     pub(crate) is_admin: bool,
     pub(crate) name: Option<String>,
     pub(crate) tx: broadcast::Sender<String>,
@@ -27,7 +25,6 @@ pub(crate) struct DragState {
 
 pub(crate) type SharedDragState = Arc<tokio::sync::RwLock<HashMap<String, DragState>>>;
 
-/// Shared application state
 pub(crate) struct AppState {
     pub(crate) clients: ClientMap,
     pub(crate) drag_state: SharedDragState,
@@ -37,10 +34,9 @@ pub(crate) struct AppState {
 pub(crate) fn new_state() -> Arc<AppState> {
     let (broadcast_tx, _) = broadcast::channel::<String>(1000);
 
-    let state = Arc::new(AppState {
+    Arc::new(AppState {
         clients: Arc::new(DashMap::new()),
         drag_state: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
         broadcast_tx,
-    });
-    state
+    })
 }
