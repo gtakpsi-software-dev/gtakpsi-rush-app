@@ -46,6 +46,11 @@ internal names are standardized.
 4. API characterization: 8 tests pass for rush-night attribution/lead-in,
    timezone matching, canonical merging, interaction counts, legacy model
    defaults, self-service field privacy, and vote serialization.
+5. Client visibility separation: 14 client tests pass, including every boolean
+   role/restriction combination. Pure policy stays independent of Firebase and
+   React; `hooks/useCommentVisibility.js` owns the existing effect. The hook body
+   is unchanged, the build passes, generated CSS matches the baseline byte for
+   byte, and the policy/hook/test files pass ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

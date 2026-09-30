@@ -1,12 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFile } from 'node:fs/promises';
-
-// Load the current pure helpers without initializing Firebase or React hooks.
-// This baseline loader goes away when the hook and policy are separated.
-const source = await readFile(new URL('../src/js/commentVisibility.js', import.meta.url), 'utf8');
-const policy = await import(`data:text/javascript,${encodeURIComponent(source.replace(/^import .*;$/gm, ''))}`);
-const { shouldShowAllComments, shouldShowRatings, getVisibleComments, hasOwnComment, getBrotherDisplayName } = policy;
+import { shouldShowAllComments, shouldShowRatings, getVisibleComments, hasOwnComment, getBrotherDisplayName } from "../src/js/commentVisibility.js";
 
 const user = { firstname: 'Alex', lastname: 'Brother' };
 const comments = [

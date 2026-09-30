@@ -8,7 +8,7 @@ import MyError from "../components/Error";
 import Badges from "../components/Badge";
 
 import { verifyUser } from "../js/verifications";
-import { useCommentVisibility } from "../js/commentVisibility";
+import { useCommentVisibility } from "../hooks/useCommentVisibility";
 
 export default function PISDashboard() {
 

@@ -18,7 +18,7 @@ import Button from "../components/Button";
 import PISAvailabilityModal from "../components/PISAvailabilityModal";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useCommentVisibility } from "../js/commentVisibility";
+import { useCommentVisibility } from "../hooks/useCommentVisibility";
 
 export default function Dashboard(props) {
     const { isMidtermMode } = useMidtermMode();
