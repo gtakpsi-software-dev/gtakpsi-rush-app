@@ -257,6 +257,11 @@ internal names are standardized.
     and ObjectId conversions, and import safety. All 8 maintenance-script tests
     and Python compilation pass. The actual import remains unrun because it
     deletes real data and its source JSON file is absent from this checkout.
+46. Test-data cleanup script: moved the existing direct-command workflow behind
+    `main()` so imports cannot connect or delete. The direct-command statement
+    AST matches the original, and offline fake-service tests verify dry-run
+    output, the `--apply` deletion queries and order, and import safety. All 11
+    maintenance-script tests and Python compilation pass; no live cleanup ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -304,7 +309,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 33 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 8 maintenance-script tests. The last
+tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
