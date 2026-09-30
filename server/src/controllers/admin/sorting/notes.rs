@@ -42,7 +42,7 @@ pub async fn update_rushee_notes(
 
     // Bound stored notes to the existing 5,000-byte contract; reject oversized
     // text before any write instead of silently truncating a brother's input.
-    if payload.sortingNotes.len() > 5000 {
+    if payload.sorting_notes.len() > 5000 {
         return Ok(Json(json!({
             "status": "error",
             "message": "Notes too long"
@@ -59,7 +59,7 @@ pub async fn update_rushee_notes(
         "hard_no",
     ];
     let filtered_tags: Vec<&str> = payload
-        .sortingTags
+        .sorting_tags
         .iter()
         .filter(|t| valid_tags.contains(&t.as_str()))
         .map(|t| t.as_str())
@@ -67,7 +67,7 @@ pub async fn update_rushee_notes(
 
     let update = doc! {
         "$set": {
-            "sorting_notes": &payload.sortingNotes,
+            "sorting_notes": &payload.sorting_notes,
             "sorting_tags": &filtered_tags,
             "notes_updated_at": DateTime::now(),
             "notes_updated_by": user.email.clone().unwrap_or(user.uid.clone()),

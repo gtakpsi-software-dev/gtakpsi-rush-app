@@ -65,6 +65,9 @@ internal names are standardized.
    normalization. All 14 API tests pass, including status validation and exact
    sorting JSON field names. `controllers/admin.rs` is down to 1,197 lines;
    remaining extraction is tracked below.
+9. Sorting naming: internal fields use snake_case with explicit Serde camelCase
+   mapping. Existing request/response names and signed indices are covered by
+   15 passing API tests. Compiler warnings decrease from 76 to 62.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

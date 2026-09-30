@@ -15,7 +15,7 @@ pub async fn update_rushee_sorting(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<UpdateSortingPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    if !validate_status(&payload.sortingStatus) {
+    if !validate_status(&payload.sorting_status) {
         return Ok(Json(json!({
             "status": "error",
             "message": "Invalid sorting status"
@@ -28,8 +28,8 @@ pub async fn update_rushee_sorting(
 
     let update = doc! {
         "$set": {
-            "sorting_status": &payload.sortingStatus,
-            "sorting_order": payload.sortingOrder,
+            "sorting_status": &payload.sorting_status,
+            "sorting_order": payload.sorting_order,
             "status_updated_at": DateTime::now(),
             "status_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
         }
@@ -63,7 +63,7 @@ pub async fn bulk_reorder(
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
         db::get_rushee_client().await;
 
-    for (idx, id_str) in payload.orderedRusheeIds.iter().enumerate() {
+    for (idx, id_str) in payload.ordered_rushee_ids.iter().enumerate() {
         let filter = doc! { "gtid": id_str };
         let update = doc! {
             "$set": {
@@ -91,15 +91,15 @@ pub async fn move_rushee(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<MoveRusheePayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    if !validate_status(&payload.fromColumn) || !validate_status(&payload.toColumn) {
+    if !validate_status(&payload.from_column) || !validate_status(&payload.to_column) {
         return Ok(Json(json!({
             "status": "error",
             "message": "Invalid column"
         })));
     }
 
-    let from_column = payload.fromColumn.clone();
-    let to_column = payload.toColumn.clone();
+    let from_column = payload.from_column.clone();
+    let to_column = payload.to_column.clone();
 
     // Acquire column locks in deterministic order to avoid deadlocks
     let (first, second) = if from_column <= to_column {
@@ -152,15 +152,15 @@ pub async fn move_rushee(
         }
     }
 
-    let target_index = if payload.targetIndex < 0 {
+    let target_index = if payload.target_index < 0 {
         0
     } else {
-        payload.targetIndex as usize
+        payload.target_index as usize
     };
 
     if from_column == to_column {
         let mut ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
-        let pos = ids.iter().position(|id| id == &payload.movedRusheeId);
+        let pos = ids.iter().position(|id| id == &payload.moved_rushee_id);
         let Some(pos) = pos else {
             return Ok(Json(json!({
                 "status": "error",
@@ -169,7 +169,7 @@ pub async fn move_rushee(
         };
         ids.remove(pos);
         let insert_at = std::cmp::min(target_index, ids.len());
-        ids.insert(insert_at, payload.movedRusheeId.clone());
+        ids.insert(insert_at, payload.moved_rushee_id.clone());
 
         for (idx, id_str) in ids.iter().enumerate() {
             let filter = doc! { "gtid": id_str };
@@ -192,7 +192,9 @@ pub async fn move_rushee(
         let mut from_ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
         let mut to_ids: Vec<String> = fetch_ids(&collection, &to_column).await?;
 
-        let pos = from_ids.iter().position(|id| id == &payload.movedRusheeId);
+        let pos = from_ids
+            .iter()
+            .position(|id| id == &payload.moved_rushee_id);
         let Some(pos) = pos else {
             return Ok(Json(json!({
                 "status": "error",
@@ -201,7 +203,7 @@ pub async fn move_rushee(
         };
         from_ids.remove(pos);
         let insert_at = std::cmp::min(target_index, to_ids.len());
-        to_ids.insert(insert_at, payload.movedRusheeId.clone());
+        to_ids.insert(insert_at, payload.moved_rushee_id.clone());
 
         for (idx, id_str) in from_ids.iter().enumerate() {
             let filter = doc! { "gtid": id_str };

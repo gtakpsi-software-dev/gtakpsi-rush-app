@@ -33,11 +33,11 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
 
                     list.push(SortingRushee {
                         id: doc.gtid.clone(), // use gtid as id for consistency
-                        fullName: format!("{} {}", doc.first_name, doc.last_name),
-                        rushNumber: rush_number,
-                        sortingStatus: status,
-                        sortingOrder: order,
-                        sortingTags: doc.sorting_tags.clone(),
+                        full_name: format!("{} {}", doc.first_name, doc.last_name),
+                        rush_number: rush_number,
+                        sorting_status: status,
+                        sorting_order: order,
+                        sorting_tags: doc.sorting_tags.clone(),
                     });
                     order_counter += 1;
                 }
@@ -47,14 +47,14 @@ pub async fn get_sorting_rushees() -> Result<Json<Value>, StatusCode> {
             list.sort_by(|a, b| {
                 let ai = SORTING_STATUSES
                     .iter()
-                    .position(|s| *s == a.sortingStatus)
+                    .position(|s| *s == a.sorting_status)
                     .unwrap_or(0);
                 let bi = SORTING_STATUSES
                     .iter()
-                    .position(|s| *s == b.sortingStatus)
+                    .position(|s| *s == b.sorting_status)
                     .unwrap_or(0);
                 ai.cmp(&bi)
-                    .then(a.sortingOrder.cmp(&b.sortingOrder))
+                    .then(a.sorting_order.cmp(&b.sorting_order))
                     .then_with(|| a.id.cmp(&b.id))
             });
 
@@ -97,11 +97,11 @@ pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
 
                     list.push(SortingRushee {
                         id: doc.gtid.clone(),
-                        fullName: format!("{} {}", doc.first_name, doc.last_name),
-                        rushNumber: 0, // Don't expose rushee numbers to regular brothers
-                        sortingStatus: status,
-                        sortingOrder: order,
-                        sortingTags: doc.sorting_tags.clone(),
+                        full_name: format!("{} {}", doc.first_name, doc.last_name),
+                        rush_number: 0, // Don't expose rushee numbers to regular brothers
+                        sorting_status: status,
+                        sorting_order: order,
+                        sorting_tags: doc.sorting_tags.clone(),
                     });
                     order_counter += 1;
                 }
@@ -111,14 +111,14 @@ pub async fn get_sorting_rushees_public() -> Result<Json<Value>, StatusCode> {
             list.sort_by(|a, b| {
                 let ai = SORTING_STATUSES
                     .iter()
-                    .position(|s| *s == a.sortingStatus)
+                    .position(|s| *s == a.sorting_status)
                     .unwrap_or(0);
                 let bi = SORTING_STATUSES
                     .iter()
-                    .position(|s| *s == b.sortingStatus)
+                    .position(|s| *s == b.sorting_status)
                     .unwrap_or(0);
                 ai.cmp(&bi)
-                    .then(a.sortingOrder.cmp(&b.sortingOrder))
+                    .then(a.sorting_order.cmp(&b.sorting_order))
                     .then_with(|| a.id.cmp(&b.id))
             });
 
