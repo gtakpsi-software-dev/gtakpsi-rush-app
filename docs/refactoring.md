@@ -331,6 +331,13 @@ internal names are standardized.
     tests cover import safety, operation order, and reuse of an existing
     Firebase app. All 17 maintenance-script tests and Python compilation pass;
     no live storage or database operation ran.
+58. Firebase admin-claim script: delayed service-account initialization until
+    direct command execution or an explicit imported function call. The CLI
+    still initializes before validating arguments. Existing claim-update and
+    argument-handling bodies match the original parsed Python AST. Four
+    fake-SDK tests cover import safety, claim preservation, usage errors, and
+    missing users. All 21 maintenance-script tests and Python compilation pass;
+    no live Firebase claim was changed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -378,7 +385,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 54 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 17 maintenance-script tests. The last
+tests with the integration feature, plus 21 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full

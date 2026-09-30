@@ -13,29 +13,29 @@ import sys
 import firebase_admin
 from firebase_admin import credentials, auth
 
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate("../firebase-service-account.json")
-firebase_admin.initialize_app(cred)
+def initialize_firebase():
+    # Service-account credentials must be loaded only on the server-side command path.
+    cred = credentials.Certificate("../firebase-service-account.json")
+    firebase_admin.initialize_app(cred)
 
 def set_custom_claims(email: str, is_admin: bool = False, is_bidcom: bool = False):
     """Set custom claims for a user by email."""
+    if not firebase_admin._apps:
+        initialize_firebase()
+
     try:
-        # Get user by email
         user = auth.get_user_by_email(email)
         print(f"Found user: {user.uid} ({user.email})")
         
-        # Get existing claims
         existing_claims = user.custom_claims or {}
         print(f"Existing claims: {existing_claims}")
         
-        # Update claims
         new_claims = {**existing_claims}
         if is_admin:
             new_claims['admin'] = True
         if is_bidcom:
             new_claims['bidcom'] = True
             
-        # Set the custom claims
         auth.set_custom_user_claims(user.uid, new_claims)
         
         print(f"Successfully set claims for {email}:")
@@ -51,6 +51,8 @@ def set_custom_claims(email: str, is_admin: bool = False, is_bidcom: bool = Fals
         sys.exit(1)
 
 def main():
+    initialize_firebase()
+
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit(1)
