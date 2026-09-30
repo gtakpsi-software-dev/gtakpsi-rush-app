@@ -126,6 +126,11 @@ internal names are standardized.
     All 20 function bodies match the originals after formatting normalization
     before the comment cleanup. Existing re-exports preserve handler imports.
     The complete 31-test API unit suite passes; no Firebase calls are required.
+20. Authentication simplification: admin and bid-committee verification now reuse
+    the existing brother token validation, and all request gates reuse the same
+    bearer parser. Removed 131 lines of duplicated validation/parsing without
+    changing role rules or rejection codes. All 32 API tests pass with the
+    disposable MongoDB harness and API key enabled.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -134,8 +139,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
-- Split the authentication module under the offline signed-token tests, expand
-  database scenarios for remaining branches, and simplify long handler functions
+- Expand database scenarios for remaining branches and simplify long handler functions
   under those tests.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
@@ -166,7 +170,8 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 14 client tests, 10 collaboration tests, and 25 API
+Current verified totals: 14 client tests, 10 collaboration tests, and 32 API
 tests with the integration feature. The last client build passes with baseline
-CSS unchanged. Full browser flow/visual testing and authenticated role flows
-are still pending; these checks do not yet establish full application parity.
+CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
+database flows are still pending; these checks do not yet establish full
+application parity.

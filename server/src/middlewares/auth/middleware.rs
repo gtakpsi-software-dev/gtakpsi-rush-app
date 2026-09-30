@@ -7,7 +7,6 @@ use axum::{
 };
 use std::sync::Arc;
 
-// Extractor to pull the verified admin user from requests
 pub struct AdminUser(pub FirebaseUser);
 
 #[async_trait]
@@ -20,8 +19,8 @@ where
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let auth = Arc::<FirebaseAuth>::from_ref(state);
-        let headers = parts.headers.clone();
-        let token = extract_bearer(&headers).ok_or(StatusCode::UNAUTHORIZED)?;
+        let token = extract_bearer(&parts.headers).ok_or(StatusCode::UNAUTHORIZED)?;
+        // Preserve the extractor contract: token failures are 403, while a missing header is 401.
         let user = auth
             .verify_token(&token)
             .await
@@ -50,20 +49,7 @@ pub async fn require_admin<B>(
 where
     B: Send + 'static,
 {
-    let token = req
-        .headers()
-        .get(axum::http::header::AUTHORIZATION)
-        .and_then(|h| h.to_str().ok())
-        .and_then(|s| {
-            if let Some(rest) = s.strip_prefix("Bearer ") {
-                Some(rest.to_string())
-            } else if let Some(rest) = s.strip_prefix("bearer ") {
-                Some(rest.to_string())
-            } else {
-                None
-            }
-        })
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let token = extract_bearer(req.headers()).ok_or(StatusCode::UNAUTHORIZED)?;
 
     let user = auth.verify_token(&token).await.map_err(|err| match err {
         AuthError::NotAdmin => StatusCode::FORBIDDEN,
@@ -83,22 +69,8 @@ pub async fn require_bidcom_or_admin<B>(
 where
     B: Send + 'static,
 {
-    let token = req
-        .headers()
-        .get(axum::http::header::AUTHORIZATION)
-        .and_then(|h| h.to_str().ok())
-        .and_then(|s| {
-            if let Some(rest) = s.strip_prefix("Bearer ") {
-                Some(rest.to_string())
-            } else if let Some(rest) = s.strip_prefix("bearer ") {
-                Some(rest.to_string())
-            } else {
-                None
-            }
-        })
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let token = extract_bearer(req.headers()).ok_or(StatusCode::UNAUTHORIZED)?;
 
-    // Use the bidcom verification which allows both admin and bidcom
     let user = auth
         .verify_token_bidcom(&token)
         .await
@@ -122,20 +94,7 @@ pub async fn require_any_brother<B>(
 where
     B: Send + 'static,
 {
-    let token = req
-        .headers()
-        .get(axum::http::header::AUTHORIZATION)
-        .and_then(|h| h.to_str().ok())
-        .and_then(|s| {
-            if let Some(rest) = s.strip_prefix("Bearer ") {
-                Some(rest.to_string())
-            } else if let Some(rest) = s.strip_prefix("bearer ") {
-                Some(rest.to_string())
-            } else {
-                None
-            }
-        })
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let token = extract_bearer(req.headers()).ok_or(StatusCode::UNAUTHORIZED)?;
 
     let user = auth
         .verify_token_any_brother(&token)
