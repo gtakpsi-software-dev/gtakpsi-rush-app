@@ -121,6 +121,11 @@ internal names are standardized.
     and middleware rejection (401). The fixture keys are disposable public test
     data, and the populated certificate cache prevents Firebase requests. All
     seven tests pass against the original authentication implementation.
+19. Authentication extraction: split the 620-line module into token verification,
+    certificate caching, role administration, OAuth assertions, and HTTP middleware.
+    All 20 function bodies match the originals after formatting normalization
+    before the comment cleanup. Existing re-exports preserve handler imports.
+    The complete 31-test API unit suite passes; no Firebase calls are required.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
