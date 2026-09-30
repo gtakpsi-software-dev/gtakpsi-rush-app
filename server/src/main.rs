@@ -25,7 +25,7 @@ async fn health_check() -> (StatusCode, String) {
         false => (
             StatusCode::INTERNAL_SERVER_ERROR,
             "Not healthy!".to_string(),
-        ), 
+        ),
     }
 }
 
@@ -72,6 +72,18 @@ async fn main() {
         service_account,
     ));
 
+    let app = create_router(firebase_auth);
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    tracing::info!("🚀 Server starting on http://{}", addr);
+
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .expect("Failed to start server");
+}
+
+fn create_router(firebase_auth: Arc<middlewares::auth::FirebaseAuth>) -> Router {
     let public_routes = Router::new()
         .route("/", get(health_check))
         .route("/health", get(health_check))
@@ -101,16 +113,16 @@ async fn main() {
         // Public read-only access for rushee registration (timeslots selection)
         .route("/admin/get_pis_timeslots", get(controllers::admin::get_pis_timeslots).options(|| async { StatusCode::OK }))
         .route("/admin/get_pis_questions", get(controllers::admin::get_pis_questions).options(|| async { StatusCode::OK }))
-        
+
         // Public read-only sorting view for all brothers
         .route("/brother/sorting", get(controllers::admin::get_sorting_rushees_public).options(|| async { StatusCode::OK }))
         .route("/brother/rushees/:id/notes", get(controllers::admin::get_rushee_notes).options(|| async { StatusCode::OK }))
-        
+
         // PIS Availability - brother-facing routes (need to be accessible by logged-in brothers)
         .route("/brother/pis-availability/check", post(controllers::admin::check_brother_needs_availability_form).options(|| async { StatusCode::OK }))
         .route("/brother/pis-availability/submit", post(controllers::admin::submit_brother_availability).options(|| async { StatusCode::OK }))
         .route("/admin/pis-availability/status", get(controllers::admin::get_pis_availability_form_status).options(|| async { StatusCode::OK }))
-        
+
         // Rush App access check - public route for login flow
         .route("/brother/rush-app/check-access", post(controllers::admin::check_rush_app_access).options(|| async { StatusCode::OK }))
         // Midterm mode status - public route for all clients
@@ -203,13 +215,9 @@ async fn main() {
                 .expose_headers(Any), // Expose specific headers in the browser (optional)
         );
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    tracing::info!("🚀 Server starting on http://{}", addr);
-    
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .expect("Failed to start server");
-} 
+    app
+}
 
-
+#[cfg(test)]
+#[path = "routes/tests.rs"]
+mod route_tests;

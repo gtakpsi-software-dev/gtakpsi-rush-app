@@ -99,6 +99,13 @@ internal names are standardized.
     name synchronization, sequential partial writes, and lookup responses before
     moving those handlers. All 20 API tests pass after extraction. Removed the
     unused private `Params` struct while removing the old controller file.
+16. HTTP routing baseline: isolated router construction from process startup
+    without changing route declarations or middleware order. Five tests cover
+    health/404 responses, protected-route rejection, malformed authorization,
+    public JSON validation, API-key gating, and CORS preflight. The database
+    harness enables a test API key; all 25 Rust tests pass in that configuration.
+    The initial no-key run also passes. On macOS, the existing Reqwest client
+    reads system proxy settings and needs normal host permissions for these tests.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
