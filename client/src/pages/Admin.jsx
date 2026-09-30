@@ -10,6 +10,12 @@ import Loader from "../components/Loader";
 import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
 import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import PisQuestionsCard from "../features/admin/pis/PisQuestionsCard";
+import {
+    formatCurrentPISTime,
+    formatSlotTime,
+    formatTimeslot,
+    groupEditSlots,
+} from "../features/admin/pis/pisTime";
 import ReschedulePisCard from "../features/admin/pis/ReschedulePisCard";
 import AdminSchedulingCards from "../features/admin/scheduling/AdminSchedulingCards";
 import AdminDataActions from "../features/admin/data/AdminDataActions";
@@ -589,37 +595,6 @@ export default function Admin() {
         }
     };
 
-    const formatTimeslot = (timeslot) => {
-        const dateNum = parseInt(timeslot.time.$date.$numberLong);
-        const date = new Date(dateNum);
-        return date.toLocaleString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-    };
-
-    const formatCurrentPISTime = (rushee) => {
-        if (!rushee.pis_timeslot) return "Not scheduled";
-        try {
-            const dateNum = parseInt(rushee.pis_timeslot.$date.$numberLong);
-            const date = new Date(dateNum);
-            return date.toLocaleString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
-        } catch {
-            return "Not scheduled";
-        }
-      };
-
     const exportPISSchedule = async () => {
         try {
             const api = import.meta.env.VITE_API_PREFIX;
@@ -941,36 +916,7 @@ export default function Admin() {
         auth,
     });
 
-    const formatSlotTime = (slot) => {
-        const date = new Date(parseInt(slot.time.$date.$numberLong));
-        return {
-            date: date.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-            }),
-            time: date.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            })
-        };
-    };
-
-    // Group timeslots by date for the edit modal
-    const groupedEditSlots = allPisTimeslots.reduce((groups, slot) => {
-        const date = new Date(parseInt(slot.time.$date.$numberLong));
-        const dateKey = date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric'
-        });
-        if (!groups[dateKey]) {
-            groups[dateKey] = [];
-        }
-        groups[dateKey].push(slot);
-        return groups;
-    }, {});
+    const groupedEditSlots = groupEditSlots(allPisTimeslots);
 
     if (loading) {
         return <Loader />;

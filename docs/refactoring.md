@@ -394,6 +394,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Dockerfile executable paths; directories, ports, protocols, and startup
     commands remain unchanged. All 2 voting, 9 sorting, and 14 collaboration
     tests pass. Both Rust binaries build at their original paths.
+68. Admin PIS time helpers: moved the reschedule labels, current appointment
+    fallback, availability slot labels, and date grouping out of `Admin.jsx`
+    into the PIS feature directory. Tests cover exact labels, missing times,
+    grouping order, and retained slot objects. All 56 client tests pass, the
+    production build succeeds, and generated CSS matches the baseline. The
+    new files pass lint; `Admin.jsx` retains its two existing hook warnings and
+    is now 1,075 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -439,7 +446,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 54 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 56 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
