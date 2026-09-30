@@ -4,6 +4,9 @@ A React + Rust full stack application using Railway (backend), Vercel (frontend)
 
 ## Tech Stack
 
+Refactoring progress, compatibility rules, and test commands are tracked in
+[docs/refactoring.md](docs/refactoring.md).
+
 - **Frontend**: React + Vite, hosted on Vercel
 - **Backend**: Rust + Axum, hosted on Railway
 - **Database**: MongoDB Atlas
