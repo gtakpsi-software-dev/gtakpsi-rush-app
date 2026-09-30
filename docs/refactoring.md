@@ -231,6 +231,12 @@ internal names are standardized.
     and save callbacks. All 27 client tests pass, the production build succeeds,
     and CSS remains byte-identical to the starting baseline. `Admin.jsx` is now
     1,991 lines; its other sections and handlers still need decomposition.
+42. Admin PIS question card: moved form and question-bank markup into a focused
+    component while leaving fetch state and request helpers on the page. Original
+    HTML matches empty, populated, and loading states. Tests verify input number
+    conversion, add/delete request order, category draft updates, save, and
+    refresh handlers. All 30 client tests pass, the build succeeds, and CSS
+    remains byte-identical. `Admin.jsx` is now 1,909 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -270,7 +276,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 27 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 30 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
