@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -239,7 +239,7 @@ export default function Admin() {
                 });
                 setPisQuestions(sorted);
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to load PIS questions", {
                 position: "top-center",
                 autoClose: 3000,
@@ -440,7 +440,7 @@ export default function Admin() {
                 setBrotherAdminStatus(null);
                 setBrotherBidcomStatus(null);
             }
-        } catch (_e) {
+        } catch {
             setBrotherAdminStatus(null);
             setBrotherBidcomStatus(null);
         }
@@ -615,7 +615,7 @@ export default function Admin() {
                 minute: '2-digit',
                 hour12: true
             });
-        } catch (e) {
+        } catch {
             return "Not scheduled";
         }
       };
@@ -672,7 +672,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to send form", {
                 position: "top-center",
                 autoClose: 3000,
@@ -705,7 +705,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to clear and resend", {
                 position: "top-center",
                 autoClose: 3000,
@@ -728,7 +728,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to deactivate form", {
                 position: "top-center",
                 autoClose: 3000,
@@ -759,7 +759,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to auto-assign brothers", {
                 position: "top-center",
                 autoClose: 3000,
@@ -790,7 +790,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to clear assignments", {
                 position: "top-center",
                 autoClose: 3000,
@@ -913,7 +913,7 @@ export default function Admin() {
                     theme: "dark",
                 });
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to save availability", {
                 position: "top-center",
                 autoClose: 3000,

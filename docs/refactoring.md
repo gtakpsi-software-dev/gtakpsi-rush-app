@@ -312,6 +312,10 @@ internal names are standardized.
     success, rejected responses, and transport failures. All 54 client tests
     pass, the new files pass lint, the build succeeds, and CSS remains
     byte-identical. `Admin.jsx` is now 1,129 lines.
+55. Admin lint cleanup: removed an unused React binding and unused catch
+    bindings. `Admin.jsx` now has zero ESLint errors; its two existing effect
+    dependency warnings remain for a separate behavior-verified slice. All 54
+    client tests pass, the build succeeds, and CSS remains byte-identical.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
