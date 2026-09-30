@@ -501,6 +501,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     warning dismissal, field-to-rating bindings, and submit callbacks. All 109
     client tests pass, the build succeeds, and CSS matches the baseline.
     `RusheeZoom.jsx` is now 319 lines; the new test passes lint.
+85. Rushee Zoom comment cleanup: removed an unused, commented-out attendance
+    card and redundant comments, while clarifying why comment visibility starts
+    restricted. All 109 client tests pass, the build succeeds, and CSS matches
+    the baseline. The generated JavaScript bundle is unchanged from slice 84;
+    `RusheeZoom.jsx` is now 306 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

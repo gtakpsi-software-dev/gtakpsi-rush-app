@@ -68,19 +68,18 @@ export default function RusheeZoom() {
     const [ratingNotSeen, setRatingNotSeen] = useState(createDefaultNotSeen);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isBidcom, setIsBidcom] = useState(false);
-    const [requireCommentToView, setRequireCommentToView] = useState(true); // Default to existing behavior
+    // Keep comments restricted until the access settings finish loading.
+    const [requireCommentToView, setRequireCommentToView] = useState(true);
 
     const navigate = useNavigate();
 
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // Get rushee number from URL query params (passed from bid committee dashboard)
     const getRusheeNumber = () => {
         const params = new URLSearchParams(location.search);
         return params.get('rushee_num') || '---';
     };
 
-    // Check if user is in bid committee mode
     const isBidCommitteeMode = () => {
         return location.pathname.includes('/bid-committee') || 
                location.search.includes('bid_committee=true') ||
@@ -183,7 +182,7 @@ export default function RusheeZoom() {
     const handleCopy = () => {
         navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${rushee.access_code}`).then(() => {
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
+            setTimeout(() => setCopied(false), 2000);
         });
     };
 
@@ -233,7 +232,6 @@ export default function RusheeZoom() {
 
                                 <RusheePisDetails rushee={rushee} setSelectedPis={setSelectedPis} />
 
-                                {/* Section: Brothers who wrote comments (admins/bidcom/unrestricted only) */}
                                 {showAllComments && rushee.comments.length > 0 && (
                                     <div className="card-apple p-6 mb-6">
                                         <h2 className="text-apple-title1 font-light text-black mb-4">
@@ -252,7 +250,6 @@ export default function RusheeZoom() {
                                     </div>
                                 )}
 
-                                {/* Comments */}
                                 <div className="card-apple p-6 mb-6">
                                     <h2 className="text-apple-title1 font-light text-black mb-4">
                                         Comments
@@ -288,7 +285,6 @@ export default function RusheeZoom() {
                                         handleSubmitEdit={handleSubmitEdit}
                                     />
 
-                                    {/* Prompt when restricted and user hasn't commented yet */}
                                     {requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment && (
                                         <div className="mt-6 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple text-center">
                                             <p className="text-apple-body text-apple-gray-600 font-light">
@@ -298,15 +294,6 @@ export default function RusheeZoom() {
                                     )}
                                 </div>
 
-                            {/* Attendance */}
-                            {/* <div className="card-apple p-6 mb-6">
-                                <h2 className="text-apple-title1 font-light text-black mb-4">Attendance</h2>
-                                {rushee.attendance.map((event, idx) => (
-                                    <p key={idx} className="text-apple-body text-apple-gray-600 font-light">
-                                        {event.name} - {event.date}
-                                    </p>
-                                ))}
-                            </div> */}
                             </div>
                         </div>
                     </div>
