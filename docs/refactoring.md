@@ -338,6 +338,12 @@ internal names are standardized.
     fake-SDK tests cover import safety, claim preservation, usage errors, and
     missing users. All 21 maintenance-script tests and Python compilation pass;
     no live Firebase claim was changed.
+59. New-rush season reset: moved configuration, connection, deletion, and bulk
+    update into a direct-command `main()` while leaving the static keep list
+    available for inspection. The direct-command body matches the original
+    parsed Python AST. Three fake-collection tests cover import safety, missing
+    configuration, operation order, keep-list filtering, and reset fields. All
+    24 maintenance-script tests and Python compilation pass; no live reset ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -385,7 +391,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 54 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 21 maintenance-script tests. The last
+tests with the integration feature, plus 24 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
