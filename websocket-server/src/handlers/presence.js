@@ -1,39 +1,24 @@
 function registerPresenceHandlers(socket, rooms, userSockets) {
-    socket.on('cursor-position', (data) => {
-        const userData = userSockets.get(socket.id);
-        if (!userData) return;
+    for (const eventName of ['cursor-position', 'typing-indicator']) {
+        socket.on(eventName, (data) => {
+            const userData = userSockets.get(socket.id);
+            if (!userData) return;
 
-        const { roomId, userInfo } = userData;
-        const room = rooms.get(roomId);
-        if (!room) return;
+            const { roomId, userInfo } = userData;
+            const room = rooms.get(roomId);
+            if (!room) return;
 
-        room.lastActivity = new Date().toISOString();
+            room.lastActivity = new Date().toISOString();
 
-        socket.to(roomId).emit('cursor-position', {
-            ...data,
-            userId: userInfo.id,
-            userName: userInfo.name,
-            timestamp: Date.now()
+            // INVARIANT: broadcast the joined identity, never a user name claimed by the payload.
+            socket.to(roomId).emit(eventName, {
+                ...data,
+                userId: userInfo.id,
+                userName: userInfo.name,
+                timestamp: Date.now()
+            });
         });
-    });
-
-    socket.on('typing-indicator', (data) => {
-        const userData = userSockets.get(socket.id);
-        if (!userData) return;
-
-        const { roomId, userInfo } = userData;
-        const room = rooms.get(roomId);
-        if (!room) return;
-
-        room.lastActivity = new Date().toISOString();
-
-        socket.to(roomId).emit('typing-indicator', {
-            ...data,
-            userId: userInfo.id,
-            userName: userInfo.name,
-            timestamp: Date.now()
-        });
-    });
+    }
 }
 
 module.exports = { registerPresenceHandlers };
