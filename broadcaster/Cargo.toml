@@ -1,7 +1,11 @@
 [package]
-name = "broadcaster"
+name = "rush-voting-websocket"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "broadcaster"
+path = "src/main.rs"
 
 [features]
 integration-tests = []

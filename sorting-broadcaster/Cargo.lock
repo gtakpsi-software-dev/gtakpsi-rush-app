@@ -821,7 +821,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sorting-broadcaster"
+name = "rush-sorting-websocket"
 version = "0.1.0"
 dependencies = [
  "axum",

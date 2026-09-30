@@ -1,7 +1,11 @@
 [package]
-name = "sorting-broadcaster"
+name = "rush-sorting-websocket"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "sorting-broadcaster"
+path = "src/main.rs"
 
 [dependencies]
 axum = { version = "0.6", features = ["ws"] }

@@ -28,6 +28,12 @@ External deployment roots and executable names remain compatible during internal
 reorganization. Runtime event and JSON names are public contracts, even when
 internal names are standardized.
 
+The real-time package names follow `rush-<domain>-websocket`: voting is
+`rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
+PIS editing is `rush-pis-websocket`. Their existing service directories remain
+the deployment roots. The Rust binaries remain `broadcaster` and
+`sorting-broadcaster`, matching the current Dockerfiles.
+
 ## Slice ledger
 
 1. Client characterization tests: real assertions for rating labels/classes,
@@ -383,6 +389,11 @@ internal names are standardized.
     absent values, per-field timeouts, and the existing error logs. Expanded
     disposable-Redis coverage checks both roles with a missing rushee and a
     saved question. Both voting service tests pass; rustfmt is clean.
+67. Real-time package names: standardized the three package manifests and lock
+    files to `rush-<domain>-websocket`. Explicit Rust binary names preserve the
+    Dockerfile executable paths; directories, ports, protocols, and startup
+    commands remain unchanged. All 2 voting, 9 sorting, and 14 collaboration
+    tests pass. Both Rust binaries build at their original paths.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

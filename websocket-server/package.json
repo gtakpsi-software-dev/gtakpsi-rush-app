@@ -1,5 +1,5 @@
 {
-  "name": "websocket-server",
+  "name": "rush-pis-websocket",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
