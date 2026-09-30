@@ -166,6 +166,9 @@ internal names are standardized.
 28. Admin voting socket extraction: moved pub/sub subscriptions and retries away
     from connection, snapshot, and ping/pong handling. All four function bodies
     match the original after formatting; the Redis/WebSocket tests still pass.
+29. Voter socket extraction: the second socket now has the same session/pubsub
+    module boundaries. Its four function bodies match the original after
+    formatting, and the Redis/WebSocket tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

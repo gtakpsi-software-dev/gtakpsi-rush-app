@@ -1,17 +1,18 @@
+use crate::clients::ClientList;
+use crate::db::{get_redis_conn, reset_redis_conn, REDIS_CALL_TIMEOUT};
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
-    extract::ConnectInfo,
+    extract::{ConnectInfo, Path},
     response::IntoResponse,
 };
-use axum::extract::Path;
-use crate::clients::{broadcast_to_clients, ClientList};
-use redis::AsyncCommands;
-use std::{net::SocketAddr, time::Duration};
-use tokio::sync::mpsc;
-use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
 use futures_util::{SinkExt, StreamExt};
+use redis::AsyncCommands;
+use std::{
+    net::SocketAddr,
+    sync::atomic::{AtomicUsize, Ordering},
+};
+use tokio::sync::mpsc;
 
-use std::sync::atomic::{AtomicUsize, Ordering};
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
 pub async fn ws_handler(
@@ -23,60 +24,12 @@ pub async fn ws_handler(
     ws.on_upgrade(move |socket| handle_socket(socket, addr, clients, Some(id)))
 }
 
-/// Background task that listens to Redis pubsub channels and pushes updates to clients
-/// Includes automatic reconnection on failure
-pub async fn spawn_pubsub_listener(clients: ClientList) {
-    tokio::spawn(async move {
-        loop {
-            println!("🔄 Voter PubSub: Connecting to Redis...");
-            
-            match run_voter_pubsub_listener(clients.clone()).await {
-                Ok(_) => {
-                    println!("⚠️ Voter PubSub: Stream ended unexpectedly, reconnecting...");
-                }
-                Err(e) => {
-                    println!("❌ Voter PubSub error: {}, reconnecting in 3s...", e);
-                }
-            }
-            
-            // Wait before reconnecting
-            tokio::time::sleep(Duration::from_secs(3)).await;
-        }
-    });
-}
-
-/// Inner function that runs the pubsub listener (can return error for retry)
-async fn run_voter_pubsub_listener(clients: ClientList) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let mut pubsub = get_redis_pubsub().await;
-    
-    pubsub.subscribe("rushee").await?;
-    pubsub.subscribe("question").await?;
-    
-    println!("✅ Voter PubSub: Connected and subscribed to channels");
-
-    let mut stream = pubsub.on_message();
-    while let Some(msg) = stream.next().await {
-        let channel = msg.get_channel_name().to_string();
-        if let Ok(payload) = msg.get_payload::<String>() {
-            let msg = match channel.as_str() {
-                "rushee" => serde_json::json!({
-                    "type": "rushee_update",
-                    "rushee": payload
-                }),
-                "question" => serde_json::json!({
-                    "type": "question_update",
-                    "question": payload
-                }),
-                _ => continue,
-            };
-            broadcast_to_clients(&clients, msg.to_string());
-        }
-    }
-    
-    Ok(())
-}
-
-async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList, client_id: Option<String>) {
+async fn handle_socket(
+    socket: WebSocket,
+    addr: SocketAddr,
+    clients: ClientList,
+    client_id: Option<String>,
+) {
     println!("🔌 Voter client connected from {}", addr);
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
@@ -119,7 +72,11 @@ async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList,
     }
 
     // Initial question snapshot
-    match tokio::time::timeout(REDIS_CALL_TIMEOUT, conn.get::<_, Option<String>>("question")).await
+    match tokio::time::timeout(
+        REDIS_CALL_TIMEOUT,
+        conn.get::<_, Option<String>>("question"),
+    )
+    .await
     {
         Ok(Ok(Some(data))) => {
             let msg = serde_json::json!({
@@ -147,7 +104,10 @@ async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList,
     // Send all initial messages directly before registering
     for msg in initial_messages {
         if ws_sender.send(msg).await.is_err() {
-            println!("❌ Failed to send initial snapshot to client {}, aborting", id);
+            println!(
+                "❌ Failed to send initial snapshot to client {}, aborting",
+                id
+            );
             return;
         }
     }
@@ -159,7 +119,10 @@ async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList,
     let send_task = tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
             if ws_sender.send(msg).await.is_err() {
-                println!("❌ Failed to send to client {}, connection likely closed", id);
+                println!(
+                    "❌ Failed to send to client {}, connection likely closed",
+                    id
+                );
                 break;
             }
         }
