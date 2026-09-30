@@ -19,6 +19,7 @@ import {
     buildPisScheduleCsv,
     buildPisScheduleWithBrothersCsv,
 } from "../features/admin/data/exportCsv";
+import { downloadCsv } from "../features/admin/data/downloadCsv";
 import AdminAccessCard from "../features/admin/access/AdminAccessCard";
 import AccessSettingsCards from "../features/admin/access/AccessSettingsCards";
 import { auth, db } from "../firebase";
@@ -354,18 +355,7 @@ export default function Admin() {
                 const rushees = response.data.payload;
 
                 const csvContent = buildRusheePersonalInfoCsv(rushees);
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", `Rushee_Personal_Info_${new Date().toISOString().split('T')[0]}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
+                downloadCsv(csvContent, "Rushee_Personal_Info");
 
                 toast.success(`Exported personal info for ${rushees.length} rushees`, {
                     position: "top-center",
@@ -396,18 +386,7 @@ export default function Admin() {
                 const mappings = response.data.payload;
 
                 const csvContent = buildRusheeNumbersCsv(mappings);
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", `Rushee_Numbers_${new Date().toISOString().split('T')[0]}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
+                downloadCsv(csvContent, "Rushee_Numbers");
 
                 toast.success(`Exported ${mappings.length} rushee numbers`, {
                     position: "top-center",
@@ -649,18 +628,7 @@ export default function Admin() {
                 const timeslots = response.data.payload;
                 
                 const csvContent = buildPisScheduleCsv(timeslots);
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", `PIS_Schedule_${new Date().toISOString().split('T')[0]}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
+                downloadCsv(csvContent, "PIS_Schedule");
                 
                 toast.success(`Exported ${timeslots.length} PIS appointments`, {
                     position: "top-center",
@@ -840,18 +808,7 @@ export default function Admin() {
                 const data = response.data.payload;
                 
                 const csvContent = buildPisScheduleWithBrothersCsv(data);
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", `PIS_Schedule_With_Brothers_${new Date().toISOString().split('T')[0]}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
+                downloadCsv(csvContent, "PIS_Schedule_With_Brothers");
                 
                 toast.success(`Exported ${data.length} PIS appointments with brother assignments`, {
                     position: "top-center",

@@ -299,6 +299,12 @@ internal names are standardized.
     busy, and populated states. Tests cover ISO and extended-JSON timestamps,
     action callbacks, and disabled states. All 48 client tests pass, the build
     succeeds, and CSS remains byte-identical. `Admin.jsx` is now 1,277 lines.
+53. Admin CSV downloads: consolidated four identical browser download blocks
+    into one helper while retaining the original filename prefixes, date
+    generation inside the supported-download branch, DOM call order, and toast
+    handling. Two fake-browser tests cover supported and unsupported links.
+    All 50 client tests pass, new files pass lint, the build succeeds, and CSS
+    remains byte-identical. `Admin.jsx` is now 1,234 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -344,7 +350,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 48 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 50 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
