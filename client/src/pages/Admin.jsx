@@ -19,6 +19,7 @@ import {
     groupEditSlots,
 } from "../features/admin/pis/pisTime";
 import ReschedulePisCard from "../features/admin/pis/ReschedulePisCard";
+import { createRescheduleActions } from "../features/admin/pis/rescheduleActions";
 import AdminSchedulingCards from "../features/admin/scheduling/AdminSchedulingCards";
 import AdminDataActions from "../features/admin/data/AdminDataActions";
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
@@ -334,11 +335,19 @@ export default function Admin() {
         download: downloadCsv,
     });
 
-    const handleSelectRushee = (rushee) => {
-        setSelectedRushee(rushee);
-        setRusheeSearch(rushee.name);
-        setFilteredRushees([]);
-    };
+    const { handleSelectRushee, handleReschedulePIS } = createRescheduleActions({
+        rusheeApiBase,
+        selectedRushee,
+        selectedNewTimeslot,
+        setSelectedRushee,
+        setRusheeSearch,
+        setFilteredRushees,
+        setSelectedNewTimeslot,
+        setAvailableTimeslots,
+        axios,
+        toast,
+        logError: (message, error) => console.error(message, error),
+    });
 
     const {
         handleSelectBrother,
@@ -356,63 +365,6 @@ export default function Admin() {
         axios,
         toast,
     });
-
-    const handleReschedulePIS = async () => {
-        if (!selectedRushee || !selectedNewTimeslot) {
-            toast.error("Please select a rushee and a new timeslot", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        try {
-            const response = await axios.post(
-                `${rusheeApiBase}/reschedule-pis/${selectedRushee.gtid}`,
-                JSON.stringify(selectedNewTimeslot),
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            if (response.data.status === "success") {
-                toast.success(`PIS rescheduled for ${selectedRushee.name}`, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-                // Reset the form
-                setSelectedRushee(null);
-                setRusheeSearch("");
-                setSelectedNewTimeslot("");
-                
-                // Refresh available timeslots
-                try {
-                    const timeslotsResponse = await axios.get(`${rusheeApiBase}/get-available-timeslots`);
-                    if (timeslotsResponse.data.status === "success") {
-                        setAvailableTimeslots(timeslotsResponse.data.payload);
-                    }
-                } catch (e) {
-                    console.error("Failed to refresh timeslots:", e);
-                }
-            } else {
-                toast.error(response.data.message || "Failed to reschedule", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "An error occurred", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-    };
 
     const {
         handleSendPISForm,
