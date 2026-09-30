@@ -4,17 +4,15 @@ use axum::{
     response::IntoResponse,
 };
 use axum::extract::Path;
-use dashmap::DashMap;
+use crate::clients::{broadcast_to_clients, ClientList};
 use redis::AsyncCommands;
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, time::Duration};
 use tokio::sync::mpsc;
 use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
 use futures_util::{SinkExt, StreamExt};
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
-
-pub type ClientList = Arc<DashMap<usize, mpsc::UnboundedSender<Message>>>;
 
 pub async fn ws_handler(
     Path(id): Path<String>,
@@ -76,21 +74,6 @@ async fn run_voter_pubsub_listener(clients: ClientList) -> Result<(), Box<dyn st
     }
     
     Ok(())
-}
-
-pub(crate) fn broadcast_to_clients(clients: &ClientList, msg_str: String) {
-    let mut to_remove = Vec::new();
-    for entry in clients.iter() {
-        let (id, tx) = entry.pair();
-        if tx.send(Message::Text(msg_str.clone())).is_err() {
-            to_remove.push(*id);
-        }
-    }
-
-    for id in to_remove {
-        clients.remove(&id);
-        println!("🗑️ Removed disconnected client {}", id);
-    }
 }
 
 async fn handle_socket(socket: WebSocket, addr: SocketAddr, clients: ClientList, client_id: Option<String>) {

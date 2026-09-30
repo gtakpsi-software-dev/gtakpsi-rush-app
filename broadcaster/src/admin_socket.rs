@@ -3,10 +3,10 @@ use axum::{
     extract::{ConnectInfo, Path},
     response::IntoResponse,
 };
-use dashmap::DashMap;
+use crate::clients::{broadcast_to_clients, ClientList};
 use futures_util::{SinkExt, StreamExt};
 use redis::AsyncCommands;
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, time::Duration};
 use tokio::sync::mpsc;
 
 use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
@@ -14,9 +14,6 @@ use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_T
 /// Global atomic counter for unique client IDs
 use std::sync::atomic::{AtomicUsize, Ordering};
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
-
-/// Type alias for active WebSocket clients
-pub type ClientList = Arc<DashMap<usize, mpsc::UnboundedSender<Message>>>;
 
 /// WebSocket route handler for admin page
 pub async fn admin_ws_handler(
@@ -119,22 +116,6 @@ async fn run_admin_pubsub_listener(clients: ClientList) -> Result<(), Box<dyn st
     }
     
     Ok(())
-}
-
-/// Helper to send messages to all clients
-pub(crate) fn broadcast_to_clients(clients: &ClientList, msg_str: String) {
-    let mut to_remove = Vec::new();
-    for entry in clients.iter() {
-        let (id, tx) = entry.pair();
-        if tx.send(Message::Text(msg_str.clone())).is_err() {
-            to_remove.push(*id);
-        }
-    }
-
-    for id in to_remove {
-        clients.remove(&id);
-        println!("🗑️ Removed disconnected client {}", id);
-    }
 }
 
 /// Handles a single WebSocket connection for the admin dashboard

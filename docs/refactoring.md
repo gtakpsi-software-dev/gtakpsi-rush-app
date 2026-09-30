@@ -160,6 +160,9 @@ internal names are standardized.
     question snapshots, invalid vote filtering, admin-only vote updates, pub/sub
     delivery, and disconnect cleanup. The harness guards the exact Redis instance
     before writing fixtures, and tests pass against the original socket handlers.
+27. Voting fanout cleanup: admin and voter sockets now share one client map type
+    and broadcast routine. Both original broadcast bodies match the shared one
+    after formatting normalization. The real Redis/WebSocket suite still passes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

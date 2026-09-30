@@ -1,6 +1,7 @@
 mod voter_socket;
 mod admin_socket;
 mod db;
+mod clients;
 
 #[cfg(test)]
 mod tests;
@@ -10,8 +11,9 @@ mod integration_tests;
 
 use axum::{routing::get, Router};
 use std::{env, net::SocketAddr, sync::Arc};
-use voter_socket::{ws_handler, ClientList, spawn_pubsub_listener};
+use voter_socket::{ws_handler, spawn_pubsub_listener};
 use admin_socket::{admin_ws_handler, admin_spawn_pubsub_listener};
+use clients::ClientList;
 
 use dotenvy::dotenv;
 
