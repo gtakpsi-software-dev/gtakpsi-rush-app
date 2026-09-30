@@ -350,6 +350,12 @@ internal names are standardized.
     fake-service tests cover import safety, query order, column mapping,
     flexible-window labels, and output filename. All 26 maintenance-script
     tests and Python compilation pass; no live database or file export ran.
+61. Historical ratings repair: wrapped the MongoDB scan and updates in
+    direct-command `main()` without changing its embedded connection target.
+    The direct-command body matches the original parsed Python AST. Two
+    fake-service tests cover import safety, per-name arithmetic means, empty
+    ratings, and update order. All 28 maintenance-script tests and Python
+    compilation pass; no live database write ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -397,7 +403,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 54 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 26 maintenance-script tests. The last
+tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
