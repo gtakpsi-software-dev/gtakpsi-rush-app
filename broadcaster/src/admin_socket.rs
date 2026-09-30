@@ -122,7 +122,7 @@ async fn run_admin_pubsub_listener(clients: ClientList) -> Result<(), Box<dyn st
 }
 
 /// Helper to send messages to all clients
-fn broadcast_to_clients(clients: &ClientList, msg_str: String) {
+pub(crate) fn broadcast_to_clients(clients: &ClientList, msg_str: String) {
     let mut to_remove = Vec::new();
     for entry in clients.iter() {
         let (id, tx) = entry.pair();

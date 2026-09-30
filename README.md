@@ -50,13 +50,18 @@ npm --prefix websocket-server test
 cargo test --locked --manifest-path server/Cargo.toml
 cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
 scripts/testing/api-integration.sh
+python3 scripts/testing/voting-integration.py
 ```
 
-The integration command requires Docker. It creates a fresh MongoDB container,
+The API integration command requires Docker. It creates a fresh MongoDB container,
 runs database-backed behavior checks, and removes the container on exit. It does
 not use the app's `.env` or an existing database. See
 [the verification notes](docs/refactoring.md#verification) for local toolchain
 requirements and remaining coverage.
+
+The voting integration command requires `redis-server` and `redis-cli`. It starts
+a separate local Redis instance, checks its run marker, and stops that instance
+after the WebSocket tests.
 
 ## Deploy
 

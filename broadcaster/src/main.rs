@@ -2,6 +2,12 @@ mod voter_socket;
 mod admin_socket;
 mod db;
 
+#[cfg(test)]
+mod tests;
+
+#[cfg(all(test, feature = "integration-tests"))]
+mod integration_tests;
+
 use axum::{routing::get, Router};
 use std::{env, net::SocketAddr, sync::Arc};
 use voter_socket::{ws_handler, ClientList, spawn_pubsub_listener};

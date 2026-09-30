@@ -154,6 +154,12 @@ internal names are standardized.
 25. API import cleanup: removed compiler-confirmed unused imports in registration,
     voting, attendance, and rushee models. `cargo check --locked` passes; this
     slice changes imports only. Other existing API warnings remain tracked debt.
+26. Voting WebSocket baseline: a direct fanout test checks delivery and dead-client
+    pruning for both admin and voter channels. A real WebSocket test uses a fresh
+    loopback Redis instance to cover snapshot order, JSON string payloads, null
+    question snapshots, invalid vote filtering, admin-only vote updates, pub/sub
+    delivery, and disconnect cleanup. The harness guards the exact Redis instance
+    before writing fixtures, and tests pass against the original socket handlers.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -194,7 +200,8 @@ On this Mac, prefix the command with
 fixture resets unless the newly created container's marker is present.
 
 Current verified totals: 14 client tests, 10 collaboration tests, 8 sorting
-WebSocket tests, and 32 API tests with the integration feature. The last client build passes with baseline
+WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
+tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
 application parity.

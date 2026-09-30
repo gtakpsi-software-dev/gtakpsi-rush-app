@@ -3,6 +3,9 @@ name = "broadcaster"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+integration-tests = []
+
 [dependencies]
 axum = { version="0.6", features=["ws"] }
 tokio = { version = "1", features = ["full"] }
