@@ -356,6 +356,12 @@ internal names are standardized.
     fake-service tests cover import safety, per-name arithmetic means, empty
     ratings, and update order. All 28 maintenance-script tests and Python
     compilation pass; no live database write ran.
+62. Collaboration test synchronization: the connection helper now waits for
+    both `document-state` and `users-updated` before returning a joined client.
+    This removes a race where a later membership assertion could consume the
+    first client's delayed self-join event. Production server code and protocol
+    are unchanged. All 10 collaboration tests pass in four consecutive
+    loopback runs.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

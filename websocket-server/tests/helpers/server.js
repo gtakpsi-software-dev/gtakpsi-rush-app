@@ -37,8 +37,9 @@ async function startServer(t) {
             clients.push(client);
             await event(client, 'connect');
             const state = event(client, 'document-state');
+            const members = event(client, 'users-updated');
             client.emit('join-room', { roomId, userId, userName: userId });
-            await state;
+            await Promise.all([state, members]);
             return client;
         },
     };
