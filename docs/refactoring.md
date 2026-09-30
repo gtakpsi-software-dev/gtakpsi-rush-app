@@ -59,6 +59,12 @@ internal names are standardized.
    after rustfmt normalization. All 10 API tests pass, including question payload
    defaults and category-clearing contracts. Database-backed endpoint execution
    still needs an isolated MongoDB integration environment.
+8. Admin sorting extraction: payloads, board queries, notes, and reorder/move
+   handlers are separate modules, with shared locks still scoped to the sorting
+   feature. Seven handler bodies match the original after formatting/comment
+   normalization. All 14 API tests pass, including status validation and exact
+   sorting JSON field names. `controllers/admin.rs` is down to 1,197 lines;
+   remaining extraction is tracked below.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
