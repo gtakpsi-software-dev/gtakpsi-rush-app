@@ -268,6 +268,13 @@ internal names are standardized.
     disable states. Tests verify all four toggle fields and values. All 35 client
     tests pass, the build succeeds, and CSS remains byte-identical. `Admin.jsx`
     is now 1,692 lines.
+48. PIS rescheduling card: extracted the search, selected-rushee, timeslot,
+    and submit UI while keeping state and requests in `Admin.jsx`. Original HTML
+    matches empty, search, and selected states; tests also cover search clearing,
+    rushee selection, timeslot changes, and submission callbacks. All 37 client
+    tests pass, the build succeeds, and CSS remains byte-identical. `Admin.jsx`
+    is now 1,594 lines. Existing `Admin.jsx` lint errors remain tracked debt;
+    the new test file passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -313,7 +320,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 35 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 37 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
