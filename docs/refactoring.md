@@ -41,8 +41,11 @@ internal names are standardized.
    `src/app.js` composes HTTP routes, room cleanup, and focused membership,
    operation, update, and presence handlers. All 10 tests pass, including cleanup
    boundaries and reconnect retention. Executable AST comparison confirms all
-   10 original HTTP/socket callbacks are unchanged except injected timer access.
+   9 original HTTP/socket callbacks are unchanged except injected timer access.
    The deployment command, port, signals, event names, and payloads are retained.
+4. API characterization: 8 tests pass for rush-night attribution/lead-in,
+   timezone matching, canonical merging, interaction counts, legacy model
+   defaults, self-service field privacy, and vote serialization.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -136,3 +136,6 @@ pub fn enrich_interactions_by_night(rushee: &mut RusheeModel, db_rush_nights: &[
     rushee.interactions_by_night =
         interactions_by_night(db_rush_nights, &rushee.attendance, &rushee.comments);
 }
+
+#[cfg(test)]
+mod tests;

@@ -203,3 +203,7 @@ pub struct RusheeVote {
     pub last_name: String,
     pub vote: VoteOption,
 }
+
+#[cfg(test)]
+#[path = "rushee/tests.rs"]
+mod tests;
