@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { verifyUser } from "../js/verifications";
 import Navbar from "../components/Navbar";
+import { loadAdminData } from "../features/admin/bootstrap/loadAdminData";
 import Loader from "../components/Loader";
 import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
 import { createAvailabilityEditorActions } from "../features/admin/availability/availabilityEditorActions";
@@ -98,138 +99,32 @@ export default function Admin() {
     const errorDescription = "If this is a mistake, try logging back in";
 
     useEffect(() => {
-        async function fetchInitial() {
-            await verifyUser()
-                .then(async (response) => {
-                    if (response == false) {
-                        navigate(`/error/${errorTitle}/${errorDescription}`);
-                    }
-                })
-                .catch(() => {
-                    navigate(`/error/${errorTitle}/${errorDescription}`);
-                });
-
-            const current = auth.currentUser;
-            if (!current) {
-                    navigate(`/error/${errorTitle}/${errorDescription}`);
-                return;
-            }
-
-            const tokenResult = await current.getIdTokenResult(true);
-            const isAdmin = tokenResult.claims?.admin === true;
-            const isAllowlisted = current.email && allowlist.includes(current.email.toLowerCase());
-            if (!(isAdmin || isAllowlisted)) {
-                toast.error("Not authorized");
-                navigate(`/error/${errorTitle}/${errorDescription}`);
-                return;
-            }
-
-            // attach auth header for all admin calls
-            axios.defaults.headers.common["Authorization"] = `Bearer ${tokenResult.token}`;
-
-            // Fetch brothers for admin promotion
-            try {
-                const snapshot = await getDocs(collection(db, "brothers"));
-                const list = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setBrothers(list);
-            } catch (error) {
-                console.error("Failed to fetch brothers:", error);
-            }
-
-            // Fetch rushees for reschedule feature
-            try {
-                const rusheesResponse = await axios.get(`${rusheeApiBase}/get-rushees`);
-                if (rusheesResponse.data.status === "success") {
-                    setRushees(rusheesResponse.data.payload);
-                }
-            } catch (error) {
-                console.error("Failed to fetch rushees:", error);
-            }
-
-            // Fetch available timeslots
-            try {
-                const timeslotsResponse = await axios.get(`${rusheeApiBase}/get-available-timeslots`);
-                if (timeslotsResponse.data.status === "success") {
-                    setAvailableTimeslots(timeslotsResponse.data.payload);
-                }
-            } catch (error) {
-                console.error("Failed to fetch timeslots:", error);
-            }
-
-            // Fetch PIS availability form status
-            try {
-                const formStatusResponse = await axios.get(`${apiBase}/pis-availability/status`);
-                if (formStatusResponse.data.status === "success") {
-                    setPisFormStatus({
-                        is_active: formStatusResponse.data.is_active,
-                        sent_at: formStatusResponse.data.sent_at
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to fetch PIS form status:", error);
-            }
-
-            // Fetch brother availabilities
-            try {
-                const availabilitiesResponse = await axios.get(`${apiBase}/pis-availability/all`);
-                if (availabilitiesResponse.data.status === "success") {
-                    setBrotherAvailabilities(availabilitiesResponse.data.payload);
-                }
-            } catch (error) {
-                console.error("Failed to fetch brother availabilities:", error);
-            }
-
-            // Fetch all PIS timeslots for editing availability
-            try {
-                const timeslotsResponse = await axios.get(`${apiBase}/get_pis_timeslots`);
-                if (timeslotsResponse.data.status === "success") {
-                    const sorted = timeslotsResponse.data.payload.sort((a, b) => {
-                        const timeA = parseInt(a.time.$date.$numberLong);
-                        const timeB = parseInt(b.time.$date.$numberLong);
-                        return timeA - timeB;
-                    });
-                    setAllPisTimeslots(sorted);
-                }
-            } catch (error) {
-                console.error("Failed to fetch PIS timeslots:", error);
-            }
-
-            // Fetch Rush App status
-            try {
-                const rushAppResponse = await axios.get(`${apiBase}/rush-app/status`);
-                if (rushAppResponse.data.status === "success") {
-                    setRushAppStatus({
-                        disable_bidcom: rushAppResponse.data.disable_bidcom,
-                        disable_regular: rushAppResponse.data.disable_regular,
-                        midterm_mode: rushAppResponse.data.midterm_mode ?? false,
-                        updated_by: rushAppResponse.data.updated_by
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to fetch Rush App status:", error);
-            }
-
-            // Fetch Comment Visibility status
-            try {
-                const commentVisibilityResponse = await axios.get(`${apiBase}/comment-visibility/status`);
-                if (commentVisibilityResponse.data.status === "success") {
-                    setCommentVisibilityStatus({
-                        require_comment_to_view: commentVisibilityResponse.data.require_comment_to_view,
-                        updated_by: commentVisibilityResponse.data.updated_by
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to fetch comment visibility status:", error);
-            }
-
-            setLoading(false);
-        }
-
         if (loading === true) {
-            fetchInitial();
+            loadAdminData({
+                verifyUser,
+                navigate,
+                errorTitle,
+                errorDescription,
+                auth,
+                allowlist,
+                axios,
+                db,
+                collection,
+                getDocs,
+                apiBase,
+                rusheeApiBase,
+                toast,
+                logError: (message, error) => console.error(message, error),
+                setBrothers,
+                setRushees,
+                setAvailableTimeslots,
+                setPisFormStatus,
+                setBrotherAvailabilities,
+                setAllPisTimeslots,
+                setRushAppStatus,
+                setCommentVisibilityStatus,
+                setLoading,
+            });
         }
     }, [loading, navigate, rusheeApiBase]);
 
