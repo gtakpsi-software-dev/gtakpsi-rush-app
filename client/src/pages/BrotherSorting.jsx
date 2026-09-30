@@ -8,6 +8,7 @@ import axios from "axios";
 import { STATUSES, TAGS, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import SortingZoomControls from "../features/sorting/SortingZoomControls";
+import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -396,25 +397,12 @@ export default function BrotherSorting() {
             <Navbar />
             
             {/* Viewer Count & Live Indicator */}
-            {(() => {
-                const ghostList = Object.values(ghostCards);
-                const ghostCount = ghostList.length;
-                if (!wsConnected) return null;
-                const label =
-                    ghostCount === 0
-                        ? `${viewerCount} viewing`
-                        : ghostCount === 1
-                            ? `${ghostList[0].draggerName} is editing`
-                            : `${ghostCount} admins editing`;
-                return (
-                    <div className="fixed top-20 right-6 z-30 flex items-center gap-2 bg-white border border-apple-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-                        <div className={`w-2 h-2 rounded-full ${ghostCount > 0 ? "bg-orange-500 animate-pulse" : "bg-green-500"}`}></div>
-                        <span className="text-sm text-apple-gray-600">
-                            {label}
-                        </span>
-                    </div>
-                );
-            })()}
+            <SortingPresenceIndicator
+                connected={wsConnected}
+                viewerCount={viewerCount}
+                ghostCards={ghostCards}
+                hideWhenAlone={false}
+            />
 
             {/* Ghost Cards - Shows when admins are dragging */}
             {Object.values(ghostCards).map((ghost) => (
