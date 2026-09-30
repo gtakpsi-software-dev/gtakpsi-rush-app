@@ -1,22 +1,53 @@
 use super::*;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[tokio::test]
 async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     // INVARIANT: never write fixtures unless this exact disposable Redis instance is marked.
     let mut conn = guarded_redis().await;
     let _: () = conn.set("rushee", r#"{"id":"first"}"#).await.unwrap();
-    let _: i64 = conn.hset("vote_log", "valid", r#"{"choice":"yes"}"#).await.unwrap();
+    let _: i64 = conn
+        .hset("vote_log", "valid", r#"{"choice":"yes"}"#)
+        .await
+        .unwrap();
     let _: i64 = conn.hset("vote_log", "invalid", "not json").await.unwrap();
 
     let server = TestServer::start();
+    let mut health = TcpStream::connect(server.url.trim_start_matches("ws://"))
+        .await
+        .unwrap();
+    health
+        .write_all(b"GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        .await
+        .unwrap();
+    let mut response = Vec::new();
+    health.read_to_end(&mut response).await.unwrap();
+    assert!(response.starts_with(b"HTTP/1.1 200 OK\r\n"));
+    assert!(response.ends_with(b"\r\n\r\nok"));
+
     let mut admin = connect(&format!("{}/admin/17", server.url)).await;
-    assert_eq!(receive(&mut admin).await, json!({"type":"vote_update","votes":[{"choice":"yes"}]}));
-    assert_eq!(receive(&mut admin).await, json!({"type":"rushee_update","rushee":r#"{"id":"first"}"#}));
-    assert_eq!(receive(&mut admin).await, json!({"type":"question_update","question":null}));
+    assert_eq!(
+        receive(&mut admin).await,
+        json!({"type":"vote_update","votes":[{"choice":"yes"}]})
+    );
+    assert_eq!(
+        receive(&mut admin).await,
+        json!({"type":"rushee_update","rushee":r#"{"id":"first"}"#})
+    );
+    assert_eq!(
+        receive(&mut admin).await,
+        json!({"type":"question_update","question":null})
+    );
 
     let mut voter = connect(&format!("{}/voter/18", server.url)).await;
-    assert_eq!(receive(&mut voter).await, json!({"type":"rushee_update","rushee":r#"{"id":"first"}"#}));
-    assert_eq!(receive(&mut voter).await, json!({"type":"question_update","question":null}));
+    assert_eq!(
+        receive(&mut voter).await,
+        json!({"type":"rushee_update","rushee":r#"{"id":"first"}"#})
+    );
+    assert_eq!(
+        receive(&mut voter).await,
+        json!({"type":"question_update","question":null})
+    );
     assert!(server.admins.contains_key(&17));
     assert!(server.voters.contains_key(&18));
 
@@ -24,7 +55,10 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     voter_socket::spawn_pubsub_listener(server.voters.clone()).await;
     wait_for_subscribers(&mut conn).await;
 
-    let _: i64 = conn.publish("question", r#"{"prompt":"new"}"#).await.unwrap();
+    let _: i64 = conn
+        .publish("question", r#"{"prompt":"new"}"#)
+        .await
+        .unwrap();
     let question = json!({"type":"question_update","question":r#"{"prompt":"new"}"#});
     assert_eq!(receive(&mut admin).await, question);
     assert_eq!(receive(&mut voter).await, question);
@@ -34,15 +68,25 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     assert_eq!(receive(&mut admin).await, rushee);
     assert_eq!(receive(&mut voter).await, rushee);
 
-    let _: i64 = conn.hset("vote_log", "other", r#"{"choice":"no"}"#).await.unwrap();
-    let _: i64 = conn.publish("vote_channel", "ignored-payload").await.unwrap();
+    let _: i64 = conn
+        .hset("vote_log", "other", r#"{"choice":"no"}"#)
+        .await
+        .unwrap();
+    let _: i64 = conn
+        .publish("vote_channel", "ignored-payload")
+        .await
+        .unwrap();
     let update = receive(&mut admin).await;
     assert_eq!(update["type"], "vote_update");
     let votes = update["votes"].as_array().unwrap();
     assert_eq!(votes.len(), 2);
     assert!(votes.contains(&json!({"choice":"yes"})));
     assert!(votes.contains(&json!({"choice":"no"})));
-    assert!(tokio::time::timeout(Duration::from_millis(100), voter.next()).await.is_err());
+    assert!(
+        tokio::time::timeout(Duration::from_millis(100), voter.next())
+            .await
+            .is_err()
+    );
 
     admin.close(None).await.unwrap();
     voter.close(None).await.unwrap();
@@ -50,5 +94,7 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
         while !server.admins.is_empty() || !server.voters.is_empty() {
             tokio::time::sleep(Duration::from_millis(10)).await;
         }
-    }).await.expect("disconnected clients remained registered");
+    })
+    .await
+    .expect("disconnected clients remained registered");
 }

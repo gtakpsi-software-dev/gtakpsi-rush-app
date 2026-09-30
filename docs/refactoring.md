@@ -172,6 +172,11 @@ internal names are standardized.
 30. Voting naming: both admin and voter modules now export `ws_handler` and
     `spawn_pubsub_listener`. Only internal Rust call sites changed; the real
     Redis/WebSocket suite confirms the same routes and messages.
+31. Voting router extraction: startup now delegates the unchanged `/`,
+    `/voter/:id`, and `/admin/:id` route patterns to `app.rs`. The integration
+    harness uses that production router and verifies the health response plus
+    both WebSocket paths against disposable Redis. Startup still binds the same
+    default port and starts both subscription loops before serving.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

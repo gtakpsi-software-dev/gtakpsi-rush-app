@@ -1,5 +1,4 @@
 use crate::{admin_socket, voter_socket};
-use axum::{routing::get, Router};
 use dashmap::DashMap;
 use futures_util::StreamExt;
 use redis::{AsyncCommands, Value as RedisValue};
@@ -24,25 +23,23 @@ impl TestServer {
     fn start() -> Self {
         let admins = Arc::new(DashMap::new());
         let voters = Arc::new(DashMap::new());
-        let app = Router::new()
-            .route("/", get(|| async { "ok" }))
-            .route("/voter/:id", get({
-                let clients = voters.clone();
-                move |path, ws, addr| voter_socket::ws_handler(path, ws, addr, clients)
-            }))
-            .route("/admin/:id", get({
-                let clients = admins.clone();
-                move |path, ws, addr| admin_socket::ws_handler(path, ws, addr, clients)
-            }));
+        let app = crate::app::create_router(voters.clone(), admins.clone());
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         listener.set_nonblocking(true).unwrap();
         let address = listener.local_addr().unwrap();
         let task = tokio::spawn(async move {
-            axum::Server::from_tcp(listener).unwrap()
+            axum::Server::from_tcp(listener)
+                .unwrap()
                 .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-                .await.unwrap();
+                .await
+                .unwrap();
         });
-        Self { url: format!("ws://{address}"), admins, voters, task }
+        Self {
+            url: format!("ws://{address}"),
+            admins,
+            voters,
+            task,
+        }
     }
 }
 
@@ -68,20 +65,32 @@ async fn wait_for_subscribers(conn: &mut redis::aio::Connection) {
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
             let counts: Vec<RedisValue> = redis::cmd("PUBSUB")
-                .arg("NUMSUB").arg("rushee").arg("question").arg("vote_channel")
-                .query_async(conn).await.unwrap();
-            if matches!((&counts[1], &counts[3], &counts[5]),
-                (RedisValue::Int(2), RedisValue::Int(2), RedisValue::Int(1))) {
+                .arg("NUMSUB")
+                .arg("rushee")
+                .arg("question")
+                .arg("vote_channel")
+                .query_async(conn)
+                .await
+                .unwrap();
+            if matches!(
+                (&counts[1], &counts[3], &counts[5]),
+                (RedisValue::Int(2), RedisValue::Int(2), RedisValue::Int(1))
+            ) {
                 break;
             }
             tokio::time::sleep(Duration::from_millis(10)).await;
         }
-    }).await.expect("voting subscribers did not connect");
+    })
+    .await
+    .expect("voting subscribers did not connect");
 }
 
 async fn receive(socket: &mut TestSocket) -> Value {
     let message = tokio::time::timeout(Duration::from_secs(5), socket.next())
-        .await.expect("socket event timed out").unwrap().unwrap();
+        .await
+        .expect("socket event timed out")
+        .unwrap()
+        .unwrap();
     serde_json::from_str(message.to_text().unwrap()).unwrap()
 }
 
