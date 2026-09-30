@@ -20,17 +20,7 @@ import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { getStableUserId } from "../features/pis/stableUserId";
-
-// Backend dates come back as BSON extended JSON ({ $date: { $numberLong: "..." } })
-// rather than a plain ISO string, so `new Date(value)` alone would produce an
-// Invalid Date. Handle both shapes.
-const parseServerDate = (value) => {
-    if (!value) return null;
-    const millis = value?.$date?.$numberLong;
-    if (millis !== undefined) return new Date(parseInt(millis, 10));
-    const parsed = new Date(value);
-    return isNaN(parsed.getTime()) ? null : parsed;
-};
+import { parseServerDate } from "../features/pis/parseServerDate";
 
 export default function PIS() {
     const { gtid } = useParams();
