@@ -532,6 +532,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     falsy inputs, and the existing invalid-Date result for malformed BSON.
     All 118 client tests pass, the build succeeds, and CSS matches the baseline.
     `PIS.jsx` is now 583 lines; new files pass lint.
+91. PIS dead voice UI: removed a commented-out transcription control and its
+    unused imports. All 118 client tests pass, the build succeeds, and both
+    CSS and the generated JavaScript bundle match slice 90 exactly. `PIS.jsx`
+    is now 569 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

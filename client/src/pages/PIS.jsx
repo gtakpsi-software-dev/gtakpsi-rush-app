@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
-import VoiceRecorder from "../components/VoiceRecorder";
 import CollaborativeTextarea from "../components/CollaborativeTextarea";
 import CollaborativeInput from "../components/CollaborativeInput";
-import VoiceTranscriptionHandler from "../components/VoiceTranscriptionHandler";
 import axios from "axios";
 import { useCollaboration } from "../hooks/useCollaboration";
 
@@ -546,18 +544,6 @@ export default function PIS() {
                                                             currentUser={currentUser}
                                                         />
                                                     </div>
-                                                    {/* Voice transcription temporarily disabled
-                                                    <div className="flex-shrink-0 self-center">
-                                                        <VoiceTranscriptionHandler
-                                                            questionKey={question.question}
-                                                            currentValue={answers[question.question] || ""}
-                                                            onTranscription={(newAnswer) => {
-                                                                handleAnswerChange(question.question, newAnswer, { source: 'voice' });
-                                                            }}
-                                                            disabled={!collaboration.isConnected && collaboration.connectedUsers.length > 0}
-                                                        />
-                                                    </div>
-                                                    */}
                                                 </div>
                                             )}
                                         </div>
