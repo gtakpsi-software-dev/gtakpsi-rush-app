@@ -199,6 +199,12 @@ internal names are standardized.
     cover closing, tag toggles, text changes, and navigation attachment. All 19
     client tests pass, the production build succeeds, and generated CSS remains
     byte-identical to the starting baseline.
+36. Brother sorting details panel: extracted the view-only panel while keeping
+    fetch state, its navigation URL, and its close handler on the page. Original
+    markup matches in loading, populated, and empty states, including unknown-tag
+    filtering. Handler checks cover the backdrop, close buttons, and navigation.
+    All 21 client tests pass, the production build succeeds, and generated CSS
+    remains byte-identical to the starting baseline.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -238,7 +244,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 19 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 21 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
