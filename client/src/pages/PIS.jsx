@@ -19,20 +19,7 @@ import PisProfileHeader from "../features/pis/PisProfileHeader";
 import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
-
-// Helper to get or create a stable user ID for this browser tab
-const getStableUserId = (backendId) => {
-    // Prefer the backend ID if provided
-    if (backendId) return backendId;
-    // Otherwise try to reuse one stored in sessionStorage
-    const STORAGE_KEY = "collab_stable_user_id";
-    const existing = sessionStorage.getItem(STORAGE_KEY);
-    if (existing) return existing;
-    // Create a new random ID and store it
-    const newId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem(STORAGE_KEY, newId);
-    return newId;
-};
+import { getStableUserId } from "../features/pis/stableUserId";
 
 // Backend dates come back as BSON extended JSON ({ $date: { $numberLong: "..." } })
 // rather than a plain ISO string, so `new Date(value)` alone would produce an
