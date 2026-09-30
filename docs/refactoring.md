@@ -76,6 +76,10 @@ internal names are standardized.
     assignment, and exports are separated; all 14 remaining handler bodies
     match the originals after formatting. The largest admin implementation
     module is 304 lines. All 15 API tests pass.
+12. Rushee PIS extraction: added characterization tests for rating boundaries,
+    stable question order, autosave fields, and self-service query codes. Six
+    interview handlers now live in question, response, and scheduling modules;
+    each body matches its original after formatting. All 19 API tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
