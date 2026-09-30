@@ -106,6 +106,13 @@ internal names are standardized.
     harness enables a test API key; all 25 Rust tests pass in that configuration.
     The initial no-key run also passes. On macOS, the existing Reqwest client
     reads system proxy settings and needs normal host permissions for these tests.
+17. Route extraction: startup is 68 lines; route declarations live in public,
+    brother, bid-committee, and admin modules. All four builder expressions match
+    the original tokens after formatting normalization. The outer CORS layer
+    and API-key/role middleware ordering are preserved. Removed the unreachable
+    health-check branch; the exact healthy response remains covered. All 25
+    tests pass with MongoDB/API-key validation enabled, and all five HTTP tests
+    pass again without a configured key after the final cleanup.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -114,9 +121,9 @@ unaccepted license. No machine-wide toolchain settings were changed.
 
 ## Next slices
 
-- Extract and test API routing/auth boundaries without contacting Firebase or
-  production databases. Expand the isolated database scenarios for remaining
-  branches and simplify long handler functions under those tests.
+- Add offline signed-token role tests, split the authentication module, expand
+  database scenarios for remaining branches, and simplify long handler functions
+  under those tests.
 - Separate client domain helpers from hooks and external services; standardize
   their locations with import updates and regression checks.
 - Characterize and split the Rust voting and sorting real-time services; align
@@ -146,7 +153,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 14 client tests, 10 collaboration tests, and 20 API
+Current verified totals: 14 client tests, 10 collaboration tests, and 25 API
 tests with the integration feature. The last client build passes with baseline
-CSS unchanged. Full browser flow/visual testing and HTTP routing/auth integration
+CSS unchanged. Full browser flow/visual testing and authenticated role flows
 are still pending; these checks do not yet establish full application parity.
