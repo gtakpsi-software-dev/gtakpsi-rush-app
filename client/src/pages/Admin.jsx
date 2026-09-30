@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { verifyUser } from "../js/verifications";
 import Navbar from "../components/Navbar";
 import Loader from "../components/Loader";
+import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
 import { auth, db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -1190,125 +1191,19 @@ export default function Admin() {
         <div className="min-h-screen w-full bg-white">
             {/* Edit Brother Availability Modal */}
             {editingBrotherAvailability && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
-                    <div 
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={closeEditAvailability}
-                    />
-                    
-                    {/* Modal */}
-                    <div className="relative bg-white rounded-apple-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 border border-apple-gray-200">
-                        {/* Header */}
-                        <div className="bg-black px-6 py-4 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-apple-title2 font-normal text-white">
-                                    Edit Availability
-                                </h2>
-                                <p className="text-apple-footnote text-apple-gray-400 font-light">
-                                    {editingBrotherAvailability.brother_first_name} {editingBrotherAvailability.brother_last_name}
-                                </p>
-                            </div>
-                <button
-                                onClick={closeEditAvailability}
-                                className="text-white/60 hover:text-white text-2xl font-light transition-colors"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6 overflow-y-auto max-h-[55vh]">
-                            {allPisTimeslots.length === 0 ? (
-                                <div className="text-center py-8 text-apple-gray-500 text-apple-body font-light">
-                                    No PIS timeslots available
-                                </div>
-                            ) : (
-                                <>
-                                    {/* Quick actions */}
-                                    <div className="flex gap-3 mb-6">
-                                        <button
-                                            onClick={selectAllEditSlots}
-                                            className="px-4 py-2 bg-apple-gray-100 text-black rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-200 transition-colors border border-apple-gray-200"
-                                        >
-                                            Select All
-                                        </button>
-                                        <button
-                                            onClick={clearAllEditSlots}
-                                            className="px-4 py-2 bg-white text-apple-gray-600 rounded-apple-lg text-apple-footnote font-light hover:bg-apple-gray-50 transition-colors border border-apple-gray-200"
-                                        >
-                                            Clear All
-                                        </button>
-                                        <div className="ml-auto text-apple-caption1 text-apple-gray-500 self-center font-light">
-                                            {editingSlots.size} of {allPisTimeslots.length} selected
-                                        </div>
-                                    </div>
-
-                                    {/* Timeslots grouped by date */}
-                                    <div className="space-y-6">
-                                        {Object.entries(groupedEditSlots).map(([dateKey, slots]) => (
-                                            <div key={dateKey}>
-                                                <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
-                                                    {dateKey}
-                                                </h3>
-                                                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                                                    {slots.map((slot, idx) => {
-                                                        const slotIso = new Date(parseInt(slot.time.$date.$numberLong)).toISOString();
-                                                        const isSelected = editingSlots.has(slotIso);
-                                                        const { time } = formatSlotTime(slot);
-                                                        
-                                                        return (
-                                                            <button
-                                                                key={idx}
-                                                                onClick={() => toggleEditSlot(slotIso)}
-                                                                className={`
-                                                                    px-2 py-2 rounded-apple-lg text-apple-footnote font-light
-                                                                    transition-all duration-150
-                                                                    ${isSelected 
-                                                                        ? 'bg-black text-white shadow-md' 
-                                                                        : 'bg-apple-gray-100 text-apple-gray-700 hover:bg-apple-gray-200 border border-apple-gray-200'
-                                                                    }
-                                                                `}
-                                                            >
-                                                                {time}
-                </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-            </div>
-
-                        {/* Footer */}
-                        <div className="border-t border-apple-gray-200 bg-apple-gray-50 px-6 py-4">
-                            <div className="flex items-center justify-end gap-3">
-                                <button
-                                    onClick={closeEditAvailability}
-                                    className="px-5 py-2.5 rounded-apple-xl text-apple-body font-light text-apple-gray-600 hover:bg-apple-gray-100 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={saveEditedAvailability}
-                                    disabled={savingAvailability}
-                                    className={`
-                                        px-6 py-2.5 rounded-apple-xl text-apple-body font-light text-white
-                                        transition-all duration-200
-                                        ${savingAvailability
-                                            ? 'bg-apple-gray-300 cursor-not-allowed'
-                                            : 'bg-black hover:bg-apple-gray-800'
-                                        }
-                                    `}
-                                >
-                                    {savingAvailability ? 'Saving...' : `Save (${editingSlots.size} slots)`}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <AvailabilityEditorModal
+                    editingBrotherAvailability={editingBrotherAvailability}
+                    allPisTimeslots={allPisTimeslots}
+                    groupedEditSlots={groupedEditSlots}
+                    editingSlots={editingSlots}
+                    savingAvailability={savingAvailability}
+                    formatSlotTime={formatSlotTime}
+                    onClose={closeEditAvailability}
+                    onSelectAll={selectAllEditSlots}
+                    onClearAll={clearAllEditSlots}
+                    onToggleSlot={toggleEditSlot}
+                    onSave={saveEditedAvailability}
+                />
             )}
 
             <Navbar />

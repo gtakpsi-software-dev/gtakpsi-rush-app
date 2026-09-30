@@ -224,6 +224,13 @@ internal names are standardized.
     loader for transpilation, isolated execution, and explicit module stubs.
     This removes duplicate harness code without changing fixtures or production
     modules. All 25 client tests pass and the affected test files pass ESLint.
+41. Admin availability editor modal: moved the 120-line modal markup out of
+    `Admin.jsx` while retaining its state, date grouping, requests, and callbacks
+    on the page. Original rendered HTML matches for empty, selected, and saving
+    states; tests also exercise backdrop, bulk selection, slot toggle, cancel,
+    and save callbacks. All 27 client tests pass, the production build succeeds,
+    and CSS remains byte-identical to the starting baseline. `Admin.jsx` is now
+    1,991 lines; its other sections and handlers still need decomposition.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -263,7 +270,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Current verified totals: 25 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 27 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature. The last client build passes with baseline
 CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
