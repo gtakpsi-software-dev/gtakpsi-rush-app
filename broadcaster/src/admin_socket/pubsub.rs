@@ -4,7 +4,7 @@ use futures_util::StreamExt;
 use redis::AsyncCommands;
 use std::time::Duration;
 
-pub async fn admin_spawn_pubsub_listener(clients: ClientList) {
+pub async fn spawn_pubsub_listener(clients: ClientList) {
     tokio::spawn(async move {
         loop {
             println!("🔄 Admin PubSub: Connecting to Redis...");

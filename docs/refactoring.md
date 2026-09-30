@@ -169,6 +169,9 @@ internal names are standardized.
 29. Voter socket extraction: the second socket now has the same session/pubsub
     module boundaries. Its four function bodies match the original after
     formatting, and the Redis/WebSocket tests pass.
+30. Voting naming: both admin and voter modules now export `ws_handler` and
+    `spawn_pubsub_listener`. Only internal Rust call sites changed; the real
+    Redis/WebSocket suite confirms the same routes and messages.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

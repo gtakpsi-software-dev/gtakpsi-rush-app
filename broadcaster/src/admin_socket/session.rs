@@ -15,7 +15,7 @@ use tokio::sync::mpsc;
 
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
-pub async fn admin_ws_handler(
+pub async fn ws_handler(
     Path(id): Path<String>,
     ws: WebSocketUpgrade,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,

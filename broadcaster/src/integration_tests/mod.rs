@@ -32,7 +32,7 @@ impl TestServer {
             }))
             .route("/admin/:id", get({
                 let clients = admins.clone();
-                move |path, ws, addr| admin_socket::admin_ws_handler(path, ws, addr, clients)
+                move |path, ws, addr| admin_socket::ws_handler(path, ws, addr, clients)
             }));
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         listener.set_nonblocking(true).unwrap();

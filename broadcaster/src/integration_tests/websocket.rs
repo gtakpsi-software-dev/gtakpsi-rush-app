@@ -20,7 +20,7 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     assert!(server.admins.contains_key(&17));
     assert!(server.voters.contains_key(&18));
 
-    admin_socket::admin_spawn_pubsub_listener(server.admins.clone()).await;
+    admin_socket::spawn_pubsub_listener(server.admins.clone()).await;
     voter_socket::spawn_pubsub_listener(server.voters.clone()).await;
     wait_for_subscribers(&mut conn).await;
 

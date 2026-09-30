@@ -1,5 +1,5 @@
 mod pubsub;
 mod session;
 
-pub use pubsub::admin_spawn_pubsub_listener;
-pub use session::admin_ws_handler;
+pub use pubsub::spawn_pubsub_listener;
+pub use session::ws_handler;

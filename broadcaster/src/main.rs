@@ -12,7 +12,6 @@ mod integration_tests;
 use axum::{routing::get, Router};
 use std::{env, net::SocketAddr, sync::Arc};
 use voter_socket::{ws_handler, spawn_pubsub_listener};
-use admin_socket::{admin_ws_handler, admin_spawn_pubsub_listener};
 use clients::ClientList;
 
 use dotenvy::dotenv;
@@ -26,7 +25,7 @@ async fn main() {
 
     // Start background pubsub listeners
     spawn_pubsub_listener(clients.clone()).await;
-    admin_spawn_pubsub_listener(admins.clone()).await;
+    admin_socket::spawn_pubsub_listener(admins.clone()).await;
 
     let app = Router::new()
 
@@ -42,7 +41,7 @@ async fn main() {
             "/admin/:id",
             get({
                 let admins = admins.clone();
-                move |path, ws, addr| admin_ws_handler(path, ws, addr, admins)
+                move |path, ws, addr| admin_socket::ws_handler(path, ws, addr, admins)
             }),
         );
 
