@@ -281,6 +281,11 @@ internal names are standardized.
     all four input conversions and the exact endpoint, payload, method, and
     message for each button. All 39 client tests pass, the build succeeds, and
     CSS remains byte-identical. `Admin.jsx` is now 1,540 lines.
+50. Admin data actions: moved five export/fetch cards into one component,
+    retaining their original handlers in `Admin.jsx`. The original card markup
+    and order match, and tests verify every export callback and fetch request
+    argument. All 41 client tests pass, the build succeeds, and CSS remains
+    byte-identical. `Admin.jsx` is now 1,479 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -326,7 +331,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 39 client tests, 10 collaboration tests, 8 sorting
+Current verified totals: 41 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 11 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
