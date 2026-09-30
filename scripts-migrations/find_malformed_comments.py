@@ -4,11 +4,10 @@ Script to find malformed comment data in the MongoDB database
 that could be causing dashboard loading errors.
 """
 
-import pymongo
 from pymongo import MongoClient
-import json
-from datetime import datetime
 import sys
+
+from lib.comment_validation import check_comment_structure
 
 # MongoDB connection string from your codebase
 MONGO_URL = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/?connectTimeoutMS=3000&socketTimeoutMS=300000"
@@ -28,69 +27,6 @@ def connect_to_database():
         print(f"❌ Failed to connect to MongoDB: {e}")
         sys.exit(1)
 
-def check_comment_structure(comment, rushee_info):
-    """Check if a comment has all required fields with correct types"""
-    issues = []
-    
-    # Required fields for Comment struct
-    required_fields = [
-        'brother_id',
-        'brother_name', 
-        'comment',
-        'ratings',
-        'night'
-    ]
-    
-    # Check for missing fields
-    for field in required_fields:
-        if field not in comment:
-            issues.append(f"Missing field: {field}")
-    
-    # Check field types and nested structures
-    if 'brother_id' in comment and not isinstance(comment['brother_id'], str):
-        issues.append(f"brother_id should be string, got {type(comment['brother_id'])}")
-    
-    if 'brother_name' in comment and not isinstance(comment['brother_name'], str):
-        issues.append(f"brother_name should be string, got {type(comment['brother_name'])}")
-    
-    if 'comment' in comment and not isinstance(comment['comment'], str):
-        issues.append(f"comment should be string, got {type(comment['comment'])}")
-    
-    if 'ratings' in comment:
-        if not isinstance(comment['ratings'], list):
-            issues.append(f"ratings should be array, got {type(comment['ratings'])}")
-        else:
-            # Check each rating structure
-            for i, rating in enumerate(comment['ratings']):
-                if not isinstance(rating, dict):
-                    issues.append(f"ratings[{i}] should be object, got {type(rating)}")
-                    continue
-                
-                if 'name' not in rating:
-                    issues.append(f"ratings[{i}] missing 'name' field")
-                elif not isinstance(rating['name'], str):
-                    issues.append(f"ratings[{i}].name should be string, got {type(rating['name'])}")
-                
-                if 'value' not in rating:
-                    issues.append(f"ratings[{i}] missing 'value' field")
-                elif not isinstance(rating['value'], (int, float)):
-                    issues.append(f"ratings[{i}].value should be number, got {type(rating['value'])}")
-    
-    if 'night' in comment:
-        if not isinstance(comment['night'], dict):
-            issues.append(f"night should be object, got {type(comment['night'])}")
-        else:
-            # Check RushNight structure
-            if 'name' not in comment['night']:
-                issues.append("night missing 'name' field")
-            elif not isinstance(comment['night']['name'], str):
-                issues.append(f"night.name should be string, got {type(comment['night']['name'])}")
-            
-            if 'time' not in comment['night']:
-                issues.append("night missing 'time' field")
-            # Note: time could be various formats (DateTime, string, etc.)
-    
-    return issues
 
 def find_malformed_comments():
     """Find all rushees with malformed comment data"""
@@ -186,6 +122,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 

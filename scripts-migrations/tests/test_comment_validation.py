@@ -1,0 +1,98 @@
+import runpy
+import sys
+import types
+import unittest
+from contextlib import redirect_stdout
+from io import StringIO
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from lib.comment_validation import check_comment_structure
+
+
+class CommentValidationTests(unittest.TestCase):
+    def test_valid_comment_has_no_issues(self):
+        comment = {
+            "brother_id": "1",
+            "brother_name": "Ada",
+            "comment": "Good",
+            "ratings": [{"name": "fit", "value": 4}],
+            "night": {"name": "Night 1", "time": "now"},
+        }
+        self.assertEqual(check_comment_structure(comment, "unused"), [])
+
+    def test_report_uses_validator_without_contacting_mongodb(self):
+        valid = {
+            "brother_id": "1",
+            "brother_name": "Ada",
+            "comment": "Good",
+            "ratings": [{"name": "fit", "value": 4}],
+            "night": {"name": "Night 1", "time": "now"},
+        }
+        malformed = {**valid, "ratings": [{"name": "fit", "value": "bad"}]}
+        client = MagicMock()
+        client.__getitem__.return_value.__getitem__.return_value.find.return_value = [
+            {"first_name": "Ada", "last_name": "Example", "gtid": "1", "comments": [valid]},
+            {"first_name": "Bea", "last_name": "Example", "gtid": "2", "comments": [malformed]},
+        ]
+        pymongo = types.ModuleType("pymongo")
+        pymongo.MongoClient = lambda _uri: client
+        script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
+
+        with patch.dict(sys.modules, {"pymongo": pymongo}):
+            script = runpy.run_path(str(script_path))
+            output = StringIO()
+            with redirect_stdout(output):
+                script["find_malformed_comments"]()
+
+        report = output.getvalue()
+        self.assertIn("ratings[0].value should be number, got <class 'str'>", report)
+        self.assertIn("Total rushees scanned: 2", report)
+        self.assertIn("Rushees with issues: 1", report)
+        self.assertIn("Total issues found: 1", report)
+        client.admin.command.assert_called_once_with("ping")
+
+    def test_missing_fields_keep_original_order_and_wording(self):
+        self.assertEqual(check_comment_structure({}, "unused"), [
+            "Missing field: brother_id",
+            "Missing field: brother_name",
+            "Missing field: comment",
+            "Missing field: ratings",
+            "Missing field: night",
+        ])
+
+    def test_nested_type_and_missing_field_diagnostics(self):
+        comment = {
+            "brother_id": 7,
+            "brother_name": None,
+            "comment": 9,
+            "ratings": [7, {"name": 0, "value": "bad"}, {"name": "fit"}],
+            "night": {"name": 3},
+        }
+        self.assertEqual(check_comment_structure(comment, "unused"), [
+            "brother_id should be string, got <class 'int'>",
+            "brother_name should be string, got <class 'NoneType'>",
+            "comment should be string, got <class 'int'>",
+            "ratings[0] should be object, got <class 'int'>",
+            "ratings[1].name should be string, got <class 'int'>",
+            "ratings[1].value should be number, got <class 'str'>",
+            "ratings[2] missing 'value' field",
+            "night.name should be string, got <class 'int'>",
+            "night missing 'time' field",
+        ])
+
+    def test_boolean_rating_keeps_legacy_numeric_acceptance(self):
+        comment = {
+            "brother_id": "1",
+            "brother_name": "Ada",
+            "comment": "Good",
+            "ratings": [{"name": "fit", "value": True}],
+            "night": {"name": "Night 1", "time": "now"},
+        }
+        self.assertEqual(check_comment_structure(comment, "unused"), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

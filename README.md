@@ -51,6 +51,7 @@ cargo test --locked --manifest-path server/Cargo.toml
 cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
 scripts/testing/api-integration.sh
 python3 scripts/testing/voting-integration.py
+python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'
 ```
 
 The API integration command requires Docker. It creates a fresh MongoDB container,

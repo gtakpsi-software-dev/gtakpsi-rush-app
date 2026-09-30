@@ -243,6 +243,12 @@ internal names are standardized.
     cover search clearing, brother selection, role callbacks, and disabled
     actions. All 33 client tests pass, the build succeeds, and CSS remains
     byte-identical. `Admin.jsx` is now 1,815 lines.
+44. Migration diagnostics: moved the pure comment-shape validator out of the
+    MongoDB scan script into `scripts-migrations/lib`, retaining its parsed
+    function body exactly. Five standard-library-only tests cover valid and
+    malformed comments, diagnostic ordering, legacy boolean ratings, and the
+    script's summary against a fake collection. No migration or live database
+    operation was run. Removed unused imports and redundant validator comments.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -260,6 +266,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Decompose large client pages into feature components and hooks while preserving
   JSX, classes, effect dependencies, request order, and state ownership.
 - Organize maintenance scripts and seed data without running destructive scripts.
+- Replace embedded database credentials in migration scripts with verified local
+  configuration, then rotate the exposed credential outside this repository.
 - Consolidate verification commands and CI; resolve lint findings in verified
   slices; document setup, service naming, and remaining integration limits.
 
@@ -282,9 +290,14 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
+Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
+for offline maintenance-script tests. These use fake collections and do not
+require PyMongo or a database connection.
+
 Current verified totals: 33 client tests, 10 collaboration tests, 8 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature. The last client build passes with baseline
-CSS unchanged. Full browser flow/visual testing and end-to-end authenticated
+tests with the integration feature, plus 5 maintenance-script tests. The last
+client build passes with baseline CSS unchanged. Full browser flow/visual testing
+and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
 application parity.
