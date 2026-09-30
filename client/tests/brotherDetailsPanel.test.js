@@ -1,37 +1,19 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { runInNewContext } from "node:vm";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { transformWithEsbuild } from "vite";
 import { TAGS } from "../src/features/sorting/board.js";
+import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/brotherDetailsPanel.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/sorting/ReadOnlyDetailsPanel.tsx", import.meta.url));
-const require = createRequire(import.meta.url);
 
-async function loadPanel() {
-    const source = await readFile(componentPath, "utf8");
-    const compiled = await transformWithEsbuild(source, componentPath, {
-        loader: "tsx",
-        format: "cjs",
-        jsx: "automatic",
-    });
-    const module = { exports: {} };
-    runInNewContext(compiled.code, {
-        module,
-        exports: module.exports,
-        require(specifier) {
-            if (specifier === "./board") return { TAGS };
-            return require(specifier);
-        },
-    }, { filename: componentPath });
-    return module.exports.default;
+function loadPanel() {
+    return loadTsxComponent(componentPath, { "./board": { TAGS } });
 }
 
 test("read-only details panel retains original loading, populated, and empty markup", async () => {

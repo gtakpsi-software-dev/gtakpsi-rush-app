@@ -1,29 +1,18 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { runInNewContext } from "node:vm";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { transformWithEsbuild } from "vite";
+import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/sortingZoomControls.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/sorting/SortingZoomControls.tsx", import.meta.url));
-const require = createRequire(import.meta.url);
 
-async function loadControls() {
-    const source = await readFile(componentPath, "utf8");
-    const compiled = await transformWithEsbuild(source, componentPath, {
-        loader: "tsx",
-        format: "cjs",
-        jsx: "automatic",
-    });
-    const module = { exports: {} };
-    runInNewContext(compiled.code, { module, exports: module.exports, require }, { filename: componentPath });
-    return module.exports.default;
+function loadControls() {
+    return loadTsxComponent(componentPath);
 }
 
 test("all three sorting pages retain original zoom control markup and percentages", async () => {

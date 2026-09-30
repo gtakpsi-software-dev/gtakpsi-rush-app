@@ -220,6 +220,10 @@ internal names are standardized.
     card class. Original markup matches in empty, single-card, and two-card
     states for every board. All 25 client tests pass, the production build
     succeeds, and CSS remains byte-identical.
+40. Client test harness cleanup: five TSX regression files now use one local
+    loader for transpilation, isolated execution, and explicit module stubs.
+    This removes duplicate harness code without changing fixtures or production
+    modules. All 25 client tests pass and the affected test files pass ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
