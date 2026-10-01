@@ -2065,6 +2065,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     update for answers and names. A new unit test pins the normalization;
     Rustfmt, all 59 API unit tests, and all 60 isolated integration tests
     pass.
+361. Moved the auth facade from the generic `client/src/js` directory into
+    `features/auth`, updating its four callers and three page-test mocks.
+    The facade's behavior and comments are unchanged. All 503 client tests,
+    typecheck, changed-file ESLint, and the production build pass; JS and CSS
+    asset hashes match slice 357 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

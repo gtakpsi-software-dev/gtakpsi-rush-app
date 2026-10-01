@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from "react-toastify";
 
-import { createAccount } from "../js/user";
+import { createAccount } from "../features/auth/account";
 import { createAccountFormActions } from "../features/auth/createAccountFormActions";
 import Navbar from "../components/Navbar";
 

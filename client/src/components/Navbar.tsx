@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { logout } from "../js/user";
+import { logout } from "../features/auth/account";
 import { verifyUser } from "../features/auth/verifyUser";
 import { auth } from "../firebase";
 import { useMidtermMode } from "../contexts/MidtermModeContext";

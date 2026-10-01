@@ -28,7 +28,7 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
             useRef: () => ({ current: { value: email } }),
         },
         "react-router-dom": { Link: LinkStub },
-        "../js/user": {
+        "../features/auth/account": {
             resetPassword: async (value) => {
                 requests.push(value);
                 return success;

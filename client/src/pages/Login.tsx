@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { verifyUser } from "../features/auth/verifyUser";
 import Loader from "../components/Loader";
-import { login } from "../js/user";
+import { login } from "../features/auth/account";
 import Navbar from "../components/Navbar";
 
 /**

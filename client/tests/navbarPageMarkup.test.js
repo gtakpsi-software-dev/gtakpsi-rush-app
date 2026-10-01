@@ -30,7 +30,7 @@ async function renderNavbar(state, props = {}, midterm = false) {
             },
             useEffect: noop,
         },
-        "../js/user": { logout: noop },
+        "../features/auth/account": { logout: noop },
         "../features/auth/verifyUser": { verifyUser: noop },
         "../firebase": { auth: {} },
         "../contexts/MidtermModeContext": {

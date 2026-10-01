@@ -42,7 +42,7 @@ async function loadPage({ loading = false, loginSuccess = true, verify = async (
         "../features/auth/verifyUser": { verifyUser: verify },
         "../components/Loader": LoaderStub,
         "../components/Navbar": NavbarStub,
-        "../js/user": {
+        "../features/auth/account": {
             login: async (credentials) => {
                 loginRequests.push(credentials);
                 return loginSuccess;

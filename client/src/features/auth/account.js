@@ -10,12 +10,12 @@ import {
     updateProfile,
     doc,
     setDoc,
-} from "../firebase";
-import { isEmailAllowed } from "../data/allowedEmails";
-import { resetErrorMessage } from "../features/auth/errorMessages";
-import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
-import { loginWithServices } from "../features/auth/loginWithServices";
-import { createAccountWithServices } from "../features/auth/createAccountWithServices";
+} from "../../firebase";
+import { isEmailAllowed } from "../../data/allowedEmails";
+import { resetErrorMessage } from "./errorMessages";
+import { checkRushAppAccess } from "./checkRushAppAccess";
+import { loginWithServices } from "./loginWithServices";
+import { createAccountWithServices } from "./createAccountWithServices";
 
 /**
  * Sign in with email and password

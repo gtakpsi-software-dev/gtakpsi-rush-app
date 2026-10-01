@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import type { KeyboardEvent } from "react";
 import { Link } from 'react-router-dom'
 
-import { resetPassword } from "../js/user";
+import { resetPassword } from "../features/auth/account";
 import Navbar from "../components/Navbar";
 
 /**
