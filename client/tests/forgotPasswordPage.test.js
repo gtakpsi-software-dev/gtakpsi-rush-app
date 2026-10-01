@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/ForgotPassword.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/auth/ForgotPasswordView.tsx", import.meta.url));
 
 async function loadPage({ state = {}, email = "sam@example.edu", success = true } = {}) {
     const updates = [];
@@ -17,6 +18,13 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
     function LinkStub() {
         return React.createElement("a", { "data-stub": "link" });
     }
+    function NavbarStub() {
+        return React.createElement("span", { "data-stub": "navbar" });
+    }
+    const View = await loadTsxComponent(viewPath, {
+        "react-router-dom": { Link: LinkStub },
+        "../../components/Navbar": NavbarStub,
+    });
     const Page = await loadTsxComponent(pagePath, {
         react: {
             ...React,
@@ -34,7 +42,8 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
                 return success;
             },
         },
-        "../components/Navbar": () => React.createElement("span", { "data-stub": "navbar" }),
+        "../features/auth/ForgotPasswordView": View,
+        "../components/Navbar": NavbarStub,
     });
     return { Page, updates, requests };
 }
@@ -42,7 +51,11 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
 function collect(node, elements = []) {
     if (!React.isValidElement(node)) return elements;
     elements.push(node);
-    React.Children.forEach(node.props.children, (child) => collect(child, elements));
+    if (typeof node.type === "function") {
+        collect(node.type(node.props), elements);
+    } else {
+        React.Children.forEach(node.props.children, (child) => collect(child, elements));
+    }
     return elements;
 }
 
@@ -70,6 +83,15 @@ test("reset button retains the email request and state-update order", async () =
 
     assert.deepEqual(requests, ["sam@example.edu"]);
     assert.deepEqual(updates, [[0, true], [0, false], [1, true]]);
+});
+
+test("failed reset clears sending without showing the sent state", async () => {
+    const { Page, updates, requests } = await loadPage({ success: false });
+    const button = collect(Page()).find((node) => node.type === "button");
+    await button.props.onClick();
+
+    assert.deepEqual(requests, ["sam@example.edu"]);
+    assert.deepEqual(updates, [[0, true], [0, false]]);
 });
 
 test("empty email skips reset and Enter submits a filled email", async () => {

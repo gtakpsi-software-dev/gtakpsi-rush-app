@@ -2507,6 +2507,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     credentials, redirects, and Enter submission tests pass; a new test pins
     the idle verification gate and non-Enter no-op. All 543 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash.
+431. Moved password-reset form, sending, and confirmation markup into
+    `features/auth/ForgotPasswordView.tsx`, leaving the email ref and request
+    state in the 50-line route instead of the former 129-line page. Existing
+    three-state markup hashes, request order, Enter submission, and retry tests
+    pass; a new test pins failed-reset loading cleanup. All 544 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2566,7 +2572,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 543 client tests, 67 server unit tests, 25 collaboration
+Current verified totals: 544 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests with the integration feature (including its
 isolated database contract), plus 62 maintenance-script tests. The last
