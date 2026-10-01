@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import Webcam from "react-webcam";
 
-import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs";
 import * as mobilenet from "@tensorflow-models/mobilenet";
 import Loader from "../components/Loader";
 import axios from "axios";
@@ -12,6 +12,11 @@ import { base64ToTensor } from "../js/image_processing";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+/**
+ * Face Attendance Summary:
+ * - Removes unused bindings while retaining the model module load and state order.
+ * - Keeps camera, preview, lookup, and error paths unchanged.
+ */
 export default function FaceAttendance() {
 
     const [page, setPage] = useState(0)
@@ -19,7 +24,7 @@ export default function FaceAttendance() {
     const [image, setImage] = useState()
     const [loading, setLoading] = useState()
 
-    const [rushee, setRushee] = useState()
+    const [, setRushee] = useState()
 
     const navigate = useNavigate()
 
@@ -155,19 +160,6 @@ export default function FaceAttendance() {
                     >
                         Take Photo
                     </button>}
-
-
-
-                    {/* {image && (
-                        <div className="mt-6">
-                            <h2 className="text-xl font-semibold mb-3">Preview</h2>
-                            <img
-                                src={image}
-                                alt="Captured"
-                                className="w-96 h-96 rounded-lg shadow-md border border-gray-700"
-                            />
-                        </div>
-                    )} */}
                 </div> : <div></div>}
 
             </div>}
