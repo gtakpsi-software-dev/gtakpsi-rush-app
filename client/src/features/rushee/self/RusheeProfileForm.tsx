@@ -1,4 +1,28 @@
-export default function RusheeProfileForm({ rushee, onSubmit, onChange }) {
+import type { ChangeEvent, FormEvent } from "react";
+
+/**
+ * Profile Form Summary:
+ * - Types the stored profile fields and form callbacks consumed here.
+ * - Keeps the rendered controls and phone-event mutation unchanged.
+ * - Existing markup and event tests pin those behavior contracts.
+ */
+type RusheeProfileFormProps = {
+    rushee: {
+        first_name: string;
+        last_name: string;
+        housing: string;
+        phone_number: string;
+        email: string;
+        gtid: string;
+        major: string;
+        class: string;
+        pronouns: string;
+    };
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+    onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+};
+
+export default function RusheeProfileForm({ rushee, onSubmit, onChange }: RusheeProfileFormProps) {
     return (
         <div className="mt-8 max-w-4xl mx-auto card-apple mb-16">
             <div className="p-8">

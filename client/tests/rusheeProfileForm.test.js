@@ -8,7 +8,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.jsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeProfileForm.json", import.meta.url));
 const rushee = {
     first_name: "Ada", last_name: "One", housing: "Hall",

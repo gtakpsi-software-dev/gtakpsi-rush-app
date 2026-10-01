@@ -1714,6 +1714,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     fixture matches the original JSX output, and the production bundle hash is
     unchanged. All 430 client tests, typecheck, build, and changed-file ESLint
     pass; full client lint drops from 127 to 113 errors with 26 warnings.
+296. Typed the self-profile form's fields and event callbacks without changing
+    its controls, submission handler, or phone formatting. Existing exact-markup
+    and event tests pass; all 430 client tests, typecheck, and build pass. The
+    production bundle hash stays unchanged and full client lint drops from 113
+    to 101 errors with 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1743,7 +1748,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 113 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 101 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
