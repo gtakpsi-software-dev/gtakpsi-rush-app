@@ -2136,6 +2136,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     directory. The nine existing voice tests retain microphone, upload,
     transcription, and markup contracts. All 516 client tests, typecheck,
     changed-file ESLint, and build pass; JS and CSS hashes match slice 371.
+373. Moved the availability modal's one-time timeslot loader inside its mount
+    effect and listed the stable API prefix dependency. The existing five
+    modal tests preserve request, sorting, loading/error order, and markup;
+    all 516 client tests, typecheck, changed-file ESLint, and build pass.
+    Full ESLint drops from 26 to 25 warnings with its eight Attendance errors
+    unchanged. CSS is unchanged; the JS hash changed with the effect code.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2167,7 +2173,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 8 errors and 26 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 25 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.

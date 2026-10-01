@@ -38,22 +38,22 @@ export default function PISAvailabilityModal({ user, onSubmit }: PISAvailability
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
-        fetchTimeslots();
-    }, []);
-
-    const fetchTimeslots = async () => {
-        try {
-            const response = await axios.get(`${api}/admin/get_pis_timeslots`);
-            if (response.data.status === 'success') {
-                setTimeslots(sortTimeslots(response.data.payload));
+        const fetchTimeslots = async () => {
+            try {
+                const response = await axios.get(`${api}/admin/get_pis_timeslots`);
+                if (response.data.status === 'success') {
+                    setTimeslots(sortTimeslots(response.data.payload));
+                }
+            } catch (error) {
+                console.error('Failed to fetch timeslots:', error);
+                toast.error('Failed to load timeslots');
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Failed to fetch timeslots:', error);
-            toast.error('Failed to load timeslots');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        fetchTimeslots();
+    }, [api]);
 
     const toggleSlot = (slotTime) => {
         const newSelected = new Set(selectedSlots);
