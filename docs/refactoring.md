@@ -1310,6 +1310,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     client tests and the production build pass with unchanged CSS. Configured
     touched-file ESLint passes without warnings; TSX remains outside the
     existing ESLint configuration.
+227. Separated admin CSV export actions from generic admin request handling,
+    reducing `dataActionHandlers.js` from 174 to 42 lines and placing the four
+    export flows in a 140-line feature module. The existing action API and
+    request/export characterization tests retain endpoint, payload, CSV,
+    success, and failure contracts. All 375 client tests and the production
+    build pass with unchanged CSS; touched-file ESLint passes cleanly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
