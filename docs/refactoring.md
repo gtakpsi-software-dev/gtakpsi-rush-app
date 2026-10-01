@@ -1719,6 +1719,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and event tests pass; all 430 client tests, typecheck, and build pass. The
     production bundle hash stays unchanged and full client lint drops from 113
     to 101 errors with 26 warnings.
+297. Typed the interaction-summary view's precomputed and fallback inputs while
+    keeping its fetch gate and memo dependencies. A new test pins regular,
+    compact, and empty rendered output against the original JSX. All 431 client
+    tests, typecheck, and build pass, with the same production bundle hash;
+    full client lint drops from 101 to 92 errors with 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1748,7 +1753,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 101 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 92 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
@@ -1774,7 +1779,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 430 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 431 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 51 maintenance-script tests. The last

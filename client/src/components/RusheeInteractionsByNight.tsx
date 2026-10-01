@@ -4,24 +4,30 @@ import {
     computeInteractionsByNight,
     formatNightInteractionLine,
 } from "../js/rusheeInteractions";
+import type { NightInteractionSummary } from "../js/rusheeInteractions.types";
 
 /**
- * @param {{
- *   nights?: import('../js/rusheeInteractions.types').NightInteractionSummary[],
- *   attendance?: object[],
- *   comments?: object[],
- *   className?: string,
- *   compact?: boolean
- * }} props
+ * Interaction View Summary:
+ * - Types the optional precomputed and fallback interaction inputs.
+ * - Keeps the same fetch gate, memo dependencies, and rendered states.
+ * - Markup fixtures pin regular, compact, and empty output.
  */
+type RusheeInteractionsByNightProps = {
+    nights?: NightInteractionSummary[];
+    attendance?: unknown[];
+    comments?: unknown[];
+    className?: string;
+    compact?: boolean;
+};
+
 export default function RusheeInteractionsByNight({
     nights: nightsProp,
     attendance,
     comments,
     className = "",
     compact = false,
-}) {
-    const [rushNights, setRushNights] = useState(null);
+}: RusheeInteractionsByNightProps) {
+    const [rushNights, setRushNights] = useState<object[] | null>(null);
 
     useEffect(() => {
         if (nightsProp?.length) {
