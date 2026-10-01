@@ -1832,6 +1832,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     five existing markup hashes and vote payload test pass against the real
     view; all 446 client tests, typecheck, build, and changed-file ESLint pass.
     Full client lint remains at 70 errors and 26 warnings.
+319. Separated Dashboard's loading, error, availability, filters, and cards
+    into a typed view. The page is 131 lines, with state and effect order
+    preserved; existing markup, card navigation, and filter tests now load the
+    real view. All 446 client tests, typecheck, and build pass. Changed-file
+    ESLint has no errors and two pre-existing dependency warnings; full lint
+    falls to 61 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1861,7 +1867,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 70 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 61 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.

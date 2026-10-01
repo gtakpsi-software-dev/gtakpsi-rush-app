@@ -11,7 +11,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/Dashboard.jsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/Dashboard.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/dashboard/DashboardView.tsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../src/features/dashboard/DashboardRusheeCard.tsx', import.meta.url));
 const filtersPath = fileURLToPath(new URL('../src/features/dashboard/DashboardFilters.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/dashboardPageMarkup.json', import.meta.url));
@@ -39,10 +40,18 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
         '../../components/RusheeInteractionsByNight': stub('interactions')
     });
     const Filters = await loadTsxComponent(filtersPath);
+    const View = await loadTsxComponent(viewPath, {
+        '../../components/Navbar': stub('navbar'),
+        '../../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
+        '../../components/Loader': stub('loader'),
+        '../../components/PISAvailabilityModal': stub('availability'),
+        './DashboardRusheeCard': Card,
+        './DashboardFilters': Filters
+    });
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
-        loader: 'jsx',
+        loader: 'tsx',
         format: 'cjs',
         jsx: 'automatic'
     });
@@ -60,22 +69,13 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
         },
         axios: {},
         'react-router-dom': { useNavigate: () => () => {} },
-        'react-responsive': { useMediaQuery: () => false },
-        '../components/Navbar': stub('navbar'),
-        '../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
-        '../components/Loader': stub('loader'),
-        '../components/Badge': Badges,
-        '../components/RusheeInteractionsByNight': stub('interactions'),
-        '../components/Button': stub('button'),
-        '../components/PISAvailabilityModal': stub('availability'),
         '../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midterm }) },
         '../hooks/useCommentVisibility': { useCommentVisibility: () => ({ showAll: showRatings }) },
         'fuse.js': class Fuse {},
         '../features/auth/verifyUser': { verifyUser() {} },
         '../features/dashboard/list': { filterDashboardRushees() {}, shuffleArray() {} },
         '../features/dashboard/loadDashboardData': { loadDashboardData() {} },
-        '../features/dashboard/DashboardRusheeCard': Card,
-        '../features/dashboard/DashboardFilters': Filters,
+        '../features/dashboard/DashboardView': View,
         '../firebase': { auth: {}, db: {} },
         'firebase/firestore': { doc() {}, getDoc() {} }
     };
@@ -121,6 +121,7 @@ test('dashboard card keeps the profile URL and disables its click in midterm mod
         if (Array.isArray(node)) return node.map(findCard).find(Boolean);
         if (!React.isValidElement(node)) return undefined;
         if (node.props.rushee?.gtid === rushee.gtid) return node;
+        if (typeof node.type === 'function') return findCard(node.type(node.props));
         return findCard(node.props.children);
     }
 
