@@ -16,6 +16,7 @@ import { checkRushAppAccess } from "./checkRushAppAccess";
 import { createAccountWithServices } from "./createAccountWithServices";
 import { resetErrorMessage } from "./errorMessages";
 import { loginWithServices } from "./loginWithServices";
+import { logoutWithServices } from "./logoutWithServices";
 import { resetPasswordWithServices } from "./resetPasswordWithServices";
 
 /**
@@ -68,18 +69,13 @@ export function resetPassword(email) {
     });
 }
 
-/**
- * Sign out
- */
-export async function logout() {
-    try {
-        await signOut(auth);
-        localStorage.removeItem('user');
-        return true;
-    } catch (error) {
-        console.error("Logout error:", error);
-        return false;
-    }
+export function logout() {
+    return logoutWithServices({
+        auth,
+        signOut,
+        removeStoredUser: () => localStorage.removeItem('user'),
+        logger: console,
+    });
 }
 
 /**

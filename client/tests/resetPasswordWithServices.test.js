@@ -76,6 +76,7 @@ test("the account API wires password reset to Firebase and the shared toast", as
         "./checkRushAppAccess": {},
         "./loginWithServices": {},
         "./createAccountWithServices": {},
+        "./logoutWithServices": {},
         "./resetPasswordWithServices": { resetPasswordWithServices },
     });
 
