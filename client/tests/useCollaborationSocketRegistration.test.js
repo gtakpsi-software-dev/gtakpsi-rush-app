@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 
 import { transformWithEsbuild } from 'vite';
+import { registerCollaborationConnectionEvents } from '../src/features/pis/registerCollaborationConnectionEvents.js';
 import { registerCollaborationTextEvents } from '../src/features/pis/registerCollaborationTextEvents.js';
 
 const hookPath = fileURLToPath(new URL('../src/hooks/useCollaboration.js', import.meta.url));
@@ -43,6 +44,7 @@ test('collaboration hook registers text events between operations and presence l
             realtimeBaseUrls: { pisCollaboration: 'ws://collaboration.test' },
         },
         '../features/pis/collaborationProtocol.js': { normalizeDocumentState: noop },
+        '../features/pis/registerCollaborationConnectionEvents.js': { registerCollaborationConnectionEvents },
         '../features/pis/registerCollaborationTextEvents.js': { registerCollaborationTextEvents },
         '../features/pis/collaborationPresence.js': {
             applyCursorPosition: noop,

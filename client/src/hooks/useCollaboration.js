@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { realtimeBaseUrls } from '../config/realtimeBaseUrls.js';
 import { normalizeDocumentState } from '../features/pis/collaborationProtocol.js';
+import { registerCollaborationConnectionEvents } from '../features/pis/registerCollaborationConnectionEvents.js';
 import { registerCollaborationTextEvents } from '../features/pis/registerCollaborationTextEvents.js';
 import {
     applyCursorPosition,
@@ -44,30 +45,14 @@ export const useCollaboration = (roomId, currentUser) => {
                 forceNew: true,
             });
 
-            socketRef.current.on('connect', () => {
-                setIsConnected(true);
-                
-                // Join the room
-                socketRef.current.emit('join-room', {
-                    roomId,
-                    userId: currentUser.id,
-                    userName: `${currentUser.firstName} ${currentUser.lastName}`,
-                });
-            });
-
-            socketRef.current.on('disconnect', () => {
-                setIsConnected(false);
-                
-                // Attempt to reconnect after 3 seconds
-                reconnectTimeoutRef.current = setTimeout(() => {
-                    if (!socketRef.current?.connected) {
-                        connectSocket();
-                    }
-                }, 3000);
-            });
-
-            socketRef.current.on('connect_error', () => {
-                setIsConnected(false);
+            registerCollaborationConnectionEvents({
+                socket: socketRef.current,
+                socketRef,
+                reconnectTimeoutRef,
+                roomId,
+                currentUser,
+                setIsConnected,
+                reconnect: connectSocket,
             });
 
             socketRef.current.on('users-updated', (users) => {
@@ -128,6 +113,8 @@ export const useCollaboration = (roomId, currentUser) => {
         connectSocket();
 
         return () => {
+            // The disconnect listener can schedule a retry after mount; clear its latest timer.
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
             if (socketRef.current) {
                 socketRef.current.disconnect();
