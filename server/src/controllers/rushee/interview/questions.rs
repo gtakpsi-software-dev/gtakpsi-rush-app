@@ -1,11 +1,12 @@
 use crate::controllers::db;
 use crate::models::pis::PISQuestion;
 use axum::{extract::Path, http::StatusCode, response::Json};
-use futures::stream::StreamExt;
-use mongodb::bson::{doc, to_bson};
+use mongodb::bson::doc;
 use serde_json::{json, Value};
 
 use super::selection::{category_buckets, draw_one_per_bucket};
+mod store;
+use self::store::{load_questions, save_assignment};
 
 /// How long before a rushee's PIS timeslot their randomized bucket
 /// questions become visible/get assigned.
@@ -32,17 +33,8 @@ fn question_response(
     }))
 }
 
-/**
- * Returns the PIS questions a rushee should be asked for their interview:
- * - Any question with no category (fixed/logistics/bid-decision questions)
- *   is always included.
- * - Any question with a category is part of a random-draw bucket: exactly
- *   one question per category is randomly chosen and, once chosen, persisted
- *   permanently on the rushee's document so reloading or having multiple
- *   brothers open the page doesn't re-roll the set.
- * - The bucketed questions are hidden (not drawn, not returned) until
- *   PIS_QUESTION_REVEAL_LEAD_MINUTES before the rushee's pis_timeslot.
- */
+/// Returns fixed PIS questions before reveal and the persisted one-per-category
+/// selection afterward. Later requests reuse that selection.
 pub async fn get_pis_interview_questions(
     Path(id): Path<String>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -64,20 +56,12 @@ pub async fn get_pis_interview_questions(
         }
     };
 
-    let questions_connection = db::get_pis_questions_client().await;
-    let mut all_questions: Vec<PISQuestion> = Vec::new();
-    match questions_connection.find(doc! {}).await {
-        Ok(mut cursor) => {
-            while let Some(question) = cursor.next().await {
-                if let Ok(q) = question {
-                    all_questions.push(q);
-                }
-            }
-        }
-        Err(_err) => {
+    let all_questions = match load_questions().await {
+        Ok(questions) => questions,
+        Err(message) => {
             return Ok(Json(json!({
                 "status": "error",
-                "message": "some error occurred while fetching pis questions"
+                "message": message
             })))
         }
     };
@@ -101,7 +85,7 @@ pub async fn get_pis_interview_questions(
         ));
     }
 
-    // Already assigned previously? Return the persisted set as-is.
+    // Reuse the persisted selection so later requests do not redraw category questions.
     if let Some(assigned) = rushee.assigned_pis_questions {
         if !assigned.is_empty() {
             let questions: Vec<PISQuestion> = fixed_questions
@@ -112,7 +96,6 @@ pub async fn get_pis_interview_questions(
         }
     }
 
-    // First time within the reveal window: randomly draw one question per category.
     let by_category = category_buckets(all_questions);
 
     // Scoped so the (non-Send) ThreadRng is dropped before any `.await` below.
@@ -121,22 +104,10 @@ pub async fn get_pis_interview_questions(
         draw_one_per_bucket(by_category, &mut rng)
     };
 
-    let assigned_bson = match to_bson(&assigned_questions) {
-        Ok(b) => b,
-        Err(_) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "failed to serialize assigned pis questions"
-            })))
-        }
-    };
-
-    let filter = doc! {"gtid": id.clone()};
-    let update = doc! { "$set": { "assigned_pis_questions": assigned_bson } };
-    if let Err(_err) = rushee_connection.update_one(filter, update).await {
+    if let Err(message) = save_assignment(&rushee_connection, &id, &assigned_questions).await {
         return Ok(Json(json!({
             "status": "error",
-            "message": "failed to persist assigned pis questions"
+            "message": message
         })));
     }
 

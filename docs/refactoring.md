@@ -2327,6 +2327,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     search request and selection order before and after extraction. All 532
     client tests, typecheck, targeted lint, and build pass; CSS retains its
     prior hash. The parent is now 84 lines instead of 181.
+405. Moved PIS interview-question loading and assignment persistence into a
+    local store module, leaving reveal timing, fixed-question composition, and
+    category selection in the HTTP handler. The read still skips malformed
+    question records, and read/serialization/write errors retain their exact
+    messages. Targeted rustfmt and all 65 isolated integration-feature server
+    tests pass before and after the extraction.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
