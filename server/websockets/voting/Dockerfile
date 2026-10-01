@@ -36,11 +36,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the binary from builder
-COPY --from=builder /app/target/release/broadcaster /app/broadcaster
+COPY --from=builder /app/target/release/rush-voting-websocket /app/rush-voting-websocket
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 4000
 
 # Run the server
-CMD ["./broadcaster"]
-
+CMD ["./rush-voting-websocket"]
