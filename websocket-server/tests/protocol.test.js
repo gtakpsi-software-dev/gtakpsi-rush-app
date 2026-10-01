@@ -8,6 +8,20 @@ async function update(client, payload) {
     return response;
 }
 
+async function waitForRoomUserCount(url, expected) {
+    const deadline = Date.now() + 3000;
+    while (Date.now() < deadline) {
+        const response = await fetch(`${url}/rooms/pis-1/stats`);
+        if (response.ok) {
+            const stats = await response.json();
+            if (stats.users.length === expected) return stats;
+        }
+        // Client disconnect returns before the server processes its membership update.
+        await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error(`Timed out waiting for ${expected} users in pis-1`);
+}
+
 const initialUpdate = {
     field: 'notes', value: 'First observation', baseVersion: 0,
     clientUpdateId: 'update-1', userId: 'claimed-user', userName: 'Claimed Name',
@@ -60,6 +74,28 @@ test('full-text updates acknowledge the sender, broadcast committed versions, an
         notes: { value: 'First observation', version: 1 },
     });
     assert.deepEqual(await documentState(await service.client('other', 'pis-2')), {});
+});
+
+test('an empty room retains document versions while its editor reconnects', async (t) => {
+    const service = await startServer(t);
+    const first = await service.client();
+    await update(first, initialUpdate);
+
+    first.disconnect();
+    const emptyRoom = await waitForRoomUserCount(service.url, 0);
+    assert.equal(emptyRoom.roomId, 'pis-1');
+
+    const reconnected = await service.client();
+    assert.deepEqual(await documentState(reconnected), {
+        notes: { value: 'First observation', version: 1 },
+    });
+    const ack = await update(reconnected, {
+        ...initialUpdate, value: 'After reconnect', baseVersion: 1, clientUpdateId: 'update-2',
+    });
+    assert.equal(ack.version, 2);
+    assert.deepEqual(await documentState(reconnected), {
+        notes: { value: 'After reconnect', version: 2 },
+    });
 });
 
 test('stale versions reject with server truth and do not mutate the document', async (t) => {
