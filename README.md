@@ -77,6 +77,8 @@ output; the export columns and row mapping live in
 `scripts/maintenance/set_admin_claim.py` keeps its CLI flags and Firebase
 initialization; its role-claim lookup, update, and reporting live in
 `scripts/maintenance/maintenance_commands/firebase_claims.py`.
+Spreadsheet exports are generated in the current working directory when their
+commands run. Historical exports are not tracked; keep any needed copies locally.
 
 ## Tests
 
