@@ -1729,6 +1729,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the 431-test client suite, typecheck, and production build pass. The bundle
     hash stays unchanged and full client lint drops from 92 to 86 errors with
     26 warnings.
+299. Moved the More and Admin dropdown link trees into focused navigation
+    components, reducing `NavbarMenu.tsx` from 213 to 149 lines. Role gates,
+    destinations, target attributes, and button toggle order stay in the parent
+    contract. Six exact-markup scenarios and the click-order test pass, along
+    with all 431 client tests, typecheck, build, and changed-file ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

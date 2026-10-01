@@ -9,11 +9,23 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/navigation/NavbarMenu.tsx", import.meta.url));
+const moreItemsPath = fileURLToPath(new URL("../src/features/navigation/NavbarMoreItems.tsx", import.meta.url));
+const adminItemsPath = fileURLToPath(new URL("../src/features/navigation/NavbarAdminItems.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/navbarMenu.json", import.meta.url));
 
 // The link stub keeps snapshots focused on Navbar's markup, independent of router internals.
 // eslint-disable-next-line react/prop-types
 const Link = ({ to, children, ...props }) => React.createElement("a", { ...props, href: to }, children);
+
+async function loadNavbarMenu() {
+    const MoreItems = await loadTsxComponent(moreItemsPath);
+    const AdminItems = await loadTsxComponent(adminItemsPath);
+    return loadTsxComponent(componentPath, {
+        "react-router-dom": { Link },
+        "./NavbarMoreItems": MoreItems,
+        "./NavbarAdminItems": AdminItems,
+    });
+}
 
 function props(overrides = {}) {
     return {
@@ -43,7 +55,7 @@ function collect(node, elements = []) {
 
 test("Navbar menu preserves regular, role, midterm, and stripped markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
-    const NavbarMenu = await loadTsxComponent(componentPath, { "react-router-dom": { Link } });
+    const NavbarMenu = await loadNavbarMenu();
     const scenarios = {
         regular: {},
         bidcomMoreOpen: { isBidcom: true, showMore: true },
@@ -61,7 +73,7 @@ test("Navbar menu preserves regular, role, midterm, and stripped markup", async 
 });
 
 test("menu buttons retain toggle ordering and logout calls before reload", async () => {
-    const NavbarMenu = await loadTsxComponent(componentPath, { "react-router-dom": { Link } });
+    const NavbarMenu = await loadNavbarMenu();
     const calls = [];
     const elements = collect(NavbarMenu(props({
         isAdmin: true,
