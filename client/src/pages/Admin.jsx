@@ -4,12 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Navbar from "../components/Navbar";
 import useAdminBootstrap from "../features/admin/bootstrap/useAdminBootstrap";
 import Loader from "../components/Loader";
-import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
 import useAdminAvailabilityEditor from "../features/admin/availability/useAdminAvailabilityEditor";
-import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
 import {
     formatCurrentPISTime,
@@ -22,8 +19,7 @@ import { downloadCsv } from "../features/admin/data/downloadCsv";
 import { createPromotionActions } from "../features/admin/access/promotionActions";
 import useAdminAccessSettings from "../features/admin/access/useAdminAccessSettings";
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
-import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
-import AdminManagementSection from "../features/admin/overview/AdminManagementSection";
+import AdminPageView from "../features/admin/overview/AdminPageView";
 import useAdminManagementInputs from "../features/admin/overview/useAdminManagementInputs";
 import { auth } from "../firebase";
 
@@ -187,69 +183,34 @@ export default function Admin() {
         return <Loader />;
     }
 
-    return (
-        <div className="min-h-screen w-full bg-white">
-            {editingBrotherAvailability && (
-                <AvailabilityEditorModal
-                    editingBrotherAvailability={editingBrotherAvailability}
-                    allPisTimeslots={allPisTimeslots}
-                    groupedEditSlots={groupedEditSlots}
-                    editingSlots={editingSlots}
-                    savingAvailability={savingAvailability}
-                    formatSlotTime={formatSlotTime}
-                    onClose={closeEditAvailability}
-                    onSelectAll={selectAllEditSlots}
-                    onClearAll={clearAllEditSlots}
-                    onToggleSlot={toggleEditSlot}
-                    onSave={saveEditedAvailability}
-                />
-            )}
-
-            <Navbar />
-
-            <div className="pt-24 p-4 pb-20">
-                <div className="container mx-auto px-4 max-w-4xl">
-                    <div className="mb-8">
-                        <h1 className="text-apple-large font-light text-black">Admin Panel</h1>
-                        <p className="text-apple-body text-apple-gray-600 font-light mt-2">
-                            Manage PIS questions, timeslots, and rush nights
-                        </p>
-                    </div>
-
-                    <AdminExportsAccessSection {...{
-                        exportRusheeNumbers, exportPISSchedule, exportRusheePersonalInfo, handleRequest,
-                        brotherSearch, setBrotherSearch, selectedBrother, setSelectedBrother,
-                        filteredBrothers, handleSelectBrother, brotherAdminStatus, brotherBidcomStatus,
-                        isPromoting, handleSetAdmin, handleSetBidcom, rushAppStatus,
-                        rushAppLoading, handleToggleRushAppAccess, commentVisibilityStatus, commentVisibilityLoading,
-                        handleToggleCommentVisibility, midtermLoading, handleToggleMidtermMode,
-                    }} />
-
-                    <div className="border-t border-apple-gray-200 my-10"></div>
-
-                    <AdminManagementSection {...{
-                        ...managementInputs, handleRequest, rusheeSearch, setRusheeSearch,
-                        selectedRushee, setSelectedRushee, filteredRushees, handleSelectRushee,
-                        formatCurrentPISTime, selectedNewTimeslot, setSelectedNewTimeslot,
-                        availableTimeslots, formatTimeslot, handleReschedulePIS,
-                    }} />
-
-                    <div className="border-t border-apple-gray-200 my-10"></div>
-
-                    <PisAvailabilitySection
-                        pisFormStatus={pisFormStatus}
-                        pisFormLoading={pisFormLoading}
-                        brotherAvailabilities={brotherAvailabilities}
-                        handleSendPISForm={handleSendPISForm}
-                        handleDeactivatePISForm={handleDeactivatePISForm}
-                        handleClearAndResendPISForm={handleClearAndResendPISForm}
-                        openEditAvailability={openEditAvailability}
-                        handleAutoAssignBrothers={handleAutoAssignBrothers}
-                        handleClearAssignments={handleClearAssignments}
-                        exportPISWithBrothers={exportPISWithBrothers}
-                    />
-                </div>
-            </div>
-        </div>
-    );
+    return <AdminPageView
+        editor={{
+            editingBrotherAvailability, allPisTimeslots, groupedEditSlots,
+            editingSlots, savingAvailability, formatSlotTime,
+            onClose: closeEditAvailability, onSelectAll: selectAllEditSlots,
+            onClearAll: clearAllEditSlots, onToggleSlot: toggleEditSlot,
+            onSave: saveEditedAvailability,
+        }}
+        exportsAccess={{
+            exportRusheeNumbers, exportPISSchedule, exportRusheePersonalInfo, handleRequest,
+            brotherSearch, setBrotherSearch, selectedBrother, setSelectedBrother,
+            filteredBrothers, handleSelectBrother, brotherAdminStatus, brotherBidcomStatus,
+            isPromoting, handleSetAdmin, handleSetBidcom, rushAppStatus,
+            rushAppLoading, handleToggleRushAppAccess, commentVisibilityStatus,
+            commentVisibilityLoading, handleToggleCommentVisibility, midtermLoading,
+            handleToggleMidtermMode,
+        }}
+        management={{
+            ...managementInputs, handleRequest, rusheeSearch, setRusheeSearch,
+            selectedRushee, setSelectedRushee, filteredRushees, handleSelectRushee,
+            formatCurrentPISTime, selectedNewTimeslot, setSelectedNewTimeslot,
+            availableTimeslots, formatTimeslot, handleReschedulePIS,
+        }}
+        availability={{
+            pisFormStatus, pisFormLoading, brotherAvailabilities, handleSendPISForm,
+            handleDeactivatePISForm, handleClearAndResendPISForm,
+            openEditAvailability, handleAutoAssignBrothers, handleClearAssignments,
+            exportPISWithBrothers,
+        }}
+    />;
 }

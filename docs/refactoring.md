@@ -1777,6 +1777,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     existing admin markup and question-action tests pass. All 433 client tests,
     typecheck, build, and changed-file ESLint pass, with the preexisting fetch
     dependency warning now located in the hook.
+308. Separated the admin page's rendered layout into a typed view receiving the
+    same editor, export/access, management, and availability props. `Admin.jsx`
+    drops from 255 to 216 lines. Existing loading, ready, and editor markup
+    hashes match; all 433 client tests, typecheck, build, and changed-file
+    ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -18,6 +18,7 @@ const bootstrapHookPath = fileURLToPath(new URL('../src/features/admin/bootstrap
 const managementHookPath = fileURLToPath(new URL('../src/features/admin/overview/useAdminManagementInputs.js', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
 const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/admin/overview/AdminPageView.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminPageMarkup.json', import.meta.url));
 
 async function loadAdmin(state = {}, captured = new Map()) {
@@ -34,6 +35,13 @@ async function loadAdmin(state = {}, captured = new Map()) {
         '../pis/PisQuestionsCard': stub('questions'),
         '../scheduling/AdminSchedulingCards': stub('scheduling'),
         '../pis/ReschedulePisCard': stub('reschedule')
+    });
+    const PageView = await loadTsxComponent(viewPath, {
+        '../../../components/Navbar': stub('navbar'),
+        '../availability/AvailabilityEditorModal': stub('availability-editor'),
+        '../availability/PisAvailabilitySection': stub('availability-section'),
+        './AdminExportsAccessSection': Section,
+        './AdminManagementSection': Management,
     });
     const source = (await readFile(pagePath, 'utf8'))
         .replaceAll('import.meta.env.VITE_API_PREFIX', '"/api"')
@@ -92,6 +100,7 @@ async function loadAdmin(state = {}, captured = new Map()) {
         '../features/admin/search/useAdminSearch': { useAdminSearch: () => search },
         '../features/admin/overview/AdminExportsAccessSection': Section,
         '../features/admin/overview/AdminManagementSection': Management,
+        '../features/admin/overview/AdminPageView': PageView,
         '../firebase': { auth: {}, db: {} },
         'firebase/firestore': { collection: noop, getDocs: noop }
     };
