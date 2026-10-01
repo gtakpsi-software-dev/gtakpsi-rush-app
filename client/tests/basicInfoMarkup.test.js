@@ -9,22 +9,32 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import { formatPhoneInput } from "../src/features/registration/formatPhoneInput.js";
 import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
 
-const componentPath = fileURLToPath(new URL("../src/components/RegisterComponents/BasicInfo.jsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/registration/BasicInfoForm.tsx", import.meta.url));
 const expectedHash = "ea94be2a5ee2dd4436a9e19eed43d9388e04c88f6121dcf7d0d3a7df57f4fafd";
 
 test("basic information form keeps its original labels, fields, options, and markup", async () => {
-    const BasicInfo = await loadTsxComponent(componentPath, {
-        "../../features/registration/formatPhoneInput.js": { formatPhoneInput },
-        "../../features/registration/basicInfoOptions.js": { MAJOR_OPTIONS, EXPOSURE_OPTIONS },
+    const BasicInfoForm = await loadTsxComponent(componentPath, {
+        "./formatPhoneInput.js": { formatPhoneInput },
+        "./basicInfoOptions.js": { MAJOR_OPTIONS, EXPOSURE_OPTIONS },
     });
     const refs = Object.fromEntries([
         "firstname", "lastname", "email", "housing", "phone",
         "gtid", "major", "pronouns", "year", "exposure",
     ].map((name) => [name, { current: null }]));
-    const html = renderToStaticMarkup(React.createElement(BasicInfo, {
+    const onContinue = () => {};
+    const html = renderToStaticMarkup(React.createElement(BasicInfoForm, {
         ...refs,
-        func() {},
+        onContinue,
     }));
 
     assert.equal(createHash("sha256").update(html).digest("hex"), expectedHash);
+
+    const findButton = (node) => {
+        if (Array.isArray(node)) return node.map(findButton).find(Boolean);
+        if (!React.isValidElement(node)) return null;
+        if (node.type === "button") return node;
+        return findButton(node.props.children);
+    };
+    const button = findButton(BasicInfoForm({ ...refs, onContinue }));
+    assert.equal(button.props.onClick, onContinue);
 });

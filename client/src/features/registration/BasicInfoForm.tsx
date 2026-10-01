@@ -1,7 +1,23 @@
-import { formatPhoneInput } from "../../features/registration/formatPhoneInput.js";
-import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "../../features/registration/basicInfoOptions.js";
+import type { Ref } from "react";
 
-export default function BasicInfo(props) {
+import { formatPhoneInput } from "./formatPhoneInput.js";
+import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "./basicInfoOptions.js";
+
+type BasicInfoFormProps = {
+    firstname: Ref<HTMLInputElement>;
+    lastname: Ref<HTMLInputElement>;
+    email: Ref<HTMLInputElement>;
+    housing: Ref<HTMLInputElement>;
+    phone: Ref<HTMLInputElement>;
+    gtid: Ref<HTMLInputElement>;
+    major: Ref<HTMLSelectElement>;
+    pronouns: Ref<HTMLSelectElement>;
+    year: Ref<HTMLSelectElement>;
+    exposure: Ref<HTMLSelectElement>;
+    onContinue: () => void | Promise<void>;
+};
+
+export default function BasicInfoForm(props: BasicInfoFormProps) {
 
     return (
         <div className="mt-24 p-4 max-w-4xl mx-auto">
@@ -16,7 +32,6 @@ export default function BasicInfo(props) {
             </div>
             <div className="card-apple animate-slide-up mb-16" style={{animationDelay: '0.1s'}}>
                 <form className="p-8 space-y-6">
-                    {/* Row 1: First and Last Name */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-first-name">
@@ -44,7 +59,6 @@ export default function BasicInfo(props) {
                         </div>
                     </div>
 
-                    {/* Row 2: Email */}
                     <div>
                         <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-email">
                             GT Email
@@ -58,7 +72,6 @@ export default function BasicInfo(props) {
                         />
                     </div>
 
-                    {/* Row 3: Housing and Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-housing">
@@ -92,7 +105,6 @@ export default function BasicInfo(props) {
                         </div>
                     </div>
 
-                    {/* Row 4: GTID and Major */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-gtid">
@@ -122,7 +134,6 @@ export default function BasicInfo(props) {
                         </div>
                     </div>
 
-                    {/* Row 5: Pronouns and Year */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-pronouns">
@@ -157,7 +168,6 @@ export default function BasicInfo(props) {
                         </div>
                     </div>
 
-                    {/* Row 6: Exposure */}
                     <div>
                         <label className="block mb-2 text-apple-footnote font-normal text-apple-gray-700" htmlFor="grid-exposure">
                             How did you find us?
@@ -173,10 +183,9 @@ export default function BasicInfo(props) {
                         </select>
                     </div>
 
-                    {/* Submit Button */}
                     <div className="pt-4 flex justify-center">
                         <button
-                            onClick={props.func}
+                            onClick={props.onContinue}
                             className="btn-apple px-8 py-4 text-apple-headline"
                             type="button"
                         >
@@ -187,6 +196,5 @@ export default function BasicInfo(props) {
             </div>
         </div>
 
-    )
-
+    );
 }

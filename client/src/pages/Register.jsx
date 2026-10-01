@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import BasicInfo from "../components/RegisterComponents/BasicInfo";
+import BasicInfoForm from "../features/registration/BasicInfoForm";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -147,7 +147,7 @@ export default function Register() {
 
             {/* Spacing between Navbar and the form */}
             <div className="flex-1 flex flex-col items-center justify-center animate-fade-in">
-                {page == 0 ? <BasicInfo
+                {page == 0 ? <BasicInfoForm
                     firstname={firstname}
                     lastname={lastname}
                     email={email}
@@ -158,7 +158,7 @@ export default function Register() {
                     pronouns={pronouns}
                     year={year}
                     exposure={exposure}
-                    func={basicInfoSubmit}
+                    onContinue={basicInfoSubmit}
                 /> : <div>
                     {page == 1 ? <GetImage
                         webcamRef={webcamRef}

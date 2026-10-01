@@ -1474,6 +1474,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     check board control props and pointer handlers. All 406 client tests pass,
     controlled production CSS is byte-identical, and lint remains at 209
     errors and 20 warnings. The pages shrink from 234/259 to 194/219 lines.
+257. Moved the registration basic-information form into
+    `features/registration/BasicInfoForm.tsx`, added its ref and callback types,
+    renamed the vague `func` prop to `onContinue`, and removed row-label
+    comments that repeated the fields. The markup hash, phone formatting, and
+    continue callback test pass. All 406 client tests pass, controlled CSS is
+    byte-identical, and production JS differs only in the two `func` to
+    `onContinue` prop names. Lint falls to 197 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1501,7 +1508,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 209 errors and 20 warnings, so it is tracked debt,
+the current baseline has 197 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

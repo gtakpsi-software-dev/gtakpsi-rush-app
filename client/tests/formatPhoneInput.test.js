@@ -26,12 +26,12 @@ test("registration phone input keeps the existing partial and full formatting", 
 });
 
 test("the registration phone field still formats its target on change", async () => {
-    const componentPath = fileURLToPath(new URL("../src/components/RegisterComponents/BasicInfo.jsx", import.meta.url));
-    const BasicInfo = await loadTsxComponent(componentPath, {
-        "../../features/registration/formatPhoneInput.js": { formatPhoneInput },
-        "../../features/registration/basicInfoOptions.js": { MAJOR_OPTIONS, EXPOSURE_OPTIONS },
+    const componentPath = fileURLToPath(new URL("../src/features/registration/BasicInfoForm.tsx", import.meta.url));
+    const BasicInfoForm = await loadTsxComponent(componentPath, {
+        "./formatPhoneInput.js": { formatPhoneInput },
+        "./basicInfoOptions.js": { MAJOR_OPTIONS, EXPOSURE_OPTIONS },
     });
-    const tree = BasicInfo({});
+    const tree = BasicInfoForm({});
 
     function findPhone(node) {
         if (Array.isArray(node)) {
