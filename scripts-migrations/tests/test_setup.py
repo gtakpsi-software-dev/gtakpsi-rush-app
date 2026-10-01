@@ -20,7 +20,8 @@ SEED_DATA = {
 REAL_DATETIME = datetime_module.datetime
 
 
-def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_overrides=None):
+def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_overrides=None,
+              storage_error=False):
     events = []
     post_outcomes = {} if post_outcomes is None else post_outcomes
 
@@ -52,6 +53,8 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_override
     class FakeBucket:
         def list_blobs(self, *, prefix):
             events.append(("list_blobs", prefix))
+            if storage_error:
+                raise RuntimeError("offline storage")
             return [FakeBlob()]
 
     class FakeResponse:
@@ -153,6 +156,7 @@ class SetupTests(unittest.TestCase):
                          ["rushees", "rush-nights", "pis-timeslots", "pis-questions"])
         self.assertLess(operations.index("delete"), operations.index("list_blobs"))
         self.assertLess(operations.index("delete_blob"), operations.index("open"))
+        self.assertIn(("list_blobs", "profile-pictures/"), events)
         self.assertEqual([event[1] for event in events if event[0] == "open"],
                          ["pis_timeslots.json", "rush_nights.json", "pis_questions.json"])
         self.assertEqual([event[1] for event in events if event[0] == "progress"],
@@ -207,6 +211,12 @@ class SetupTests(unittest.TestCase):
         seed_posts = [event for event in events if event[0] == "post"][1:]
         self.assertEqual(len(seed_posts), 3)
         self.assertTrue(all(event[3] == {"X-API-Key": "offline-server-key"} for event in seed_posts))
+
+    def test_storage_failure_is_reported_and_seed_requests_continue(self):
+        _, events, output = run_setup(storage_error=True)
+        self.assertIn("Error while deleting rush app pictures: offline storage", output)
+        self.assertNotIn("delete_blob", [event[0] for event in events])
+        self.assertEqual(len([event for event in events if event[0] == "post"]), 4)
 
     def test_import_does_not_contact_services_or_reset_a_season(self):
         namespace, events, output = run_setup(execute=False)

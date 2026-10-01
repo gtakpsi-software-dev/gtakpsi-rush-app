@@ -16,6 +16,7 @@ import requests
 import firebase_admin
 from firebase_admin import credentials, storage, auth as firebase_auth
 from scripts.season_setup.authentication import get_admin_id_token
+from scripts.season_setup.reset import clear_profile_pictures, reset_database
 from scripts.season_setup.seeds import seed_data
 
 
@@ -61,48 +62,9 @@ def main():
     # Access a database
     db = client["rush-app"]
 
-    # delete all rushees
-    print("Deleting all rushees...")
-    rushee_collection = db["rushees"]
-    rushee_collection.delete_many({})
-    print("Deleted all rushees")
-
-    # delete all rush nights
-    print("Deleting all rush nights...")
-    rush_night_collection = db["rush-nights"]
-    rush_night_collection.delete_many({})
-    print("Deleted all rush nights")
-
-    # delete all pis timeslots
-    print("Deleting all PIS timeslots...")
-    pis_timeslot_collection = db["pis-timeslots"]
-    pis_timeslot_collection.delete_many({})
-    print("Deleted all PIS timeslots.")
-
-    # delete all PIS questions
-    print("Deleting all PIS questions...")
-    pis_question_collection = db["pis-questions"]
-    pis_question_collection .delete_many({})
-    print("Deleted all PIS questions.")
-
-    print("Deleting all Rush App pictures from Firebase Storage...")
-
-    # delete all rushee pics from Firebase Storage
-    try:
-        bucket = storage.bucket()
-
-        # List all blobs in the profile-pictures folder
-        blobs = bucket.list_blobs(prefix="profile-pictures/")
-
-        deleted_count = 0
-        for blob in blobs:
-            blob.delete()
-            deleted_count += 1
-
-        print(f"Deleted {deleted_count} rush app pictures from Firebase Storage.")
-
-    except Exception as e:
-        print(f"Error while deleting rush app pictures: {e}")
+    # INVARIANT: the date gate and credential setup above must run before destructive reset calls.
+    reset_database(db)
+    clear_profile_pictures(storage)
 
     errors = seed_data(
         api_url, auth_headers, requests.post, requests.exceptions.RequestException, tqdm
