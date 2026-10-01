@@ -19,6 +19,7 @@ import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { getStableUserId } from "../features/pis/stableUserId";
 import { parseServerDate } from "../features/pis/parseServerDate";
+import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -49,72 +50,12 @@ export default function PIS() {
         }
     }, [collaboration.isConnected]);
 
-    // Merge incoming document state into local answers and brother fields so that late joiners see the latest
     useEffect(() => {
-        const docState = collaboration.documentState;
-        if (docState && Object.keys(docState).length > 0) {
-            // Handle brother fields - only update if WebSocket has a non-empty value
-            // This prevents WebSocket empty state from overwriting database values
-            if (docState['_brotherA_firstName'] !== undefined && docState['_brotherA_firstName']) {
-                setBrotherA(prev => prev.firstName !== docState['_brotherA_firstName'] 
-                    ? { ...prev, firstName: docState['_brotherA_firstName'] } : prev);
-            }
-            if (docState['_brotherA_lastName'] !== undefined && docState['_brotherA_lastName']) {
-                setBrotherA(prev => prev.lastName !== docState['_brotherA_lastName'] 
-                    ? { ...prev, lastName: docState['_brotherA_lastName'] } : prev);
-            }
-            if (docState['_brotherB_firstName'] !== undefined && docState['_brotherB_firstName']) {
-                setBrotherB(prev => prev.firstName !== docState['_brotherB_firstName'] 
-                    ? { ...prev, firstName: docState['_brotherB_firstName'] } : prev);
-            }
-            if (docState['_brotherB_lastName'] !== undefined && docState['_brotherB_lastName']) {
-                setBrotherB(prev => prev.lastName !== docState['_brotherB_lastName'] 
-                    ? { ...prev, lastName: docState['_brotherB_lastName'] } : prev);
-            }
-
-            // Handle answers (both MC and text questions)
-            setAnswers(prev => {
-                let changed = false;
-                const merged = { ...prev };
-                for (const [field, value] of Object.entries(docState)) {
-                    // Skip brother fields
-                    if (field.startsWith('_brother')) continue;
-                    if (merged[field] !== value) {
-                        merged[field] = value;
-                        changed = true;
-                    }
-                }
-                return changed ? merged : prev;
-            });
-        }
+        applyDocumentState(collaboration.documentState, { setBrotherA, setBrotherB, setAnswers });
     }, [collaboration.documentState]);
 
-    // Listen for remote updates and apply them to brother fields and MC questions
     useEffect(() => {
-        const updates = collaboration.remoteUpdates;
-        if (updates && updates.length > 0) {
-            const latestUpdate = updates[updates.length - 1];
-            const { field, value } = latestUpdate;
-            
-            // Handle brother field updates - allow empty values here since this is a live update from another user
-            if (field === '_brotherA_firstName') {
-                setBrotherA(prev => prev.firstName !== value ? { ...prev, firstName: value || '' } : prev);
-            } else if (field === '_brotherA_lastName') {
-                setBrotherA(prev => prev.lastName !== value ? { ...prev, lastName: value || '' } : prev);
-            } else if (field === '_brotherB_firstName') {
-                setBrotherB(prev => prev.firstName !== value ? { ...prev, firstName: value || '' } : prev);
-            } else if (field === '_brotherB_lastName') {
-                setBrotherB(prev => prev.lastName !== value ? { ...prev, lastName: value || '' } : prev);
-            } else {
-                // Handle answer updates (MC and text questions)
-                setAnswers(prev => {
-                    if (prev[field] !== value) {
-                        return { ...prev, [field]: value };
-                    }
-                    return prev;
-                });
-            }
-        }
+        applyRemoteUpdates(collaboration.remoteUpdates, { setBrotherA, setBrotherB, setAnswers });
     }, [collaboration.remoteUpdates]);
 
     const errorTitle = "Default Error Title";
