@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -15,7 +15,7 @@ import PisQuestionsCard from "../features/pis/PisQuestionsCard";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
-import { performPisAutosave } from "../features/pis/performPisAutosave";
+import { usePisAutosave } from "../features/pis/usePisAutosave";
 import { loadPisPageData } from "../features/pis/loadPisPageData";
 import { startPisRevealPolling } from "../features/pis/startPisRevealPolling";
 import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
@@ -121,46 +121,10 @@ export default function PIS() {
         setBrotherB(prev => ({ ...prev, [field]: value }));
     };
 
-    const performAutosave = useCallback(() => performPisAutosave({
+    usePisAutosave({
         questions, answers, brotherA, brotherB, gtid, api, axios,
-        setSaveStatus, setLastSaved,
-    }), [questions, answers, brotherA, brotherB, gtid, api]);
-
-    // Debounced autosave effect - triggers 2 seconds after last change
-    useEffect(() => {
-        // Skip autosave on initial load
-        if (isInitialLoadRef.current) {
-            return;
-        }
-
-        // Clear existing timeout
-        if (autosaveTimeoutRef.current) {
-            clearTimeout(autosaveTimeoutRef.current);
-        }
-
-        // Set new timeout for autosave (2 seconds after last change)
-        autosaveTimeoutRef.current = setTimeout(() => {
-            performAutosave();
-        }, 2000);
-
-        // Cleanup on unmount
-        return () => {
-            if (autosaveTimeoutRef.current) {
-                clearTimeout(autosaveTimeoutRef.current);
-            }
-        };
-    }, [answers, brotherA, brotherB, performAutosave]);
-
-    // Mark initial load as complete after data is loaded
-    useEffect(() => {
-        if (!loading && questions.length > 0) {
-            // Small delay to prevent immediate autosave after load
-            const timer = setTimeout(() => {
-                isInitialLoadRef.current = false;
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [loading, questions]);
+        setSaveStatus, setLastSaved, loading, isInitialLoadRef, autosaveTimeoutRef,
+    });
 
     return (
         <div>

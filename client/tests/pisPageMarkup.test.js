@@ -69,6 +69,9 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
             applyDocumentState: noop, applyRemoteUpdates: noop,
         },
         "../features/pis/performPisAutosave": { performPisAutosave: noop },
+        "../features/pis/usePisAutosave": {
+            usePisAutosave: (props) => captured.set("autosave", props),
+        },
         "../features/pis/loadPisPageData": { loadPisPageData: noop },
         "../features/pis/startPisRevealPolling": { startPisRevealPolling: noop },
         "../features/pis/createPisAnswerHandlers": {
@@ -140,4 +143,10 @@ test("PIS questions retain answer, brother, collaboration, and save props", asyn
     assert.equal(typeof captured.get("question-responses").handleAnswerChange, "function");
     assert.equal(captured.get("save-status").saveStatus, "saving");
     assert.equal(captured.get("save-status").lastSaved, 123);
+    assert.equal(captured.get("autosave").questions, questions);
+    assert.equal(captured.get("autosave").answers, answers);
+    assert.equal(captured.get("autosave").brotherA, brotherA);
+    assert.equal(captured.get("autosave").brotherB, brotherB);
+    assert.equal(captured.get("autosave").gtid, "123");
+    assert.equal(captured.get("autosave").loading, false);
 });

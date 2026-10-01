@@ -1563,6 +1563,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     category trimming. All 416 client tests and typecheck pass; the edited page
     and test pass lint. Controlled CSS is byte-identical, and the configured
     JS/JSX lint baseline falls to 122 errors and 19 warnings.
+270. Moved PIS's initial-load autosave delay and debounced timer cleanup into
+    `features/pis/usePisAutosave.js`, retaining the existing refs, save helper,
+    API payload, and save timing. The page falls from 212 to 176 lines. A new
+    hook test covers initial-load suppression, the one-second activation,
+    two-second debounce, and cleanup; existing page markup fixtures and all
+    417 client tests pass. Typecheck passes, the new hook is lint-clean, and
+    controlled CSS is byte-identical. The JS bundle changes with the module
+    extraction; the workflow's first GitHub run remains unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1618,7 +1626,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 416 client tests, 52 server unit tests, 19 collaboration
+Current verified totals: 417 client tests, 52 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 53 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
