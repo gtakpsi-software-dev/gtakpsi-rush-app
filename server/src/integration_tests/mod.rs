@@ -3,6 +3,7 @@ mod assignments;
 mod availability;
 mod brother_pis;
 mod comments;
+mod exports;
 mod fixtures;
 mod interviews;
 mod profile;
@@ -43,4 +44,5 @@ async fn database_contracts() {
     access::check_contracts().await;
     availability::check_contracts().await;
     timeslots::check_contracts().await;
+    exports::check_contracts().await;
 }

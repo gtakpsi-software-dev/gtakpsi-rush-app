@@ -1692,6 +1692,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the isolated database contract checks the persisted code, signup, and
     initial values. All 58 server tests with the integration feature pass;
     changed Rust files pass rustfmt.
+292. Split the 152-line admin export module into number, personal-info, and PIS
+    schedule handlers under `exports/`. The original cursor error policies,
+    response fields, and PIS timeslot sort remain unchanged. A new isolated
+    database scenario checks two-record numbering, the personal-info field set,
+    and sorted PIS assignment output before and after the split. All 58 server
+    tests with the integration feature pass; changed Rust files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
