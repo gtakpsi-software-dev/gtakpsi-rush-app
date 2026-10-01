@@ -152,14 +152,15 @@ Before each rush season, run the setup script to clear old data:
 
 ```bash
 pip install pymongo python-dotenv tqdm firebase-admin
-python setup.py
+python3 -m scripts.season_setup
 ```
 
-The reset runs only when this command is invoked directly. Importing `setup.py`
+Run this from the repository root. The reset runs only when this command is
+invoked directly. Importing `scripts.season_setup.__main__`
 does not connect to services or delete data. Its offline regression tests use
 fake MongoDB, Firebase, and HTTP clients. Authentication, reset, Storage cleanup,
-and seed uploads live under `scripts/season_setup/`; the command and input JSON
-paths are unchanged.
+and seed uploads live under `scripts/season_setup/`; the input JSON paths are
+unchanged.
 
 Season seed files live in `data/season_seed/`. The three original JSON paths at
 the repository root are links to those files, so existing setup and migration
