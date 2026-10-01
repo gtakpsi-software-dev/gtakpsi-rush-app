@@ -1,37 +1,41 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import type { RefObject } from "react";
 import Webcam from "react-webcam";
 
-export default function GetImage(props) {
+type PhotoCaptureStepProps = {
+    webcamRef: RefObject<Webcam>;
+    image?: string;
+    setImage: (image: string) => void;
+    onContinue: () => void;
+};
+
+export default function PhotoCaptureStep(props: PhotoCaptureStepProps) {
 
     const [showPreview, setShowPreview] = useState(false)
 
-    // Video constraints for mirror-like experience
     const videoConstraints = {
         width: 1280,
         height: 1280,
-        facingMode: "user", // Use front camera for mirror-like experience
-        aspectRatio: 1, // Square aspect ratio to match the container
+        facingMode: "user",
+        aspectRatio: 1,
     };
 
     const capture = () => {
-        const webcam = props.webcamRef.current;
-        const video = webcam.video;
+        const webcam = props.webcamRef.current!;
+        const video = webcam.video!;
         
-        // Create a canvas to manually flip the image
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d')!;
         
         canvas.width = 1280;
         canvas.height = 1280;
         
-        // Flip the canvas horizontally to maintain mirror effect
+        // The preview mirrors the camera, so flip the saved frame to match it.
         ctx.scale(-1, 1);
         ctx.translate(-canvas.width, 0);
         
-        // Draw the video frame onto the flipped canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Convert canvas to base64 image
         const mirroredScreenshot = canvas.toDataURL('image/jpeg', 0.95);
         
         setShowPreview(true);
@@ -40,7 +44,6 @@ export default function GetImage(props) {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-white pt-16">
-            {/* Header Section */}
             <div className="text-center mb-8 animate-slide-up">
                 <h1 className="mb-3 text-apple-large font-light text-black">
                     Capture Your Photo
@@ -51,7 +54,6 @@ export default function GetImage(props) {
                 </p>
             </div>
 
-            {/* Camera/Preview Container */}
             <div className="card-apple mb-8 animate-slide-up" style={{animationDelay: '0.1s'}}>
                 <div className="p-8">
                     <div className="w-80 h-80 md:w-96 md:h-96 bg-apple-gray-50 rounded-apple-2xl overflow-hidden border border-apple-gray-200 flex items-center justify-center">
@@ -68,13 +70,12 @@ export default function GetImage(props) {
                                 screenshotFormat="image/jpeg"
                                 screenshotQuality={0.95}
                                 videoConstraints={videoConstraints}
-                                mirrored={true} // Mirror the camera view like a mirror
+                                mirrored={true}
                                 className="w-full h-full object-cover rounded-apple-2xl"
                             />
                         )}
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex flex-col items-center mt-6 space-y-4">
                         {showPreview ? (
                             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -85,7 +86,7 @@ export default function GetImage(props) {
                                     Retake Photo
                                 </button>
                                 <button
-                                    onClick={props.func}
+                                    onClick={props.onContinue}
                                     className="btn-apple px-6 py-3 text-apple-body font-light"
                                 >
                                     Continue

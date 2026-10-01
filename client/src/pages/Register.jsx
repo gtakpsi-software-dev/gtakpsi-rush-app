@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import GetImage from "../components/RegisterComponents/GetImage";
+import PhotoCaptureStep from "../features/registration/photo/PhotoCaptureStep";
 import PisSignUp from "../components/RegisterComponents/PisSignUp"
 import SuccessPage from "../components/RegisterComponents/SuccessPage";
 import Loader from "../components/Loader";
@@ -160,11 +160,11 @@ export default function Register() {
                     exposure={exposure}
                     onContinue={basicInfoSubmit}
                 /> : <div>
-                    {page == 1 ? <GetImage
+                    {page == 1 ? <PhotoCaptureStep
                         webcamRef={webcamRef}
                         image={image}
                         setImage={setImage}
-                        func={image_submit}
+                        onContinue={image_submit}
                     /> : <div>
                         {page == 2 ? <PisSignUp
                             selectedSlot={selectedSlot}
