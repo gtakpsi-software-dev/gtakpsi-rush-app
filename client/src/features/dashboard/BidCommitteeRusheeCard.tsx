@@ -1,9 +1,10 @@
 import Badges from '../../components/Badge';
 import RusheeInteractionsByNight from '../../components/RusheeInteractionsByNight';
+import type { NightInteractionSummary } from '../../js/rusheeInteractions.types';
 
 type BidCommitteeRushee = {
     attendance: { name: string }[];
-    interactions_by_night: unknown[];
+    interactions_by_night: NightInteractionSummary[];
     ratings: { name: string; value: number }[];
 };
 

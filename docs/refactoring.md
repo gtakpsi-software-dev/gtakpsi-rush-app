@@ -1545,6 +1545,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and CSS are byte-identical. A read-only TypeScript 5.8 audit with Vite
     client types now reports four TSX errors, down from nine; the project still
     lacks a checked-in typecheck command.
+267. Resolved the four remaining TSX audit errors by typing PIS slot selection,
+    sharing the night interaction result shape across its callers, and making
+    the legacy string-valued GTID input limit an explicit typecheck exception.
+    The existing component test confirms that the string prop is preserved.
+    All 415 client tests pass, the TypeScript 5.8 audit passes, and controlled
+    production JS and CSS are byte-identical to the preceding build.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1575,7 +1581,8 @@ Run `npm --prefix client test` for dependency-free client domain tests and
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX lint;
 the current baseline has 131 errors and 19 warnings, so it is tracked debt,
 not a passing check. The ESLint config excludes TSX and the project has no
-TypeScript typecheck gate, so these checks do not cover typed components.
+TypeScript typecheck gate yet. A read-only external compiler audit now passes
+for TSX files, but it is not a reproducible project or CI check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

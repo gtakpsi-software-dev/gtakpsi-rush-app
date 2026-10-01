@@ -1,9 +1,10 @@
 import RusheeInteractionsByNight from "../../../components/RusheeInteractionsByNight";
+import type { NightInteractionSummary } from "../../../js/rusheeInteractions.types";
 
 type RusheeRatingsProps = {
     rushee: {
         ratings: { name: string; value: number }[];
-        interactions_by_night: unknown;
+        interactions_by_night?: NightInteractionSummary[];
         attendance: unknown[];
         comments: unknown[];
     };

@@ -31,7 +31,7 @@ type PISAvailabilityModalProps = {
  */
 export default function PISAvailabilityModal({ user, onSubmit }: PISAvailabilityModalProps) {
     const [timeslots, setTimeslots] = useState([]);
-    const [selectedSlots, setSelectedSlots] = useState(new Set());
+    const [selectedSlots, setSelectedSlots] = useState(new Set<string>());
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 

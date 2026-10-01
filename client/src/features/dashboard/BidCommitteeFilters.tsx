@@ -34,6 +34,7 @@ export default function BidCommitteeFilters({
                     onChange={handleSearch}
                     placeholder="Search by 9-digit GTID..."
                     className="input-apple text-apple-body"
+                    // @ts-expect-error Keep the existing string-valued React prop contract.
                     maxLength="9"
                     pattern="[0-9]{9}"
                 />

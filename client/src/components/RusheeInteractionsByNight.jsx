@@ -5,6 +5,15 @@ import {
     formatNightInteractionLine,
 } from "../js/rusheeInteractions";
 
+/**
+ * @param {{
+ *   nights?: import('../js/rusheeInteractions.types').NightInteractionSummary[],
+ *   attendance?: object[],
+ *   comments?: object[],
+ *   className?: string,
+ *   compact?: boolean
+ * }} props
+ */
 export default function RusheeInteractionsByNight({
     nights: nightsProp,
     attendance,

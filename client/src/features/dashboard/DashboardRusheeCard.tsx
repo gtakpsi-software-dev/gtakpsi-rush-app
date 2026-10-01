@@ -1,5 +1,6 @@
 import Badges from '../../components/Badge';
 import RusheeInteractionsByNight from '../../components/RusheeInteractionsByNight';
+import type { NightInteractionSummary } from '../../js/rusheeInteractions.types';
 
 type DashboardRushee = {
     gtid: string;
@@ -8,7 +9,7 @@ type DashboardRushee = {
     attendance: { name: string }[];
     email: string;
     major: string;
-    interactions_by_night: unknown[];
+    interactions_by_night: NightInteractionSummary[];
     ratings?: { name: string; value: number }[];
 };
 
