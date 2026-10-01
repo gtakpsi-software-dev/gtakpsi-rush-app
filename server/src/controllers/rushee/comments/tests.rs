@@ -4,6 +4,7 @@ use crate::models::{
     rushee::{Comment, Rating},
 };
 use bson::{doc, DateTime};
+use std::collections::HashMap;
 
 fn comment(ratings: &[(&str, f32)]) -> Comment {
     Comment {
@@ -85,4 +86,39 @@ fn rating_updates_keep_existing_and_new_category_filters_and_operators() {
             doc! { "$push": { "ratings": { "name": "Professionalism", "value": 3.0 } } },
         )
     );
+}
+
+#[test]
+fn deletion_recalculates_only_deleted_categories_after_same_day_filtering() {
+    let mut earlier = comment(&[("fit", 1.0), ("other", 3.0)]);
+    earlier.brother_name = "Other".into();
+    let mut same_day = comment(&[("fit", 5.0)]);
+    same_day.brother_name = "Alex".into();
+    same_day.night.time = DateTime::from_millis(1);
+    let mut next_day = comment(&[("fit", 4.0), ("new", 5.0)]);
+    next_day.brother_name = "Alex".into();
+    next_day.night.time = DateTime::from_millis(86_400_000);
+    let mut deleted = comment(&[("fit", 2.0), ("new", 1.0), ("new", 4.0)]);
+    deleted.brother_name = "Alex".into();
+
+    let values: HashMap<_, _> = deletion_plan::rating_recalculations_after_deletion(
+        vec![earlier, same_day, next_day],
+        &deleted,
+    )
+    .into_iter()
+    .collect();
+    assert_eq!(values.len(), 2);
+    assert_eq!(values["fit"], Some(2.5));
+    assert_eq!(values["new"], Some(5.0));
+}
+
+#[test]
+fn deletion_removes_a_category_when_no_valid_rating_remains() {
+    let mut deleted = comment(&[("fit", 3.0), ("fit", 5.0)]);
+    deleted.brother_name = "Alex".into();
+    let mut legacy = comment(&[("fit", 0.0)]);
+    legacy.brother_name = "Other".into();
+
+    let values = deletion_plan::rating_recalculations_after_deletion(vec![legacy], &deleted);
+    assert_eq!(values, vec![("fit".to_string(), None)]);
 }

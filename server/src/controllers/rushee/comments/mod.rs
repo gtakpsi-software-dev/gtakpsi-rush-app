@@ -3,6 +3,7 @@ pub use create::post_comment;
 
 mod delete;
 pub use delete::delete_comment;
+mod deletion_plan;
 
 mod edit;
 pub use edit::edit_comment;

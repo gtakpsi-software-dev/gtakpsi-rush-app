@@ -1621,6 +1621,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     against a disposable Redis instance; changed files pass rustfmt. A
     separate Tokio integration test would need fresh shared Redis connection
     state between test runtimes, so this coverage stays in the existing case.
+280. Extracted comment-deletion rating recalculation into a pure helper while
+    retaining the handler's MongoDB updates and response paths. Two unit tests
+    cover same-day removal, category deduplication, valid averages, and removal
+    when only legacy zero ratings remain. The isolated database suite passes
+    with 55 tests; changed Rust files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1676,9 +1681,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 423 client tests, 52 server unit tests, 19 collaboration
+Current verified totals: 423 client tests, 54 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 53 server tests with the integration feature (including its
+feature, and 55 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

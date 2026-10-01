@@ -1,11 +1,9 @@
-use super::average_rating_value;
+use super::deletion_plan::rating_recalculations_after_deletion;
 use crate::controllers::db;
-use crate::middlewares::time_helpers::same_day;
 use crate::models::rushee::Comment;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
-use std::collections::HashSet;
 
 pub async fn delete_comment(
     Path(id): Path<String>,
@@ -67,29 +65,10 @@ pub async fn delete_comment(
 
     match update_result {
         Ok(_result) => {
-            // Now recalculate ratings based on remaining comments
-            // Filter out the deleted comment from our local copy
-            let remaining_comments: Vec<Comment> = rushee
-                .comments
-                .into_iter()
-                .filter(|comment| {
-                    !(comment.brother_name == payload.brother_name
-                        && same_day(&comment.night.time, &payload.night.time))
-                })
-                .collect();
-
-            // Get all unique rating categories from deleted comment
-            let mut rating_categories = HashSet::new();
-            for rating in &payload.ratings {
-                rating_categories.insert(rating.name.clone());
-            }
-
-            // Recalculate each rating category
-            for category in rating_categories {
-                let new_value = average_rating_value(&remaining_comments, &category, None);
-
+            for (category, new_value) in
+                rating_recalculations_after_deletion(rushee.comments, &payload)
+            {
                 if let Some(new_value) = new_value {
-
                     let rating_filter = doc! {"gtid": id.clone(), "ratings.name": &category};
                     let rating_update = doc! {
                         "$set": {
