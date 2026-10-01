@@ -2,7 +2,7 @@ import pandas as pd
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.rushee_export import RUSHEE_EXPORT_COLUMNS, rushee_export_rows
+from commands.rushee_export import RUSHEE_EXPORT_COLUMNS, rushee_export_rows
 
 
 def main():

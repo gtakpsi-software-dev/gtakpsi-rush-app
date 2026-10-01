@@ -2,7 +2,7 @@ import pandas as pd
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.pis_export import flatten_pis_signups, format_datetime
+from commands.pis_export import flatten_pis_signups, format_datetime
 
 
 def fetch_pis_signups(rushee_collection=None):

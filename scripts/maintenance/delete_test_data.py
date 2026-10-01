@@ -31,7 +31,7 @@ import sys
 from pymongo import MongoClient
 
 from lib.cleanup_uri import resolve_cleanup_uri
-from maintenance_commands.test_data_cleanup import run_cleanup
+from commands.test_data_cleanup import run_cleanup
 
 APPLY = "--apply" in sys.argv
 

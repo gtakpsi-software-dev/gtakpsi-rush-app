@@ -12,7 +12,7 @@ Usage:
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-from maintenance_commands.pis_questions import replace_questions
+from commands.pis_questions import replace_questions
 
 
 def main():

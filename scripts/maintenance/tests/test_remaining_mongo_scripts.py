@@ -64,7 +64,7 @@ class RemainingMongoScriptTests(unittest.TestCase):
         self.assertEqual(events[1], ("excel", "PIS_Signups.xlsx", False))
 
     def test_pis_export_rows_keep_order_date_types_and_blank_defaults(self):
-        from maintenance_commands.pis_export import flatten_pis_signups
+        from commands.pis_export import flatten_pis_signups
 
         rows = flatten_pis_signups([
             {"pis_signup": {"rushee_gtid": "1", "time": datetime(2026, 10, 1, 9, 5)}},

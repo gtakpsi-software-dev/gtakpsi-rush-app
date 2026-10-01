@@ -12,7 +12,7 @@ Examples:
 import sys
 import firebase_admin
 from firebase_admin import credentials, auth
-from maintenance_commands.firebase_claims import apply_role_claims
+from commands.firebase_claims import apply_role_claims
 
 
 def initialize_firebase():

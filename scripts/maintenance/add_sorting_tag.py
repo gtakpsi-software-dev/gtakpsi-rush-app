@@ -15,7 +15,7 @@ import sys
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.sorting_tags import apply_sorting_tag
+from commands.sorting_tags import apply_sorting_tag
 
 VALID_TAGS = ["night_1", "night_2", "closed_night", "closed_night_invite", "pis", "hard_no"]
 

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1]
 with patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
-    from maintenance_commands.rushee_import import replace_rushees
+    from commands.rushee_import import replace_rushees
 
 
 class RusheeImportCommandTests(unittest.TestCase):

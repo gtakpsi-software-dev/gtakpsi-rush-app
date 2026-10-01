@@ -62,7 +62,7 @@ ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 `MONGO_URL` because their original database targets can differ.
 
 `scripts/maintenance/add_pis_question_order.py` is the command for replacing
-PIS questions. Its implementation lives in `scripts/maintenance/maintenance_commands/`;
+PIS questions. Its implementation lives in `scripts/maintenance/commands/`;
 the command still reads the root `.env` and
 `data/season_seed/pis_questions.json`, then performs the same delete, insert,
 and verification sequence.
@@ -73,10 +73,10 @@ list; the delete, reset, and report sequence lives in the same
 package.
 `scripts/maintenance/data_pull.py` keeps its `rushees.xlsx`
 output; the export columns and row mapping live in
-`scripts/maintenance/maintenance_commands/rushee_export.py`.
+`scripts/maintenance/commands/rushee_export.py`.
 `scripts/maintenance/set_admin_claim.py` keeps its CLI flags and Firebase
 initialization; its role-claim lookup, update, and reporting live in
-`scripts/maintenance/maintenance_commands/firebase_claims.py`.
+`scripts/maintenance/commands/firebase_claims.py`.
 Spreadsheet exports are generated in the current working directory when their
 commands run. Historical exports are not tracked; keep any needed copies locally.
 

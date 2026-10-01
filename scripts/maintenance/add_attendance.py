@@ -14,7 +14,7 @@ import sys
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.attendance import apply_attendance
+from commands.attendance import apply_attendance
 
 
 def add_attendance(gtid: str, night_name: str, rushee_collection=None, rush_nights_collection=None):

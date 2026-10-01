@@ -6,7 +6,7 @@ Script to see how many rushees attended Closed Night.
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.closed_night_report import print_closed_night_report
+from commands.closed_night_report import print_closed_night_report
 
 
 def check_closed_night(rushee_collection=None):

@@ -12,7 +12,7 @@ import sys
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.attendance_night1 import get_night_one
+from commands.attendance_night1 import get_night_one
 
 DB_NAME = "rush-app"
 RUSHEE_COLLECTION = "rushees"

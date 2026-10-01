@@ -11,7 +11,7 @@ from pymongo import MongoClient
 # Keep the inspection helper import available to callers of this command module.
 from lib.comment_inspection import inspect_rushee_comments
 from lib.mongo_config import resolve_mongo_uri
-from maintenance_commands.comment_report import print_comment_report
+from commands.comment_report import print_comment_report
 
 
 def connect_to_database():

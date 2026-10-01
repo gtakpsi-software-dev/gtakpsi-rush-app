@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from lib.mongo_config import resolve_mongo_uri
 from tqdm import tqdm
 
-from maintenance_commands.rating_repair import average_ratings
+from commands.rating_repair import average_ratings
 
 
 def main():

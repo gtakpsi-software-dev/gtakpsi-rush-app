@@ -10,7 +10,7 @@ from firebase_admin import credentials, storage
 from pymongo import MongoClient
 
 from lib.headshot_mapping import FILENAME_TO_GTID
-from maintenance_commands.headshot_upload import process_headshot
+from commands.headshot_upload import process_headshot
 
 
 def main():

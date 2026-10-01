@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from lib.extended_json import convert_dates
-from maintenance_commands.rushee_import import replace_rushees
+from commands.rushee_import import replace_rushees
 
 
 def main():

@@ -9,7 +9,7 @@ import os
 import sys
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from maintenance_commands.season_rushees import prepare_rushees_for_rush
+from commands.season_rushees import prepare_rushees_for_rush
 
 # GTIDs of rushees to keep
 KEEP_GTIDS = {
