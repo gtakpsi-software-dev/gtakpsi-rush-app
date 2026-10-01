@@ -5,7 +5,7 @@ use redis::{AsyncCommands, Value as RedisValue};
 use serde_json::{json, Value};
 use std::{env, net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{net::TcpStream, sync::mpsc};
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 mod websocket;
 
@@ -85,13 +85,17 @@ async fn wait_for_subscribers(conn: &mut redis::aio::Connection) {
     .expect("voting subscribers did not connect");
 }
 
-async fn receive(socket: &mut TestSocket) -> Value {
+async fn receive_frame(socket: &mut TestSocket) -> Message {
     let message = tokio::time::timeout(Duration::from_secs(5), socket.next())
         .await
         .expect("socket event timed out")
         .unwrap()
         .unwrap();
-    serde_json::from_str(message.to_text().unwrap()).unwrap()
+    message
+}
+
+async fn receive(socket: &mut TestSocket) -> Value {
+    serde_json::from_str(receive_frame(socket).await.to_text().unwrap()).unwrap()
 }
 
 async fn connect(url: &str) -> TestSocket {

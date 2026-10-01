@@ -54,20 +54,20 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     assert!(server.voters.contains_key(&18));
 
     for socket in [&mut admin, &mut voter] {
+        socket
+            .send(Message::Text("not-json".to_owned()))
+            .await
+            .unwrap();
+        socket
+            .send(Message::Binary(vec![0, 159, 255]))
+            .await
+            .unwrap();
         let payload = vec![1, 2, 3];
         socket.send(Message::Ping(payload.clone())).await.unwrap();
         // Preserve the two Pong frames currently emitted by each session.
-        let response = tokio::time::timeout(Duration::from_secs(5), socket.next())
-            .await
-            .expect("pong timed out")
-            .unwrap()
-            .unwrap();
+        let response = receive_frame(socket).await;
         assert_eq!(response, Message::Pong(payload.clone()));
-        let second = tokio::time::timeout(Duration::from_secs(5), socket.next())
-            .await
-            .expect("second pong timed out")
-            .unwrap()
-            .unwrap();
+        let second = receive_frame(socket).await;
         assert_eq!(second, Message::Pong(payload));
     }
 

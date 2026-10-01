@@ -1614,6 +1614,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     React recreates the callback. All 423 client tests and typecheck pass;
     controlled CSS is byte-identical. The full client lint baseline remains
     133 errors and 26 warnings.
+279. Extended the guarded voting WebSocket integration case: malformed text
+    and binary frames must be ignored for both admin and voter sockets, and
+    their subsequent Pong and Redis updates still arrive. A shared bounded
+    frame reader removes duplicate test waits. All four voting tests pass
+    against a disposable Redis instance; changed files pass rustfmt. A
+    separate Tokio integration test would need fresh shared Redis connection
+    state between test runtimes, so this coverage stays in the existing case.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
