@@ -1,5 +1,6 @@
 const { joinedRoom } = require('./joinedRoom');
 const { parseTextUpdate } = require('./parseTextUpdate');
+const { applyVersionedTextUpdate } = require('../operations/versionedText');
 
 function registerUpdateHandlers(socket, rooms, userSockets) {
     socket.on('text-update', (payload) => {
@@ -9,30 +10,23 @@ function registerUpdateHandlers(socket, rooms, userSockets) {
 
         const update = parseTextUpdate(payload);
         if (!update) return;
-        const { field, value, baseVersion, clientUpdateId } = update;
+        const { field, value, clientUpdateId } = update;
+        const result = applyVersionedTextUpdate(room, update);
 
-        const currentVersion = room.versions.get(field) || 0;
-
-        // Reject stale writes so concurrent editors cannot overwrite a newer version.
-        if (baseVersion !== currentVersion) {
+        if (!result.accepted) {
             socket.emit('text-reject', {
                 field,
-                serverValue: room.document.get(field) || '',
-                serverVersion: currentVersion,
+                serverValue: result.serverValue,
+                serverVersion: result.serverVersion,
                 clientUpdateId,
                 timestamp: Date.now(),
             });
             return;
         }
 
-        room.document.set(field, value);
-        const newVersion = currentVersion + 1;
-        room.versions.set(field, newVersion);
-        room.lastActivity = new Date().toISOString();
-
         socket.emit('text-ack', {
             field,
-            version: newVersion,
+            version: result.version,
             clientUpdateId,
             timestamp: Date.now(),
         });
@@ -40,7 +34,7 @@ function registerUpdateHandlers(socket, rooms, userSockets) {
         socket.to(roomId).emit('text-update', {
             field,
             value,
-            version: newVersion,
+            version: result.version,
             userId: payload.userId,
             userName: payload.userName,
             timestamp: Date.now(),

@@ -2605,6 +2605,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     from 165 to 107 lines. Existing empty, selected, and submitting markup
     hashes and input/submit interaction checks pass. All 566 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash.
+447. Moved full-text version checking and room document mutation from the PIS
+    Socket.IO handler into `src/operations/versionedText.js`. Three direct
+    tests pin accepted, stale, and version-zero state transitions; the live
+    acknowledgement, rejection, and broadcast contracts still pass. All 28
+    PIS collaboration WebSocket tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2664,7 +2669,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 566 client tests, 70 server unit tests, 25 collaboration
+Current verified totals: 566 client tests, 70 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 71 server tests from the latest integration-feature run, plus 64
 maintenance-script tests. The last client build differs from baseline CSS only
