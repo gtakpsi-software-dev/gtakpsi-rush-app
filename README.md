@@ -115,6 +115,10 @@ pip install pymongo python-dotenv tqdm firebase-admin
 python setup.py
 ```
 
+The reset runs only when this command is invoked directly. Importing `setup.py`
+does not connect to services or delete data. Its offline regression tests use
+fake MongoDB, Firebase, and HTTP clients.
+
 This will:
 - Clear all rushees from MongoDB
 - Clear all rush nights and PIS timeslots

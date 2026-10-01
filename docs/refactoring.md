@@ -863,6 +863,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     same. Tests cover configured and missing values, including voting's lack of
     a fallback. All 257 client tests and the build pass; generated CSS is
     unchanged. Full lint now reports 314 errors and 19 warnings.
+145. Moved root `setup.py` season-reset execution into `main()`, so importing it
+    no longer deletes collections or contacts Firebase and HTTP services. Offline
+    fakes verify that direct execution retains the date gate, reset sequence,
+    image cleanup, seed file order, API endpoints, payloads, and auth headers.
+    The direct command produces the same 23 fake-service events and output as
+    the prior committed script. All 44 maintenance tests and Python compilation
+    pass; no live reset ran. Root Python bytecode caches are now ignored.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -913,7 +920,7 @@ require PyMongo or a database connection.
 Current verified totals: 257 client tests, 40 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 41 server tests with the integration feature (including its
-isolated database contract), plus 41 maintenance-script tests. The last
+isolated database contract), plus 44 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated
