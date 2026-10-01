@@ -822,6 +822,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Navbar JSX is unchanged and the production CSS hash is identical. All 253
     client tests and the build pass. The parent retains two pre-existing
     `stripped` prop-validation lint findings.
+139. Comment rating averages: moved the shared 1–5 filtering and ordered mean
+    calculation out of create/delete handlers. Creation still writes zero when
+    no value qualifies; deletion still removes an empty category. Two new unit
+    tests cover duplicate categories, legacy/invalid values, and a new rating.
+    All 39 server unit tests pass, and all 40 tests with the integration feature
+    pass against a disposable MongoDB container, including comment creation and
+    deletion. No production database was contacted.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -867,9 +874,10 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 253 client tests, 37 server unit tests, 15 collaboration tests, 9 sorting
-WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 41 maintenance-script tests. The last
+Current verified totals: 253 client tests, 39 server unit tests, 15 collaboration
+tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
+feature, and 40 server tests with the integration feature (including its
+isolated database contract), plus 41 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated

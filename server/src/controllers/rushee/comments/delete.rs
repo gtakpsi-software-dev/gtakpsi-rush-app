@@ -1,4 +1,4 @@
-use super::is_modern_rating_value;
+use super::average_rating_value;
 use crate::controllers::db;
 use crate::middlewares::time_helpers::same_day;
 use crate::models::rushee::Comment;
@@ -86,22 +86,9 @@ pub async fn delete_comment(
 
             // Recalculate each rating category
             for category in rating_categories {
-                let mut values = Vec::new();
+                let new_value = average_rating_value(&remaining_comments, &category, None);
 
-                // Collect all remaining ratings for this category
-                for comment in &remaining_comments {
-                    if let Some(existing_rating) =
-                        comment.ratings.iter().find(|r| r.name == category)
-                    {
-                        if is_modern_rating_value(existing_rating.value) {
-                            values.push(existing_rating.value);
-                        }
-                    }
-                }
-
-                if !values.is_empty() {
-                    // Calculate new average and update the rating
-                    let new_value = values.iter().sum::<f32>() / values.len() as f32;
+                if let Some(new_value) = new_value {
 
                     let rating_filter = doc! {"gtid": id.clone(), "ratings.name": &category};
                     let rating_update = doc! {

@@ -1,4 +1,4 @@
-use super::is_modern_rating_value;
+use super::average_rating_value;
 use crate::controllers::db;
 use crate::middlewares::{attendance, valid::check_valid_comment};
 use crate::models::{
@@ -109,31 +109,12 @@ pub async fn post_comment(
 
                             // update ratings
                             for rating in payload.ratings.iter() {
-                                // Collect all ratings for this category from all comments
-                                let mut values = Vec::new();
-
-                                // Existing comments
-                                for comment in &rushee.comments {
-                                    if let Some(existing_rating) =
-                                        comment.ratings.iter().find(|r| r.name == rating.name)
-                                    {
-                                        if is_modern_rating_value(existing_rating.value) {
-                                            values.push(existing_rating.value);
-                                        }
-                                    }
-                                }
-
-                                // Add the new rating (from the current payload)
-                                if is_modern_rating_value(rating.value) {
-                                    values.push(rating.value);
-                                }
-
-                                // Calculate the average (out of 5)
-                                let new_value = if !values.is_empty() {
-                                    values.iter().sum::<f32>() / values.len() as f32
-                                } else {
-                                    0.0
-                                };
+                                let new_value = average_rating_value(
+                                    &rushee.comments,
+                                    &rating.name,
+                                    Some(rating.value),
+                                )
+                                .unwrap_or(0.0);
 
                                 let search_rating = rushee
                                     .ratings
