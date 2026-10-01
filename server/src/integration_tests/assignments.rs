@@ -1,0 +1,80 @@
+use bson::DateTime;
+use serde_json::json;
+
+use super::fixtures::{register, reset, stored_rushee, SLOT};
+use crate::{
+    controllers::{admin, db},
+    models::pis::BrotherPISAvailability,
+};
+
+async fn add_availability(first: &str, last: &str) {
+    db::get_brother_pis_availability_client()
+        .await
+        .insert_one(BrotherPISAvailability {
+            brother_uid: format!("{first}-{last}"),
+            brother_email: "brother@example.invalid".to_string(),
+            brother_first_name: first.to_string(),
+            brother_last_name: last.to_string(),
+            available_timeslots: vec![DateTime::parse_rfc3339_str(SLOT).unwrap()],
+            submitted_at: DateTime::from_millis(0),
+        })
+        .await
+        .unwrap();
+}
+
+pub async fn check_contracts() {
+    reset().await;
+    register().await;
+
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "error",
+            "message": "No brother availabilities found. Have brothers fill out the form first."
+        })
+    );
+
+    add_availability("Ada", "Lovelace").await;
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 1 PIS slots. 1 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let partial = stored_rushee().await.pis_signup;
+    assert_eq!(partial.first_brother_first_name, "Ada");
+    assert_eq!(partial.first_brother_last_name, "Lovelace");
+    assert_eq!(partial.second_brother_first_name, "none");
+
+    add_availability("Grace", "Hopper").await;
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 1 PIS slots. 0 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let complete = stored_rushee().await.pis_signup;
+    assert_eq!(complete.first_brother_first_name, "Ada");
+    assert_eq!(complete.second_brother_first_name, "Grace");
+    assert_eq!(complete.second_brother_last_name, "Hopper");
+
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 0 PIS slots. 0 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    assert_eq!(
+        admin::clear_pis_assignments().await.unwrap().0,
+        json!({"status": "success", "message": "Cleared assignments from 1 rushees"})
+    );
+    let cleared = stored_rushee().await.pis_signup;
+    assert_eq!(cleared.first_brother_first_name, "none");
+    assert_eq!(cleared.first_brother_last_name, "none");
+    assert_eq!(cleared.second_brother_first_name, "none");
+    assert_eq!(cleared.second_brother_last_name, "none");
+    println!("PIS auto-assignment and clearing contracts passed");
+}

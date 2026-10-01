@@ -998,6 +998,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     form to 192 lines. The option order, implicit values, full rendered markup
     hash, and form callback remain unchanged. All 292 client tests and the build
     pass; lint on the new data module and updated tests passes.
+170. Added an isolated database contract for PIS auto-assignment: missing
+    availability, partial assignment, completing that slot on a second run,
+    skipping a filled slot, and clearing both names. The fixture reset now
+    clears availability submissions between scenarios. All 42 server tests with
+    the integration feature pass in the disposable MongoDB harness.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

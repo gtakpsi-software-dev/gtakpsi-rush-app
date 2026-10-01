@@ -16,7 +16,13 @@ pub fn path() -> Path<String> {
 
 pub async fn reset() {
     let client = db::get_mongo_client().await;
-    for name in ["rushees", "pis-timeslots", "rush-nights", "pis-questions"] {
+    for name in [
+        "rushees",
+        "pis-timeslots",
+        "rush-nights",
+        "pis-questions",
+        "brother-pis-availability",
+    ] {
         client
             .database("rush-app")
             .collection::<bson::Document>(name)
