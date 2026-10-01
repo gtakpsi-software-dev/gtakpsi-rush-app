@@ -1,12 +1,10 @@
+const { joinedRoom } = require('./joinedRoom');
+
 function registerUpdateHandlers(socket, rooms, userSockets) {
     socket.on('text-update', (payload) => {
-        /* payload = { field: string, value: string, userId: string, userName: string, baseVersion: number, clientUpdateId: string } */
-        const userData = userSockets.get(socket.id);
-        if (!userData) return;
-
-        const { roomId } = userData;
-        const room = rooms.get(roomId);
-        if (!room) return;
+        const joined = joinedRoom(socket, rooms, userSockets);
+        if (!joined) return;
+        const { roomId, room } = joined;
 
         const field = payload?.field;
         const value = typeof payload?.value === 'string' ? payload.value : '';
@@ -14,7 +12,7 @@ function registerUpdateHandlers(socket, rooms, userSockets) {
         const clientUpdateId = typeof payload?.clientUpdateId === 'string' ? payload.clientUpdateId : undefined;
 
         if (!field || baseVersion === undefined || !clientUpdateId) {
-            return; // ignore malformed payloads
+            return;
         }
 
         const currentVersion = room.versions.get(field) || 0;

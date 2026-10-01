@@ -1,12 +1,11 @@
+const { joinedRoom } = require('./joinedRoom');
+
 function registerPresenceHandlers(socket, rooms, userSockets) {
     for (const eventName of ['cursor-position', 'typing-indicator']) {
         socket.on(eventName, (data) => {
-            const userData = userSockets.get(socket.id);
-            if (!userData) return;
-
-            const { roomId, userInfo } = userData;
-            const room = rooms.get(roomId);
-            if (!room) return;
+            const joined = joinedRoom(socket, rooms, userSockets);
+            if (!joined) return;
+            const { roomId, userInfo, room } = joined;
 
             room.lastActivity = new Date().toISOString();
 

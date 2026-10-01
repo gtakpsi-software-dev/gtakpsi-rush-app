@@ -1438,6 +1438,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     same. The isolated-database API suite passed all 47 tests both before and
     after the move, including failed-claim rollback and successful rescheduling.
     All touched Rust files pass isolated rustfmt checks.
+250. Shared the Socket.IO joined-room guard across text updates, legacy text
+    operations, presence, and explicit document-state requests. Missing joins
+    and deleted rooms still stop each handler before emitting or mutating room
+    state; disconnect keeps its separate cleanup path. A new test pins these
+    guards, and all 19 Socket.IO tests pass against the real loopback server.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1490,7 +1495,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 404 client tests, 46 server unit tests, 18 collaboration
+Current verified totals: 404 client tests, 46 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

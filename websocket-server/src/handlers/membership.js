@@ -1,4 +1,5 @@
 const { snapshotDocument } = require('../rooms');
+const { joinedRoom } = require('./joinedRoom');
 
 function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
     socket.on('join-room', ({ roomId, userId, userName }) => {
@@ -33,12 +34,9 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
     });
 
     socket.on('request-document-state', () => {
-        const userData = userSockets.get(socket.id);
-        if (!userData) return;
-
-        const { roomId } = userData;
-        const room = rooms.get(roomId);
-        if (!room) return;
+        const joined = joinedRoom(socket, rooms, userSockets);
+        if (!joined) return;
+        const { room } = joined;
 
         socket.emit('document-state', snapshotDocument(room));
     });
