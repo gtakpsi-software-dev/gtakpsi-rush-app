@@ -64,6 +64,8 @@ ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 PIS questions. Its implementation lives in `scripts-migrations/maintenance_commands/`;
 the command still reads the root `.env` and `pis_questions.json` and performs
 the same delete, insert, and verification sequence.
+`scripts-migrations/delete_test_data.py` also retains its path, dry-run default,
+and `--apply` gate; its preview and deletion sequence lives in that same package.
 
 ## Tests
 

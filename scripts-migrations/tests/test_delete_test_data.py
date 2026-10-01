@@ -64,7 +64,8 @@ def run_cleanup(apply, execute=True):
     output = StringIO()
     with patch.dict(sys.modules, {"pymongo": pymongo}):
         with patch.dict(os.environ, {"MONGO_URI": "mongodb://offline-test"}):
-            with patch.object(sys, "argv", args):
+            with patch.object(sys, "argv", args), \
+                 patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
                 with redirect_stdout(output):
                     try:
                         namespace = runpy.run_path(str(SCRIPT), run_name="__main__" if execute else "<run_path>")

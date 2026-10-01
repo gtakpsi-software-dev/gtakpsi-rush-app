@@ -1662,6 +1662,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unchanged. A before/after offline comparison matches all 12 database/file
     events and all 633 output characters. The focused tests and full 50-test
     maintenance suite pass without contacting MongoDB.
+287. Moved test-data cleanup's preview and deletion sequence into the same
+    maintenance command package. The original entrypoint still owns URI
+    selection and the `--apply` flag, with dry run as its default. Fake-client
+    comparisons match the original dry-run 6 events, apply 10 events, output,
+    and exits. The focused tests and full 50-test maintenance suite pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
