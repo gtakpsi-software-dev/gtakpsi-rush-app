@@ -1,4 +1,5 @@
 import { formatPhoneInput } from "../../features/registration/formatPhoneInput.js";
+import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "../../features/registration/basicInfoOptions.js";
 
 export default function BasicInfo(props) {
 
@@ -114,39 +115,9 @@ export default function BasicInfo(props) {
                                 className="input-apple"
                                 id="grid-major"
                             >
-                                <option>Aerospace Engineering</option>
-                                <option>Applied Languages and Intercultural Studies</option>
-                                <option>Architecture</option>
-                                <option>Biochemistry</option>
-                                <option>Biology</option>
-                                <option>Biomedical Engineering</option>
-                                <option>Business Administration</option>
-                                <option>Chemical and Biomolecular Engineering</option>
-                                <option>Chemistry</option>
-                                <option>Civil Engineering</option>
-                                <option>Computational Media</option>
-                                <option>Computer Engineering</option>
-                                <option>Computer Science</option>
-                                <option>Earth and Atmospheric Sciences</option>
-                                <option>Economics</option>
-                                <option>Economics and International Affairs</option>
-                                <option>Electrical Engineering</option>
-                                <option>Environmental Engineering</option>
-                                <option>Global Economics and Modern Languages</option>
-                                <option>History, Technology, and Society</option>
-                                <option>Industrial Design</option>
-                                <option>Industrial Engineering</option>
-                                <option>International Affairs</option>
-                                <option>International Affairs and Modern Languages</option>
-                                <option>Literature, Media, and Communication</option>
-                                <option>Materials Science and Engineering</option>
-                                <option>Mathematics</option>
-                                <option>Mechanical Engineering</option>
-                                <option>Nuclear and Radiological Engineering</option>
-                                <option>Neuroscience</option>
-                                <option>Physics</option>
-                                <option>Psychology</option>
-                                <option>Public Policy</option>
+                                {MAJOR_OPTIONS.map((major) => (
+                                    <option key={major}>{major}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -196,26 +167,9 @@ export default function BasicInfo(props) {
                             className="input-apple"
                             id="grid-exposure"
                         >
-                            <option>Friend or relative in GT AKPsi</option>
-                            <option>Friend or relative NOT in GT AKPsi</option>
-                            <option>Instagram Account</option>
-                            <option>Instagram Ad</option>
-                            <option>GT 1000/2000 Advertisement</option>
-                            <option>Email Newsletter</option>
-                            <option>Canvas Announcement</option>
-                            <option>TikTok</option>
-                            <option>LinkedIn</option>
-                            <option>Reddit</option>
-                            <option>Email</option>
-                            <option>Flyer Found on Campus</option>
-                            <option>Via Another Organization</option>
-                            <option>AKPsi Website/Online Search</option>
-                            <option>Virtual Information Session</option>
-                            <option>Resume Blitz</option>
-                            <option>Fall Org Fair</option>
-                            <option>Interest Night</option>
-                            <option>Scheller Org Fair</option>
-                            <option>Tabling Event</option>
+                            {EXPOSURE_OPTIONS.map((source) => (
+                                <option key={source}>{source}</option>
+                            ))}
                         </select>
                     </div>
 

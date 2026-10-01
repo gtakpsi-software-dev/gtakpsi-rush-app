@@ -993,6 +993,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     edge cases and event wiring; the original full-form markup hash remains
     unchanged. All 292 client tests and the build pass. Removing three unused
     React imports reduces the lint baseline to 298 errors and 19 warnings.
+169. Moved the 33 major choices and 20 exposure choices into
+    `features/registration/basicInfoOptions.js`, reducing the basic-information
+    form to 192 lines. The option order, implicit values, full rendered markup
+    hash, and form callback remain unchanged. All 292 client tests and the build
+    pass; lint on the new data module and updated tests passes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

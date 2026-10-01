@@ -4,6 +4,7 @@ import test from "node:test";
 
 import React from "react";
 import { formatPhoneInput } from "../src/features/registration/formatPhoneInput.js";
+import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 test("registration phone input keeps the existing partial and full formatting", () => {
@@ -28,6 +29,7 @@ test("the registration phone field still formats its target on change", async ()
     const componentPath = fileURLToPath(new URL("../src/components/RegisterComponents/BasicInfo.jsx", import.meta.url));
     const BasicInfo = await loadTsxComponent(componentPath, {
         "../../features/registration/formatPhoneInput.js": { formatPhoneInput },
+        "../../features/registration/basicInfoOptions.js": { MAJOR_OPTIONS, EXPOSURE_OPTIONS },
     });
     const tree = BasicInfo({});
 
