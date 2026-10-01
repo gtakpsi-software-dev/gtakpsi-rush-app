@@ -1,5 +1,6 @@
-export function handleBidComSortingMessage(msg, {
-    ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards, now = Date.now,
+export function handleSortingViewerMessage(msg, {
+    ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
+    showRusheeNames = false, now = Date.now,
 }) {
     switch (msg.type) {
         case "viewer_count":
@@ -11,8 +12,8 @@ export function handleBidComSortingMessage(msg, {
                 ...prev,
                 [msg.rushee_id]: {
                     rusheeId: msg.rushee_id,
-                    // INVARIANT: viewer ghosts never display names sent by the broadcaster.
-                    rusheeName: "Rushee",
+                    // INVARIANT: bid committee viewers must use the redacted label.
+                    rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
                     x: msg.x,
                     y: msg.y,
                     draggerName: msg.dragger_name,
@@ -63,7 +64,7 @@ export function handleBidComSortingMessage(msg, {
                     ...prev,
                     [msg.rushee_id]: {
                         rusheeId: msg.rushee_id,
-                        rusheeName: "Rushee",
+                        rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
                         x: msg.x,
                         y: msg.y,
                         draggerName: msg.dragger_name,

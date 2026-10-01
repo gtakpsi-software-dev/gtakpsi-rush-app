@@ -693,6 +693,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     right-click pan handlers while retaining the page's wheel listener and JSX.
     All 217 client tests pass, the build succeeds, and CSS has no new
     difference. `BrotherSorting.jsx` is now 393 lines.
+119. Sorting viewer messages: generalized the bid committee event module and
+    its test name for both viewer roles. Bid committee explicitly keeps name
+    redaction; a new test verifies brothers retain names on start and current
+    drag events. All 218 client tests pass, the build succeeds, and CSS has no
+    new difference. Changed JavaScript files pass lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -738,7 +743,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 217 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 218 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

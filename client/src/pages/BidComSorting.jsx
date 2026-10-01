@@ -12,7 +12,7 @@ import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicat
 import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
-import { handleBidComSortingMessage } from "../features/sorting/handleBidComSortingMessage";
+import { handleSortingViewerMessage } from "../features/sorting/handleSortingViewerMessage";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
@@ -122,8 +122,9 @@ export default function BidComSorting() {
             ws.onmessage = (event) => {
                 try {
                     const msg = JSON.parse(event.data);
-                    handleBidComSortingMessage(msg, {
+                    handleSortingViewerMessage(msg, {
                         ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
+                        showRusheeNames: false,
                     });
                 } catch (e) {
                     console.error("Failed to parse WS message", e);
