@@ -1,27 +1,35 @@
 import VoiceRecorder from './VoiceRecorder';
 
-const VoiceTranscriptionHandler = ({ 
-    onTranscription, 
-    questionKey, 
+type Props = {
+    onTranscription: (value: string) => void;
+    questionKey?: string;
+    currentValue?: string;
+    disabled?: boolean;
+};
+
+/**
+ * Voice Transcription Summary:
+ * - Types the existing callback contract and retains the legacy questionKey prop.
+ * - Keeps whitespace-aware appending and disabled presentation unchanged.
+ */
+const VoiceTranscriptionHandler = ({
+    onTranscription,
     currentValue = "",
-    disabled = false 
-}) => {
-    const handleTranscription = (transcription) => {
-        // Clean up the transcription text
+    disabled = false,
+}: Props) => {
+    const handleTranscription = (transcription: string) => {
         const cleanTranscription = transcription.trim();
         if (!cleanTranscription) return;
-        
-        // Determine how to append the transcription
+
         let newAnswer;
         if (currentValue.trim()) {
-            // Add a space before appending if the current text doesn't end with whitespace
+            // Append without a second space when the existing answer already ends in whitespace.
             const needsSpace = !/\s$/.test(currentValue);
             newAnswer = `${currentValue}${needsSpace ? ' ' : ''}${cleanTranscription}`;
         } else {
             newAnswer = cleanTranscription;
         }
-        
-        // Call the parent's transcription handler
+
         onTranscription(newAnswer);
     };
 
@@ -40,4 +48,4 @@ const VoiceTranscriptionHandler = ({
     );
 };
 
-export default VoiceTranscriptionHandler; 
+export default VoiceTranscriptionHandler;
