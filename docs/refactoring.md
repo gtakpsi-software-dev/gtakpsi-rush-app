@@ -977,6 +977,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     offline and locked states. Their current markup hashes are pinned before
     sharing cursor-selection logic; randomized cursor colors are normalized in
     the assertion. All 287 client tests pass on the original components.
+166. Shared cursor selection in
+    `features/collaboration/activeCursorsForField.js`. It preserves the active
+    cursor API precedence, legacy fallback filter, unlimited input overlays,
+    and three-cursor textarea cap. Two focused tests and all four baseline
+    markup hashes pass; all 289 client tests and the build pass. The lint
+    baseline falls from 309 to 301 errors with 19 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1004,7 +1010,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 309 errors and 19 warnings, so it is tracked debt,
+the current baseline has 301 errors and 19 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -1024,7 +1030,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 287 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 289 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last

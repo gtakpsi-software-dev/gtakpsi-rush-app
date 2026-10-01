@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import getCaretCoordinates from 'textarea-caret';
+import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
 
 const getRandomColor = () => `hsl(${Math.floor(Math.random()*360)}, 90%, 50%)`;
 
@@ -82,11 +83,7 @@ const CollaborativeTextarea = ({
     const typingInThisField = collaboration.typingUsers.filter(user => user.field === questionKey);
     
     // Get cursor information for other users (with staleness filtering)
-    const otherUserCursors = collaboration.getActiveCursorsForField 
-        ? collaboration.getActiveCursorsForField(questionKey).slice(0, 3) // Limit to 3 cursors to avoid UI clutter
-        : collaboration.connectedUsers
-            .filter(user => user.field === questionKey && typeof user.cursor === 'number')
-            .slice(0, 3);
+    const otherUserCursors = activeCursorsForField(collaboration, questionKey, 3);
     
     // Lock the field if any other user's cursor is in this field (strong lock)
     const isFieldLocked = otherUserCursors.length > 0;
@@ -259,4 +256,4 @@ const CollaborativeTextarea = ({
     );
 };
 
-export default CollaborativeTextarea; 
+export default CollaborativeTextarea;

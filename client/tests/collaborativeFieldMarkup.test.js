@@ -6,6 +6,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
 
 const components = {
     input: fileURLToPath(new URL("../src/components/CollaborativeInput.jsx", import.meta.url)),
@@ -25,7 +26,9 @@ const scenarios = [
 
 for (const [kind, state, connected, activeCursors, extra, expectedHash] of scenarios) {
     test(`${kind} ${state} markup retains its original structure`, async () => {
-        const Component = await loadTsxComponent(components[kind]);
+        const Component = await loadTsxComponent(components[kind], {
+            "../features/collaboration/activeCursorsForField.js": { activeCursorsForField },
+        });
         const collaboration = {
             isConnected: connected,
             typingUsers: [],

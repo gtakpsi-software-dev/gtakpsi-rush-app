@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
 
 const CollaborativeInput = ({ 
     fieldKey, 
@@ -60,9 +61,7 @@ const CollaborativeInput = ({
     }, [fieldKey, collaboration]);
 
     // Get cursor information for other users in this field (with staleness filtering)
-    const otherUserCursors = collaboration.getActiveCursorsForField 
-        ? collaboration.getActiveCursorsForField(fieldKey)
-        : collaboration.connectedUsers.filter(user => user.field === fieldKey && typeof user.cursor === 'number');
+    const otherUserCursors = activeCursorsForField(collaboration, fieldKey);
     
     // Lock the field if any other user's cursor is in this field
     const isFieldLocked = otherUserCursors.length > 0;
@@ -197,4 +196,3 @@ const CollaborativeInput = ({
 };
 
 export default CollaborativeInput;
-
