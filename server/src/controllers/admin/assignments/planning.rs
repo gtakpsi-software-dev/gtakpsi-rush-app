@@ -112,9 +112,7 @@ fn reserve_available(
     total_assignments: &mut HashMap<String, i32>,
     exclude: Option<&str>,
 ) -> Option<BrotherName> {
-    let chosen = ranked_available(available, assigned, total_assignments, exclude)
-        .into_iter()
-        .next()?;
+    let chosen = least_assigned_available(available, assigned, total_assignments, exclude)?;
     let key = format!("{} {}", chosen.0, chosen.1);
 
     // INVARIANT: reserve before persistence. A later write failure must not let
@@ -124,32 +122,27 @@ fn reserve_available(
     Some(chosen)
 }
 
-fn ranked_available(
+fn least_assigned_available(
     available: &[BrotherName],
     assigned: &HashSet<String>,
     total_assignments: &HashMap<String, i32>,
     exclude: Option<&str>,
-) -> Vec<BrotherName> {
-    let mut eligible: Vec<_> = available
+) -> Option<BrotherName> {
+    // Choose one minimum directly instead of sorting every candidate. Ties
+    // retain submission order; callers do not need the remaining ranked list.
+    available
         .iter()
         .filter(|(first, last)| {
             let key = format!("{} {}", first.trim(), last.trim());
             !assigned.contains(&key) && exclude != Some(key.as_str())
         })
+        .min_by_key(|(first, last)| {
+            total_assignments
+                .get(&format!("{} {}", first, last))
+                .copied()
+                .unwrap_or_default()
+        })
         .cloned()
-        .collect();
-
-    // Stable ordering preserves availability submission order when assignment counts tie.
-    eligible.sort_by(|a, b| {
-        let a_count = total_assignments
-            .get(&format!("{} {}", a.0, a.1))
-            .unwrap_or(&0);
-        let b_count = total_assignments
-            .get(&format!("{} {}", b.0, b.1))
-            .unwrap_or(&0);
-        a_count.cmp(b_count)
-    });
-    eligible
 }
 
 #[cfg(test)]

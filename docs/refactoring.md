@@ -2535,6 +2535,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     close behavior; a page test pins the Axios endpoint and callback wiring.
     All 558 client tests, typecheck, scoped lint, and build pass; CSS retains
     its prior hash.
+435. Simplified PIS assignment selection in
+    `controllers/admin/assignments/planning.rs`: choose the least-assigned
+    eligible brother directly instead of allocating and sorting a full ranked
+    list for each reservation. A new test pins availability-order tie-breaking
+    and load balancing across successive plans. The full 68-test server suite
+    and changed-file Rust formatting check pass. Repository-wide formatting
+    still reports unrelated existing differences.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2594,11 +2601,12 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 558 client tests, 67 server unit tests, 25 collaboration
+Current verified totals: 558 client tests, 68 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 68 server tests with the integration feature (including its
-isolated database contract), plus 62 maintenance-script tests. The last
-client build differs from baseline CSS only by the unused `hover:bg-blue-600`
+feature, and 68 server tests from the last integration-feature run (before
+the latest planner test, including its isolated database contract), plus 62
+maintenance-script tests. The last client build differs from baseline CSS only
+by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
 public-entry comparison does not establish full application parity.

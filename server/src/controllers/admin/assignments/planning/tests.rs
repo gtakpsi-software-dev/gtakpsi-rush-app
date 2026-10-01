@@ -122,3 +122,29 @@ fn second_choice_excludes_trimmed_first_even_when_availability_is_not_normalized
     assert_eq!(plan.second, None);
     assert!(!plan.still_missing_first && plan.still_missing_second);
 }
+
+#[test]
+fn least_assigned_choice_keeps_availability_order_for_ties() {
+    let mut planner = AssignmentPlanner::default();
+    planner.register_existing(99, &signup(("Ada", "Lovelace"), ("none", "none")));
+    let available = vec![
+        ("Ada".into(), "Lovelace".into()),
+        ("Grace".into(), "Hopper".into()),
+        ("Katherine".into(), "Johnson".into()),
+    ];
+
+    let first = planner.plan(
+        1,
+        &signup(("none", "none"), ("Ada", "Lovelace")),
+        &available,
+    );
+    assert_eq!(first.first, Some(("Grace".into(), "Hopper".into())));
+    assert_eq!(first.second, None);
+
+    let next = planner.plan(
+        2,
+        &signup(("none", "none"), ("Ada", "Lovelace")),
+        &available,
+    );
+    assert_eq!(next.first, Some(("Katherine".into(), "Johnson".into())));
+}
