@@ -22,14 +22,12 @@ import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminPageView from "../features/admin/overview/AdminPageView";
 import useAdminManagementInputs from "../features/admin/overview/useAdminManagementInputs";
 import { auth } from "../firebase";
+import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 export default function Admin() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
     const rusheeApiBase = import.meta.env.VITE_API_PREFIX + "/rushee";
-    const allowlist = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
-        .split(",")
-        .map((e) => e.trim().toLowerCase())
-        .filter((e) => e.length > 0);
+    const allowlist = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
     const [loading, setLoading] = useState(true);
 

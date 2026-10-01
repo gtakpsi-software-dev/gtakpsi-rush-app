@@ -15,12 +15,9 @@ import { createSortingDragHandlers } from "../features/sorting/createSortingDrag
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
+import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
-// Parse allowlist once at module level
-const ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter((e) => e.length > 0);
+const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
 export default function AdminSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";

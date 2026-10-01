@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 
 import { logout } from "../features/auth/account";
 import { verifyUser } from "../features/auth/verifyUser";
+import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 import { auth } from "../firebase";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
 import { loadNavbarAuth } from "../features/navigation/loadNavbarAuth";
 import NavbarMenu from "../features/navigation/NavbarMenu";
 
-const ADMIN_ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter((e) => e.length > 0);
+const ADMIN_ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
 /**
  * Navbar Summary:

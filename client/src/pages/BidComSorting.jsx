@@ -13,12 +13,9 @@ import { createSortingNotesHandlers } from "../features/sorting/createSortingNot
 import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
+import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
-// Parse allowlist once at module level (admins)
-const ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter((e) => e.length > 0);
+const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
 export default function BidComSorting() {
     // Uses bidcom endpoints which allow both admin and bidcom users

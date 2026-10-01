@@ -11,6 +11,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from '../src/features/sorting/board.js';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AdminSorting.jsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/sorting/AdminSortingBoardView.tsx', import.meta.url));
@@ -66,6 +67,7 @@ async function loadPage(state = {}, captured = new Map()) {
         '../firebase': { auth: {} },
         '../config/realtimeBaseUrls': { realtimeBaseUrls: { sorting: 'ws://localhost' } },
         '../features/admin/api': { adminGet: noop, adminPut: noop },
+        '../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
         '../features/sorting/board': { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
         '../features/sorting/AdminSortingBoardView': ViewWithCapture,
         '../features/sorting/EditableNotesPanel': stub('notes'),

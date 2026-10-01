@@ -10,6 +10,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/index.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/AdminVotingDashboardView.tsx', import.meta.url));
@@ -67,9 +68,10 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         '../NotFound': stub('not-found'),
         '../../firebase': { auth: {} },
         '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://localhost' } },
+        '../../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
     };
     const source = (await readFile(pagePath, 'utf8'))
-        .replace('(import.meta.env as any).VITE_ADMIN_ALLOWLIST', '"admin@example.edu"');
+        .replace('import.meta.env.VITE_ADMIN_ALLOWLIST', '"admin@example.edu"');
     const { code } = await transformWithEsbuild(source, pagePath, {
         loader: 'tsx', format: 'cjs', jsx: 'automatic',
     });

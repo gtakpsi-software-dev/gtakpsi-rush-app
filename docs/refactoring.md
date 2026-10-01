@@ -2148,6 +2148,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     script's stale interaction-helper path and default-night description.
     Checked each referenced path and variable against the current source; this
     slice changes documentation only.
+375. Consolidated identical admin allowlist parsing from five client entry
+    points into `features/auth/parseAdminAllowlist`. Preserved each caller's
+    evaluation timing, normalized order, duplicate entries, and existing
+    authorization checks. Added two parser tests and kept the five page markup
+    fixtures passing. All 518 client tests, typecheck, and build pass; CSS is
+    unchanged. Full ESLint remains at the same eight Attendance errors and 25
+    warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2205,7 +2212,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 516 client tests, 61 server unit tests, 22 collaboration
+Current verified totals: 518 client tests, 61 server unit tests, 22 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 62 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

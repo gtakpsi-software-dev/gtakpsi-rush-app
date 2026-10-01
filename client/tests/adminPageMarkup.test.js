@@ -10,6 +10,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/Admin.jsx', import.meta.url));
 const editorHookPath = fileURLToPath(new URL('../src/features/admin/availability/useAdminAvailabilityEditor.js', import.meta.url));
@@ -76,6 +77,7 @@ async function loadAdmin(state = {}, captured = new Map()) {
         'react-toastify': { toast: {} },
         'react-toastify/dist/ReactToastify.css': {},
         '../features/auth/verifyUser': { verifyUser: noop },
+        '../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
         '../components/Navbar': stub('navbar'),
         '../features/admin/bootstrap/loadAdminData': { loadAdminData: noop },
         '../components/Loader': stub('loader'),

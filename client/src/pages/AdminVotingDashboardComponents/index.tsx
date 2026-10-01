@@ -6,12 +6,9 @@ import type { Brother, ConnectionStatus } from "./types";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
 import { useAdminVotingSocket } from "./useAdminVotingSocket";
+import { parseAdminAllowlist } from "../../features/auth/parseAdminAllowlist";
 
-// Parse allowlist once at module level
-const ALLOWLIST = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
-    .split(",")
-    .map((e: string) => e.trim().toLowerCase())
-    .filter((e: string) => e.length > 0);
+const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
 function Content() {
 

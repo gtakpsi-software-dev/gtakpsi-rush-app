@@ -11,6 +11,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
 import { createEmptyColumns, MAX_SCALE, MIN_SCALE, STATUSES } from "../src/features/sorting/board.js";
+import { parseAdminAllowlist } from "../src/features/auth/parseAdminAllowlist.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/viewerSortingPageMarkup.json", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/sorting/ViewerSortingBoardView.tsx", import.meta.url));
@@ -77,6 +78,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../config/realtimeBaseUrls": { realtimeBaseUrls: { sorting: "ws://localhost" } },
         axios: { get: noop },
         "../features/admin/api": { adminGet: noop, adminPut: noop },
+        "../features/auth/parseAdminAllowlist": { parseAdminAllowlist },
         "../features/sorting/board": { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
         "../features/sorting/ReadOnlyDetailsPanel": stub("read-only-details"),
         "../features/sorting/EditableNotesPanel": stub("editable-notes"),
