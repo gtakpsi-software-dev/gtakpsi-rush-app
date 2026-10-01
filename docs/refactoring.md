@@ -2447,6 +2447,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     instead of 124. Existing fixtures keep the markup hashes and profile
     navigation unchanged across all four states. All 537 client tests,
     typecheck, build, and the scoped lint gate pass; CSS retains its prior hash.
+423. Moved the rushee self-service page's profile, photo-modal, and PIS detail
+    markup into `features/rushee/self/RusheeSelfPageView.tsx`. The page keeps
+    its state, fetch effect, photo/profile actions, and local-time formatting;
+    it is now 128 lines instead of 169. Existing loading, ready, and modal
+    markup hashes remain unchanged, and a new test pins modal close and retake
+    state updates. All 538 client tests, typecheck, build, and scoped lint pass;
+    CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2506,7 +2513,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 537 client tests, 66 server unit tests, 25 collaboration
+Current verified totals: 538 client tests, 66 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 67 server tests with the integration feature (including its
 isolated database contract), plus 61 maintenance-script tests. The last

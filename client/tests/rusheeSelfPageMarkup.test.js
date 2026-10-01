@@ -12,6 +12,7 @@ import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/RusheePage.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeSelfPageView.tsx", import.meta.url));
 const summaryPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileSummary.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeSelfPageMarkup.json", import.meta.url));
 
@@ -35,6 +36,13 @@ async function loadPage(state = {}, captured = new Map()) {
         captured.set("summary", props);
         return React.createElement(Summary, props);
     };
+    const View = await loadTsxComponent(viewPath, {
+        "../../../components/Navbar": stub("navbar"),
+        "../../../components/Loader": stub("loader"),
+        "./RusheePhotoModal": stub("photo-modal"),
+        "./RusheeProfileForm": stub("profile-form"),
+        "./RusheeProfileSummary": SummaryWithCapture,
+    });
     let stateIndex = 0;
     const noop = () => {};
     const dependencies = {
@@ -49,10 +57,8 @@ async function loadPage(state = {}, captured = new Map()) {
             useRef: () => ({ current: null }),
         },
         "react-router-dom": { useNavigate: () => noop, useParams: () => ({ gtid: "123", link: "code" }) },
-        "../components/Loader": stub("loader"),
         "../components/Badge": stub("badge"),
         axios: { get: noop, post: noop },
-        "../components/Navbar": stub("navbar"),
         "react-toastify": { toast: {} },
         "react-toastify/dist/ReactToastify.css": {},
         "react-icons/fa": { FaRegEdit: stub("edit-icon") },
@@ -62,9 +68,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/registration/registrationVerification": { verifyInfo: noop },
         "../features/rushee/self/submitProfileChanges": { submitProfileChanges: noop },
         "../features/rushee/self/submitRusheePhoto": { submitRusheePhoto: noop },
-        "../features/rushee/self/RusheePhotoModal": stub("photo-modal"),
-        "../features/rushee/self/RusheeProfileForm": stub("profile-form"),
-        "../features/rushee/self/RusheeProfileSummary": SummaryWithCapture,
+        "../features/rushee/self/RusheeSelfPageView": View,
     };
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
@@ -116,4 +120,22 @@ test("self-profile summary receives the fetched profile and opens photo editing"
     assert.equal(captured.get("badge").text, "Rush Night");
     summary.onEditImage();
     assert.equal(captured.get("state-3"), true);
+});
+
+test("photo modal retains close and retake state updates", async () => {
+    const captured = new Map();
+    const Page = await loadPage({
+        0: rushee, 1: rushee, 2: false, 3: true, 4: true, 5: "preview",
+    }, captured);
+    renderToStaticMarkup(React.createElement(Page));
+
+    const modal = captured.get("photo-modal");
+    assert.equal(modal.showPreview, true);
+    assert.equal(modal.image, "preview");
+    modal.onRetake();
+    assert.equal(captured.get("state-4"), false);
+    modal.onClose();
+    assert.equal(captured.get("state-3"), false);
+    assert.equal(captured.get("state-4"), false);
+    assert.equal(captured.get("state-5"), null);
 });
