@@ -37,6 +37,7 @@ class RemainingMongoScriptTests(unittest.TestCase):
         with patch.dict(sys.modules, {"pymongo": pymongo, "pandas": pandas}):
             namespace = runpy.run_path(str(SCRIPTS / "pis_excel_sheet.py"))
         self.assertEqual(events, [])
+        self.assertEqual(namespace["format_datetime"]("already formatted"), "already formatted")
 
         collection = MagicMock()
         collection.aggregate.return_value = [
@@ -61,6 +62,23 @@ class RemainingMongoScriptTests(unittest.TestCase):
             "Second Brother Last Name": "",
         }])
         self.assertEqual(events[1], ("excel", "PIS_Signups.xlsx", False))
+
+    def test_pis_export_rows_keep_order_date_types_and_blank_defaults(self):
+        from maintenance_commands.pis_export import flatten_pis_signups
+
+        rows = flatten_pis_signups([
+            {"pis_signup": {"rushee_gtid": "1", "time": datetime(2026, 10, 1, 9, 5)}},
+            {"pis_signup": None},
+            {},
+            {"pis_signup": {"rushee_gtid": "2", "time": "already formatted"}},
+        ])
+
+        self.assertEqual([row["Rushee GTID"] for row in rows], ["1", "2"])
+        self.assertEqual([row["PIS Time"] for row in rows], [
+            "2026-10-01 09:05:00", "already formatted",
+        ])
+        self.assertEqual(rows[0]["Second Brother Last Name"], "")
+        self.assertEqual(rows[1]["Rushee First Name"], "")
 
     def test_night_one_migration_keeps_lookup_update_and_count_output(self):
         events = []

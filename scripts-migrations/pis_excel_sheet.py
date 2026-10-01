@@ -1,15 +1,8 @@
-from datetime import datetime
-
 import pandas as pd
 from pymongo import MongoClient
 
 from lib.mongo_config import resolve_mongo_uri
-
-
-def format_datetime(dt):
-    if isinstance(dt, datetime):
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
-    return dt
+from maintenance_commands.pis_export import flatten_pis_signups, format_datetime
 
 
 def fetch_pis_signups(rushee_collection=None):
@@ -38,21 +31,7 @@ def fetch_pis_signups(rushee_collection=None):
 
 
 def create_excel(data):
-    flattened_data = []
-    for item in data:
-        if "pis_signup" in item and item["pis_signup"]:
-            flattened_data.append({
-                "Rushee First Name": item["pis_signup"].get("rushee_first_name", ""),
-                "Rushee Last Name": item["pis_signup"].get("rushee_last_name", ""),
-                "Rushee GTID": item["pis_signup"].get("rushee_gtid", ""),
-                "PIS Time": format_datetime(item["pis_signup"].get("time", "")),
-                "First Brother First Name": item["pis_signup"].get("first_brother_first_name", ""),
-                "First Brother Last Name": item["pis_signup"].get("first_brother_last_name", ""),
-                "Second Brother First Name": item["pis_signup"].get("second_brother_first_name", ""),
-                "Second Brother Last Name": item["pis_signup"].get("second_brother_last_name", ""),
-            })
-
-    df = pd.DataFrame(flattened_data)
+    df = pd.DataFrame(flatten_pis_signups(data))
 
     output_file = "PIS_Signups.xlsx"
     df.to_excel(output_file, index=False)
