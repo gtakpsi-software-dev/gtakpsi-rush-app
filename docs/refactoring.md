@@ -2180,6 +2180,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and context value. The existing provider and page-markup tests pass, as do
     all 520 client tests, typecheck, and build. CSS is unchanged; full ESLint
     drops to 22 warnings with the eight Attendance errors unchanged.
+381. Moved Firebase role wire types and pure claim parsing from the auth network
+    module into `auth/roles/claims.rs`. Shared one boolean-role predicate across
+    the three status methods without changing token fetches, HTTP requests, or
+    the existing empty-map fallback. Two new tests pin last-record selection,
+    malformed attributes, and boolean-only role grants. Targeted rustfmt,
+    all 63 server unit tests, and all 64 Docker-backed integration-feature tests
+    pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2237,9 +2244,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 520 client tests, 61 server unit tests, 23 collaboration
+Current verified totals: 520 client tests, 63 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 62 server tests with the integration feature (including its
+feature, and 64 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

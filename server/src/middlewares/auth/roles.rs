@@ -1,33 +1,9 @@
 use super::{AuthError, FirebaseAuth};
-use serde::Deserialize;
+use claims::{claims_from_lookup_response, role_enabled, LookupBody, LookupResponse, UpdateBody};
 use serde_json::Value;
 use std::collections::HashMap;
 
-// Firebase requires these camelCase JSON keys even though Rust uses snake_case fields.
-#[derive(serde::Serialize)]
-struct LookupBody<'a> {
-    #[serde(rename = "localId")]
-    local_id: Vec<&'a str>,
-}
-
-#[derive(Deserialize)]
-struct LookupResponse {
-    users: Option<Vec<UserRecord>>,
-}
-
-#[derive(Deserialize)]
-struct UserRecord {
-    #[serde(default, rename = "customAttributes")]
-    custom_attributes: Option<String>,
-}
-
-#[derive(serde::Serialize)]
-struct UpdateBody<'a> {
-    #[serde(rename = "localId")]
-    local_id: &'a str,
-    #[serde(rename = "customAttributes")]
-    custom_attributes: String,
-}
+mod claims;
 
 impl FirebaseAuth {
     async fn get_custom_claims(&self, uid: &str) -> Result<HashMap<String, Value>, AuthError> {
@@ -64,18 +40,7 @@ impl FirebaseAuth {
         }
 
         let data: LookupResponse = resp.json().await.map_err(|_| AuthError::Internal)?;
-        let attrs = data
-            .users
-            .and_then(|mut users| users.pop())
-            .and_then(|u| u.custom_attributes);
-
-        if let Some(json_str) = attrs {
-            if let Ok(map) = serde_json::from_str::<HashMap<String, Value>>(&json_str) {
-                return Ok(map);
-            }
-        }
-
-        Ok(HashMap::new())
+        Ok(claims_from_lookup_response(data))
     }
 
     async fn update_custom_claim(
@@ -137,65 +102,18 @@ impl FirebaseAuth {
 
     pub async fn get_admin_status(&self, uid: &str) -> Result<bool, AuthError> {
         let claims = self.get_custom_claims(uid).await?;
-        Ok(claims
-            .get("admin")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false))
+        Ok(role_enabled(&claims, "admin"))
     }
 
     pub async fn get_bidcom_status(&self, uid: &str) -> Result<bool, AuthError> {
         let claims = self.get_custom_claims(uid).await?;
-        Ok(claims
-            .get("bidcom")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false))
+        Ok(role_enabled(&claims, "bidcom"))
     }
 
     pub async fn get_user_roles(&self, uid: &str) -> Result<(bool, bool), AuthError> {
         let claims = self.get_custom_claims(uid).await?;
-        let is_admin = claims
-            .get("admin")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
-        let is_bidcom = claims
-            .get("bidcom")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
+        let is_admin = role_enabled(&claims, "admin");
+        let is_bidcom = role_enabled(&claims, "bidcom");
         Ok((is_admin, is_bidcom))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{LookupBody, LookupResponse, UpdateBody};
-    use serde_json::{json, to_value};
-
-    #[test]
-    fn firebase_role_wire_fields_keep_camel_case() {
-        let lookup = LookupBody {
-            local_id: vec!["brother-1"],
-        };
-        assert_eq!(
-            to_value(lookup).unwrap(),
-            json!({ "localId": ["brother-1"] })
-        );
-
-        let response: LookupResponse = serde_json::from_value(json!({
-            "users": [{ "customAttributes": "{\"admin\":true}" }]
-        }))
-        .unwrap();
-        assert_eq!(
-            response.users.unwrap().pop().unwrap().custom_attributes,
-            Some("{\"admin\":true}".to_string())
-        );
-
-        let update = UpdateBody {
-            local_id: "brother-1",
-            custom_attributes: "{\"admin\":true}".to_string(),
-        };
-        assert_eq!(
-            to_value(update).unwrap(),
-            json!({ "localId": "brother-1", "customAttributes": "{\"admin\":true}" })
-        );
     }
 }
