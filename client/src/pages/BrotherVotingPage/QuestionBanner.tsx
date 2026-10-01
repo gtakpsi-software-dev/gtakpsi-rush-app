@@ -12,12 +12,23 @@ interface Props {
     midtermMode?: boolean;
 }
 
+/**
+ * Question Banner Summary:
+ * - Registers the vote reset effect on every render to keep hook order stable.
+ * - Keeps the missing-user gate, vote flow, and both layouts unchanged.
+ */
 export default function QuestionBanner({ midtermMode = false }: Props) {
-    const { question, setQuestion } = useBrotherVotingContext();
+    const { question } = useBrotherVotingContext();
     const [hasVoted, setHasVoted] = useState(false);
-    const [submittedVote, setSubmittedVote] = useState<string | null>(null);
+    const [, setSubmittedVote] = useState<string | null>(null);
 
     const storedUser: string | null = localStorage.getItem('user')
+
+    // A missing stored user still renders NotFound, but must not skip a hook.
+    useEffect(() => {
+        setHasVoted(false);
+        setSubmittedVote(null);
+    }, [question]);
 
     if (!storedUser) {
         return <NotFound />
@@ -26,12 +37,6 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
     const user: Brother = JSON.parse(storedUser)
 
     const api = import.meta.env.VITE_API_PREFIX;
-
-    // Reset vote state when question changes
-    useEffect(() => {
-        setHasVoted(false);
-        setSubmittedVote(null);
-    }, [question]);
 
     const handleVote = async (vote: string) => {
 
