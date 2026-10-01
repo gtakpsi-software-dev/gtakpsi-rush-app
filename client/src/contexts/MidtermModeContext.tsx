@@ -1,12 +1,23 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import apiClient from '../js/apiClient';
 
-const MidtermModeContext = createContext({
+type MidtermModeValue = {
+    isMidtermMode: boolean;
+    refetchMidtermMode: () => void;
+};
+
+const MidtermModeContext = createContext<MidtermModeValue>({
     isMidtermMode: false,
     refetchMidtermMode: () => {},
 });
 
-export function MidtermModeProvider({ children }) {
+/**
+ * Midterm Mode Summary:
+ * - Types the provider contract while retaining its initial false value and refresh effect.
+ * - Failed status requests still reset the mode to false; no request behavior changes.
+ */
+export function MidtermModeProvider({ children }: { children: ReactNode }) {
     const [isMidtermMode, setIsMidtermMode] = useState(false);
 
     const refetchMidtermMode = useCallback(async () => {

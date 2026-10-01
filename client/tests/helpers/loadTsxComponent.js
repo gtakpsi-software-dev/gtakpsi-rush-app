@@ -4,7 +4,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-export async function loadTsxComponent(componentPath, dependencies = {}) {
+export async function loadTsxModule(componentPath, dependencies = {}) {
     const source = await readFile(componentPath, "utf8");
     const compiled = await transformWithEsbuild(source, componentPath, {
         loader: "tsx",
@@ -23,5 +23,10 @@ export async function loadTsxComponent(componentPath, dependencies = {}) {
         },
     }, { filename: componentPath });
 
-    return module.exports.default;
+    return module.exports;
+}
+
+export async function loadTsxComponent(componentPath, dependencies = {}) {
+    const component = await loadTsxModule(componentPath, dependencies);
+    return component.default;
 }
