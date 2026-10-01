@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -11,8 +11,7 @@ import ZoomModals from "../features/rushee/zoom/ZoomModals";
 import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
 import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
 import RusheePisDetails from "../features/rushee/zoom/RusheePisDetails";
-import ExistingCommentList from "../features/rushee/zoom/ExistingCommentList";
-import NewCommentForm from "../features/rushee/zoom/NewCommentForm";
+import RusheeCommentsView from "../features/rushee/zoom/RusheeCommentsView";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
@@ -51,8 +50,8 @@ export default function RusheeZoom() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something untoward happened");
-    const [errorDescription, setErrorDescription] = useState("Something really weird happened");
+    const [errorTitle] = useState("Uh Oh! Something untoward happened");
+    const [errorDescription] = useState("Something really weird happened");
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedCommentText, setEditedCommentText] = useState("");
 
@@ -232,67 +231,26 @@ export default function RusheeZoom() {
 
                                 <RusheePisDetails rushee={rushee} setSelectedPis={setSelectedPis} />
 
-                                {showAllComments && rushee.comments.length > 0 && (
-                                    <div className="card-apple p-6 mb-6">
-                                        <h2 className="text-apple-title1 font-light text-black mb-4">
-                                            Brothers Who Commented
-                                        </h2>
-                                        <div className="flex flex-wrap gap-2">
-                                            {rushee.comments.map((comment, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="bg-apple-gray-100 text-apple-gray-700 px-3 py-2 rounded-apple hover:bg-apple-gray-200 cursor-pointer transform transition-all duration-200 ease-in-out hover:scale-105 text-apple-footnote font-light"
-                                                >
-                                                    {comment.brother_name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="card-apple p-6 mb-6">
-                                    <h2 className="text-apple-title1 font-light text-black mb-4">
-                                        Comments
-                                    </h2>
-                                    <NewCommentForm
-                                        isAddingComment={isAddingComment}
-                                        handleAddComment={handleAddComment}
-                                        newComment={newComment}
-                                        setNewComment={setNewComment}
-                                        validateNewComment={validateNewComment}
-                                        commentWarnings={commentWarnings}
-                                        setCommentWarnings={setCommentWarnings}
-                                        ratingFields={ratingFields}
-                                        ratings={ratings}
-                                        ratingNotSeen={ratingNotSeen}
-                                        handleRatingChange={handleRatingChange}
-                                        handleRatingNotSeenChange={handleRatingNotSeenChange}
-                                        handleSubmitComment={handleSubmitComment}
-                                    />
-
-                                    <ExistingCommentList
-                                        visibleComments={visibleComments}
-                                        user={user}
-                                        editingCommentId={editingCommentId}
-                                        editedCommentText={editedCommentText}
-                                        setSelectedComment={setSelectedComment}
-                                        handleEditComment={handleEditComment}
-                                        handleDeleteComment={handleDeleteComment}
-                                        setEditedCommentText={setEditedCommentText}
-                                        validateEditComment={validateEditComment}
-                                        editCommentWarnings={editCommentWarnings}
-                                        setEditCommentWarnings={setEditCommentWarnings}
-                                        handleSubmitEdit={handleSubmitEdit}
-                                    />
-
-                                    {requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment && (
-                                        <div className="mt-6 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple text-center">
-                                            <p className="text-apple-body text-apple-gray-600 font-light">
-                                                Post your comment to save your ratings and notes. You won't see other brothers' comments.
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
+                                <RusheeCommentsView
+                                    rusheeComments={rushee.comments}
+                                    showAllComments={showAllComments}
+                                    newCommentFormProps={{
+                                        isAddingComment, handleAddComment, newComment,
+                                        setNewComment, validateNewComment, commentWarnings,
+                                        setCommentWarnings, ratingFields, ratings, ratingNotSeen,
+                                        handleRatingChange, handleRatingNotSeenChange,
+                                        handleSubmitComment,
+                                    }}
+                                    existingCommentListProps={{
+                                        visibleComments, user, editingCommentId, editedCommentText,
+                                        setSelectedComment, handleEditComment, handleDeleteComment,
+                                        setEditedCommentText, validateEditComment, editCommentWarnings,
+                                        setEditCommentWarnings, handleSubmitEdit,
+                                    }}
+                                    showVisibilityNotice={
+                                        requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment
+                                    }
+                                />
 
                             </div>
                         </div>
