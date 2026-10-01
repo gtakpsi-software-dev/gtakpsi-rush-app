@@ -1,11 +1,12 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import type { ChangeEvent, FocusEvent, MouseEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 import { activeCursorsForField } from './activeCursorsForField.js';
 import CollaborativeInputView from './CollaborativeInputView';
 import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
 import { clearLocalChangeTimers, scheduleLocalChangeTimers } from './scheduleLocalChangeTimers.js';
 import { syncPropValue } from './syncPropValue.js';
+import { useCollaborativeFieldPresence } from './useCollaborativeFieldPresence';
 import type { CollaborationEditorSession } from './CollaborationEditorSession';
 
 type CollaborativeInputProps = {
@@ -82,36 +83,10 @@ const CollaborativeInput = ({
         ? `${otherUserCursors[0].name || otherUserCursors[0].firstName || 'Another user'}` 
         : null;
 
-    const handleFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
-        // Prevent focus if another user is actively in this field
-        if (isFieldLocked) {
-            e.target.blur();
-            return;
-        }
-        collaboration.sendTypingIndicator(fieldKey, true);
-        const pos = typeof e?.target?.selectionStart === 'number' ? e.target.selectionStart : 0;
-        collaboration.sendCursorPosition(fieldKey, pos);
-    }, [collaboration, fieldKey, isFieldLocked]);
-
-    const handleBlur = useCallback(() => {
-        collaboration.sendTypingIndicator(fieldKey, false);
-        // Clear cursor position to release field lock for other users
-        if (collaboration.clearCursorPosition) {
-            collaboration.clearCursorPosition(fieldKey);
-        }
-        if (collaboration.isConnected) {
-            const valueToFlush = typeof inputRef.current?.value === 'string' ? inputRef.current.value : localValue;
-            collaboration.sendTextUpdate(fieldKey, valueToFlush);
-            lastSentValue.current = valueToFlush;
-        }
-    }, [collaboration, fieldKey, localValue]);
-
-    // Prevent mouse clicks from focusing when field is locked
-    const handleMouseDown = useCallback((e: MouseEvent<HTMLInputElement>) => {
-        if (isFieldLocked) {
-            e.preventDefault();
-        }
-    }, [isFieldLocked]);
+    const { handleFocus, handleBlur, handleMouseDown } = useCollaborativeFieldPresence({
+        fieldKey, collaboration, fieldRef: inputRef, lastSentValueRef: lastSentValue,
+        localValue, isFieldLocked,
+    });
 
     useEffect(() => {
         syncPropValue({

@@ -1,11 +1,12 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import type { ChangeEvent, CompositionEvent, FocusEvent, MouseEvent, SyntheticEvent } from 'react';
+import type { ChangeEvent, CompositionEvent, SyntheticEvent } from 'react';
 
 import { activeCursorsForField } from './activeCursorsForField.js';
 import CollaborativeTextareaView from './CollaborativeTextareaView';
 import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
 import { clearLocalChangeTimers, scheduleLocalChangeTimers } from './scheduleLocalChangeTimers.js';
 import { syncPropValue } from './syncPropValue.js';
+import { useCollaborativeFieldPresence } from './useCollaborativeFieldPresence';
 import type { CollaborationEditorSession } from './CollaborationEditorSession';
 
 type CollaborativeTextareaProps = {
@@ -90,39 +91,10 @@ const CollaborativeTextarea = ({
     // Lock the field if any other user's cursor is in this field (strong lock)
     const isFieldLocked = otherUserCursors.length > 0;
 
-    const handleFocus = useCallback((e: FocusEvent<HTMLTextAreaElement>) => {
-        // Prevent focus if another user is actively in this field
-        if (isFieldLocked) {
-            (e.target as HTMLTextAreaElement).blur();
-            return;
-        }
-        collaboration.sendTypingIndicator(questionKey, true);
-        const pos = typeof (e?.target as HTMLTextAreaElement)?.selectionStart === 'number'
-            ? (e.target as HTMLTextAreaElement).selectionStart
-            : 0;
-        collaboration.sendCursorPosition(questionKey, pos);
-    }, [collaboration, questionKey, isFieldLocked]);
-
-    const handleBlur = useCallback(() => {
-        // stop typing indicator and flush any pending local value
-        collaboration.sendTypingIndicator(questionKey, false);
-        // Clear cursor position to release field lock for other users
-        if (collaboration.clearCursorPosition) {
-            collaboration.clearCursorPosition(questionKey);
-        }
-        if (collaboration.isConnected) {
-            const valueToFlush = typeof textareaRef.current?.value === 'string' ? textareaRef.current.value : localValue;
-            collaboration.sendTextUpdate(questionKey, valueToFlush);
-            lastSentValue.current = valueToFlush;
-        }
-    }, [collaboration, questionKey, localValue]);
-
-    // Prevent mouse clicks from focusing when field is locked
-    const handleMouseDown = useCallback((e: MouseEvent<HTMLTextAreaElement>) => {
-        if (isFieldLocked) {
-            e.preventDefault();
-        }
-    }, [isFieldLocked]);
+    const { handleFocus, handleBlur, handleMouseDown } = useCollaborativeFieldPresence({
+        fieldKey: questionKey, collaboration, fieldRef: textareaRef,
+        lastSentValueRef: lastSentValue, localValue, isFieldLocked,
+    });
 
     useEffect(() => {
         syncPropValue({

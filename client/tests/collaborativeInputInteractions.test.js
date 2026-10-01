@@ -8,12 +8,19 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { transformWithEsbuild } from "vite";
 import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../src/features/collaboration/scheduleLocalChangeTimers.js";
+import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL(
     "../src/features/collaboration/CollaborativeInput.tsx", import.meta.url,
 ));
+const presencePath = fileURLToPath(new URL(
+    "../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url,
+));
 
 async function loadInput() {
+    const presence = await loadTsxModule(presencePath, {
+        react: { useCallback: (callback) => callback },
+    });
     const source = await readFile(componentPath, "utf8");
     const { code } = await transformWithEsbuild(source, componentPath, {
         loader: "tsx", format: "cjs", jsx: "automatic",
@@ -54,6 +61,7 @@ async function loadInput() {
             if (specifier === "./scheduleLocalChangeTimers.js") {
                 return { clearLocalChangeTimers, scheduleLocalChangeTimers };
             }
+            if (specifier === "./useCollaborativeFieldPresence") return presence;
             return requireFromComponent(specifier);
         },
     }, { filename: componentPath });

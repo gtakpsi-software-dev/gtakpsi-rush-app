@@ -55,6 +55,11 @@ for (const field of fields) {
             '../features/collaboration/syncPropValue.js': { syncPropValue },
             './syncPropValue.js': { syncPropValue },
             './scheduleLocalChangeTimers.js': { clearLocalChangeTimers, scheduleLocalChangeTimers },
+            './useCollaborativeFieldPresence': {
+                useCollaborativeFieldPresence: () => ({
+                    handleFocus: noOp, handleBlur: noOp, handleMouseDown: noOp,
+                }),
+            },
         });
         const remoteUpdates = [{ field: 'notes', value: 'Remote', version: 3 }];
         const collaboration = {

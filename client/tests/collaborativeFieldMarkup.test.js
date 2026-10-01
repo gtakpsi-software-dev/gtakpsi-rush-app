@@ -5,7 +5,7 @@ import test from "node:test";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent, loadTsxModule } from "./helpers/loadTsxComponent.js";
 import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
 import { reconcileRemoteFieldUpdate } from "../src/features/collaboration/reconcileRemoteFieldUpdate.js";
 import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
@@ -19,6 +19,7 @@ const views = {
     input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInputView.tsx", import.meta.url)),
     textarea: fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextareaView.tsx", import.meta.url)),
 };
+const presencePath = fileURLToPath(new URL("../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
 
 const cursors = [1, 2, 3, 4].map((index) => ({
     id: `user-${index}`, name: `Editor ${index}`, cursor: index,
@@ -34,6 +35,7 @@ const scenarios = [
 for (const [kind, state, connected, activeCursors, extra, expectedHash] of scenarios) {
     test(`${kind} ${state} markup retains its original structure`, async () => {
         const View = await loadTsxComponent(views[kind]);
+        const presence = await loadTsxModule(presencePath, { react: React });
         const Component = await loadTsxComponent(components[kind], {
             "../features/collaboration/activeCursorsForField.js": { activeCursorsForField },
             "./activeCursorsForField.js": { activeCursorsForField },
@@ -42,6 +44,7 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
             "../features/collaboration/syncPropValue.js": { syncPropValue },
             "./syncPropValue.js": { syncPropValue },
             "./scheduleLocalChangeTimers.js": { clearLocalChangeTimers, scheduleLocalChangeTimers },
+            "./useCollaborativeFieldPresence": presence,
             "../features/collaboration/CollaborativeInputView": View,
             "./CollaborativeInputView": View,
             "../features/collaboration/CollaborativeTextareaView": View,
