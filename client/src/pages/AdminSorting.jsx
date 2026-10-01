@@ -17,7 +17,7 @@ import { applySortingDrop } from "../features/sorting/applySortingDrop";
 import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
-import { createAdminSortingNotesHandlers } from "../features/sorting/createAdminSortingNotesHandlers";
+import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
@@ -204,7 +204,7 @@ export default function AdminSorting() {
         closeNotes,
         onNotesChange,
         toggleTag,
-    } = createAdminSortingNotesHandlers({
+    } = createSortingNotesHandlers({
         apiBase,
         selectedRushee,
         notes,

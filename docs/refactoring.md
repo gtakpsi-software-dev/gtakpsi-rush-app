@@ -670,6 +670,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and right-click pan handlers without changing the page's wheel listener
     lifecycle or rendered JSX. All 210 client tests pass, the build succeeds,
     and CSS has no new difference. `BidComSorting.jsx` is now 479 lines.
+114. Shared sorting notes naming: renamed the admin-specific notes handler
+    module and its test to reflect its endpoint-agnostic behavior. Admin
+    Sorting still uses the same implementation. All 210 client tests pass,
+    and the production JavaScript and CSS output hashes match the prior slice.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

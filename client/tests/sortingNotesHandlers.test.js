@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createAdminSortingNotesHandlers } from "../src/features/sorting/createAdminSortingNotesHandlers.js";
+import { createSortingNotesHandlers } from "../src/features/sorting/createSortingNotesHandlers.js";
 
 const rushee = { id: "r1", sortingTags: [] };
 
@@ -14,7 +14,7 @@ function harness({ selectedRushee = rushee, notes = "Existing", tags = ["night_1
     };
     const notesTimer = { current: null };
     const tagsTimer = { current: null };
-    const handlers = createAdminSortingNotesHandlers({
+    const handlers = createSortingNotesHandlers({
         apiBase: "/api/admin",
         selectedRushee,
         notes,

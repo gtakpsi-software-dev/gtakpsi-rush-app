@@ -1,6 +1,6 @@
 import { applySavedSortingTags } from "./applySavedSortingTags.js";
 
-export function createAdminSortingNotesHandlers({
+export function createSortingNotesHandlers({
     apiBase, selectedRushee, notes, tags, notesTimer, tagsTimer,
     getNotes, putNotes, setSelectedRushee, setNotes, setTags,
     setNotesStatus, setColumns, schedule = setTimeout, cancel = clearTimeout,
