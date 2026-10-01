@@ -17,8 +17,8 @@ const fields = [
     },
     {
         name: 'textarea',
-        path: fileURLToPath(new URL('../src/components/CollaborativeTextarea.jsx', import.meta.url)),
-        viewImport: '../features/collaboration/CollaborativeTextareaView',
+        path: fileURLToPath(new URL('../src/features/collaboration/CollaborativeTextarea.tsx', import.meta.url)),
+        viewImport: './CollaborativeTextareaView',
         fieldProp: 'questionKey',
         deferMs: 650,
         expectedChange: ['notes', 'Remote', { source: 'remote' }],

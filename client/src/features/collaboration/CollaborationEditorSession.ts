@@ -4,9 +4,10 @@ export type CollaborationEditorSession = {
     remoteUpdates: unknown[];
     typingUsers: Array<{ field?: string }>;
     getActiveCursorsForField?: (field: string) => Array<{
+        id: string;
         name?: string;
         firstName?: string;
-        cursor?: number;
+        cursor: number;
     }>;
     sendTextUpdate: (field: string, value: string) => void;
     sendCursorPosition: (field: string, position: number) => void;

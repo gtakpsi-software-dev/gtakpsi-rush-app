@@ -1,4 +1,4 @@
-import CollaborativeTextarea from "../../components/CollaborativeTextarea";
+import CollaborativeTextarea from "../collaboration/CollaborativeTextarea";
 
 type Question = { question: string; question_type: string };
 type Props = {

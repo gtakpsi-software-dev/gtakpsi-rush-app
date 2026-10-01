@@ -43,7 +43,7 @@ function collect(node, elements = []) {
 test("PIS question controls retain yes, no, text, and empty markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const PisQuestionResponses = await loadTsxComponent(componentPath, {
-        "../../components/CollaborativeTextarea": CollaborativeTextarea,
+        "../collaboration/CollaborativeTextarea": CollaborativeTextarea,
     });
     const scenarios = {
         yesText: props(),
@@ -58,7 +58,7 @@ test("PIS question controls retain yes, no, text, and empty markup", async () =>
 
 test("multiple-choice changes and collaborative text props retain original routes", async () => {
     const PisQuestionResponses = await loadTsxComponent(componentPath, {
-        "../../components/CollaborativeTextarea": CollaborativeTextarea,
+        "../collaboration/CollaborativeTextarea": CollaborativeTextarea,
     });
     const calls = [];
     const onAnswerChange = (...args) => calls.push(["text", ...args]);

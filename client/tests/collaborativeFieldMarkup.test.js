@@ -12,7 +12,7 @@ import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
 
 const components = {
     input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInput.tsx", import.meta.url)),
-    textarea: fileURLToPath(new URL("../src/components/CollaborativeTextarea.jsx", import.meta.url)),
+    textarea: fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextarea.tsx", import.meta.url)),
 };
 const views = {
     input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInputView.tsx", import.meta.url)),
@@ -43,6 +43,7 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
             "../features/collaboration/CollaborativeInputView": View,
             "./CollaborativeInputView": View,
             "../features/collaboration/CollaborativeTextareaView": View,
+            "./CollaborativeTextareaView": View,
         });
         const collaboration = {
             isConnected: connected,

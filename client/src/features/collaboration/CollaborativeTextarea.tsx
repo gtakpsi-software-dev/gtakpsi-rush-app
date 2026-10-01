@@ -1,8 +1,22 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
-import CollaborativeTextareaView from '../features/collaboration/CollaborativeTextareaView';
-import { reconcileRemoteFieldUpdate } from '../features/collaboration/reconcileRemoteFieldUpdate.js';
-import { syncPropValue } from '../features/collaboration/syncPropValue.js';
+import type { ChangeEvent, CompositionEvent, FocusEvent, MouseEvent, SyntheticEvent } from 'react';
+
+import { activeCursorsForField } from './activeCursorsForField.js';
+import CollaborativeTextareaView from './CollaborativeTextareaView';
+import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
+import { syncPropValue } from './syncPropValue.js';
+import type { CollaborationEditorSession } from './CollaborationEditorSession';
+
+type CollaborativeTextareaProps = {
+    questionKey: string;
+    value?: string;
+    onChange: (questionKey: string, value: string, meta: { source: 'typing' | 'remote' }) => void;
+    placeholder?: string;
+    className?: string;
+    collaboration: CollaborationEditorSession;
+    currentUser?: unknown;
+    disabled?: boolean;
+};
 
 const CollaborativeTextarea = ({ 
     questionKey, 
@@ -11,24 +25,22 @@ const CollaborativeTextarea = ({
     placeholder, 
     className,
     collaboration,
-    currentUser,
     disabled = false
-}) => {
-    const textareaRef = useRef(null);
+}: CollaborativeTextareaProps) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [localValue, setLocalValue] = useState(value || '');
     const [isComposing, setIsComposing] = useState(false);
     const lastSentValue = useRef(value || '');
     const processingRemoteOp = useRef(false);
     const processedOperations = useRef(new Set());
-    const colorMapRef = useRef({});
+    const colorMapRef = useRef<Record<string, string>>({});
     const pendingLocalChangeRef = useRef(false);
-    const pendingLocalChangeTimeoutRef = useRef(null);
-    const debounceTimerRef = useRef(null);
+    const pendingLocalChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastLocalInputTimeRef = useRef(0);
     const lastProcessedVersionRef = useRef(0);
     
-    // Handle local text changes
-    const handleTextChange = useCallback((e) => {
+    const handleTextChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
         if (processingRemoteOp.current) {
             return;
         }
@@ -58,45 +70,41 @@ const CollaborativeTextarea = ({
         }
     }, [questionKey, onChange, collaboration, isComposing]);
 
-    // Handle cursor position changes
-    const handleCursorChange = useCallback((e) => {
+    const handleCursorChange = useCallback((e: SyntheticEvent<HTMLTextAreaElement>) => {
         if (!processingRemoteOp.current) {
-            collaboration.sendCursorPosition(questionKey, e.target.selectionStart);
+            collaboration.sendCursorPosition(questionKey, (e.target as HTMLTextAreaElement).selectionStart);
         }
     }, [questionKey, collaboration]);
 
-    // Handle composition events (for international keyboards)
     const handleCompositionStart = useCallback(() => {
         setIsComposing(true);
     }, []);
 
-    const handleCompositionEnd = useCallback((e) => {
+    const handleCompositionEnd = useCallback((e: CompositionEvent<HTMLTextAreaElement>) => {
         setIsComposing(false);
-        // Send any pending text update after composition ends
         if (collaboration.isConnected) {
-            collaboration.sendTextUpdate(questionKey, e.target.value);
-            lastSentValue.current = e.target.value;
+            collaboration.sendTextUpdate(questionKey, (e.target as HTMLTextAreaElement).value);
+            lastSentValue.current = (e.target as HTMLTextAreaElement).value;
         }
     }, [collaboration, questionKey]);
 
-    // Get typing indicators for this field
     const typingInThisField = collaboration.typingUsers.filter(user => user.field === questionKey);
     
-    // Get cursor information for other users (with staleness filtering)
     const otherUserCursors = activeCursorsForField(collaboration, questionKey, 3);
     
     // Lock the field if any other user's cursor is in this field (strong lock)
     const isFieldLocked = otherUserCursors.length > 0;
 
-    // Handle focus events for typing indicators
-    const handleFocus = useCallback((e) => {
+    const handleFocus = useCallback((e: FocusEvent<HTMLTextAreaElement>) => {
         // Prevent focus if another user is actively in this field
         if (isFieldLocked) {
-            e.target.blur(); // Immediately remove focus
+            (e.target as HTMLTextAreaElement).blur();
             return;
         }
         collaboration.sendTypingIndicator(questionKey, true);
-        const pos = typeof e?.target?.selectionStart === 'number' ? e.target.selectionStart : 0;
+        const pos = typeof (e?.target as HTMLTextAreaElement)?.selectionStart === 'number'
+            ? (e.target as HTMLTextAreaElement).selectionStart
+            : 0;
         collaboration.sendCursorPosition(questionKey, pos);
     }, [collaboration, questionKey, isFieldLocked]);
 
@@ -115,13 +123,12 @@ const CollaborativeTextarea = ({
     }, [collaboration, questionKey, localValue]);
 
     // Prevent mouse clicks from focusing when field is locked
-    const handleMouseDown = useCallback((e) => {
+    const handleMouseDown = useCallback((e: MouseEvent<HTMLTextAreaElement>) => {
         if (isFieldLocked) {
             e.preventDefault();
         }
     }, [isFieldLocked]);
 
-    // Sync with prop value changes (e.g., when another user updates or voice transcription adds text)
     useEffect(() => {
         syncPropValue({
             value,
@@ -149,7 +156,6 @@ const CollaborativeTextarea = ({
         });
     }, [collaboration.remoteUpdates, questionKey, localValue, onChange]);
 
-    // Cleanup timers on unmount
     useEffect(() => {
         return () => {
             if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);

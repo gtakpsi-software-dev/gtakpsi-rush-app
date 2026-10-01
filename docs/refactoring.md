@@ -1515,7 +1515,15 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     for connection state and field messages. Its 300 ms local debounce, 500 ms
     remote deferral, cursor lock, and PIS field wiring remain under existing
     regression tests. All 413 client tests pass, controlled CSS is byte-identical,
-    and lint falls to 159 errors and 20 warnings.
+    and the configured JS/JSX lint count falls to 159 errors and 20 warnings.
+263. Moved the multiline collaborative controller beside the input, views, and
+    protocol helpers in `features/collaboration`, using the shared session
+    contract. Existing tests retain markup, 650 ms remote deferral, and PIS
+    question wiring; new tests cover latest-value local debounce at 450 ms,
+    composition-end send, and locked-field focus/mouse behavior. All 415 client
+    tests pass and controlled CSS is byte-identical. The configured JS/JSX lint
+    count falls to 131 errors and 19 warnings, but TSX is not yet linted or
+    typechecked; this count does not prove the moved controller is lint-clean.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1535,16 +1543,19 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Organize maintenance scripts and seed data without running destructive scripts.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
-- Resolve lint findings in verified slices and add a lint gate; document setup,
+- Add TSX lint and typechecking, then resolve findings in verified slices and add
+  a complete lint gate; document setup,
   service naming, and remaining integration limits.
 
 ## Verification
 
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
-for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 159 errors and 20 warnings, so it is tracked debt,
-not a passing check. The regression workflow runs the passing suites and client
+for the test runner. Run `npm --prefix client run lint` for configured JS/JSX lint;
+the current baseline has 131 errors and 19 warnings, so it is tracked debt,
+not a passing check. The ESLint config excludes TSX and the project has no
+TypeScript typecheck gate, so these checks do not cover typed components.
+The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
@@ -1568,7 +1579,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 413 client tests, 46 server unit tests, 19 collaboration
+Current verified totals: 415 client tests, 46 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
