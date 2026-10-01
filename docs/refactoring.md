@@ -654,6 +654,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     network errors, reload errors, and upload failures. All 205 client tests
     pass, the build succeeds, and CSS matches the baseline. `RusheePage.jsx`
     is now 450 lines; new files pass lint.
+111. Rushee photo modal: extracted camera and preview markup into a focused
+    component, preserving both pre-change rendered HTML hashes and the close,
+    capture, retake, and save callbacks. Removed a commented-out button; its
+    unused `hover:bg-blue-600` utility is the only generated CSS difference.
+    All 207 client tests pass and the build succeeds. `RusheePage.jsx` is now
+    378 lines; the new test passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -699,10 +705,11 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 205 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 207 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
-client build passes with baseline CSS unchanged. Full browser flow/visual testing
+client build differs from baseline CSS only by the unused `hover:bg-blue-600`
+rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated
 database flows are still pending; these checks do not yet establish full
 application parity.

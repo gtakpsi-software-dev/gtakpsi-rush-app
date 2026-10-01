@@ -3,14 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import Badges from "../components/Badge";
 import axios from "axios";
-import Webcam from "react-webcam";
 
 import Navbar from "../components/Navbar";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Button from "../components/Button";
 import { FaRegEdit } from "react-icons/fa";
 
 import { storage } from "../firebase";
@@ -19,6 +17,7 @@ import { base64ToBlob } from "../js/image_processing";
 import { verifyInfo } from "../js/verifications";
 import { submitProfileChanges } from "../features/rushee/self/submitProfileChanges";
 import { submitRusheePhoto } from "../features/rushee/self/submitRusheePhoto";
+import RusheePhotoModal from "../features/rushee/self/RusheePhotoModal";
 
 export default function RusheePage() {
 
@@ -119,91 +118,20 @@ export default function RusheePage() {
             ) : (
 
                 <div className="min-h-screen bg-white py-10">
-                    {/* Modal */}
                     {isModalOpen && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="card-apple p-6 max-w-lg w-full mx-4 relative">
-                                {/* Header */}
-                                <div className="mb-6">
-                                    <h2 className="text-apple-title1 font-light text-black text-center">Update Photo</h2>
-                                    <div className="w-12 h-0.5 bg-black mx-auto mt-2"></div>
-                                </div>
-
-                                {/* Close Button */}
-                                <button
-                                    onClick={() => {
-                                        setIsModalOpen(!isModalOpen)
-                                        setShowPreview(false)
-                                        setImage(null)
-                                    }}
-                                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-apple-gray-500 hover:text-black transition-colors duration-200 rounded-apple"
-                                >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-
-                                {/* Camera Container */}
-                                <div className="w-80 h-80 bg-apple-gray-50 rounded-apple-2xl overflow-hidden border border-apple-gray-200 flex items-center justify-center mb-6">
-                                    {showPreview ? (
-                                        <img
-                                            src={image}
-                                            alt="Captured preview"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <Webcam
-                                            ref={webcamRef}
-                                            audio={false}
-                                            screenshotFormat="image/jpeg"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    )}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex flex-col gap-3">
-                                    {showPreview ? (
-                                        <div className="flex flex-col sm:flex-row gap-3">
-                                            <button
-                                                onClick={() => setShowPreview(false)}
-                                                className="btn-apple-secondary px-6 py-3 text-apple-body font-light flex-1"
-                                            >
-                                                Retake Photo
-                                            </button>
-                                            <button
-                                                onClick={handlePhotoSubmit}
-                                                className="btn-apple px-6 py-3 text-apple-body font-light flex-1"
-                                            >
-                                                Save Photo
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={capture}
-                                            className="btn-apple px-8 py-4 text-apple-headline font-light"
-                                        >
-                                            Take Photo
-                                        </button>
-                                    )}
-                                </div>
-
-
-                                {/* <h2 className="text-lg font-bold mb-4">Edit Image</h2>
-                                <p className="text-sm text-gray-600 mb-6">
-                                    Add functionality to upload and change the image here.
-                                </p>
-                                <button
-                                    onClick={() => {
-                                        setIsModalOpen(!isModalOpen)
-                                    }}
-                                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-                                >
-                                    Close
-                                </button> */}
-
-                            </div>
-                        </div>
+                        <RusheePhotoModal
+                            showPreview={showPreview}
+                            image={image}
+                            webcamRef={webcamRef}
+                            onClose={() => {
+                                setIsModalOpen(!isModalOpen)
+                                setShowPreview(false)
+                                setImage(null)
+                            }}
+                            onRetake={() => setShowPreview(false)}
+                            onSave={handlePhotoSubmit}
+                            onCapture={capture}
+                        />
                     )}
                     <div className="h-16" />
                     {/* Rushee Information */}
