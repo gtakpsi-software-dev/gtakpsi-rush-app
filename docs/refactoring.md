@@ -2421,6 +2421,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     status/order/id sorting; the isolated MongoDB contract now calls both
     endpoints. The query file is 98 lines instead of 133. All 67 server tests
     with the integration feature pass, including the database contract.
+419. Grouped PIS collaboration room-retention timers in
+    `websocket-server/src/roomRetention.js`: the five-minute empty-room grace
+    timer moved out of membership handling, and the one-hour idle sweep moved
+    out of document state. Both keep their original scheduling and deletion
+    conditions. Renamed the retention test file and added a case for an old
+    timer observing a recreated, occupied room. All 25 collaboration tests,
+    including the live reconnect protocol, pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2480,7 +2487,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 536 client tests, 66 server unit tests, 24 collaboration
+Current verified totals: 536 client tests, 66 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 67 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

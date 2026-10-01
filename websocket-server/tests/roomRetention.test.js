@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { scheduleRoomCleanup } = require('../src/rooms');
+const { scheduleEmptyRoomRemoval, scheduleRoomCleanup } = require('../src/roomRetention');
 const { registerMembershipHandlers } = require('../src/handlers/membership');
 
 test('periodic cleanup removes only empty rooms older than one hour', (t) => {
@@ -50,4 +50,22 @@ test('disconnect cleanup waits five minutes and retains a room that has been rej
     handlers.get('disconnect')();
     pending.shift()();
     assert.equal(rooms.size, 0);
+});
+
+test('a grace timer leaves a recreated room with a new editor intact', () => {
+    const rooms = new Map([['pis-1', { users: new Map() }]]);
+    let expire;
+    scheduleEmptyRoomRemoval(rooms, 'pis-1', {
+        setTimeout(callback, delay) {
+            assert.equal(delay, 300000);
+            expire = callback;
+        },
+    });
+
+    rooms.delete('pis-1');
+    const replacement = { users: new Map([['new-editor', {}]]) };
+    rooms.set('pis-1', replacement);
+    expire();
+
+    assert.equal(rooms.get('pis-1'), replacement);
 });

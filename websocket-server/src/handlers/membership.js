@@ -1,5 +1,5 @@
 const { createRoom, snapshotDocument } = require('../rooms');
-const { EMPTY_ROOM_GRACE_MS } = require('../roomRetention');
+const { scheduleEmptyRoomRemoval } = require('../roomRetention');
 const { joinedRoom } = require('./joinedRoom');
 
 function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
@@ -54,12 +54,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
 
             // Preserve a disconnected room briefly so reconnecting editors recover its text.
             if (room.users.size === 0) {
-                timers.setTimeout(() => {
-                    const currentRoom = rooms.get(roomId);
-                    if (currentRoom && currentRoom.users.size === 0) {
-                        rooms.delete(roomId);
-                    }
-                }, EMPTY_ROOM_GRACE_MS);
+                scheduleEmptyRoomRemoval(rooms, roomId, timers);
             }
         }
 
