@@ -1014,6 +1014,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     brother submission and replacement, clearing and resending, and
     deactivation. The fixture reset now also clears the form-status collection.
     All 42 server tests with the integration feature pass.
+174. Split the availability controller into form lifecycle and submission
+    modules while retaining the same public handlers, route wiring, database
+    operations, and response payloads. The former 227-line controller is now
+    an 8-line export module; the two implementation files are 158 and 69 lines.
+    All 42 server tests with the integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
