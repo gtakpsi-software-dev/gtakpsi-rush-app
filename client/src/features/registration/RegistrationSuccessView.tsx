@@ -1,18 +1,29 @@
 import { useState } from "react";
 
-export default function SuccessPage({ title, description, link, gtid }) {
+type RegistrationSuccessViewProps = {
+    title: string;
+    description: string;
+    accessCode: string;
+    gtid: string;
+};
+
+export default function RegistrationSuccessView({
+    title,
+    description,
+    accessCode,
+    gtid,
+}: RegistrationSuccessViewProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${link}`).then(() => {
+        navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${accessCode}`).then(() => {
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
+            setTimeout(() => setCopied(false), 2000);
         });
     };
 
     return (
         <div className="relative w-full h-screen bg-white flex flex-col items-center justify-center px-4">
-            {/* Success Icon */}
             <div className="mb-8">
                 <div className="flex items-center justify-center w-20 h-20 bg-black rounded-apple-2xl">
                     <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,7 +32,6 @@ export default function SuccessPage({ title, description, link, gtid }) {
                 </div>
             </div>
 
-            {/* Header Section */}
             <div className="text-center mb-8">
                 <h1 className="text-apple-large font-light text-black mb-4 max-w-2xl leading-tight">
                     {title}
@@ -32,21 +42,18 @@ export default function SuccessPage({ title, description, link, gtid }) {
                 </p>
             </div>
 
-            {/* Link Section */}
             <div className="card-apple p-6 max-w-2xl w-full">
                 <div className="mb-4">
                     <label className="block text-apple-footnote text-apple-gray-700 font-normal mb-2">
                         Your personal link:
                     </label>
-                    {/* Code-style link display */}
                     <div className="bg-apple-gray-100 rounded-apple p-4 border border-apple-gray-200">
                         <code className="text-apple-footnote text-apple-gray-800 font-mono break-all leading-relaxed">
-                            {`${window.location.origin}/rushee/${gtid}/${link}`}
+                            {`${window.location.origin}/rushee/${gtid}/${accessCode}`}
                         </code>
                     </div>
                 </div>
 
-                {/* Copy Button */}
                 <button
                     onClick={handleCopy}
                     className={`btn-apple w-full transition-all duration-200 ${

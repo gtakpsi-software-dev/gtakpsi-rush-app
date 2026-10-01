@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import PhotoCaptureStep from "../features/registration/photo/PhotoCaptureStep";
 import PisSignUp from "../components/RegisterComponents/PisSignUp"
-import SuccessPage from "../components/RegisterComponents/SuccessPage";
+import RegistrationSuccessView from "../features/registration/RegistrationSuccessView";
 import Loader from "../components/Loader";
 
 import { useNavigate } from "react-router-dom";
@@ -132,11 +132,11 @@ export default function Register() {
     // If we're on the success page (page 3) and not loading, render it fullscreen
     if (page === 3 && !currLoading) {
         return (
-            <SuccessPage
+            <RegistrationSuccessView
                 title={"Congrats! You've successfully registered for AKPsi Fall 2026 Rush."}
                 description={"If you need to change your information or update your picture, please use the link below. You can close this page when you are done."}
                 gtid={gtidVal}
-                link={accessCode}
+                accessCode={accessCode}
             />
         );
     }
