@@ -2059,6 +2059,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     scenario pins replacement order and empty-payload clearing before and
     after the change. Rustfmt, all 58 API unit tests, and all 59 isolated
     integration tests pass.
+360. Consolidated PIS autosave's four brother-name expressions into one
+    helper that preserves trimming and the `none` marker for blank names.
+    Removed redundant locals and comments while keeping a single MongoDB
+    update for answers and names. A new unit test pins the normalization;
+    Rustfmt, all 59 API unit tests, and all 60 isolated integration tests
+    pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2116,9 +2122,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 503 client tests, 58 server unit tests, 22 collaboration
+Current verified totals: 503 client tests, 59 server unit tests, 22 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 59 server tests with the integration feature (including its
+feature, and 60 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

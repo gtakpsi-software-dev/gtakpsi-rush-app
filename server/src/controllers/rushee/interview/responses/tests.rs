@@ -16,3 +16,11 @@ fn autosave_payload_keeps_field_names_and_requires_all_brother_names() {
         .remove("brother_b_last_name");
     assert!(serde_json::from_value::<PISAutosavePayload>(incomplete).is_err());
 }
+
+#[test]
+fn brother_names_keep_trimmed_values_and_the_empty_none_marker() {
+    assert_eq!(stored_brother_name(" Alex "), "Alex");
+    assert_eq!(stored_brother_name("  \t\n  "), "none");
+    assert_eq!(stored_brother_name(""), "none");
+    assert_eq!(stored_brother_name("Mary Jane"), "Mary Jane");
+}
