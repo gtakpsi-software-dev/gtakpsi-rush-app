@@ -1361,6 +1361,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     All 382 client tests and the production build pass; built CSS is byte-for-byte
     unchanged and touched-file ESLint passes. Removing an unused React import
     reduced repository-wide lint debt to 262 errors and 20 warnings.
+235. Moved the Add PIS Timeslot form into a typed view, reducing the page from
+    200 to 66 lines while preserving its loading branch, element structure,
+    class tokens, and event wiring. Two tests compare empty, selected, and
+    submitting markup against pre-extraction hashes (normalizing whitespace
+    within class attributes) and check input conversion and submit state. All
+    384 client tests and the production build pass; generated CSS remains
+    byte-for-byte unchanged and configured touched-file ESLint passes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1413,7 +1420,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 382 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 384 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
