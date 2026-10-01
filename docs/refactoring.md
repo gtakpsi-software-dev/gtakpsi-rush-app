@@ -1503,6 +1503,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     All 411 client tests pass; controlled CSS is byte-identical and production
     JS differs only in the two renamed prop uses. Lint falls to 181 errors and
     20 warnings.
+261. Extracted registration step rendering from `Register.jsx` into
+    `RegistrationStageView.tsx`. The view makes basic-info, photo, PIS, and
+    waiting branches explicit while retaining the original per-step wrapper
+    depth; the full-screen success branch remains in the page. New page tests
+    pin all five markup states and photo/PIS prop wiring. All 413 client tests
+    pass, controlled production CSS is byte-identical, and lint remains at 181
+    errors and 20 warnings. `Register.jsx` shrinks from 185 to 174 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1555,7 +1562,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 411 client tests, 46 server unit tests, 19 collaboration
+Current verified totals: 413 client tests, 46 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

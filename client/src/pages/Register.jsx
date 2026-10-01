@@ -1,14 +1,11 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import BasicInfoForm from "../features/registration/BasicInfoForm";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import PhotoCaptureStep from "../features/registration/photo/PhotoCaptureStep";
-import PisSignUpStep from "../features/registration/pis/PisSignUpStep";
+import RegistrationStageView from "../features/registration/RegistrationStageView";
 import RegistrationSuccessView from "../features/registration/RegistrationSuccessView";
-import Loader from "../components/Loader";
 
 import { useNavigate } from "react-router-dom";
 import { verifyInfo } from "../features/registration/registrationVerification";
@@ -20,35 +17,32 @@ import { createBasicInfoSubmit } from "../features/registration/createBasicInfoS
 import { createPisSubmit } from "../features/registration/createPisSubmit";
 
 export default function Register() {
-
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // field values
-    const [firstnameVal, setFirstnameVal] = useState()
-    const [lastnameVal, setLastnameVal] = useState()
-    const [emailVal, setEmailVal] = useState()
-    const [housingVal, setHousingVal] = useState()
-    const [phoneVal, setPhoneVal] = useState()
-    const [gtidVal, setGtidVal] = useState()
-    const [majorVal, setMajorVal] = useState()
-    const [pronounsVal, setPronounsVal] = useState()
-    const [yearVal, setYearVal] = useState()
-    const [exposureVal, setExposureVal] = useState()
+    const [firstnameVal, setFirstnameVal] = useState();
+    const [lastnameVal, setLastnameVal] = useState();
+    const [emailVal, setEmailVal] = useState();
+    const [housingVal, setHousingVal] = useState();
+    const [phoneVal, setPhoneVal] = useState();
+    const [gtidVal, setGtidVal] = useState();
+    const [majorVal, setMajorVal] = useState();
+    const [pronounsVal, setPronounsVal] = useState();
+    const [yearVal, setYearVal] = useState();
+    const [exposureVal, setExposureVal] = useState();
 
     const [page, setPage] = useState(0);
-    const [currLoading, setCurrLoading] = useState(false)
+    const [currLoading, setCurrLoading] = useState(false);
 
-    const [error, setError] = useState(null)
-    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something Unexpected Occurred..")
-    const [errorDescription, setErrorDescription] = useState("Default Error Message...")
+    const [error, setError] = useState(null);
+    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something Unexpected Occurred..");
+    const [errorDescription, setErrorDescription] = useState("Default Error Message...");
 
-    const [image, setImage] = useState()
+    const [image, setImage] = useState();
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [flexWindow, setFlexWindow] = useState(false);
 
-    const [accessCode, setAccessCode] = useState()
+    const [accessCode, setAccessCode] = useState();
 
-    // references
     const firstname = useRef();
     const lastname = useRef();
     const email = useRef();
@@ -62,7 +56,7 @@ export default function Register() {
 
     const webcamRef = useRef();
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const basicInfoSubmit = createBasicInfoSubmit({
         fields: [
@@ -87,11 +81,9 @@ export default function Register() {
         logError: (error) => console.log(error),
     });
 
-    const image_submit = () => {
-
-        setPage(2)
-
-    }
+    const handlePhotoContinue = () => {
+        setPage(2);
+    };
 
     const pisSubmit = createPisSubmit({
         api,
@@ -129,7 +121,7 @@ export default function Register() {
         logError: (error) => console.log(error),
     });
 
-    // If we're on the success page (page 3) and not loading, render it fullscreen
+    // The completed page replaces the form shell so its full-screen layout stays intact.
     if (page === 3 && !currLoading) {
         return (
             <RegistrationSuccessView
@@ -145,40 +137,37 @@ export default function Register() {
         <div className="w-screen h-screen bg-white flex flex-col overflow-y-auto">
             <Navbar stripped={true} />
 
-            {/* Spacing between Navbar and the form */}
             <div className="flex-1 flex flex-col items-center justify-center animate-fade-in">
-                {page == 0 ? <BasicInfoForm
-                    firstname={firstname}
-                    lastname={lastname}
-                    email={email}
-                    housing={housing}
-                    phone={phone}
-                    gtid={gtid}
-                    major={major}
-                    pronouns={pronouns}
-                    year={year}
-                    exposure={exposure}
-                    onContinue={basicInfoSubmit}
-                /> : <div>
-                    {page == 1 ? <PhotoCaptureStep
-                        webcamRef={webcamRef}
-                        image={image}
-                        setImage={setImage}
-                        onContinue={image_submit}
-                    /> : <div>
-                        {page == 2 ? <PisSignUpStep
-                            selectedSlot={selectedSlot}
-                            setSelectedSlot={setSelectedSlot}
-                            flexWindow={flexWindow}
-                            setFlexWindow={setFlexWindow}
-                            onContinue={pisSubmit}
-                        /> : <div>
-
-                            {currLoading ? <Loader /> : null}
-
-                        </div>}
-                    </div>}
-                </div>}
+                <RegistrationStageView
+                    page={page}
+                    loading={currLoading}
+                    basicInfoProps={{
+                        firstname,
+                        lastname,
+                        email,
+                        housing,
+                        phone,
+                        gtid,
+                        major,
+                        pronouns,
+                        year,
+                        exposure,
+                        onContinue: basicInfoSubmit,
+                    }}
+                    photoProps={{
+                        webcamRef,
+                        image,
+                        setImage,
+                        onContinue: handlePhotoContinue,
+                    }}
+                    pisProps={{
+                        selectedSlot,
+                        setSelectedSlot,
+                        flexWindow,
+                        setFlexWindow,
+                        onContinue: pisSubmit,
+                    }}
+                />
             </div>
         </div>
     );
