@@ -22,7 +22,7 @@ import { createRescheduleActions } from "../features/admin/pis/rescheduleActions
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
 import { downloadCsv } from "../features/admin/data/downloadCsv";
 import { createPromotionActions } from "../features/admin/access/promotionActions";
-import { createAccessSettingsActions } from "../features/admin/access/accessSettingsActions";
+import useAdminAccessSettings from "../features/admin/access/useAdminAccessSettings";
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
 import AdminManagementSection from "../features/admin/overview/AdminManagementSection";
@@ -89,16 +89,18 @@ export default function Admin() {
         toast,
     });
 
-    // Rush App disable state
-    const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false, midterm_mode: false });
-    const [rushAppLoading, setRushAppLoading] = useState(false);
-
-    // Midterm mode state
-    const [midtermLoading, setMidtermLoading] = useState(false);
-
-    // Comment visibility settings state
-    const [commentVisibilityStatus, setCommentVisibilityStatus] = useState({ require_comment_to_view: true });
-    const [commentVisibilityLoading, setCommentVisibilityLoading] = useState(false);
+    const {
+        rushAppStatus,
+        setRushAppStatus,
+        rushAppLoading,
+        midtermLoading,
+        commentVisibilityStatus,
+        setCommentVisibilityStatus,
+        commentVisibilityLoading,
+        handleToggleRushAppAccess,
+        handleToggleMidtermMode,
+        handleToggleCommentVisibility,
+    } = useAdminAccessSettings({ apiBase, axios, toast, auth });
 
     const navigate = useNavigate();
 
@@ -219,23 +221,6 @@ export default function Admin() {
         axios,
         toast,
         confirm: (message) => window.confirm(message),
-    });
-
-    const {
-        handleToggleRushAppAccess,
-        handleToggleMidtermMode,
-        handleToggleCommentVisibility,
-    } = createAccessSettingsActions({
-        apiBase,
-        rushAppStatus,
-        setRushAppStatus,
-        setRushAppLoading,
-        setMidtermLoading,
-        setCommentVisibilityStatus,
-        setCommentVisibilityLoading,
-        axios,
-        toast,
-        auth,
     });
 
     if (loading) {

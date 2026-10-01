@@ -13,6 +13,7 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/Admin.jsx', import.meta.url));
 const editorHookPath = fileURLToPath(new URL('../src/features/admin/availability/useAdminAvailabilityEditor.js', import.meta.url));
+const accessHookPath = fileURLToPath(new URL('../src/features/admin/access/useAdminAccessSettings.js', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
 const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminPageMarkup.json', import.meta.url));
@@ -98,6 +99,13 @@ async function loadAdmin(state = {}, captured = new Map()) {
             react: dependencies.react,
             '../pis/pisTime': { groupEditSlots: () => ({}) },
             './availabilityEditorActions': { createAvailabilityEditorActions: actions },
+        },
+    );
+    dependencies['../features/admin/access/useAdminAccessSettings'] = await loadTsxComponent(
+        accessHookPath,
+        {
+            react: dependencies.react,
+            './accessSettingsActions': { createAccessSettingsActions: actions },
         },
     );
 

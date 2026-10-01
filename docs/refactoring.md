@@ -1739,6 +1739,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     lines; its JSX section is byte-identical. The original editor action tests,
     admin markup scenarios, all 431 client tests, typecheck, build, and
     changed-file ESLint pass with the two prior page warnings.
+301. Colocated admin app-access, midterm, and comment-visibility state with
+    their toggle actions. `Admin.jsx` drops from 315 to 300 lines and keeps its
+    JSX section byte-identical. Existing toggle-action and markup tests, all
+    431 client tests, typecheck, build, and changed-file ESLint pass with the
+    same two page warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
