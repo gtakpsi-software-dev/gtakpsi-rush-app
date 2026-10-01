@@ -1038,6 +1038,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     whitespace-normalized comparison confirms the moved function bodies are
     identical. All 295 client tests and the production build pass; changed files
     pass ESLint.
+179. Cleaned the extracted registration verifier's spacing, identifier style,
+    and redundant comments while preserving validation order, request path,
+    console calls, and exact response text. All 295 client tests and changed-file
+    ESLint pass; the production JS and CSS asset hashes match the preceding
+    build.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

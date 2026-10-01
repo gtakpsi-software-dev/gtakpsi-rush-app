@@ -1,83 +1,60 @@
-import axios from "axios"
+import axios from "axios";
 
 const api = import.meta.env.VITE_API_PREFIX;
 
 export function verifyGTID(gtid) {
-
-    // check length
     if (gtid.length != 9) {
         return false;
     }
 
-    // verify its all numbers
     if (!/^[0-9]+$/.test(gtid)) {
-        return false
+        return false;
     }
 
     return true;
-
 }
 
-/**
- *
- * Checks if a Rushee's Basic Info is valid or not
- *
- * @param String gtid
- * @param String email
- * @returns Status and Error JSON
- */
 export async function verifyInfo(gtid, email, phone, isNewGTID) {
-
-    // verify gtid is 9 digits
-    // check length
-    console.log(gtid.length)
+    console.log(gtid.length);
     if (gtid.length != 9) {
         return {
-            "status": "error",
-            "message": "GTID Must be 9 digits long"
+            status: "error",
+            message: "GTID Must be 9 digits long",
         };
     }
 
     if (phone.length != 14) {
         return {
-            "status": "error",
-            "message": "Phone Number must be 10 digits long"
+            status: "error",
+            message: "Phone Number must be 10 digits long",
         };
     }
 
-    // verify its all numbers
     if (!/^[0-9]+$/.test(gtid)) {
         return {
-            "status": "error",
-            "message": "GTID must be comprised of all digits"
+            status: "error",
+            message: "GTID must be comprised of all digits",
         };
     }
 
-    const valid_email_regex = /^[^\s@]+@gatech\.edu$/;
-
-    // verify valid email
-    if (!valid_email_regex.test(email)) {
+    const validEmailRegex = /^[^\s@]+@gatech\.edu$/;
+    if (!validEmailRegex.test(email)) {
         return {
-            "status": "error",
-            "message": "Email must be a valid Georgia Tech Email Address"
+            status: "error",
+            message: "Email must be a valid Georgia Tech Email Address",
         };
     }
 
-    // verify if GTID exists already
-
+    // Existing registrations still validate local fields, but skip duplicate lookup.
     if (!isNewGTID) {
-        return {
-            status: "success",
-        };
+        return { status: "success" };
     }
 
     try {
         const response = await axios.get(`${api}/rushee/does-rushee-exist/${gtid}`);
 
         if (response.data.status === "success") {
-            return {
-                status: "success",
-            };
+            return { status: "success" };
         } else if (response.data.message === "exists") {
             return {
                 status: "error",
@@ -96,5 +73,4 @@ export async function verifyInfo(gtid, email, phone, isNewGTID) {
             message: "Some network error occurred",
         };
     }
-
 }
