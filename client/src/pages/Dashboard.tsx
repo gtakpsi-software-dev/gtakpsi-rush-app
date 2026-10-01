@@ -67,7 +67,7 @@ export default function Dashboard(props: DashboardProps) {
                 setError,
             });
         }
-    }, [loading, navigate]);
+    }, [loading, navigate, api]);
 
     const fuse = new Fuse(rushees, {
         keys: ["name", "gtid", "major", "email"],
@@ -95,6 +95,8 @@ export default function Dashboard(props: DashboardProps) {
 
     useEffect(() => {
         handleFilters();
+        // Preserve the original filter triggers; loading new rushees alone did not reapply filters.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, selectedMajor, selectedClass, selectedSort]);
 
     return (

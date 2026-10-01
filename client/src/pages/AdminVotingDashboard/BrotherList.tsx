@@ -31,7 +31,7 @@ export default function BrotherList() {
     };
 
     fetchEligibility();
-  }, [brothers]);
+  }, [brothers, lambdaURL]);
 
   const hasVoted = (gtid: string) => {
     return votes.some((v) => v.brother_id === gtid);

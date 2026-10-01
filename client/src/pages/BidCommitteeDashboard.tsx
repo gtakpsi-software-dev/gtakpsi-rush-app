@@ -88,7 +88,7 @@ export default function BidCommitteeDashboard(props: Props) {
         if (loading === true) {
             fetch();
         }
-    }, [loading, navigate]);
+    }, [loading, navigate, api]);
 
     // Removed fuzzy search - only using exact GTID matching
 
@@ -110,6 +110,8 @@ export default function BidCommitteeDashboard(props: Props) {
 
     useEffect(() => {
         handleFilters();
+        // Preserve the original filter triggers; loading new rushees alone did not reapply filters.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, selectedMajor, selectedClass, selectedSort]);
 
     return (

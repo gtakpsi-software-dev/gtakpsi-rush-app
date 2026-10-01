@@ -2304,6 +2304,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Membership cleanup and periodic cleanup retain their timer callbacks,
     values, and strict idle-time comparison. All 23 tests, including real
     Socket.IO sessions, pass against both the previous and refactored source.
+401. Added the build-time API prefix to three client effect dependency lists
+    where its value is stable, and documented why the two dashboard filter
+    effects retain their original input-only triggers. Focused dashboard
+    markup tests pass before and after; all 528 client tests, typecheck, and
+    production build pass. CSS retains its prior hash. Full lint improves from
+    8 errors and 22 warnings to 8 errors and 17 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2335,7 +2341,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 22 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 17 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
