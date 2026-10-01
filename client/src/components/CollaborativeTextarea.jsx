@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
 import CollaborativeTextareaView from '../features/collaboration/CollaborativeTextareaView';
+import { reconcileRemoteFieldUpdate } from '../features/collaboration/reconcileRemoteFieldUpdate.js';
 
 const CollaborativeTextarea = ({ 
     questionKey, 
@@ -139,40 +140,20 @@ const CollaborativeTextarea = ({
         }
     }, [value, collaboration, questionKey]);
 
-    // new effect listen remoteUpdates (defer if user typed very recently to reduce jitter)
     useEffect(() => {
-        const latest = [...collaboration.remoteUpdates].reverse().find(u => u.field === questionKey);
-        if (!latest) return;
-        
-        // Skip if we've already processed this version or newer
-        if (latest.version && latest.version <= lastProcessedVersionRef.current) return;
-        
-        // Skip if value is already the same
-        if (latest.value === localValue) {
-            if (latest.version) lastProcessedVersionRef.current = latest.version;
-            return;
-        }
-
-        const applyRemote = () => {
-            processingRemoteOp.current = true;
-            setLocalValue(latest.value);
-            onChange(questionKey, latest.value, { source: 'remote' });
-            lastSentValue.current = latest.value;
-            if (latest.version) lastProcessedVersionRef.current = latest.version;
-            // Clear pending flag since we're accepting remote value
-            pendingLocalChangeRef.current = false;
-            setTimeout(() => processingRemoteOp.current = false, 0);
-        };
-
-        const now = Date.now();
-        if (now - lastLocalInputTimeRef.current < 650) {
-            const to = setTimeout(() => {
-                applyRemote();
-            }, 650);
-            return () => clearTimeout(to);
-        } else {
-            applyRemote();
-        }
+        return reconcileRemoteFieldUpdate({
+            remoteUpdates: collaboration.remoteUpdates,
+            fieldKey: questionKey,
+            localValue,
+            lastProcessedVersionRef,
+            lastLocalInputTimeRef,
+            processingRemoteOpRef: processingRemoteOp,
+            pendingLocalChangeRef,
+            lastSentValueRef: lastSentValue,
+            setLocalValue,
+            onRemoteChange: (nextValue) => onChange(questionKey, nextValue, { source: 'remote' }),
+            deferMs: 650,
+        });
     }, [collaboration.remoteUpdates, questionKey, localValue, onChange]);
 
     // Cleanup timers on unmount
