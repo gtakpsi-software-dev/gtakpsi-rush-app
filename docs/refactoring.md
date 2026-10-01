@@ -2200,6 +2200,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     page fixtures pass; all 523 client tests, typecheck, and build pass. CSS
     is unchanged, and full ESLint remains at eight Attendance errors and 22
     warnings.
+384. Moved the admin sorting WebSocket mount and cleanup effect into a paired
+    sorting hook. The page still registers it before its auth effect; drag
+    cancellation resolves when that mount effect runs, after render. One new
+    hook test covers connection options, ghost and lock cleanup, and the latest
+    reconnected socket. All 524 client tests, typecheck, and build pass; CSS
+    is unchanged, and full ESLint remains at eight Attendance errors and 22
+    warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2257,7 +2264,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 523 client tests, 63 server unit tests, 23 collaboration
+Current verified totals: 524 client tests, 63 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 64 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

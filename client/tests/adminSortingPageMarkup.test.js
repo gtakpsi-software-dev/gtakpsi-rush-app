@@ -65,7 +65,6 @@ async function loadPage(state = {}, captured = new Map()) {
         'react-toastify/dist/ReactToastify.css': {},
         '../components/Navbar': stub('navbar'),
         '../firebase': { auth: {} },
-        '../config/realtimeBaseUrls': { realtimeBaseUrls: { sorting: 'ws://localhost' } },
         '../features/admin/api': { adminGet: noop, adminPut: noop },
         '../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
         '../features/sorting/board': { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
@@ -75,8 +74,9 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/SortingPresenceIndicator': stub('presence'),
         '../features/sorting/SortingGhostCards': stub('ghosts'),
         '../features/sorting/SortingColumn': stub('column'),
-        '../features/sorting/connectSortingAdmin': { connectSortingAdmin: noop },
-        '../features/sorting/cleanupStaleSortingGhosts': { cleanupStaleSortingGhosts: noop },
+        '../features/sorting/useSortingAdminConnection': {
+            useSortingAdminConnection: (options) => captured.set('admin-connection', options),
+        },
         '../features/sorting/applySortingDrop': { applySortingDrop: noop },
         '../features/sorting/processSortingMoveQueue': { processSortingMoveQueue: noop },
         '../features/sorting/createSortingDragHandlers': { createSortingDragHandlers: actions },
@@ -130,6 +130,7 @@ test('admin sorting page passes board state and callbacks to its controls', asyn
     renderToStaticMarkup(React.createElement(Page));
 
     assert.equal(captured.get('presence').connected, true);
+    assert.equal(typeof captured.get('admin-connection').getCancelDragState(), 'function');
     assert.equal(captured.get('presence').viewerCount, 3);
     assert.equal(captured.get('zoom').scale, 1.5);
     assert.equal(captured.get('board-root-ref'), captured.get('view').canvasRef);

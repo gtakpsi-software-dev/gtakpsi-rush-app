@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
-import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../features/admin/api";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import AdminSortingBoardView from "../features/sorting/AdminSortingBoardView";
-import { connectSortingAdmin } from "../features/sorting/connectSortingAdmin";
-import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { useSortingAdminConnection } from "../features/sorting/useSortingAdminConnection";
 import { applySortingDrop } from "../features/sorting/applySortingDrop";
 import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
@@ -54,33 +52,11 @@ export default function AdminSorting() {
     const fetchDataRef = useRef(null);
     const draggingRef = useRef(null);
 
-    // Connect to sorting broadcaster WebSocket
-    useEffect(() => {
-        connectSortingAdmin({
-            url: `${realtimeBaseUrls.sorting}/ws`,
-            wsRef,
-            getCurrentUser: () => auth.currentUser,
-            draggingRef,
-            ghostTimestampsRef,
-            fetchDataRef,
-            setWsConnected,
-            setViewerCount,
-            setGhostCards,
-            setLockedCards,
-            cancelDragState,
-        });
-
-        const staleCleanupInterval = setInterval(() => {
-            cleanupStaleSortingGhosts({ ghostTimestampsRef, setGhostCards, setLockedCards });
-        }, 5000);
-
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close();
-            }
-            clearInterval(staleCleanupInterval);
-        };
-    }, []);
+    useSortingAdminConnection({
+        auth, wsRef, draggingRef, ghostTimestampsRef, fetchDataRef,
+        setWsConnected, setViewerCount, setGhostCards, setLockedCards,
+        getCancelDragState: () => cancelDragState,
+    });
 
     // Send WebSocket message helper
     const wsSend = useCallback((msg) => {
