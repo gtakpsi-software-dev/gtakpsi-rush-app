@@ -891,6 +891,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     continuation are unchanged. Success and Storage-failure traces and stdout
     match the previous command. All 48 maintenance tests and Python compilation
     pass; no live setup ran.
+150. Added isolated MongoDB contract cases for brother PIS sign-up: first and
+    second brother writes, duplicate rejection, a full slot, and a missing
+    rushee. Exact response messages and persisted fields pass against the
+    existing handler in the disposable API integration container. All 41 server
+    tests with the integration feature pass; no production database was used.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

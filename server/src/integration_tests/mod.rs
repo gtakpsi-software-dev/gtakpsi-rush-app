@@ -1,3 +1,4 @@
+mod brother_pis;
 mod comments;
 mod fixtures;
 mod interviews;
@@ -32,5 +33,6 @@ async fn database_contracts() {
     profile::check_contracts().await;
     interviews::check_contracts().await;
     comments::check_contracts().await;
+    brother_pis::check_contracts().await;
     sorting::check_contracts().await;
 }
