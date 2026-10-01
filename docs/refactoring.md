@@ -76,10 +76,10 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 7 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 4 warnings, so it is
 tracked debt, not a passing check.
 `npm --prefix client run lint:ci` gates the rest of the client at no more than
-4 warnings. The regression workflow runs this scoped gate, the passing suites,
+3 warnings. The regression workflow runs this scoped gate, the passing suites,
 and the client build on pushes and pull requests; its first GitHub run remains
 unverified.
 

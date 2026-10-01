@@ -54,7 +54,10 @@ async function loadPage(state = {}, showRatings = false, navigations = [], runti
                         return [Object.hasOwn(state, index) ? state[index] : initial,
                             (value) => runtime.updates?.push([index, value])];
                     },
-                    useEffect(effect) { runtime.effects?.push(effect); },
+                    useEffect(effect, dependencies) {
+                        runtime.effects?.push(effect);
+                        runtime.dependencies?.push(Array.from(dependencies));
+                    },
                 },
                 "react-router-dom": { useNavigate: () => (path) => navigations.push(path) },
                 axios: { post: (...args) => {
@@ -130,12 +133,16 @@ async function runFetch(runtime) {
 
 test("PIS dashboard retains verification, request, and success update order", async () => {
     const runtime = {
-        effects: [], updates: [], requests: [], logs: [],
+        effects: [], dependencies: [], updates: [], requests: [], logs: [],
         verify: async () => false,
         post: async () => ({ data: { status: "success", payload: [rushee] } }),
     };
     const navigations = await runFetch(runtime);
 
+    assert.equal(runtime.dependencies.length, 1);
+    assert.equal(runtime.dependencies[0].length, 2);
+    assert.equal(runtime.dependencies[0][0], true);
+    assert.equal(typeof runtime.dependencies[0][1], "function");
     assert.deepEqual(navigations, ["/"]);
     assert.deepEqual(JSON.parse(JSON.stringify(runtime.requests)), [[
         "/api/admin/get-brother-pis", { first_name: "A", last_name: "B" },

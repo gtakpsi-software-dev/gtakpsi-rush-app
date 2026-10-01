@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "lint:ci": "eslint . --ignore-pattern src/pages/Attendance.jsx --max-warnings 4",
+    "lint:ci": "eslint . --ignore-pattern src/pages/Attendance.jsx --max-warnings 3",
     "preview": "vite preview",
     "deploy": "vite build"
   },
