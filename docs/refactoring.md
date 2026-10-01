@@ -2390,6 +2390,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     loading, and completed markup and button behavior. All 532 client tests,
     typecheck, scoped lint, and build pass; the generated JS asset name and CSS
     hash remain unchanged.
+415. Moved the 404 page's animated plane into
+    `features/notFound/LiquidShader.jsx`, leaving navigation and overlay markup
+    in the 50-line route component. Moved the existing React Three Fiber lint
+    exception to the shader's new path. Two new tests pin geometry, uniforms,
+    colors, both GLSL source hashes, frame timing, resize scaling, and listener
+    cleanup. The existing overlay and Go Back fixtures still pass. All 534
+    client tests, typecheck, scoped lint, and build pass; CSS retains its prior
+    hash. The JS bundle hash changed with the module extraction.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2449,7 +2457,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 532 client tests, 64 server unit tests, 24 collaboration
+Current verified totals: 534 client tests, 64 server unit tests, 24 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

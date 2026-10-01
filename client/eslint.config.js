@@ -71,7 +71,7 @@ export default [
     },
   },
   {
-    files: ['src/pages/NotFound.jsx'],
+    files: ['src/features/notFound/LiquidShader.jsx'],
     rules: {
       // React Three Fiber passes these props to Three.js objects, not DOM nodes.
       'react/no-unknown-property': ['error', {

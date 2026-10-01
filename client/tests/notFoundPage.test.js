@@ -14,9 +14,8 @@ async function loadPage(navigate = () => {}) {
         "react-router-dom": { useNavigate: () => navigate },
         "@react-three/fiber": {
             Canvas: () => React.createElement("span", { "data-stub": "canvas" }),
-            useFrame: () => {},
         },
-        three: {},
+        "../features/notFound/LiquidShader": () => null,
     });
 }
 
