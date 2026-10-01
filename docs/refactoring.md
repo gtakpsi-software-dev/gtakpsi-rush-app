@@ -1724,6 +1724,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     compact, and empty rendered output against the original JSX. All 431 client
     tests, typecheck, and build pass, with the same production bundle hash;
     full client lint drops from 101 to 92 errors with 26 warnings.
+298. Typed the badge's optional label and spaced out its color branches without
+    changing any class strings or fallbacks. All seven existing markup cases,
+    the 431-test client suite, typecheck, and production build pass. The bundle
+    hash stays unchanged and full client lint drops from 92 to 86 errors with
+    26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1753,7 +1758,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 92 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 86 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.

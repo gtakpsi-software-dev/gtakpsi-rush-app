@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const badgePath = fileURLToPath(new URL('../src/components/Badge.jsx', import.meta.url));
+const badgePath = fileURLToPath(new URL('../src/components/Badge.tsx', import.meta.url));
 const baseClass = 'text-apple-caption1 font-light me-2 px-2 py-1 rounded-apple whitespace-nowrap';
 
 const scenarios = [
