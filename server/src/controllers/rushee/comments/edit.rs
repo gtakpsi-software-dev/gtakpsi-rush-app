@@ -10,24 +10,18 @@ pub async fn edit_comment(
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
-    let mut bson_night: bson::Bson;
-    let bson_night_attempt = to_bson(&payload.night);
-
-    match bson_night_attempt {
-        Ok(x) => {
-            bson_night = x;
-        }
-
-        Err(_error) => {
+    let bson_night = match to_bson(&payload.night) {
+        Ok(night) => night,
+        Err(_) => {
             return Ok(Json(json!({
                 "status": "error",
                 "message": "there was an error bsonifying the night"
             })))
         }
-    }
+    };
 
     let filter = doc! {
-        "gtid": id.clone(),
+        "gtid": id,
         "comments": {
             "$elemMatch": {
                 "brother_name": payload.brother_name,
@@ -42,21 +36,15 @@ pub async fn edit_comment(
         }
     };
 
-    let edit_result = connection.update_one(filter, update).await;
-
-    match edit_result {
-        Ok(_edit) => {
-            return Ok(Json(json!({
-                "status": "success",
-                "message": "updated comment successfully"
-            })))
-        }
-
-        Err(_err) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "there was an error pushing the update to the database"
-            })))
-        }
+    // An acknowledged update reports success even when no comment matched.
+    match connection.update_one(filter, update).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "updated comment successfully"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "there was an error pushing the update to the database"
+        }))),
     }
 }

@@ -69,6 +69,18 @@ pub async fn check_contracts() {
     );
     assert_eq!(stored_rushee().await.comments.len(), 2);
 
+    let mut unmatched = stored_rushee().await.comments[1].clone();
+    unmatched.brother_name = "Nobody".to_string();
+    unmatched.comment = "Should not appear".to_string();
+    assert_eq!(
+        rushee::edit_comment(path(), Json(unmatched))
+            .await
+            .unwrap()
+            .0["status"],
+        "success"
+    );
+    assert_eq!(stored_rushee().await.comments[1].comment, "Observation");
+
     let mut edited = stored_rushee().await.comments[1].clone();
     edited.comment = "Edited observation".to_string();
     edited.ratings[0].value = 1.0;

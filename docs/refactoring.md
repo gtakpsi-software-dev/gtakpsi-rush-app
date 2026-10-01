@@ -1626,6 +1626,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     cover same-day removal, category deduplication, valid averages, and removal
     when only legacy zero ratings remain. The isolated database suite passes
     with 55 tests; changed Rust files pass rustfmt.
+281. Simplified the comment text-edit handler's serialization and database
+    result handling. The database contract now also checks that an acknowledged
+    update with no matching comment still reports success and changes nothing,
+    preserving the existing response behavior. All 55 isolated API tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
