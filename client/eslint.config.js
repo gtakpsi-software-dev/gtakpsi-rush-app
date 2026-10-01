@@ -38,7 +38,7 @@ export default [
     },
   },
   {
-    files: ['src/**/*.tsx'],
+    files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       globals: globals.browser,

@@ -89,7 +89,10 @@ export function useAdminVotingSocket({
             console.error('WebSocket error', e);
             ws.close();
         };
-    }, [authorized, user, votingWebSocketUrl, setVotes, setRushee, setQuestion]);
+    }, [
+        authorized, user, votingWebSocketUrl, setVotes, setRushee, setQuestion,
+        reconnectTimeoutRef, socketRef, reconnectAttemptsRef, setConnectionStatus,
+    ]);
 
     useEffect(() => {
         if (!authorized || !user) return;
@@ -104,5 +107,5 @@ export function useAdminVotingSocket({
                 socketRef.current.close();
             }
         };
-    }, [connectWebSocket, authorized, user]);
+    }, [connectWebSocket, authorized, user, reconnectTimeoutRef, socketRef]);
 }

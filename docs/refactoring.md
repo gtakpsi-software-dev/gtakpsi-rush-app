@@ -1608,6 +1608,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     passes TSX lint. Its authorization/status markup hashes, all 423 client
     tests, and typecheck pass; controlled CSS is byte-identical. Client lint
     falls to 133 errors and 26 warnings.
+278. Extended TypeScript-aware lint from TSX to the five plain TypeScript
+    files. Added stable ref and state-setter dependencies to the admin voting
+    socket hook so those files have zero lint findings without changing when
+    React recreates the callback. All 423 client tests and typecheck pass;
+    controlled CSS is byte-identical. The full client lint baseline remains
+    133 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1637,7 +1643,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TSX lint; the current baseline has 133 errors and 26 warnings (including
+and TS/TSX lint; the current baseline has 133 errors and 26 warnings (including
 11 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
