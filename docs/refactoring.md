@@ -766,6 +766,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     access-check call order is unchanged. All 243 client tests pass, changed
     files pass ESLint, the build succeeds, and CSS is unchanged. `user.js` is
     now 284 lines; live login and registration flows remain unverified.
+131. Login access check: moved the access request and explicit-denial handling
+    into a focused injected helper. Three tests pin claim/body/header shape,
+    sign-out and toast ordering, and the existing fail-open behavior on request
+    or sign-out errors. The API-key lookup remains inside the error boundary.
+    All 246 client tests pass, changed files pass ESLint, the build succeeds,
+    and CSS is unchanged. `user.js` is now 254 lines; live login remains
+    unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -811,7 +818,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 243 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
+Current verified totals: 246 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

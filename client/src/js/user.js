@@ -18,6 +18,7 @@ import {
 import { isEmailAllowed } from "../data/allowedEmails";
 import { createdStoredUser, loginStoredUser } from "../features/auth/userSession";
 import { accountErrorMessage, loginErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
+import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
 
 /**
  * Sign in with email and password
@@ -46,55 +47,24 @@ export async function login(credentials) {
             isBidcom
         });
         
-        // Check if the Rush App is disabled for this user
         const apiBase = import.meta.env.VITE_API_PREFIX;
-        try {
-            const requestBody = {
-                uid: user.uid,
-                is_admin: isAdmin,
-                is_bidcom: isBidcom,
-            };
-            console.log("Login - Sending access check:", requestBody);
-            
-            const apiKey = import.meta.env.VITE_API_KEY;
-            const headers = {
-                'Content-Type': 'application/json',
-            };
-            if (apiKey) {
-                headers['X-API-Key'] = apiKey;
-            }
-            
-            const accessResponse = await fetch(`${apiBase}/brother/rush-app/check-access`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(requestBody),
-            });
-            
-            const accessData = await accessResponse.json();
-            console.log("Login - Access check response:", accessData);
-            
-            if (accessData.status === 'success' && accessData.allowed === false) {
-                // User is blocked - sign them out and show error
-                await signOut(auth);
-                localStorage.removeItem('user');
-                
-                toast.error(accessData.reason || 'The Rush App has been temporarily disabled.', {
-                    position: "top-center",
-                    autoClose: 6000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "dark",
-                });
-                
-                return false;
-            }
-        } catch (accessError) {
-            // If the access check fails, allow login to proceed (fail open)
-            console.warn("Could not check Rush App access status:", accessError);
+        const accessAllowed = await checkRushAppAccess({
+            user,
+            isAdmin,
+            isBidcom,
+            apiBase,
+            getApiKey: () => import.meta.env.VITE_API_KEY,
+            fetchRequest: (...args) => fetch(...args),
+            signOut,
+            auth,
+            removeStoredUser: () => localStorage.removeItem('user'),
+            toast,
+            logger: console,
+        });
+        if (!accessAllowed) {
+            return false;
         }
-        
+
         localStorage.setItem('user', JSON.stringify(loginStoredUser(user)));
         
         toast.success('Signed in successfully!', {
