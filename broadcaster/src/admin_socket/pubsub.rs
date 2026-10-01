@@ -1,6 +1,6 @@
 use crate::clients::{broadcast_to_clients, ClientList};
 use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
-use crate::pubsub::shared_update;
+use crate::protocol::{shared_update, vote_update};
 use futures_util::StreamExt;
 use redis::AsyncCommands;
 use std::time::Duration;
@@ -53,17 +53,7 @@ async fn run_admin_pubsub_listener(
                     .await
                     {
                         Ok(Ok(values)) => {
-                            let votes: Vec<serde_json::Value> = values
-                                .into_iter()
-                                .filter_map(|s| serde_json::from_str(&s).ok())
-                                .collect();
-
-                            let msg = serde_json::json!({
-                                "type": "vote_update",
-                                "votes": votes
-                            });
-
-                            broadcast_to_clients(&clients, msg.to_string());
+                            broadcast_to_clients(&clients, vote_update(values));
                         }
                         Ok(Err(e)) => {
                             println!("❌ Failed to fetch vote_log hash: {}", e);

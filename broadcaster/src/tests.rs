@@ -1,5 +1,5 @@
 use crate::clients::broadcast_to_clients;
-use crate::pubsub::shared_update;
+use crate::protocol::{shared_update, vote_update};
 use axum::extract::ws::Message;
 use dashmap::DashMap;
 use std::sync::Arc;
@@ -35,4 +35,20 @@ fn shared_pubsub_channels_keep_string_payloads_and_wire_names() {
         Some(r#"{"question":"new question","type":"question_update"}"#)
     );
     assert_eq!(shared_update("vote_channel", "ignored"), None);
+}
+
+#[test]
+fn vote_events_keep_valid_json_values_and_skip_malformed_hash_entries() {
+    assert_eq!(
+        vote_update(vec![
+            r#"{"choice":"yes"}"#.into(),
+            "not json".into(),
+            "null".into(),
+        ]),
+        r#"{"type":"vote_update","votes":[{"choice":"yes"},null]}"#
+    );
+    assert_eq!(
+        vote_update(vec!["invalid".into()]),
+        r#"{"type":"vote_update","votes":[]}"#
+    );
 }

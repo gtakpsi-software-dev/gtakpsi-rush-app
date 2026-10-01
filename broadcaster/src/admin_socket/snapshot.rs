@@ -1,4 +1,5 @@
 use crate::db::{reset_redis_conn, REDIS_CALL_TIMEOUT};
+use crate::protocol::vote_update;
 use crate::snapshot::load_field;
 use axum::extract::ws::Message;
 use redis::{aio::ConnectionManager, AsyncCommands};
@@ -6,19 +7,9 @@ use redis::{aio::ConnectionManager, AsyncCommands};
 pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Message> {
     let mut initial_messages = Vec::new();
 
-    // Skip malformed stored votes so one bad entry does not suppress the full tally.
     match tokio::time::timeout(REDIS_CALL_TIMEOUT, conn.hvals::<_, Vec<String>>("vote_log")).await {
         Ok(Ok(values)) => {
-            let votes: Vec<serde_json::Value> = values
-                .into_iter()
-                .filter_map(|s| serde_json::from_str(&s).ok())
-                .collect();
-
-            let msg = serde_json::json!({
-                "type": "vote_update",
-                "votes": votes
-            });
-            initial_messages.push(Message::Text(msg.to_string()));
+            initial_messages.push(Message::Text(vote_update(values)));
         }
         Ok(Err(e)) => {
             println!("❌ Redis error while fetching vote_log: {}", e);

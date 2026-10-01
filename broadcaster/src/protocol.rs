@@ -13,3 +13,17 @@ pub(crate) fn shared_update(channel: &str, payload: &str) -> Option<String> {
 
     Some(message.to_string())
 }
+
+pub(crate) fn vote_update(values: Vec<String>) -> String {
+    // Ignore malformed stored votes so one bad entry does not hide the tally.
+    let votes: Vec<serde_json::Value> = values
+        .into_iter()
+        .filter_map(|value| serde_json::from_str(&value).ok())
+        .collect();
+
+    serde_json::json!({
+        "type": "vote_update",
+        "votes": votes
+    })
+    .to_string()
+}

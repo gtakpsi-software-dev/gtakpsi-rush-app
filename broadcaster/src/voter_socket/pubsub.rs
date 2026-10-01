@@ -1,6 +1,6 @@
 use crate::clients::{broadcast_to_clients, ClientList};
 use crate::db::get_redis_pubsub;
-use crate::pubsub::shared_update;
+use crate::protocol::shared_update;
 use futures_util::StreamExt;
 use std::time::Duration;
 

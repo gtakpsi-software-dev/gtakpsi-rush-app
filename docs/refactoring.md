@@ -1144,6 +1144,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the no-night and missing-rushee messages; existing duplicate, rating, edit,
     and deletion scenarios still pass. All 43 API unit tests and all 44 tests
     with disposable MongoDB pass. API test-build warnings fall from 42 to 35.
+201. Renamed the voting service's shared event encoder module from `pubsub` to
+    `protocol` and reused one vote-log encoder for initial admin snapshots and
+    live vote updates. A unit test pins valid JSON values, malformed-entry
+    filtering, empty tallies, and exact event text. All four voting tests pass
+    with disposable Redis and real admin/voter WebSockets; rustfmt is clean.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1192,7 +1197,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 323 client tests, 43 server unit tests, 16 collaboration
-tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
+tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
