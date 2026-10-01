@@ -105,7 +105,7 @@ after the WebSocket tests.
 client lint, typecheck, and build on pushes and pull requests. Scoped lint checks
 all client files except `Attendance.jsx` and rejects new warnings above the
 current baseline of 6. Repository-wide lint remains tracked separately in
-[the refactoring ledger](docs/refactoring.md) because Attendance has eight
+[the refactoring ledger](docs/refactoring.md#slice-ledger) because Attendance has eight
 existing undefined-setter errors. The workflow has not run on GitHub yet.
 
 ## Deploy
