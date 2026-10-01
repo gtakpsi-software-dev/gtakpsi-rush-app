@@ -162,6 +162,23 @@ test('legacy operations broadcast transformed positions but apply original posit
     assert.deepEqual(await documentState(first), { notes: { value: 'Xbc', version: 0 } });
 });
 
+test('legacy replacements and unknown operation types preserve stored text and version zero', async (t) => {
+    const service = await startServer(t);
+    const client = await service.client();
+    for (const operation of [
+        { type: 'replace', position: 0, content: 'abcd' },
+        { type: 'replace', position: 1, length: 2, content: 'X' },
+        { type: 'delete', position: 1, length: 1 },
+        { type: 'unknown', position: 0, content: 'ignored' },
+    ]) {
+        client.emit('text-operation', { ...operation, field: 'notes' });
+    }
+
+    assert.deepEqual(await documentState(client), { notes: { value: 'ad', version: 0 } });
+    const stats = await (await fetch(`${service.url}/rooms/pis-1/stats`)).json();
+    assert.equal(stats.operationCount, 4);
+});
+
 test('legacy history retains only the last 100 operations', async (t) => {
     const service = await startServer(t);
     const client = await service.client();
