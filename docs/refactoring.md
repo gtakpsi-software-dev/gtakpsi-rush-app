@@ -33,6 +33,8 @@ The real-time package names follow `rush-<domain>-websocket`: voting is
 PIS editing is `rush-pis-websocket`. Their existing service directories remain
 the deployment roots. The Rust binaries remain `broadcaster` and
 `sorting-broadcaster`, matching the current Dockerfiles.
+Inbound socket handlers now use `src/handlers.rs` in both Rust services and
+`src/handlers/` in the PIS Socket.IO service.
 
 ## Slice ledger
 
@@ -2484,6 +2486,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests still pin public URL storage, upload order, and error handling. All
     62 maintenance tests and Python compilation pass. No live database,
     Storage bucket, or headshot file was accessed.
+428. Renamed voting's shared inbound WebSocket module from `socket_receive.rs`
+    to `handlers.rs`, matching the sorting and PIS service layouts. Renamed its
+    frame-monitoring function to `handle_incoming_frames`; admin and voter
+    sessions still call the same body. All three voting unit tests and all
+    four tests with the Redis integration feature pass, including live
+    snapshot, two-Pong, PubSub, disconnect, and reconnect behavior. The
+    touched Rust files pass rustfmt; deployment roots, binary names, routes,
+    and wire messages remain unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -2,10 +2,10 @@ mod admin_socket;
 mod app;
 mod clients;
 mod db;
+mod handlers;
 mod protocol;
 mod session;
 mod snapshot;
-mod socket_receive;
 mod voter_socket;
 
 #[cfg(test)]

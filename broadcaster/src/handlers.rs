@@ -17,7 +17,7 @@ impl SocketRole {
     }
 }
 
-pub(crate) async fn monitor_messages(
+pub(crate) async fn handle_incoming_frames(
     mut receiver: SplitStream<WebSocket>,
     tx: mpsc::UnboundedSender<Message>,
     id: usize,

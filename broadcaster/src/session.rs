@@ -1,6 +1,6 @@
 use crate::clients::ClientList;
 use crate::db::get_redis_conn;
-use crate::socket_receive::{monitor_messages, SocketRole};
+use crate::handlers::{handle_incoming_frames, SocketRole};
 use axum::extract::ws::{Message, WebSocket};
 use futures_util::{SinkExt, StreamExt};
 use redis::aio::ConnectionManager;
@@ -72,7 +72,7 @@ pub(crate) async fn handle_socket<F, Fut>(
         }
     });
 
-    let recv_task = tokio::spawn(monitor_messages(ws_receiver, tx.clone(), id, role));
+    let recv_task = tokio::spawn(handle_incoming_frames(ws_receiver, tx.clone(), id, role));
 
     tokio::select! {
         _ = send_task => match role {

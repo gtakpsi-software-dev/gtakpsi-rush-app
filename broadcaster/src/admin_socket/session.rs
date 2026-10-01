@@ -1,6 +1,6 @@
 use crate::clients::ClientList;
+use crate::handlers::SocketRole;
 use crate::session::handle_socket;
-use crate::socket_receive::SocketRole;
 use axum::{
     extract::{ws::WebSocketUpgrade, ConnectInfo, Path},
     response::IntoResponse,
