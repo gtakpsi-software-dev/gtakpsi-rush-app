@@ -2111,6 +2111,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     into one helper without changing tie order or write-failure reservations.
     Changed files pass rustfmt, all six planner tests pass, and all 62 API
     tests with the isolated database integration feature pass.
+369. Consolidated duplicate admin and voter WebSocket session lifecycles into
+    one internal module while retaining separate route handlers, ID counters,
+    snapshot loaders, log messages, and wire events. The Redis-backed loopback
+    scenario now uses the same numeric ID in both roles to pin their independent
+    client registries; it passed before and after the refactor. Rustfmt, all
+    three voting WebSocket unit tests, and all four tests with the Redis
+    integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

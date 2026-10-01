@@ -41,7 +41,8 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
         json!({"type":"question_update","question":null})
     );
 
-    let mut voter = connect(&format!("{}/voter/18", server.url)).await;
+    // Admin and voter connections must remain independent when their route IDs match.
+    let mut voter = connect(&format!("{}/voter/17", server.url)).await;
     assert_eq!(
         receive(&mut voter).await,
         json!({"type":"rushee_update","rushee":r#"{"id":"first"}"#})
@@ -51,7 +52,7 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
         json!({"type":"question_update","question":null})
     );
     assert!(server.admins.contains_key(&17));
-    assert!(server.voters.contains_key(&18));
+    assert!(server.voters.contains_key(&17));
 
     for socket in [&mut admin, &mut voter] {
         socket

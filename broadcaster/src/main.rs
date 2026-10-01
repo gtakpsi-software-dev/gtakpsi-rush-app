@@ -3,6 +3,7 @@ mod app;
 mod clients;
 mod db;
 mod protocol;
+mod session;
 mod snapshot;
 mod socket_receive;
 mod voter_socket;

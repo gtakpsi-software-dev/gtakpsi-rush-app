@@ -2,9 +2,19 @@ use axum::extract::ws::{Message, WebSocket};
 use futures_util::{stream::SplitStream, StreamExt};
 use tokio::sync::mpsc;
 
+#[derive(Clone, Copy)]
 pub(crate) enum SocketRole {
     Admin,
     Voter,
+}
+
+impl SocketRole {
+    pub(crate) fn label(self) -> &'static str {
+        match self {
+            Self::Admin => "Admin",
+            Self::Voter => "Voter",
+        }
+    }
 }
 
 pub(crate) async fn monitor_messages(
