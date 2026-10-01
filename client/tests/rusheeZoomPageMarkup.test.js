@@ -89,7 +89,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/rushee/zoom/RusheeZoomView": Layout,
         "../features/rushee/zoom/routeContext": { getRusheeNumber, isBidCommitteeMode },
         "../components/Loader": stub("loader"),
-        "../js/speculativeWordBank": { validateComment: noop, generateWarnings: noop },
+        "../features/comments/commentValidation": { validateComment: noop, generateWarnings: noop },
         "react-toastify": { toast: {} },
         "react-toastify/dist/ReactToastify.css": {},
     };

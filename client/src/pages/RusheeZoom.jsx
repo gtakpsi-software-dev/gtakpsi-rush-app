@@ -11,7 +11,7 @@ import {
     isBidCommitteeMode as matchesBidCommitteeMode,
 } from "../features/rushee/zoom/routeContext";
 import Loader from "../components/Loader";
-import { validateComment, generateWarnings } from "../js/speculativeWordBank";
+import { validateComment, generateWarnings } from "../features/comments/commentValidation";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

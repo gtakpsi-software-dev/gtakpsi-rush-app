@@ -5,7 +5,7 @@ import {
     checkRusheeName,
     validateComment,
     generateWarnings,
-} from '../src/js/speculativeWordBank.js';
+} from '../src/features/comments/commentValidation.js';
 
 test('speculation uses whole words, bank order, and deduplicated matches', () => {
     assert.deepEqual(checkSpeculativeLanguage('Eventually they COULD be a good fit, eventually.'), {

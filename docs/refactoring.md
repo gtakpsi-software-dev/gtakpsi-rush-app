@@ -2035,6 +2035,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     client tests, typecheck, build, and changed-file ESLint pass. Full lint
     remains at 8 errors and 26 warnings. CSS is unchanged; JavaScript differs
     because the route rules now live in a separate module.
+356. Moved the comment warning rules and their test from generic `js/` into
+    `features/comments/commentValidation.js`, updating the Rushee Zoom import.
+    Removed redundant comments and trailing whitespace while retaining the
+    word bank, regex matching, warning text, and public exports. All 503
+    client tests, typecheck, changed-file ESLint, and build pass. Full lint
+    remains at 8 errors and 26 warnings; production JS and CSS hashes match
+    slice 355 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
