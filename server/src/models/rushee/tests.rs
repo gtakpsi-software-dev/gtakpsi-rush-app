@@ -65,6 +65,47 @@ fn self_view_serializes_only_the_existing_public_fields() {
 }
 
 #[test]
+fn list_view_keeps_null_timeslot_and_interaction_fields() {
+    let view = StrippedRushee {
+        name: "Ada Example".to_string(),
+        first_name: "Ada".to_string(),
+        last_name: "Example".to_string(),
+        gtid: "900000001".to_string(),
+        major: "Business".to_string(),
+        ratings: vec![Rating { name: "Leadership".to_string(), value: 4.5 }],
+        image_url: "headshot".to_string(),
+        class: "First Year".to_string(),
+        email: "ada@example.invalid".to_string(),
+        pronouns: "they/them".to_string(),
+        attendance: vec![],
+        registration_order: 3,
+        pis_timeslot: None,
+        interactions_by_night: vec![NightInteractionSummary {
+            night_index: 1,
+            name: "Night 1".to_string(),
+            interactions: None,
+        }],
+    };
+
+    assert_eq!(serde_json::to_value(view).unwrap(), json!({
+        "name": "Ada Example",
+        "first_name": "Ada",
+        "last_name": "Example",
+        "gtid": "900000001",
+        "major": "Business",
+        "ratings": [{"name": "Leadership", "value": 4.5}],
+        "image_url": "headshot",
+        "class": "First Year",
+        "email": "ada@example.invalid",
+        "pronouns": "they/them",
+        "attendance": [],
+        "registration_order": 3,
+        "pis_timeslot": null,
+        "interactions_by_night": [{"night_index": 1, "name": "Night 1", "interactions": null}]
+    }));
+}
+
+#[test]
 fn vote_option_wire_names_remain_case_sensitive() {
     assert_eq!(
         serde_json::to_value(VoteOption::NotVoted).unwrap(),
