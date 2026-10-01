@@ -1,19 +1,37 @@
-import Button from "../Button";
+/**
+ * Attendance Confirmation Summary:
+ * - Types the profile and callbacks consumed by the confirmation view.
+ * - Removes an unused import and descriptive comments without changing markup.
+ * - An SSR fixture pins the original rendered output.
+ */
+type AttendanceRushee = {
+    image_url: string;
+    first_name: string;
+    last_name: string;
+    pronouns: string;
+    major: string;
+    email: string;
+    phone_number: string;
+    housing: string;
+};
 
-export default function DisplayInfo(props) {
+type DisplayInfoProps = {
+    rushee: AttendanceRushee;
+    goBack: () => void;
+    checkIn: () => void;
+};
 
-    const initialRushee = props.rushee
+export default function DisplayInfo(props: DisplayInfoProps) {
+    const initialRushee = props.rushee;
 
     return (
         <div className="min-h-screen w-full bg-white flex justify-center items-center p-4">
             <div className="max-w-2xl w-full">
-                {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-apple-large font-light text-black mb-3">Is this you?</h1>
                     <div className="w-16 h-0.5 bg-black mx-auto"></div>
                 </div>
 
-                {/* Profile Card */}
                 <div className="card-apple p-6 mb-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         <img
@@ -47,7 +65,6 @@ export default function DisplayInfo(props) {
                     </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <button 
                         onClick={props.goBack}
@@ -64,6 +81,5 @@ export default function DisplayInfo(props) {
                 </div>
             </div>
         </div>
-    )
-
+    );
 }
