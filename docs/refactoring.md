@@ -2662,6 +2662,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     guards, handlers, and tests. The data still maps each socket ID to its room
     and user information; all 28 collaboration tests pass, including live
     connection, reconnection, update, and presence contracts.
+457. Renamed the voting WebSocket service's `ClientList` type to `ClientMap`,
+    matching its ID-keyed storage and the sorting service's type name. Voting
+    integration tests now use the production alias instead of duplicating its
+    type definition. All three voting unit tests and four Redis-backed
+    WebSocket tests pass; the changed files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

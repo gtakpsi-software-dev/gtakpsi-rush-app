@@ -1,4 +1,4 @@
-use crate::clients::ClientList;
+use crate::clients::ClientMap;
 use crate::db::get_redis_conn;
 use crate::handlers::{handle_incoming_frames, SocketRole};
 use axum::extract::ws::{Message, WebSocket};
@@ -14,7 +14,7 @@ use tokio::sync::mpsc;
 pub(crate) async fn handle_socket<F, Fut>(
     socket: WebSocket,
     addr: SocketAddr,
-    clients: ClientList,
+    clients: ClientMap,
     client_id: Option<String>,
     next_client_id: &'static AtomicUsize,
     role: SocketRole,

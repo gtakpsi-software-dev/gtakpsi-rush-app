@@ -1,21 +1,20 @@
-use crate::{admin_socket, voter_socket};
+use crate::{admin_socket, clients::ClientMap, voter_socket};
 use dashmap::DashMap;
 use futures_util::StreamExt;
 use redis::{AsyncCommands, Value as RedisValue};
 use serde_json::{json, Value};
 use std::{env, net::SocketAddr, sync::Arc, time::Duration};
-use tokio::{net::TcpStream, sync::mpsc};
+use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 mod websocket;
 
 type TestSocket = WebSocketStream<MaybeTlsStream<TcpStream>>;
-type ClientList = Arc<DashMap<usize, mpsc::UnboundedSender<axum::extract::ws::Message>>>;
 
 struct TestServer {
     url: String,
-    admins: ClientList,
-    voters: ClientList,
+    admins: ClientMap,
+    voters: ClientMap,
     task: tokio::task::JoinHandle<()>,
 }
 

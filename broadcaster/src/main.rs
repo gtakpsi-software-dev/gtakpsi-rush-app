@@ -14,7 +14,7 @@ mod tests;
 #[cfg(all(test, feature = "integration-tests"))]
 mod integration_tests;
 
-use clients::ClientList;
+use clients::ClientMap;
 use std::{env, net::SocketAddr, sync::Arc};
 use voter_socket::spawn_pubsub_listener;
 
@@ -22,8 +22,8 @@ use voter_socket::spawn_pubsub_listener;
 async fn main() {
     dotenvy::dotenv().ok();
 
-    let voters: ClientList = Arc::new(dashmap::DashMap::new());
-    let admins: ClientList = Arc::new(dashmap::DashMap::new());
+    let voters: ClientMap = Arc::new(dashmap::DashMap::new());
+    let admins: ClientMap = Arc::new(dashmap::DashMap::new());
 
     spawn_pubsub_listener(voters.clone()).await;
     admin_socket::spawn_pubsub_listener(admins.clone()).await;

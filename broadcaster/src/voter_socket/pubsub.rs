@@ -1,10 +1,10 @@
-use crate::clients::{broadcast_to_clients, ClientList};
+use crate::clients::{broadcast_to_clients, ClientMap};
 use crate::db::get_redis_pubsub;
 use crate::protocol::shared_update;
 use futures_util::StreamExt;
 use std::time::Duration;
 
-pub async fn spawn_pubsub_listener(clients: ClientList) {
+pub async fn spawn_pubsub_listener(clients: ClientMap) {
     tokio::spawn(async move {
         loop {
             println!("🔄 Voter PubSub: Connecting to Redis...");
@@ -24,7 +24,7 @@ pub async fn spawn_pubsub_listener(clients: ClientList) {
 }
 
 async fn run_voter_pubsub_listener(
-    clients: ClientList,
+    clients: ClientMap,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut pubsub = get_redis_pubsub().await;
 

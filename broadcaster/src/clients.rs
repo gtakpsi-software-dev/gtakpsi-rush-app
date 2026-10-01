@@ -3,9 +3,9 @@ use dashmap::DashMap;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
-pub type ClientList = Arc<DashMap<usize, mpsc::UnboundedSender<Message>>>;
+pub type ClientMap = Arc<DashMap<usize, mpsc::UnboundedSender<Message>>>;
 
-pub fn broadcast_to_clients(clients: &ClientList, msg_str: String) {
+pub fn broadcast_to_clients(clients: &ClientMap, msg_str: String) {
     let mut to_remove = Vec::new();
     for entry in clients.iter() {
         let (id, tx) = entry.pair();

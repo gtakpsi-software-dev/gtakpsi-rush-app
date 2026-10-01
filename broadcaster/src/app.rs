@@ -1,7 +1,7 @@
-use crate::{admin_socket, clients::ClientList, voter_socket};
+use crate::{admin_socket, clients::ClientMap, voter_socket};
 use axum::{routing::get, Router};
 
-pub fn create_router(voters: ClientList, admins: ClientList) -> Router {
+pub fn create_router(voters: ClientMap, admins: ClientMap) -> Router {
     Router::new()
         .route("/", get(|| async { "ok" }))
         .route(
