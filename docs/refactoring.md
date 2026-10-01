@@ -815,6 +815,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     value when email is absent. All 251 client tests and the production build
     pass; the rendered JSX text is unchanged. The helper and tests pass ESLint;
     `Navbar.jsx` still has three pre-existing lint findings.
+138. Navbar menu: moved role and midterm navigation markup into a typed
+    component, reducing `Navbar.jsx` from 288 to 113 lines. Six rendered menu
+    variants match hashes captured from the original JSX, and an interaction
+    test pins dropdown toggle order and logout before reload. The surrounding
+    Navbar JSX is unchanged and the production CSS hash is identical. All 253
+    client tests and the build pass. The parent retains two pre-existing
+    `stripped` prop-validation lint findings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -860,7 +867,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 251 client tests, 37 server unit tests, 15 collaboration tests, 9 sorting
+Current verified totals: 253 client tests, 37 server unit tests, 15 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 41 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
