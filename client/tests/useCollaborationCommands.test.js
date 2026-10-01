@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const hookPath = fileURLToPath(new URL("../src/features/pis/useCollaboration.js", import.meta.url));
+const hookPath = fileURLToPath(new URL("../src/features/pis/useCollaborationCommands.js", import.meta.url));
 
 async function loadHook(connected) {
     const source = await readFile(hookPath, "utf8");
@@ -18,26 +18,11 @@ async function loadHook(connected) {
             events.push([name, payload === undefined ? undefined : JSON.parse(JSON.stringify(payload))]);
         },
     };
-    const state = [socket, [], [], [], connected, new Map(), {}, {}];
-    let stateIndex = 0;
-    const noop = () => {};
+    const lastOperationRef = { current: null };
+    const pendingUpdatesRef = { current: {} };
     const dependencies = {
         react: {
-            useState: () => [state[stateIndex++], noop],
-            useRef: (initial) => ({ current: initial }),
-            useEffect: noop,
             useCallback: (callback) => callback,
-        },
-        "socket.io-client": { io: noop },
-        "../../config/realtimeBaseUrls.js": { realtimeBaseUrls: { pisCollaboration: "ws://local" } },
-        "./registerCollaborationConnectionEvents.js": { registerCollaborationConnectionEvents: noop },
-        "./registerCollaborationFieldEvents.js": { registerCollaborationFieldEvents: noop },
-        "./registerCollaborationTextEvents.js": { registerCollaborationTextEvents: noop },
-        "./collaborationPresence.js": {
-            pruneTypingUsers: noop, clearStaleCursors: noop, getActiveCursors: noop,
-        },
-        "./operations.js": {
-            applyOperation: noop, createOperation: noop, createOperationsFromDiff: noop,
         },
     };
 
@@ -53,11 +38,15 @@ async function loadHook(connected) {
     }, { filename: hookPath });
 
     const currentUser = { id: "member-1", firstName: "Ada", lastName: "Lovelace" };
-    return { commands: module.exports.useCollaboration("pis-1", currentUser), events };
+    const commands = module.exports.useCollaborationCommands({
+        socket, isConnected: connected, currentUser, lastOperationRef,
+        knownVersionsRef: { current: {} }, pendingUpdatesRef,
+    });
+    return { commands, events, lastOperationRef, pendingUpdatesRef };
 }
 
 test("connected collaboration commands retain their emitted event names and payloads", async () => {
-    const { commands, events } = await loadHook(true);
+    const { commands, events, lastOperationRef, pendingUpdatesRef } = await loadHook(true);
     const operation = { type: "insert", field: "answer", content: "A" };
     commands.sendTextOperation(operation);
     commands.sendTextUpdate("answer", "Ada");
@@ -77,10 +66,13 @@ test("connected collaboration commands retain their emitted event names and payl
         ["typing-indicator", { field: "answer", isTyping: true, timestamp: 123 }],
         ["request-document-state", undefined],
     ]);
+    assert.equal(lastOperationRef.current, operation);
+    assert.equal(pendingUpdatesRef.current.answer.value, "Ada");
+    assert.equal(pendingUpdatesRef.current.answer.clientUpdateId, "i");
 });
 
 test("disconnected collaboration commands do not emit events", async () => {
-    const { commands, events } = await loadHook(false);
+    const { commands, events, lastOperationRef, pendingUpdatesRef } = await loadHook(false);
     commands.sendTextOperation({ type: "insert" });
     commands.sendTextUpdate("answer", "Ada");
     commands.sendCursorPosition("answer", 4);
@@ -88,4 +80,6 @@ test("disconnected collaboration commands do not emit events", async () => {
     commands.sendTypingIndicator("answer", true);
     commands.requestDocumentState();
     assert.deepEqual(events, []);
+    assert.equal(lastOperationRef.current, null);
+    assert.deepEqual(pendingUpdatesRef.current, {});
 });

@@ -4,6 +4,7 @@ import { realtimeBaseUrls } from '../../config/realtimeBaseUrls.js';
 import { registerCollaborationConnectionEvents } from './registerCollaborationConnectionEvents.js';
 import { registerCollaborationFieldEvents } from './registerCollaborationFieldEvents.js';
 import { registerCollaborationTextEvents } from './registerCollaborationTextEvents.js';
+import { useCollaborationCommands } from './useCollaborationCommands.js';
 import {
     pruneTypingUsers,
     clearStaleCursors,
@@ -95,68 +96,21 @@ export const useCollaboration = (roomId, currentUser) => {
         };
     }, [roomId, currentUser, pisCollaborationUrl]);
 
-    const sendTextOperation = useCallback((operation) => {
-        if (socket && isConnected) {
-            // Store reference to avoid processing our own operation
-            lastOperationRef.current = operation;
-            socket.emit('text-operation', operation);
-        }
-    }, [socket, isConnected]);
-
-    // Send full text update after debounce
-    const sendTextUpdate = useCallback((field, value) => {
-        if (socket && isConnected) {
-            const baseVersion = knownVersionsRef.current[field] || 0;
-            const clientUpdateId = Math.random().toString(36).substr(2, 9);
-            pendingUpdatesRef.current[field] = { clientUpdateId, value };
-
-            socket.emit('text-update', {
-                field,
-                value,
-                baseVersion,
-                clientUpdateId,
-                userId: currentUser.id,
-                userName: `${currentUser.firstName} ${currentUser.lastName}`
-            });
-        }
-    }, [socket, isConnected, currentUser]);
-
-    const sendCursorPosition = useCallback((field, position) => {
-        if (socket && isConnected) {
-            socket.emit('cursor-position', {
-                field,
-                position,
-                timestamp: Date.now()
-            });
-        }
-    }, [socket, isConnected]);
-
-    // Clear cursor position (call on blur to release field lock)
-    const clearCursorPosition = useCallback((field) => {
-        if (socket && isConnected) {
-            socket.emit('cursor-position', {
-                field,
-                position: null,
-                timestamp: Date.now()
-            });
-        }
-    }, [socket, isConnected]);
-
-    const sendTypingIndicator = useCallback((field, isTyping) => {
-        if (socket && isConnected) {
-            socket.emit('typing-indicator', {
-                field,
-                isTyping,
-                timestamp: Date.now()
-            });
-        }
-    }, [socket, isConnected]);
-
-    const requestDocumentState = useCallback(() => {
-        if (socket && isConnected) {
-            socket.emit('request-document-state');
-        }
-    }, [socket, isConnected]);
+    const {
+        sendTextOperation,
+        sendTextUpdate,
+        sendCursorPosition,
+        clearCursorPosition,
+        sendTypingIndicator,
+        requestDocumentState,
+    } = useCollaborationCommands({
+        socket,
+        isConnected,
+        currentUser,
+        lastOperationRef,
+        knownVersionsRef,
+        pendingUpdatesRef,
+    });
 
     useEffect(() => {
         const interval = setInterval(() => {

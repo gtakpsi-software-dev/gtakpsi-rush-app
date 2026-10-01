@@ -2207,6 +2207,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     reconnected socket. All 524 client tests, typecheck, and build pass; CSS
     is unchanged, and full ESLint remains at eight Attendance errors and 22
     warnings.
+385. Moved the six outbound PIS collaboration callbacks into a command hook,
+    leaving socket registration and presence cleanup in the parent hook. The
+    existing command tests now exercise the extracted hook directly and also
+    pin local operation and pending-update refs; the socket registration test
+    checks the parent passes the same user and initial socket. All 524 client
+    tests, typecheck, and build pass. CSS is unchanged, and full ESLint remains
+    at eight Attendance errors and 22 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

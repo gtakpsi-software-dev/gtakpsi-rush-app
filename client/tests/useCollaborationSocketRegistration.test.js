@@ -22,6 +22,7 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
     const effects = [];
     const calls = [];
     const listeners = new Map();
+    let commandOptions;
     const socket = {
         on(name, handler) { listeners.set(name, handler); },
         disconnect() { calls.push('disconnect'); },
@@ -52,6 +53,16 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
             clearStaleCursors: noop,
             getActiveCursors: noop,
         },
+        './useCollaborationCommands.js': {
+            useCollaborationCommands(options) {
+                commandOptions = options;
+                return {
+                    sendTextOperation: noop, sendTextUpdate: noop,
+                    sendCursorPosition: noop, clearCursorPosition: noop,
+                    sendTypingIndicator: noop, requestDocumentState: noop,
+                };
+            },
+        },
         './operations.js': {
             applyOperation: noop,
             createOperation: noop,
@@ -71,6 +82,8 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
     module.exports.useCollaboration('room-1', {
         id: 'me', firstName: 'Ada', lastName: 'Lovelace',
     });
+    assert.equal(commandOptions.currentUser.id, 'me');
+    assert.equal(commandOptions.socket, null);
     const cleanup = effects[0]();
     assert.deepEqual(calls[0], ['connect', 'ws://collaboration.test', true]);
     assert.deepEqual([...listeners.keys()], [
