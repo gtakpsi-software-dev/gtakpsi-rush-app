@@ -1,5 +1,6 @@
 use crate::clients::{broadcast_to_clients, ClientList};
 use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
+use crate::pubsub::shared_update;
 use futures_util::StreamExt;
 use redis::AsyncCommands;
 use std::time::Duration;
@@ -73,19 +74,10 @@ async fn run_admin_pubsub_listener(
                         }
                     }
                 }
-                "rushee" => {
-                    let msg = serde_json::json!({
-                        "type": "rushee_update",
-                        "rushee": payload
-                    });
-                    broadcast_to_clients(&clients, msg.to_string());
-                }
-                "question" => {
-                    let msg = serde_json::json!({
-                        "type": "question_update",
-                        "question": payload
-                    });
-                    broadcast_to_clients(&clients, msg.to_string());
+                "rushee" | "question" => {
+                    if let Some(message) = shared_update(&channel, &payload) {
+                        broadcast_to_clients(&clients, message);
+                    }
                 }
                 _ => {}
             }

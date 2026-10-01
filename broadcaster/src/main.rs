@@ -2,6 +2,7 @@ mod admin_socket;
 mod app;
 mod clients;
 mod db;
+mod pubsub;
 mod snapshot;
 mod voter_socket;
 

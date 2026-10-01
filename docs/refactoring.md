@@ -1074,6 +1074,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `src/operations.js`, leaving the event handler to manage room state and
     broadcasts. The original submitted operation still determines stored text;
     all 16 collaborative WebSocket tests pass.
+188. Shared rushee/question Redis event encoding between the voting service's
+    admin and voter listeners. A new unit test pins the string payload and wire
+    event names; both unit tests and all three tests in the disposable Redis/
+    real WebSocket harness pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1122,7 +1126,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 299 client tests, 41 server unit tests, 16 collaboration
-tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
+tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

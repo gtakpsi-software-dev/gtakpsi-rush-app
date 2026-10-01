@@ -1,5 +1,6 @@
 use crate::clients::{broadcast_to_clients, ClientList};
 use crate::db::get_redis_pubsub;
+use crate::pubsub::shared_update;
 use futures_util::StreamExt;
 use std::time::Duration;
 
@@ -36,18 +37,9 @@ async fn run_voter_pubsub_listener(
     while let Some(msg) = stream.next().await {
         let channel = msg.get_channel_name().to_string();
         if let Ok(payload) = msg.get_payload::<String>() {
-            let msg = match channel.as_str() {
-                "rushee" => serde_json::json!({
-                    "type": "rushee_update",
-                    "rushee": payload
-                }),
-                "question" => serde_json::json!({
-                    "type": "question_update",
-                    "question": payload
-                }),
-                _ => continue,
-            };
-            broadcast_to_clients(&clients, msg.to_string());
+            if let Some(message) = shared_update(&channel, &payload) {
+                broadcast_to_clients(&clients, message);
+            }
         }
     }
 
