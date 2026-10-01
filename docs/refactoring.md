@@ -1532,6 +1532,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     category. All 48 API unit tests and 49 guarded database integration tests
     pass. The changed Rust files pass rustfmt; repository-wide formatting still
     reports pre-existing differences in unrelated files.
+265. Moved brother PIS signup slot eligibility and exact duplicate/full error
+    messages into `controllers/admin/brother_pis/slot_selection.rs`. The handler
+    keeps its lookup, two sequential field writes, response status, and success
+    messages. Four new tests pin first-slot priority, partial first-slot
+    behavior, duplicate rejection, and full-slot text. All 52 API unit tests
+    and 53 guarded database integration tests pass; changed Rust files pass
+    rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1587,9 +1594,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 415 client tests, 48 server unit tests, 19 collaboration
+Current verified totals: 415 client tests, 52 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 49 server tests with the integration feature (including its
+feature, and 53 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

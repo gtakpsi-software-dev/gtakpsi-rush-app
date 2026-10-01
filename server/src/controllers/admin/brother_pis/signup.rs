@@ -6,33 +6,7 @@ use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 use serde_json::{json, Value};
 
-#[derive(Clone, Copy)]
-enum SignupSlot {
-    First,
-    Second,
-}
-
-impl SignupSlot {
-    fn fields(self) -> (&'static str, &'static str) {
-        match self {
-            Self::First => (
-                "pis_signup.first_brother_first_name",
-                "pis_signup.first_brother_last_name",
-            ),
-            Self::Second => (
-                "pis_signup.second_brother_first_name",
-                "pis_signup.second_brother_last_name",
-            ),
-        }
-    }
-
-    fn success_message(self) -> &'static str {
-        match self {
-            Self::First => "Successfully registered!",
-            Self::Second => "Successfully registered for PIS!",
-        }
-    }
-}
+use super::slot_selection::{select_signup_slot, SignupSlot};
 
 fn set_field_update(field: &str, value: &str) -> Document {
     let mut fields = Document::new();
@@ -96,31 +70,14 @@ pub async fn brother_pis_sign_up(
     };
 
     let signup: &PISSignup = &rushee.pis_signup;
-    let slot = if signup.first_brother_first_name == "none"
-        && signup.first_brother_last_name == "none"
-    {
-        SignupSlot::First
-    } else if signup.second_brother_first_name == "none"
-        && signup.second_brother_last_name == "none"
-    {
-        if signup.first_brother_first_name == payload.brother_first_name
-            && signup.first_brother_last_name == payload.brother_last_name
-        {
+    let slot = match select_signup_slot(signup, &payload) {
+        Ok(slot) => slot,
+        Err(message) => {
             return Ok(Json(json!({
                 "status": "error",
-                "message": format!("Brother {} {} has already registered for this PIS.", payload.brother_first_name, payload.brother_last_name)
+                "message": message
             })));
         }
-        SignupSlot::Second
-    } else {
-        return Ok(Json(json!({
-            "status": "error",
-            "message": format!("Two brothers ({} {} and {} {}) are already signed up",
-                signup.first_brother_first_name,
-                signup.first_brother_last_name,
-                signup.second_brother_first_name,
-                signup.second_brother_last_name)
-        })));
     };
 
     match write_signup(&collection, &id, &payload, slot).await {
