@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Vote, AdminVotingContextType, Rushee, Brother } from "./types";
-import { getAllBrothers } from "../../js/user";
+import { getAllBrothers } from "../../features/brothers/getAllBrothers";
 
 const AdminVotingContext = createContext<AdminVotingContextType | null>(null);
 

@@ -26,7 +26,7 @@ test("admin voting provider retains its initial context and fetch transition", a
             },
             useEffect: (callback) => { effect = callback; },
         },
-        "../../js/user": {
+        "../../features/brothers/getAllBrothers": {
             getAllBrothers: async () => {
                 requests.push("brothers");
                 return [{ _id: "brother-1" }];
@@ -56,7 +56,7 @@ test("admin voting provider retains its initial context and fetch transition", a
 test("admin voting context rejects use outside its provider", async () => {
     const context = await loadTsxModule(contextPath, {
         react: { ...React, useContext: () => null },
-        "../../js/user": { getAllBrothers: async () => [] },
+        "../../features/brothers/getAllBrothers": { getAllBrothers: async () => [] },
     });
 
     assert.throws(() => context.useAdminVotingContext(), /MUST use context within some provider/);

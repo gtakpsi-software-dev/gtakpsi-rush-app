@@ -1994,6 +1994,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     typecheck, changed-file ESLint, and build pass. Production JavaScript and
     CSS hashes match slice 347 exactly; the existing voting-comment effect
     dependency warning remains.
+349. Moved the Firestore brother-directory adapter out of the mixed account
+    module into `features/brothers/getAllBrothers.js`; the admin voting context
+    now imports it directly. The existing directory-query and provider tests,
+    all 501 client tests, typecheck, build, and changed-file ESLint pass. Full
+    lint remains at 8 errors and 26 warnings. CSS is unchanged; JavaScript
+    differs because the adapter is a separate module.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

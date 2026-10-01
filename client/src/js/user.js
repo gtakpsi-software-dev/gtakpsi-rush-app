@@ -10,15 +10,10 @@ import {
     updateProfile,
     doc,
     setDoc,
-    getDocs,
-    collection,
-    query,
-    orderBy
 } from "../firebase";
 import { isEmailAllowed } from "../data/allowedEmails";
 import { resetErrorMessage } from "../features/auth/errorMessages";
 import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
-import { loadBrotherDirectory } from "../features/brothers/loadBrotherDirectory";
 import { loginWithServices } from "../features/auth/loginWithServices";
 import { createAccountWithServices } from "../features/auth/createAccountWithServices";
 
@@ -59,21 +54,6 @@ export async function createAccount(credentials) {
         storeUser: (...args) => localStorage.setItem(...args),
         toast,
         logger: console,
-    });
-}
-
-/**
- * Fetch all brothers from Firestore
- * Returns array of brother objects with _id, firstname, lastname, email
- */
-export async function getAllBrothers() {
-    return loadBrotherDirectory({
-        db,
-        collection,
-        query,
-        orderBy,
-        getDocs,
-        logError: (...args) => console.error(...args),
     });
 }
 
