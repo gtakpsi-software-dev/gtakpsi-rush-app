@@ -703,6 +703,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     reconnect, and cleanup lifecycle. All 218 client tests pass, the build
     succeeds, and CSS has no new difference. `BrotherSorting.jsx` is now 325
     lines.
+121. Brother Sorting stale ghosts: reused the shared viewer cleanup helper
+    with the same 30-second threshold and five-second interval. All 218 client
+    tests pass, the build succeeds, and CSS has no new difference.
+    `BrotherSorting.jsx` is now 309 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
