@@ -1698,6 +1698,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     database scenario checks two-record numbering, the personal-info field set,
     and sorted PIS assignment output before and after the split. All 58 server
     tests with the integration feature pass; changed Rust files pass rustfmt.
+293. Split the 158-line PIS availability form module into lifecycle writes and
+    read handlers. Kept submission clearing before status replacement, ignored
+    status deletion errors, and every response unchanged. The existing isolated
+    database scenario covers missing, active, resent, and inactive form states;
+    all 58 server tests with the integration feature pass and changed Rust files
+    pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
