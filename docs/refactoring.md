@@ -1295,6 +1295,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Enter-key behavior. The page retains its refs and unchanged JSX. All 371
     client tests and the production build pass with unchanged CSS; touched-file
     ESLint passes without errors or warnings.
+225. Shared sorting WebSocket connection, parse/error, join, and reconnect
+    handling behind fixed admin and viewer role adapters. The admin board falls
+    from 261 to 233 lines; its drag-message dispatch, lock/ghost reset, and
+    effect cleanup remain in the same order. Two new admin socket tests pin
+    join identity, messages, reconnect, and failures; all four viewer socket
+    tests and the admin markup tests still pass. All 373 client tests and the
+    production build pass with unchanged CSS. Touched-file lint has no errors
+    and three existing hook warnings in the admin page.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1347,7 +1355,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 371 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 373 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last

@@ -73,7 +73,7 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/SortingPresenceIndicator': stub('presence'),
         '../features/sorting/SortingGhostCards': stub('ghosts'),
         '../features/sorting/SortingColumn': stub('column'),
-        '../features/sorting/handleAdminSortingMessage': { handleAdminSortingMessage: noop },
+        '../features/sorting/connectSortingAdmin': { connectSortingAdmin: noop },
         '../features/sorting/cleanupStaleSortingGhosts': { cleanupStaleSortingGhosts: noop },
         '../features/sorting/applySortingDrop': { applySortingDrop: noop },
         '../features/sorting/processSortingMoveQueue': { processSortingMoveQueue: noop },
