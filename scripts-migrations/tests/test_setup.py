@@ -20,8 +20,9 @@ SEED_DATA = {
 REAL_DATETIME = datetime_module.datetime
 
 
-def run_setup(*, execute=True, month=9, day=30):
+def run_setup(*, execute=True, month=9, day=30, post_outcomes=None):
     events = []
+    post_outcomes = {} if post_outcomes is None else post_outcomes
 
     class FixedDatetime(REAL_DATETIME):
         @classmethod
@@ -54,18 +55,29 @@ def run_setup(*, execute=True, month=9, day=30):
             return [FakeBlob()]
 
     class FakeResponse:
-        status_code = 200
-
-        def __init__(self, body):
+        def __init__(self, body, status_code=200):
             self.body = body
+            self.status_code = status_code
 
         def json(self):
             return self.body
+
+    class FakeRequestException(Exception):
+        pass
 
     def fake_post(url, *, json, headers=None):
         events.append(("post", url, json, headers))
         if "signInWithCustomToken" in url:
             return FakeResponse({"idToken": "offline-id-token"})
+        outcome = post_outcomes.get(url)
+        if outcome:
+            kind, value = outcome
+            if kind == "network":
+                raise FakeRequestException(value)
+            if kind == "http":
+                return FakeResponse({}, status_code=value)
+            if kind == "api":
+                return FakeResponse({"status": "error", "message": value})
         return FakeResponse({"status": "success"})
 
     pymongo = types.ModuleType("pymongo")
@@ -76,7 +88,7 @@ def run_setup(*, execute=True, month=9, day=30):
     tqdm.tqdm = lambda values, *, desc: events.append(("progress", desc)) or values
     requests = types.ModuleType("requests")
     requests.post = fake_post
-    requests.exceptions = types.SimpleNamespace(RequestException=Exception)
+    requests.exceptions = types.SimpleNamespace(RequestException=FakeRequestException)
 
     firebase_admin = types.ModuleType("firebase_admin")
     firebase_admin._apps = []
@@ -165,6 +177,19 @@ class SetupTests(unittest.TestCase):
         _, events, output = run_setup(day=5)
         self.assertEqual(events, [])
         self.assertIn("This script cannot be run between September 1st and September 12th.", output)
+
+    def test_seed_failures_keep_distinct_messages_and_continue_to_later_files(self):
+        _, events, output = run_setup(post_outcomes={
+            "https://api.example.test/admin/add_pis_timeslot": ("http", 503),
+            "https://api.example.test/admin/add-rush-night": ("api", "invalid night"),
+            "https://api.example.test/admin/add_pis_question": ("network", "offline"),
+        })
+
+        self.assertEqual(len([event for event in events if event[0] == "post"]), 4)
+        self.assertIn("Error adding PIS Timeslot at slot-one: HTTP 503", output)
+        self.assertIn("invalid night", output)
+        self.assertIn("Network error adding PIS Question Question One: offline", output)
+        self.assertNotIn("Rush App Set Up Complete!", output)
 
     def test_import_does_not_contact_services_or_reset_a_season(self):
         namespace, events, output = run_setup(execute=False)

@@ -873,6 +873,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
 146. Removed the tracked root and `server/` macOS `.DS_Store` metadata from Git
     and ignored future copies. The local files remain in place; no runtime or
     deployment file changes.
+147. Extracted the three setup seed uploads into `scripts/season_setup/seeds.py`,
+    reducing the root `setup.py` from 215 to 154 lines. The entrypoint and JSON
+    file paths stay the same. Offline tests now cover HTTP, API, and network
+    failures; both the successful and mixed-failure runs produce the same 23
+    fake-service events and stdout as the previous commit. All 45 maintenance
+    tests and Python compilation pass; no live setup ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -923,7 +929,7 @@ require PyMongo or a database connection.
 Current verified totals: 257 client tests, 40 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 41 server tests with the integration feature (including its
-isolated database contract), plus 44 maintenance-script tests. The last
+isolated database contract), plus 45 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated

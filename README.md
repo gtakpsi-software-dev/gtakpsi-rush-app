@@ -117,7 +117,8 @@ python setup.py
 
 The reset runs only when this command is invoked directly. Importing `setup.py`
 does not connect to services or delete data. Its offline regression tests use
-fake MongoDB, Firebase, and HTTP clients.
+fake MongoDB, Firebase, and HTTP clients. Seed uploads live in
+`scripts/season_setup/seeds.py`; the command and input JSON paths are unchanged.
 
 This will:
 - Clear all rushees from MongoDB

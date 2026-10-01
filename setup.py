@@ -11,11 +11,11 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 from datetime import datetime
 
-import json
 import os
 import requests
 import firebase_admin
 from firebase_admin import credentials, storage, auth as firebase_auth
+from scripts.season_setup.seeds import seed_data
 
 
 # Get an ID token for API authentication
@@ -135,70 +135,9 @@ def main():
     except Exception as e:
         print(f"Error while deleting rush app pictures: {e}")
 
-    errors = []
-
-    # add pis timeslots
-    with open("pis_timeslots.json", "r") as file:
-        data = json.load(file)
-
-        for i in tqdm(range(len(data)), desc="Adding PIS Timeslots"):
-            try:
-                response = requests.post(
-                    api_url + "/admin/add_pis_timeslot",
-                    json=data[i],
-                    headers=auth_headers
-                )
-
-                if response.status_code == 200:
-                    if response.json().get("status") == "error":
-                        errors.append(response.json().get("message"))
-                else:
-                    errors.append(f"Error adding PIS Timeslot at {data[i]['time']}: HTTP {response.status_code}")
-            except requests.exceptions.RequestException as e:
-                errors.append(f"Network error adding PIS Timeslot at {data[i]['time']}: {e}")
-
-
-    # add rush nights
-    with open("rush_nights.json", "r") as file:
-
-        data = json.load(file)
-
-        for i in tqdm(range(len(data)), desc="Adding Rush Nights"):
-            try:
-                response = requests.post(
-                    api_url + "/admin/add-rush-night",
-                    json=data[i],
-                    headers=auth_headers
-                )
-
-                if response.status_code == 200:
-                    if response.json().get("status") == "error":
-                        errors.append(response.json().get("message"))
-                else:
-                    errors.append(f"Error adding Rush Night {data[i]['name']}: HTTP {response.status_code}")
-            except requests.exceptions.RequestException as e:
-                errors.append(f"Network error adding Rush Night {data[i]['name']}: {e}")
-
-    with open("pis_questions.json", "r") as file:
-
-        data = json.load(file)
-
-        for i in tqdm(range(len(data)), desc="Adding PIS Questions"):
-            try:
-                response = requests.post(
-                    api_url + "/admin/add_pis_question",
-                    json=data[i],
-                    headers=auth_headers
-                )
-
-                if response.status_code == 200:
-                    if response.json().get("status") == "error":
-                        errors.append(response.json().get("message"))
-                else:
-                    errors.append(f"Error adding PIS Question: HTTP {response.status_code}")
-            except requests.exceptions.RequestException as e:
-                errors.append(f"Network error adding PIS Question {data[i]['question']}: {e}")
-
+    errors = seed_data(
+        api_url, auth_headers, requests.post, requests.exceptions.RequestException, tqdm
+    )
 
     if len(errors) > 0:
 
