@@ -934,6 +934,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     write order before local storage, blank-name behavior, and the original
     error handling after a failed write. All 266 client tests, the client build,
     and ESLint on changed files pass.
+158. Added a real sorting WebSocket reconnect contract before changing session
+    code. It covers active-drag hydration, disconnect release and viewer counts,
+    then proves a reconnected admin can reacquire the same card with the existing
+    `drag_start` event. All 10 sorting WebSocket tests pass on the original
+    session implementation.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -982,7 +987,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 266 client tests, 41 server unit tests, 15 collaboration
-tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
+tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

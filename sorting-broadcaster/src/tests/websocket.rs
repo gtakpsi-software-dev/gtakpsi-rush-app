@@ -108,3 +108,61 @@ async fn sockets_receive_drag_snapshots_conflicts_and_disconnect_releases() {
     );
     other.close(None).await.unwrap();
 }
+
+#[tokio::test]
+async fn reconnect_after_owner_disconnect_can_reacquire_the_released_card() {
+    let server = TestServer::start();
+    let (mut owner, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut owner).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+    send(
+        &mut owner,
+        json!({"type": "join", "is_admin": true, "name": "Admin"}),
+    )
+    .await;
+    send(&mut owner, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 1.0, "y": 2.0})).await;
+    assert_eq!(receive(&mut owner).await["type"], "drag_start");
+
+    let (mut observer, _) = connect_async(&server.url).await.unwrap();
+    let initial = [receive(&mut observer).await, receive(&mut observer).await];
+    assert!(initial.contains(&json!({"type": "viewer_count", "count": 2})));
+    assert!(initial.contains(&json!({"type": "current_drag", "active": true, "dragger_name": "Admin", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 1.0, "y": 2.0})));
+    assert_eq!(
+        receive(&mut owner).await,
+        json!({"type": "viewer_count", "count": 2})
+    );
+
+    owner.close(None).await.unwrap();
+    assert_eq!(
+        receive(&mut observer).await,
+        json!({"type": "drag_end", "rushee_id": "card"})
+    );
+    assert_eq!(
+        receive(&mut observer).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+
+    let (mut reconnected, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut reconnected).await,
+        json!({"type": "viewer_count", "count": 2})
+    );
+    assert_eq!(
+        receive(&mut observer).await,
+        json!({"type": "viewer_count", "count": 2})
+    );
+    send(
+        &mut reconnected,
+        json!({"type": "join", "is_admin": true, "name": "Admin"}),
+    )
+    .await;
+    send(&mut reconnected, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 3.0, "y": 4.0})).await;
+    let restarted = json!({"type": "drag_start", "dragger_name": "Admin", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 3.0, "y": 4.0});
+    assert_eq!(receive(&mut reconnected).await, restarted);
+    assert_eq!(receive(&mut observer).await, restarted);
+
+    reconnected.close(None).await.unwrap();
+    observer.close(None).await.unwrap();
+}
