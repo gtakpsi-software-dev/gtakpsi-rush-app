@@ -1024,6 +1024,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     filter behavior: a repeated add reports success without changing capacity,
     and delete reports a missing timeslot. All 42 server tests with the
     integration feature pass.
+176. Flattened the PIS timeslot controller's nested matches into direct
+    success and error branches, reducing it from 199 to 143 lines. The legacy
+    filter types, count arithmetic, response text, and write-result behavior
+    remain unchanged; all 42 server tests with the integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
