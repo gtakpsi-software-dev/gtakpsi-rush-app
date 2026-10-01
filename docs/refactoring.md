@@ -968,6 +968,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     rounded reveal threshold, one-second retry cadence, failed-response handling,
     and interval cleanup. The page retains the same effect guard and dependencies.
     All 281 client tests and the build pass; the two existing hook warnings remain.
+164. Moved PIS answer-change handlers into
+    `features/pis/createPisAnswerHandlers.js`. Two tests pin local answer merging,
+    voice-only sends for text responses, immediate multiple-choice sends, and
+    offline behavior. The page keeps the same child callbacks and rendered JSX.
+    All 283 client tests and the build pass; the two hook warnings remain.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1015,7 +1020,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 281 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 283 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last

@@ -20,6 +20,7 @@ import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collabor
 import { performPisAutosave } from "../features/pis/performPisAutosave";
 import { loadPisPageData } from "../features/pis/loadPisPageData";
 import { startPisRevealPolling } from "../features/pis/startPisRevealPolling";
+import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -108,31 +109,10 @@ export default function PIS() {
         });
     }, [loading, questionsAvailable, revealAt, api, gtid]);
 
-    // Handle answer input changes (for text areas - typing handled inside CollaborativeTextarea)
-    const handleAnswerChange = (question, answer, meta = {}) => {
-        setAnswers((prev) => ({
-            ...prev,
-            [question]: answer,
-        }));
-        
-        // Only send websocket update for voice-originated changes; typing is handled inside the textarea component
-        if (collaboration.isConnected && meta?.source === 'voice') {
-            collaboration.sendTextUpdate(question, answer);
-        }
-    };
-
-    // Handle MC (multiple choice) answer changes - sync immediately
-    const handleMCChange = (question, answer) => {
-        setAnswers((prev) => ({
-            ...prev,
-            [question]: answer,
-        }));
-        
-        // Send update via WebSocket for real-time sync
-        if (collaboration.isConnected) {
-            collaboration.sendTextUpdate(question, answer);
-        }
-    };
+    const { handleAnswerChange, handleMCChange } = createPisAnswerHandlers({
+        setAnswers,
+        collaboration,
+    });
 
     // Handle brother field changes (WebSocket sync is handled by CollaborativeInput)
     const handleBrotherAChange = (field, value) => {
