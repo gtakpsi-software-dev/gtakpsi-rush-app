@@ -5,13 +5,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../js/adminAxios";
-import { MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
+import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
 
 // Parse allowlist once at module level (admins)
 const ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
@@ -50,39 +51,17 @@ export default function BidComSorting() {
     
     const fetchDataRef = useRef(null);
 
-    const fetchData = useCallback(async () => {
-        try {
-            const current = auth.currentUser;
-            if (!current) {
-                navigate("/login");
-                return;
-            }
-            const tokenResult = await current.getIdTokenResult(true);
-            const isAdmin = tokenResult.claims?.admin === true;
-            const isBidcom = tokenResult.claims?.bidcom === true;
-            const email = current.email ? current.email.toLowerCase() : "";
-            const isAllowlisted = email && ALLOWLIST.includes(email);
-            
-            // Allow if admin, bidcom, or allowlisted
-            if (!(isAdmin || isBidcom || isAllowlisted)) {
-                toast.error("Access denied - Bid Committee or Admin only");
-                navigate("/dashboard");
-                return;
-            }
-
-            const response = await adminGet(`${apiBase}/rushees/sorting`);
-            if (response.data.status === "success") {
-                setColumns(groupSortingRows(response.data.payload));
-            } else {
-                toast.error("Failed to load rushees");
-            }
-        } catch {
-            toast.error("Failed to load rushees");
-        } finally {
-            setLoading(false);
-            setAuthChecked(true);
-        }
-    }, [apiBase, navigate]);
+    const fetchData = useCallback(() => loadBidComSortingData({
+        auth,
+        navigate,
+        allowlist: ALLOWLIST,
+        apiBase,
+        getSorting: adminGet,
+        setColumns,
+        setLoading,
+        setAuthChecked,
+        showError: (message) => toast.error(message),
+    }), [apiBase, navigate]);
 
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;

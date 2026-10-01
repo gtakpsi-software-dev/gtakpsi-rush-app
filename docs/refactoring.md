@@ -1888,6 +1888,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     posting before vote clearing, unchanged-question behavior, and Cancel state.
     All 465 client tests, typecheck, build, and changed-file ESLint pass; full
     lint falls to 29 errors and 26 warnings. Generated CSS is unchanged.
+330. Extracted the bid-committee sorting board's claim/allowlist gate and data
+    fetch into a 44-line loader, reducing the page from 219 to 198 lines. New
+    tests cover missing users, denied access, admin/bidcom/allowlist access,
+    grouped rows, request failures, and token failures. Existing viewer-page
+    markup tests still pass. All 469 client tests, typecheck, build, and
+    changed-file ESLint pass; full lint remains 29 errors and 26 warnings.
+    Generated CSS is unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1943,7 +1950,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 465 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 469 client tests, 57 server unit tests, 19 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last
