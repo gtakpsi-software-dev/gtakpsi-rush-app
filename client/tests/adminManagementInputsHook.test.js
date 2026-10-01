@@ -24,6 +24,7 @@ test("management inputs keep their initial values and one question fetch effect"
                 events.push(["effect", Array.from(dependencies)]);
                 effect();
             },
+            useRef: (initialValue) => ({ current: initialValue }),
         },
         "../pis/questionActions": {
             createQuestionActions(options) {
@@ -47,4 +48,47 @@ test("management inputs keep their initial values and one question fetch effect"
     assert.equal(result.fetchPisQuestions, fetchPisQuestions);
     assert.equal(result.saveQuestionCategory, saveQuestionCategory);
     assert.equal(result.timeslotChange, 1);
+});
+
+test("management inputs use the initial fetch for the mount effect across rerenders", async () => {
+    const calls = [];
+    let mountEffect;
+    let render = 0;
+    let stateIndex = 0;
+    let ref;
+    const initialFetch = () => calls.push("initial fetch");
+    const updatedFetch = () => calls.push("updated fetch");
+    const Hook = await loadTsxComponent(hookPath, {
+        react: {
+            useState(initialValue) {
+                const index = stateIndex++;
+                return [render === 1 && index === 6 ? { edited: "notes" } : initialValue, () => {}];
+            },
+            useRef(initialValue) {
+                if (!ref) ref = { current: initialValue };
+                return ref;
+            },
+            useEffect(effect, dependencies) {
+                assert.deepEqual(Array.from(dependencies), []);
+                if (!mountEffect) mountEffect = effect;
+            },
+        },
+        "../pis/questionActions": {
+            createQuestionActions() {
+                return {
+                    fetchPisQuestions: render === 0 ? initialFetch : updatedFetch,
+                    saveQuestionCategory: () => {},
+                };
+            },
+        },
+    });
+
+    Hook({ apiBase: "/api/admin", axios: {}, toast: {} });
+    render = 1;
+    stateIndex = 0;
+    const latest = Hook({ apiBase: "/api/admin", axios: {}, toast: {} });
+    mountEffect();
+
+    assert.deepEqual(calls, ["initial fetch"]);
+    assert.equal(latest.fetchPisQuestions, updatedFetch);
 });

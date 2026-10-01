@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createQuestionActions } from "../pis/questionActions";
 
 /**
@@ -29,8 +29,10 @@ export default function useAdminManagementInputs({ apiBase, axios, toast }) {
         toast,
     });
 
+    // Keep the mount-only request bound to its first render as category edits change.
+    const initialFetchPisQuestions = useRef(fetchPisQuestions);
     useEffect(() => {
-        fetchPisQuestions();
+        initialFetchPisQuestions.current();
     }, []);
 
     return {
