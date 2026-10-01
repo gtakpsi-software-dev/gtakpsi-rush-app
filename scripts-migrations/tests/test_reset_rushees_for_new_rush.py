@@ -24,9 +24,11 @@ def keep_gtids():
 
 
 class FakeCollection:
-    def __init__(self, events, kept):
+    def __init__(self, events, kept, reported_gtids=None, sample=True):
         self.events = events
         self.kept = kept
+        self.reported_gtids = kept if reported_gtids is None else reported_gtids
+        self.sample = sample
         self.counts = iter((31, len(kept)))
 
     def count_documents(self, query):
@@ -39,7 +41,7 @@ class FakeCollection:
 
     def find(self, query, projection):
         self.events.append(("find", query, projection))
-        return [{"gtid": gtid} for gtid in self.kept]
+        return [{"gtid": gtid} for gtid in self.reported_gtids]
 
     def update_many(self, query, change):
         self.events.append(("update", query, change))
@@ -47,6 +49,8 @@ class FakeCollection:
 
     def find_one(self, query):
         self.events.append(("find_one", query))
+        if not self.sample:
+            return None
         return {
             "first_name": "Sample", "last_name": "Rushee",
             "comments": [], "pis": [], "attendance": [], "ratings": [],
@@ -54,10 +58,10 @@ class FakeCollection:
         }
 
 
-def run_script(execute=True, mongo_uri="mongodb://offline-test"):
+def run_script(execute=True, mongo_uri="mongodb://offline-test", reported_gtids=None, sample=True):
     events = []
     kept = keep_gtids()
-    collection = FakeCollection(events, kept)
+    collection = FakeCollection(events, kept, reported_gtids, sample)
 
     class FakeClient:
         admin = types.SimpleNamespace(command=lambda name: events.append(("ping", name)))
@@ -77,7 +81,8 @@ def run_script(execute=True, mongo_uri="mongodb://offline-test"):
     environment = {"MONGO_URI": mongo_uri} if mongo_uri else {}
 
     with patch.dict(sys.modules, {"pymongo": pymongo, "dotenv": dotenv}):
-        with patch.dict(os.environ, environment, clear=True):
+        with patch.dict(os.environ, environment, clear=True), \
+             patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
             output = StringIO()
             with redirect_stdout(output):
                 try:
@@ -120,6 +125,18 @@ class ResetRusheesForNewRushTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual([event[0] for event in events], ["dotenv"])
         self.assertIn("MONGO_URI not set", output)
+
+    def test_missing_kept_gtid_and_absent_sample_keep_warning_only(self):
+        missing_gtid = "904093762"
+        _, events, kept, output, exit_code = run_script(
+            reported_gtids=keep_gtids() - {missing_gtid}, sample=False,
+        )
+        self.assertIsNone(exit_code)
+        self.assertIn("WARNING: These GTIDs were not found in the DB", output)
+        self.assertIn(f"  {missing_gtid}", output)
+        self.assertNotIn("Sample (", output)
+        self.assertEqual(set(events[9][1]["gtid"]["$in"]), kept)
+        self.assertEqual(events[-1], ("close",))
 
 
 if __name__ == "__main__":

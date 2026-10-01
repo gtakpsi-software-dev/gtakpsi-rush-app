@@ -66,6 +66,9 @@ the command still reads the root `.env` and `pis_questions.json` and performs
 the same delete, insert, and verification sequence.
 `scripts-migrations/delete_test_data.py` also retains its path, dry-run default,
 and `--apply` gate; its preview and deletion sequence lives in that same package.
+`scripts-migrations/reset_rushees_for_new_rush.py` keeps its season-specific GTID
+list and command path; the delete, reset, and report sequence lives in the same
+package.
 
 ## Tests
 

@@ -1667,6 +1667,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     selection and the `--apply` flag, with dry run as its default. Fake-client
     comparisons match the original dry-run 6 events, apply 10 events, output,
     and exits. The focused tests and full 50-test maintenance suite pass.
+288. Moved the season rushee delete/reset/report sequence into the maintenance
+    command package. The original entrypoint retains its 29-GTID keep set and
+    configuration gate. A new test covers missing kept rushees and absent
+    sample data. Offline before/after comparisons match database events, output,
+    and exits for normal, missing-URI, and missing-rushee cases. All 51
+    maintenance tests pass without contacting MongoDB.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1725,7 +1731,7 @@ require PyMongo or a database connection.
 Current verified totals: 429 client tests, 54 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 55 server tests with the integration feature (including its
-isolated database contract), plus 50 maintenance-script tests. The last
+isolated database contract), plus 51 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
