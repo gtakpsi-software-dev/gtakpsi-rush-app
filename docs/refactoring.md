@@ -2164,6 +2164,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `AdminVotingDashboardComponents` to `AdminVotingDashboard`, updating the
     route import and six focused test paths. All 518 client tests, typecheck,
     and build pass. Production JavaScript and CSS hashes match slice 375.
+378. Separated the midterm-mode provider component from its context and hook,
+    keeping the shared context instance and the existing status request,
+    fallback, and mount effect. The context tests now exercise the two modules
+    together; focused page fixtures and all 518 client tests pass. Typecheck
+    and build pass, CSS is unchanged, and full ESLint drops to 24 warnings
+    with the eight Attendance errors unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2195,7 +2201,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 25 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 24 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.

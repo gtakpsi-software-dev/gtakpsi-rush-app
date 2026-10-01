@@ -2,7 +2,8 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
 import './App.css'
-import { MidtermModeProvider, useMidtermMode } from './contexts/MidtermModeContext';
+import { useMidtermMode } from './contexts/MidtermModeContext';
+import { MidtermModeProvider } from './contexts/MidtermModeProvider';
 
 import Home from './pages/Home'
 import Register from './pages/Register'

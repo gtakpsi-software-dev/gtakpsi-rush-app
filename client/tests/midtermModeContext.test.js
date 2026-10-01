@@ -7,6 +7,7 @@ import React from "react";
 import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
 const contextPath = fileURLToPath(new URL("../src/contexts/MidtermModeContext.tsx", import.meta.url));
+const providerPath = fileURLToPath(new URL("../src/contexts/MidtermModeProvider.tsx", import.meta.url));
 
 async function loadContext(get) {
     const updates = [];
@@ -17,20 +18,23 @@ async function loadContext(get) {
         return children;
     }
 
-    const module = await loadTsxModule(contextPath, {
-        react: {
-            ...React,
-            createContext(value) {
-                initialValue = value;
-                return { Provider: ProviderStub, value };
-            },
-            useContext(context) {
-                return context.value;
-            },
-            useState: (value) => [value, (next) => updates.push(next)],
-            useCallback: (callback) => callback,
-            useEffect: (effect) => { refreshEffect = effect; },
+    const react = {
+        ...React,
+        createContext(value) {
+            initialValue = value;
+            return { Provider: ProviderStub, value };
         },
+        useContext(context) {
+            return context.value;
+        },
+        useState: (value) => [value, (next) => updates.push(next)],
+        useCallback: (callback) => callback,
+        useEffect: (effect) => { refreshEffect = effect; },
+    };
+    const context = await loadTsxModule(contextPath, { react });
+    const provider = await loadTsxModule(providerPath, {
+        react,
+        "./MidtermModeContext": { MidtermModeContext: context.MidtermModeContext },
         "../api/client": {
             get(path) {
                 requests.push(path);
@@ -39,7 +43,7 @@ async function loadContext(get) {
         },
     });
 
-    return { ...module, updates, requests, initialValue, runEffect: () => refreshEffect() };
+    return { ...context, ...provider, updates, requests, initialValue, runEffect: () => refreshEffect() };
 }
 
 test("midterm provider retains its initial value, child, and manual refresh", async () => {
