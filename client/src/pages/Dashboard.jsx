@@ -19,6 +19,7 @@ import PISAvailabilityModal from "../components/PISAvailabilityModal";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useCommentVisibility } from "../hooks/useCommentVisibility";
+import { filterDashboardRushees, shuffleArray } from "../features/dashboard/list";
 
 export default function Dashboard(props) {
     const { isMidtermMode } = useMidtermMode();
@@ -44,13 +45,6 @@ export default function Dashboard(props) {
 
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
-
-    function shuffleArray(array) {
-        return array
-            .map((value) => ({ value, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
-            .map(({ value }) => value);
-    }
 
     useEffect(() => {
         async function fetch() {
@@ -140,55 +134,14 @@ export default function Dashboard(props) {
         const input = e.target.value;
         console.log(input)
         setQuery(input);
-
-        // if (input.trim() === "") {
-        //     setFilteredRushees(rushees);
-        // } else {
-        //     const fuzzyResults = fuse.search(input);
-        //     setFilteredRushees(fuzzyResults.map((result) => result.item)); // Extract matching items
-        // }
     };
 
     const handleFilters = () => {
-        let filtered = rushees;
-
-        // Filter by major
-        if (selectedMajor !== "All") {
-            filtered = filtered.filter((rushee) => rushee.major === selectedMajor);
-        }
-
-        // Filter by class
-        if (selectedClass !== "All") {
-            filtered = filtered.filter((rushee) => rushee.class === selectedClass);
-        }
-
-        // Filter by query
-        if (query.trim() !== "") {
-            // Check if query is a 9-digit GTID for exact matching
-            if (query.trim().length === 9 && /^[0-9]+$/.test(query.trim())) {
-                const exactMatch = filtered.find(rushee => rushee.gtid === query.trim());
-                if (exactMatch) {
-                    filtered = [exactMatch];
-                } else {
-                    filtered = []; // No results for exact GTID match
-                }
-            } else {
-                // Use fuzzy search for other queries
-                const fuzzyResults = fuse.search(query);
-                filtered = fuzzyResults.map((result) => result.item);
-            }
-        }
-
-        // Sort by selected criterion
-        if (selectedSort === "firstName") {
-            filtered = [...filtered].sort((a, b) => a.name.split(" ")[0].localeCompare(b.name.split(" ")[0]));
-        } else if (selectedSort === "lastName") {
-            filtered = [...filtered].sort((a, b) => {
-                const aLastName = a.name.split(" ").slice(-1)[0];
-                const bLastName = b.name.split(" ").slice(-1)[0];
-                return aLastName.localeCompare(bLastName);
-            });
-        }
+        const filtered = filterDashboardRushees(
+            rushees,
+            { selectedMajor, selectedClass, query, selectedSort },
+            fuse
+        );
 
         console.log(filtered)
         setFilteredRushees(filtered);
