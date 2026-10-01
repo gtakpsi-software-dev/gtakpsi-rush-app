@@ -166,3 +166,34 @@ async fn reconnect_after_owner_disconnect_can_reacquire_the_released_card() {
     reconnected.close(None).await.unwrap();
     observer.close(None).await.unwrap();
 }
+
+#[tokio::test]
+async fn malformed_text_does_not_close_the_sorting_socket() {
+    let server = TestServer::start();
+    let (mut socket, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+
+    socket
+        .send(Message::Text("not-json".to_owned()))
+        .await
+        .unwrap();
+    send(
+        &mut socket,
+        json!({"type": "join", "is_admin": true, "name": "Admin"}),
+    )
+    .await;
+    send(
+        &mut socket,
+        json!({"type": "card_saved", "rushee_id": "card", "new_status": "accepted"}),
+    )
+    .await;
+
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "card_moved", "rushee_id": "card", "new_status": "accepted"})
+    );
+    socket.close(None).await.unwrap();
+}

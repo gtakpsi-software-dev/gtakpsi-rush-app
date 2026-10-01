@@ -1427,6 +1427,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unselected-Monday markup cases before simplifying the nested class choice.
     All 404 client tests and the production build pass, generated CSS is
     unchanged, and lint remains at 222 errors and 20 warnings.
+248. Added a real sorting WebSocket contract for malformed incoming text:
+    parsing failure leaves the socket open for a subsequent admin `card_saved`
+    message. All 11 sorting tests pass against an isolated loopback server, and
+    rustfmt passes. No production protocol code changed in this slice.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1480,7 +1484,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 404 client tests, 46 server unit tests, 18 collaboration
-tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
+tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
