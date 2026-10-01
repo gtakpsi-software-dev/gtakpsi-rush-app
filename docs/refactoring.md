@@ -1052,6 +1052,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     re-exports. A whitespace-normalized comparison confirms the moved function
     body is identical. All 299 client tests and the production build pass;
     changed files pass ESLint.
+182. Cleaned the moved session verifier's spacing and comments while retaining
+    the original Firebase callback order, access-check fail-open path, toast,
+    and legacy storage keys. All 299 client tests and changed-file ESLint pass;
+    the production JS and CSS asset hashes match the preceding build.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
