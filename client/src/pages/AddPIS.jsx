@@ -10,11 +10,7 @@ export default function AddPIS() {
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
     const [questionCategory, setQuestionCategory] = useState("");
-    const [timeslotTime, setTimeslotTime] = useState("");
-    const [timeslotChange, setTimeslotChange] = useState(1);
-    const [rushNightName, setRushNightName] = useState("");
-    const [rushNightTime, setRushNightTime] = useState("");
-    const [results, setResults] = useState("");
+    const [, setResults] = useState("");
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
