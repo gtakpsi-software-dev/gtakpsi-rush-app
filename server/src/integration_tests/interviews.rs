@@ -68,6 +68,37 @@ pub async fn check_contracts() {
         revealed
     );
 
+    let pinned = PISQuestion {
+        question: "Pinned".to_string(),
+        question_type: "professional".to_string(),
+        order: Some(-1),
+        category: Some("A".to_string()),
+    };
+    db::get_rushee_client()
+        .await
+        .update_one(
+            doc! {"gtid": GTID},
+            doc! {"$set": {"assigned_pis_questions": bson::to_bson(&vec![pinned]).unwrap()}},
+        )
+        .await
+        .unwrap();
+    let persisted = rushee::get_pis_interview_questions(path()).await.unwrap().0;
+    assert_eq!(persisted["payload"]["available"], true);
+    assert_eq!(
+        persisted["payload"]["reveal_at"],
+        revealed["payload"]["reveal_at"]
+    );
+    assert_eq!(
+        persisted["payload"]["questions"].as_array().unwrap().len(),
+        2
+    );
+    assert_eq!(persisted["payload"]["questions"][0]["question"], "Pinned");
+    assert_eq!(persisted["payload"]["questions"][1]["question"], "Fixed");
+    assert_eq!(
+        stored_rushee().await.assigned_pis_questions.unwrap()[0].question,
+        "Pinned"
+    );
+
     let autosave = json!({
         "pis_responses": [{"question": "Fixed", "answer": "Observation"}],
         "brother_a_first_name": " Alex ", "brother_a_last_name": " Brother ",

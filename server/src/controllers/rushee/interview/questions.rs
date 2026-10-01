@@ -15,6 +15,23 @@ fn sort_pis_questions(questions: &mut Vec<PISQuestion>) {
     questions.sort_by_key(|q| q.order.unwrap_or(i32::MAX));
 }
 
+fn question_response(
+    available: bool,
+    reveal_at: bson::DateTime,
+    mut questions: Vec<PISQuestion>,
+) -> Json<Value> {
+    // Keep a single stable sort so equal-order fixed and assigned questions retain their order.
+    sort_pis_questions(&mut questions);
+    Json(json!({
+        "status": "success",
+        "payload": {
+            "available": available,
+            "reveal_at": reveal_at,
+            "questions": questions
+        }
+    }))
+}
+
 /**
  * Returns the PIS questions a rushee should be asked for their interview:
  * - Any question with no category (fixed/logistics/bid-decision questions)
@@ -77,34 +94,21 @@ pub async fn get_pis_interview_questions(
     let available = now_millis >= reveal_at_millis;
 
     if !available {
-        let mut questions = fixed_questions;
-        sort_pis_questions(&mut questions);
-        return Ok(Json(json!({
-            "status": "success",
-            "payload": {
-                "available": false,
-                "reveal_at": rushee.pis_timeslot,
-                "questions": questions
-            }
-        })));
+        return Ok(question_response(
+            false,
+            rushee.pis_timeslot,
+            fixed_questions,
+        ));
     }
 
     // Already assigned previously? Return the persisted set as-is.
     if let Some(assigned) = rushee.assigned_pis_questions {
         if !assigned.is_empty() {
-            let mut questions: Vec<PISQuestion> = fixed_questions
+            let questions: Vec<PISQuestion> = fixed_questions
                 .into_iter()
                 .chain(assigned.into_iter())
                 .collect();
-            sort_pis_questions(&mut questions);
-            return Ok(Json(json!({
-                "status": "success",
-                "payload": {
-                    "available": true,
-                    "reveal_at": rushee.pis_timeslot,
-                    "questions": questions
-                }
-            })));
+            return Ok(question_response(true, rushee.pis_timeslot, questions));
         }
     }
 
@@ -136,20 +140,12 @@ pub async fn get_pis_interview_questions(
         })));
     }
 
-    let mut questions: Vec<PISQuestion> = fixed_questions
+    let questions: Vec<PISQuestion> = fixed_questions
         .into_iter()
         .chain(assigned_questions.into_iter())
         .collect();
-    sort_pis_questions(&mut questions);
 
-    Ok(Json(json!({
-        "status": "success",
-        "payload": {
-            "available": true,
-            "reveal_at": rushee.pis_timeslot,
-            "questions": questions
-        }
-    })))
+    Ok(question_response(true, rushee.pis_timeslot, questions))
 }
 
 #[cfg(test)]

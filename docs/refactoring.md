@@ -2099,6 +2099,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     empty generic `js` directory after checking every export for repository
     callers. The production build passes with JS and CSS hashes identical to
     slice 365; no runtime imports or routes changed.
+367. Added an isolated MongoDB scenario for previously assigned interview
+    questions: the endpoint preserves the reveal timestamp, returns the pinned
+    question in order with fixed questions, and leaves the stored assignment
+    intact. It passed before and after consolidating the handler's three
+    success-response and sorting branches into one helper. Both changed Rust
+    files pass rustfmt; all 60 API tests with the integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
