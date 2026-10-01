@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { verifyUser } from "../features/auth/verifyUser";
+import { createAddTimeslotActions } from "../features/admin/pis/createAddTimeslotActions";
 import { format } from 'date-fns';
 
 export default function AddTimeslotPage() {
@@ -42,31 +43,18 @@ export default function AddTimeslotPage() {
         }
     }, [navigate, loading]);
 
-    const handleAddTimeslot = async () => {
-        if (!timeslotTime) {
-            setResult("Please select a time");
-            return;
-        }
-        
-        setIsSubmitting(true);
-        try {
-            const payload = {
-                time: new Date(timeslotTime).toISOString(),
-                change: timeslotChange,
-            };
-            const response = await axios.post(`${apiBase}/add_pis_timeslot`, payload);
-            setResult(JSON.stringify(response.data, null, 2));
-            // Clear form on success
-            setTimeslotTime("");
-            setTimeslotChange(1);
-            // Show success animation
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 3000);
-        } catch (error) {
-            setResult(error.response?.data || "An error occurred");
-        }
-        setIsSubmitting(false);
-    };
+    const { handleAddTimeslot } = createAddTimeslotActions({
+        apiBase,
+        timeslotTime,
+        timeslotChange,
+        setResult,
+        setIsSubmitting,
+        setTimeslotTime,
+        setTimeslotChange,
+        setShowSuccess,
+        axios,
+        scheduleTimeout: setTimeout,
+    });
 
     return loading ? (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-50 to-orange-50">

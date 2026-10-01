@@ -1354,6 +1354,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and the delete-before-insert tradeoff. The preceding access contracts and
     all 47 disposable-Mongo integration-feature tests pass; isolated rustfmt
     passes.
+234. Extracted Add PIS Timeslot submission into a focused action module,
+    reducing the page from 212 to 200 lines without changing its JSX or CSS.
+    Four tests pin missing-time validation, ISO payload and update order,
+    resolved error payload behavior, rejected requests, and the success timer.
+    All 382 client tests and the production build pass; built CSS is byte-for-byte
+    unchanged and touched-file ESLint passes. Removing an unused React import
+    reduced repository-wide lint debt to 262 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1381,7 +1388,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 263 errors and 20 warnings, so it is tracked debt,
+the current baseline has 262 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -1406,7 +1413,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 378 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 382 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
