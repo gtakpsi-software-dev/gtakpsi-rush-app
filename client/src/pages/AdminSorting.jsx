@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import { adminGet, adminPut } from "../js/adminAxios";
-import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
+import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
 import SortingZoomControls from "../features/sorting/SortingZoomControls";
 import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
@@ -18,6 +18,7 @@ import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQ
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createAdminSortingNotesHandlers } from "../features/sorting/createAdminSortingNotesHandlers";
+import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -125,35 +126,17 @@ export default function AdminSorting() {
         }
     }, []);
 
-    const fetchData = useCallback(async () => {
-        try {
-            const current = auth.currentUser;
-            if (!current) {
-                navigate("/login");
-                return;
-            }
-            const tokenResult = await current.getIdTokenResult(true);
-            const isAdmin = tokenResult.claims?.admin === true;
-            const email = current.email ? current.email.toLowerCase() : "";
-            const isAllowlisted = email && ALLOWLIST.includes(email);
-            if (!(isAdmin || isAllowlisted)) {
-                navigate("/login");
-                return;
-            }
-
-            const response = await adminGet(`${apiBase}/rushees/sorting`);
-            if (response.data.status === "success") {
-                setColumns(groupSortingRows(response.data.payload));
-            } else {
-                toast.error("Failed to load rushees");
-            }
-        } catch (err) {
-            toast.error("Failed to load rushees");
-        } finally {
-            setLoading(false);
-            setAuthChecked(true);
-        }
-    }, [apiBase, navigate]);
+    const fetchData = useCallback(() => loadAdminSortingData({
+        auth,
+        navigate,
+        allowlist: ALLOWLIST,
+        apiBase,
+        getSorting: adminGet,
+        setColumns,
+        setLoading,
+        setAuthChecked,
+        showError: (message) => toast.error(message),
+    }), [apiBase, navigate]);
 
     // Store latest fetchData for WebSocket refresh
     fetchDataRef.current = fetchData;
