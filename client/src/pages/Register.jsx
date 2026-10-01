@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import axios from "axios";
 import BasicInfo from "../components/RegisterComponents/BasicInfo";
 import Navbar from "../components/Navbar";
@@ -10,13 +10,13 @@ import PisSignUp from "../components/RegisterComponents/PisSignUp"
 import SuccessPage from "../components/RegisterComponents/SuccessPage";
 import Loader from "../components/Loader";
 
-import Error from "../components/Error";
 import { useNavigate } from "react-router-dom";
 import { verifyInfo } from "../js/verifications";
 
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
+import { createBasicInfoSubmit } from "../features/registration/createBasicInfoSubmit";
 
 export default function Register() {
 
@@ -63,95 +63,28 @@ export default function Register() {
 
     const navigate = useNavigate()
 
-    const basic_info = [
-        firstname,
-        lastname,
-        email,
-        housing,
-        phone,
+    const basicInfoSubmit = createBasicInfoSubmit({
+        fields: [
+            [firstname, setFirstnameVal],
+            [lastname, setLastnameVal],
+            [email, setEmailVal],
+            [housing, setHousingVal],
+            [phone, setPhoneVal],
+            [gtid, setGtidVal],
+            [major, setMajorVal],
+            [pronouns, setPronounsVal],
+            [year, setYearVal],
+            [exposure, setExposureVal],
+        ],
         gtid,
-        major,
-        pronouns,
-        year,
-        exposure
-    ]
-
-    // submit button behaviors
-    const basic_info_submit = async () => {
-
-        setCurrLoading(true)
-
-        for (const info of basic_info) {
-
-            if (!info.current || info.current.value == null || info.current.value === "") {
-                toast.warn('Fields cannot be empty', {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                });
-                return;
-            }
-
-        }
-
-        await verifyInfo(gtid.current?.value, email.current?.value, phone.current?.value, true)
-            .then((response) => {
-
-                if (response.status === "success") {
-
-                    setFirstnameVal(firstname.current?.value)
-                    setLastnameVal(lastname.current?.value)
-                    setEmailVal(email.current?.value)
-                    setHousingVal(housing.current?.value)
-                    setPhoneVal(phone.current?.value)
-                    setGtidVal(gtid.current?.value)
-                    setMajorVal(major.current?.value)
-                    setPronounsVal(pronouns.current?.value)
-                    setYearVal(year.current?.value)
-                    setExposureVal(exposure.current?.value)
-
-                    setPage(1)
-
-                } else {
-
-                    toast.warn(`${response.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: false,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "colored",
-                    });
-
-                }
-
-            })
-            .catch((error) => {
-
-                console.log(error)
-
-                toast.warn(`Some internal error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                });
-
-            })
-
-        setCurrLoading(false)
-    }
+        email,
+        phone,
+        verifyInfo,
+        setCurrLoading,
+        setPage,
+        toast,
+        logError: (error) => console.log(error),
+    });
 
     const image_submit = () => {
 
@@ -225,7 +158,7 @@ export default function Register() {
 
 
                 })
-                .catch((err) => {
+                .catch(() => {
 
                     console.log(error)
 
@@ -273,7 +206,7 @@ export default function Register() {
                     pronouns={pronouns}
                     year={year}
                     exposure={exposure}
-                    func={basic_info_submit}
+                    func={basicInfoSubmit}
                 /> : <div>
                     {page == 1 ? <GetImage
                         webcamRef={webcamRef}

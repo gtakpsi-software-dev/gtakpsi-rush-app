@@ -944,6 +944,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Hydration still precedes message handling; disconnect drag-end events still
     precede client removal and the updated viewer count. All 10 sorting
     WebSocket tests pass after extraction.
+160. Moved registration basic-info validation and verification into
+    `features/registration/createBasicInfoSubmit.js`, retaining the page's form
+    markup and its field-update order. Four tests pin the GTID/email/phone
+    verification call, success progression, server rejection, exception warning,
+    and the existing empty-field early return that leaves loading set. Removed
+    unused imports and a discarded catch binding. All 270 client tests, the
+    client build, and changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -991,7 +998,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 266 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 270 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
