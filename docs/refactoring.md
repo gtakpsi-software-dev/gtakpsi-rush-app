@@ -845,6 +845,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     maintenance tests, plus the client build. The workflow has not yet run on
     GitHub. Client lint remains outside the workflow while its 330-error
     baseline is resolved in verified slices.
+142. Removed unused bindings, unused component imports, and commented-out routes
+    from `App.jsx`. Its 23 active route definitions remain identical, and the
+    production CSS hash is unchanged. All 253 client tests, the production build,
+    and targeted ESLint pass. Full client lint now reports 319 errors and 19
+    warnings; browser flow and visual parity still need direct verification.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -872,7 +877,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 330 errors and 19 warnings, so it is tracked debt,
+the current baseline has 319 errors and 19 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
