@@ -16,81 +16,30 @@ import {
     orderBy
 } from "../firebase";
 import { isEmailAllowed } from "../data/allowedEmails";
-import { createdStoredUser, loginStoredUser } from "../features/auth/userSession";
-import { accountErrorMessage, loginErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
+import { createdStoredUser } from "../features/auth/userSession";
+import { accountErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
 import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
 import { loadBrotherDirectory } from "../features/brothers/loadBrotherDirectory";
+import { loginWithServices } from "../features/auth/loginWithServices";
 
 /**
  * Sign in with email and password
  * Checks if the Rush App is disabled for this user before allowing access
  */
 export async function login(credentials) {
-    try {
-        const userCredential = await signInWithEmailAndPassword(
-            auth, 
-            credentials.email, 
-            credentials.pwd
-        );
-        
-        const user = userCredential.user;
-        
-        // Get the user's token to check their claims (admin/bidcom status)
-        const tokenResult = await user.getIdTokenResult(true);
-        const isAdmin = tokenResult.claims?.admin === true;
-        const isBidcom = tokenResult.claims?.bidcom === true;
-        
-        console.log("Login - User claims:", {
-            uid: user.uid,
-            email: user.email,
-            claims: tokenResult.claims,
-            isAdmin,
-            isBidcom
-        });
-        
-        const apiBase = import.meta.env.VITE_API_PREFIX;
-        const accessAllowed = await checkRushAppAccess({
-            user,
-            isAdmin,
-            isBidcom,
-            apiBase,
-            getApiKey: () => import.meta.env.VITE_API_KEY,
-            fetchRequest: (...args) => fetch(...args),
-            signOut,
-            auth,
-            removeStoredUser: () => localStorage.removeItem('user'),
-            toast,
-            logger: console,
-        });
-        if (!accessAllowed) {
-            return false;
-        }
-
-        localStorage.setItem('user', JSON.stringify(loginStoredUser(user)));
-        
-        toast.success('Signed in successfully!', {
-            position: "top-center",
-            autoClose: 3000,
-            theme: "dark",
-        });
-        
-        return true;
-        
-    } catch (error) {
-        console.error("Login error:", error);
-        
-        toast.error(loginErrorMessage(error.code), {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "dark",
-                });
-        
-        return false;
-    }
+    return loginWithServices(credentials, {
+        auth,
+        signInWithEmailAndPassword,
+        signOut,
+        checkRushAppAccess,
+        getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
+        getApiKey: () => import.meta.env.VITE_API_KEY,
+        fetchRequest: (...args) => fetch(...args),
+        storeUser: (...args) => localStorage.setItem(...args),
+        removeStoredUser: () => localStorage.removeItem('user'),
+        toast,
+        logger: console,
+    });
 }
 
 /**
