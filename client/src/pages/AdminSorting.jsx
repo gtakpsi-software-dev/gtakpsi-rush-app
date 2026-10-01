@@ -7,8 +7,7 @@ import { adminGet, adminPut } from "../features/admin/api";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import AdminSortingBoardView from "../features/sorting/AdminSortingBoardView";
 import { useSortingAdminConnection } from "../features/sorting/useSortingAdminConnection";
-import { applySortingDrop } from "../features/sorting/applySortingDrop";
-import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
+import { createAdminSortingMoveActions } from "../features/sorting/createAdminSortingMoveActions";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
@@ -115,7 +114,10 @@ export default function AdminSorting() {
         wsSend,
     });
 
-    const processMoveQueue = () => processSortingMoveQueue({
+    const { handleDrop } = createAdminSortingMoveActions({
+        dragging,
+        setColumns,
+        clearDragState,
         moveInFlightRef,
         pendingMovesRef,
         fetchDataRef,
@@ -123,20 +125,6 @@ export default function AdminSorting() {
         wsSend,
         showError: (message) => toast.error(message),
     });
-
-    const enqueueMove = (payload) => {
-        pendingMovesRef.current.push(payload);
-        processMoveQueue();
-    };
-
-    const handleDrop = (targetColumn, targetIndex) => {
-        if (!dragging) return;
-        const { id, fromColumn } = dragging;
-        setColumns((prev) => applySortingDrop(prev, {
-            id, fromColumn, targetColumn, targetIndex, enqueueMove,
-        }));
-        clearDragState();
-    };
 
     const {
         openNotes,

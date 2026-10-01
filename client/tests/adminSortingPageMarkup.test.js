@@ -12,6 +12,7 @@ import { transformWithEsbuild } from 'vite';
 import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from '../src/features/sorting/board.js';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
+import { createAdminSortingMoveActions } from '../src/features/sorting/createAdminSortingMoveActions.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AdminSorting.jsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/sorting/AdminSortingBoardView.tsx', import.meta.url));
@@ -77,8 +78,7 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/useSortingAdminConnection': {
             useSortingAdminConnection: (options) => captured.set('admin-connection', options),
         },
-        '../features/sorting/applySortingDrop': { applySortingDrop: noop },
-        '../features/sorting/processSortingMoveQueue': { processSortingMoveQueue: noop },
+        '../features/sorting/createAdminSortingMoveActions': { createAdminSortingMoveActions },
         '../features/sorting/createSortingDragHandlers': { createSortingDragHandlers: actions },
         '../features/sorting/createSortingViewportHandlers': { createSortingViewportHandlers: actions },
         '../features/sorting/createSortingNotesHandlers': { createSortingNotesHandlers: actions },

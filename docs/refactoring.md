@@ -2406,6 +2406,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     main protocol test file at 141 lines. All four voting tests pass against a
     disposable loopback Redis instance, and both edited files pass rustfmt.
     No runtime service code or protocol changed.
+417. Moved the admin sorting page's drop, enqueue, and persistence wiring into
+    `features/sorting/createAdminSortingMoveActions.js`, leaving every state
+    hook and effect in place. Two new tests pin the no-drag gate and the order
+    of drag cleanup, optimistic update, persistence, and broadcast. Existing
+    board markup and queue tests still pass. The routed page is now 194 lines
+    instead of 206. All 536 client tests, typecheck, scoped lint, and build
+    pass; CSS retains its prior hash. The pre-existing wheel-effect lint warning
+    remains unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2465,7 +2473,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 534 client tests, 64 server unit tests, 24 collaboration
+Current verified totals: 536 client tests, 64 server unit tests, 24 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
