@@ -896,6 +896,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     rushee. Exact response messages and persisted fields pass against the
     existing handler in the disposable API integration container. All 41 server
     tests with the integration feature pass; no production database was used.
+151. Added the partial-slot database case before refactoring brother PIS sign-up.
+    If the first brother's first name is set while the last name remains `none`,
+    the existing handler fills the second slot and retains the partial first.
+    All 41 server tests with the integration feature pass in the isolated
+    container.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

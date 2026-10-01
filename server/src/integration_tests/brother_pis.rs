@@ -1,8 +1,12 @@
 use axum::{extract::Path, Json};
+use bson::doc;
 use serde_json::json;
 
 use super::fixtures::{path, register, reset, stored_rushee};
-use crate::{controllers::admin, models::pis::IncomingPISSignup};
+use crate::{
+    controllers::{admin, db},
+    models::pis::IncomingPISSignup,
+};
 
 fn brother(first: &str, last: &str) -> Json<IncomingPISSignup> {
     Json(IncomingPISSignup {
@@ -82,8 +86,33 @@ pub async fn check_contracts() {
     assert_eq!(
         missing,
         json!({
-            "status": "error", "message": "The rushee with GTID missing-gtid does not exist"
+        "status": "error", "message": "The rushee with GTID missing-gtid does not exist"
         })
     );
-    println!("brother PIS first, duplicate, second, full, and missing contracts passed");
+
+    reset().await;
+    register().await;
+    db::get_rushee_client()
+        .await
+        .update_one(
+            doc! { "gtid": super::fixtures::GTID },
+            doc! { "$set": { "pis_signup.first_brother_first_name": "Alex" } },
+        )
+        .await
+        .unwrap();
+    let partial = admin::brother_pis_sign_up(path(), brother("Alex", "Brother"))
+        .await
+        .unwrap()
+        .0;
+    assert_eq!(
+        partial,
+        json!({ "status": "success", "message": "Successfully registered for PIS!" })
+    );
+    let stored = stored_rushee().await;
+    assert_eq!(stored.pis_signup.first_brother_first_name, "Alex");
+    assert_eq!(stored.pis_signup.first_brother_last_name, "none");
+    assert_eq!(stored.pis_signup.second_brother_first_name, "Alex");
+    assert_eq!(stored.pis_signup.second_brother_last_name, "Brother");
+
+    println!("brother PIS signup and partial-slot contracts passed");
 }
