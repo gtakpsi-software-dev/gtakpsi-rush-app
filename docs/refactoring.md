@@ -1273,6 +1273,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     production build pass with unchanged CSS. Touched-file ESLint reports no
     errors in its configured files and two existing hook warnings in `PIS.jsx`;
     the existing ESLint configuration does not cover TSX files.
+222. Moved the brother PIS appointment page's in-place sorting, display-time
+    formatting, and relative-time labels into a 37-line feature module, reducing
+    `MyPISPage.jsx` from 226 to 195 lines. Three tests pin missing timestamps,
+    stable ordering, and completed/soon/hour/day thresholds with a fixed clock.
+    Removed three unrelated existing lint errors in the touched page without
+    changing its state or rendered text. All 361 client tests and the production
+    build pass with unchanged CSS; touched-file lint has no errors and one
+    existing effect-dependency warning.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1325,7 +1333,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 358 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 361 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last

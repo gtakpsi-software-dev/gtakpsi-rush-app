@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 
 import Navbar from "../components/Navbar";
 import Loader from "../components/Loader";
@@ -8,6 +7,11 @@ import Error from "../components/Error";
 import Badges from "../components/Badge";
 
 import { verifyUser } from "../features/auth/verifyUser";
+import {
+    sortPisAppointments,
+    formatPisAppointmentTime,
+    getPisAppointmentRelativeTime,
+} from "../features/brotherPis/appointments";
 import { adminPost } from "../js/adminAxios";
 
 export default function MyPISPage() {
@@ -16,7 +20,7 @@ export default function MyPISPage() {
     const [rushees, setRushees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something unexpected happened.");
+    const [errorTitle] = useState("Uh Oh! Something unexpected happened.");
     const [errorDescription, setErrorDescription] = useState("");
     
     const navigate = useNavigate();
@@ -41,12 +45,7 @@ export default function MyPISPage() {
                 const response = await adminPost(`${api}/admin/get-brother-pis`, payload);
                 
                 if (response.data.status === "success") {
-                    // Sort by timeslot
-                    const sortedRushees = response.data.payload.sort((a, b) => {
-                        const timeA = parseInt(a.pis_timeslot?.$date?.$numberLong || "0");
-                        const timeB = parseInt(b.pis_timeslot?.$date?.$numberLong || "0");
-                        return timeA - timeB;
-                    });
+                    const sortedRushees = sortPisAppointments(response.data.payload);
                     setRushees(sortedRushees);
                 } else {
                     setErrorDescription("There was an issue fetching your PIS appointments.");
@@ -63,36 +62,6 @@ export default function MyPISPage() {
         
         fetchData();
     }, []);
-    
-    // Format the timeslot for display
-    const formatTimeslot = (timeslot) => {
-        if (!timeslot?.$date?.$numberLong) return "No time scheduled";
-        const timestamp = parseInt(timeslot.$date.$numberLong);
-        return dayjs(timestamp).format("ddd, MMM D, YYYY [at] h:mm A");
-    };
-    
-    // Get relative time until PIS
-    const getRelativeTime = (timeslot) => {
-        if (!timeslot?.$date?.$numberLong) return null;
-        const timestamp = parseInt(timeslot.$date.$numberLong);
-        const now = dayjs();
-        const pisTime = dayjs(timestamp);
-        
-        if (pisTime.isBefore(now)) {
-            return { text: "Completed", color: "text-green-600", bg: "bg-green-50" };
-        }
-        
-        const diffDays = pisTime.diff(now, "day");
-        const diffHours = pisTime.diff(now, "hour");
-        
-        if (diffHours < 1) {
-            return { text: "Starting soon!", color: "text-red-600", bg: "bg-red-50" };
-        } else if (diffHours < 24) {
-            return { text: `In ${diffHours} hour${diffHours > 1 ? "s" : ""}`, color: "text-orange-600", bg: "bg-orange-50" };
-        } else {
-            return { text: `In ${diffDays} day${diffDays > 1 ? "s" : ""}`, color: "text-apple-gray-600", bg: "bg-apple-gray-50" };
-        }
-    };
     
     if (error) {
         return <Error title={errorTitle} description={errorDescription} />;
@@ -126,7 +95,7 @@ export default function MyPISPage() {
                                 No PIS Appointments
                             </h2>
                             <p className="text-apple-body text-apple-gray-600 font-light">
-                                You haven't been assigned to any PIS interviews yet.
+                                You haven&apos;t been assigned to any PIS interviews yet.
                                 <br />
                                 Check back after the PIS matching algorithm has been run.
                             </p>
@@ -134,7 +103,7 @@ export default function MyPISPage() {
                     ) : (
                         <div className="space-y-6">
                             {rushees.map((rushee, idx) => {
-                                const relativeTime = getRelativeTime(rushee.pis_timeslot);
+                                const relativeTime = getPisAppointmentRelativeTime(rushee.pis_timeslot);
                                 
                                 return (
                                     <div
@@ -197,7 +166,7 @@ export default function MyPISPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-apple-body text-black font-normal">
-                                                        {formatTimeslot(rushee.pis_timeslot)}
+                                                        {formatPisAppointmentTime(rushee.pis_timeslot)}
                                                     </p>
                                                     {relativeTime && (
                                                         <p className={`text-apple-footnote font-light ${relativeTime.color}`}>
