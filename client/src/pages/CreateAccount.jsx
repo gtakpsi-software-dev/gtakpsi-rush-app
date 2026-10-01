@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from "react-toastify";
 
 import { createAccount } from "../js/user";
+import { createAccountFormActions } from "../features/auth/createAccountFormActions";
 import Navbar from "../components/Navbar";
 
 export default function CreateAccount() {
@@ -15,74 +16,17 @@ export default function CreateAccount() {
     const password = useRef();
     const confirmPassword = useRef();
 
-    const handleCreateAccount = async () => {
-        // Validation
-        if (!firstName.current?.value || !lastName.current?.value) {
-            toast.error('Please enter your first and last name', {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        if (!email.current?.value) {
-            toast.error('Please enter your email', {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        if (!password.current?.value) {
-            toast.error('Please enter a password', {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        if (password.current?.value !== confirmPassword.current?.value) {
-            toast.error('Passwords do not match', {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        if (password.current?.value.length < 6) {
-            toast.error('Password must be at least 6 characters', {
-                position: "top-center",
-                autoClose: 5000,
-                theme: "dark",
-            });
-            return;
-        }
-
-        setLoading(true);
-
-        const success = await createAccount({
-            firstName: firstName.current?.value,
-            lastName: lastName.current?.value,
-            email: email.current?.value,
-            pwd: password.current?.value,
-        });
-
-        setLoading(false);
-
-        if (success) {
-            navigate('/dashboard');
-        }
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleCreateAccount();
-        }
-    };
+    const { handleCreateAccount, handleKeyPress } = createAccountFormActions({
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        toast,
+        setLoading,
+        createAccount,
+        navigate,
+    });
 
     return (
         <div className="bg-white min-h-screen">
@@ -200,4 +144,3 @@ export default function CreateAccount() {
         </div>
     );
 }
-

@@ -1288,6 +1288,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     All 363 client tests and the production build pass with unchanged CSS.
     Touched-file lint has no errors and the page's existing effect-dependency
     warning remains; the current lint configuration does not cover TSX files.
+224. Moved create-account form validation and submit/key handling into a focused
+    auth action module, reducing `CreateAccount.jsx` from 203 to 146 lines.
+    Eight tests pin the original first-error order, exact toast messages and
+    options, submitted payload, loading transitions, success navigation, and
+    Enter-key behavior. The page retains its refs and unchanged JSX. All 371
+    client tests and the production build pass with unchanged CSS; touched-file
+    ESLint passes without errors or warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1340,7 +1347,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 363 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 371 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
