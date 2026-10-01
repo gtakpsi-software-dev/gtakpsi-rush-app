@@ -1,4 +1,4 @@
-use super::create_router;
+use super::{create_router, public};
 use crate::middlewares::auth::FirebaseAuth;
 use axum::{
     body::{Body, HttpBody},
@@ -118,6 +118,54 @@ async fn public_json_routes_keep_extractor_validation_and_api_key_gating() {
             .await
             .unwrap();
         assert_eq!(response.status(), expected);
+    }
+}
+
+#[tokio::test]
+async fn rushee_public_routes_keep_paths_methods_and_preflight_behavior() {
+    let routes = [
+        (Method::POST, "/rushee/signup", true),
+        (Method::GET, "/rushee/get-rushees", true),
+        (Method::GET, "/rushee/rush-nights", true),
+        (Method::GET, "/rushee/900000001", true),
+        (Method::GET, "/rushee/self/900000001", true),
+        (Method::GET, "/rushee/get-pis-questions/900000001", true),
+        (Method::POST, "/rushee/post-comment/900000001", true),
+        (Method::POST, "/rushee/post-pis/900000001", true),
+        (Method::POST, "/rushee/autosave-pis/900000001", true),
+        (Method::POST, "/rushee/update-attendance/900000001", true),
+        (Method::POST, "/rushee/update-cloud/900000001", true),
+        (Method::POST, "/rushee/update-rushee/900000001", true),
+        (Method::POST, "/rushee/reschedule-pis/900000001", true),
+        (Method::POST, "/rushee/edit-comment/900000001", true),
+        (Method::POST, "/rushee/delete-comment/900000001", true),
+        (Method::GET, "/rushee/does-rushee-exist/900000001", false),
+        (Method::GET, "/rushee/get-timeslots", false),
+        (Method::GET, "/rushee/get-available-timeslots", false),
+    ];
+
+    for (allowed, path, has_preflight) in routes {
+        let wrong_method = if allowed == Method::GET {
+            Method::POST
+        } else {
+            Method::GET
+        };
+        let wrong = public::routes()
+            .oneshot(request(wrong_method, path, "", false))
+            .await
+            .unwrap();
+        assert_eq!(wrong.status(), StatusCode::METHOD_NOT_ALLOWED, "{path}");
+
+        let preflight = public::routes()
+            .oneshot(request(Method::OPTIONS, path, "", false))
+            .await
+            .unwrap();
+        let expected = if has_preflight {
+            StatusCode::OK
+        } else {
+            StatusCode::METHOD_NOT_ALLOWED
+        };
+        assert_eq!(preflight.status(), expected, "{path}");
     }
 }
 

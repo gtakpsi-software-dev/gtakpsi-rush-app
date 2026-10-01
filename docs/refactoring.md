@@ -2614,6 +2614,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     sequence into `maintenance_commands/rushee_import.py` while retaining the
     `import_rushees.py` command path and output. An offline fake-collection
     test pins the destructive operation order; all 65 maintenance tests pass.
+449. Moved all 18 public rushee route registrations into
+    `server/src/routes/public/rushee.rs`, reducing `public.rs` from 145 to 76
+    lines without changing route order or middleware placement. A new route
+    table test pins paths, method boundaries, and OPTIONS behavior. All 71
+    server unit tests and all 72 isolated database integration-feature tests
+    pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2673,9 +2679,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 566 client tests, 70 server unit tests, 28 collaboration
+Current verified totals: 566 client tests, 71 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 71 server tests from the latest integration-feature run, plus 65
+feature, and 72 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
