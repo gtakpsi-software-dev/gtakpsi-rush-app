@@ -1,5 +1,5 @@
 use super::{
-    column_order::{fetch_ids, write_column_order},
+    column_order::{fetch_ids, move_between_columns, move_within_column, write_column_order},
     validate_status, MoveRusheePayload, SORTING_COLUMN_LOCKS,
 };
 use crate::controllers::db;
@@ -53,24 +53,15 @@ pub async fn move_rushee(
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
         db::get_rushee_client().await;
 
-    let target_index = if payload.target_index < 0 {
-        0
-    } else {
-        payload.target_index as usize
-    };
-
     if from_column == to_column {
-        let mut ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
-        let pos = ids.iter().position(|id| id == &payload.moved_rushee_id);
-        let Some(pos) = pos else {
+        let ids = fetch_ids(&collection, &from_column).await?;
+        let Some(ids) = move_within_column(ids, &payload.moved_rushee_id, payload.target_index)
+        else {
             return Ok(Json(json!({
                 "status": "error",
                 "message": "Rushee not found in source column"
             })));
         };
-        ids.remove(pos);
-        let insert_at = std::cmp::min(target_index, ids.len());
-        ids.insert(insert_at, payload.moved_rushee_id.clone());
 
         if write_column_order(&collection, &ids, &from_column, &user)
             .await
@@ -82,21 +73,20 @@ pub async fn move_rushee(
             })));
         }
     } else {
-        let mut from_ids: Vec<String> = fetch_ids(&collection, &from_column).await?;
-        let mut to_ids: Vec<String> = fetch_ids(&collection, &to_column).await?;
+        let from_ids = fetch_ids(&collection, &from_column).await?;
+        let to_ids = fetch_ids(&collection, &to_column).await?;
 
-        let pos = from_ids
-            .iter()
-            .position(|id| id == &payload.moved_rushee_id);
-        let Some(pos) = pos else {
+        let Some((from_ids, to_ids)) = move_between_columns(
+            from_ids,
+            to_ids,
+            &payload.moved_rushee_id,
+            payload.target_index,
+        ) else {
             return Ok(Json(json!({
                 "status": "error",
                 "message": "Rushee not found in source column"
             })));
         };
-        from_ids.remove(pos);
-        let insert_at = std::cmp::min(target_index, to_ids.len());
-        to_ids.insert(insert_at, payload.moved_rushee_id.clone());
 
         if write_column_order(&collection, &from_ids, &from_column, &user)
             .await

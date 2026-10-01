@@ -2687,6 +2687,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     checking partial, complete, and already-complete assignments. All 74
     server unit tests and 75 integration-feature tests pass; changed files
     pass rustfmt.
+461. Centralized same-column and cross-column sorting move calculations in
+    `controllers/admin/sorting/column_order.rs`, leaving the move handler's
+    database reads, write sequence, locks, and response text unchanged. Three
+    new unit tests cover order after removal, clamped indices, cross-column
+    insertion, and missing rushees. All 77 server unit tests and 78 isolated
+    integration-feature tests pass; changed Rust files pass rustfmt. Corrected
+    the README's scoped lint baseline from 8 to 6.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2746,9 +2753,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 575 client tests, 74 server unit tests, 28 collaboration
+Current verified totals: 575 client tests, 77 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 75 server tests from the latest integration-feature run, plus 65
+feature, and 78 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
