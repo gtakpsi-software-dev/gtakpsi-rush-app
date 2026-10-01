@@ -1028,6 +1028,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     success and error branches, reducing it from 199 to 143 lines. The legacy
     filter types, count arithmetic, response text, and write-result behavior
     remain unchanged; all 42 server tests with the integration feature pass.
+177. Added direct registration verification contracts for nine-digit GTIDs,
+    validation order and messages, network bypass for existing registrations,
+    duplicate lookup, unexpected server replies, and request failure. All 295
+    client tests pass; the new test file passes ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1075,7 +1079,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 292 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 295 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
