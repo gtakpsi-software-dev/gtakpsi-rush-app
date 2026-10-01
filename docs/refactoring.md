@@ -1090,6 +1090,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     page. Four tests pin no-selection behavior, the GTID URL and lowercase-name
     payload, success alert/reload order, server-error toast options, and network
     failure logging. All 307 client tests pass; the new files pass ESLint.
+192. Wired the brother PIS page to the tested submission helper, reducing it
+    from 178 to 134 lines. All 307 client tests pass; the production JS and CSS
+    asset hashes match the preceding build. The page's ESLint errors fall from
+    four to two, with its existing effect-dependency warning unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import { verifyUser } from "../features/auth/verifyUser";
 import { loadBrotherPisSlots } from "../features/brotherPis/loadBrotherPisSlots";
+import { submitBrotherPisSlot } from "../features/brotherPis/submitBrotherPisSlot";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 
@@ -40,61 +41,16 @@ export default function BrotherPIS() {
         setSelectedSlot(selectedSlot === slotKey ? null : slotKey);
     };
 
-    const handleSubmit = async () => {
-        if (!selectedSlot) return;
-
-        try {
-            const [day, time, gtid] = selectedSlot.split("zz");
-
-            const payload = {
-                brother_first_name: user.firstname,
-                brother_last_name: user.lastname, 
-            };
-
-            const response = await axios.post(
-                `${api}/admin/pis-signup/${gtid}`,
-                payload
-            );
-
-            if (response.data.status === "success") {
-                alert("YOU successfully signed up for PIS timeslot! Great Work!");
-                window.location.reload();
-            } else {
-                toast.error(`${response.data.message}`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    style: {
-                        fontSize: '18px',
-                        padding: '20px',
-                        minHeight: '80px'
-                    }
-                });
-            }
-        } catch (error) {
-            console.error("Error submitting selected slot:", error);
-            toast.error("An error occurred while submitting the timeslot. Please try again.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                style: {
-                    fontSize: '18px',
-                    padding: '20px',
-                    minHeight: '80px'
-                }
-            });
-        }
-    };
+    const handleSubmit = () => submitBrotherPisSlot({
+        selectedSlot,
+        user,
+        axios,
+        api,
+        toast,
+        alert,
+        reload: () => window.location.reload(),
+        logError: (...args) => console.error(...args),
+    });
 
     return (
 
