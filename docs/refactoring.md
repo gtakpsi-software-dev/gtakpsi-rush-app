@@ -1734,6 +1734,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     destinations, target attributes, and button toggle order stay in the parent
     contract. Six exact-markup scenarios and the click-order test pass, along
     with all 431 client tests, typecheck, build, and changed-file ESLint.
+300. Colocated admin availability-editor state and action wiring in a focused
+    hook while preserving state-call order. `Admin.jsx` drops from 324 to 315
+    lines; its JSX section is byte-identical. The original editor action tests,
+    admin markup scenarios, all 431 client tests, typecheck, build, and
+    changed-file ESLint pass with the two prior page warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

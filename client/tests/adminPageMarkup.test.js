@@ -12,6 +12,7 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/Admin.jsx', import.meta.url));
+const editorHookPath = fileURLToPath(new URL('../src/features/admin/availability/useAdminAvailabilityEditor.js', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
 const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminPageMarkup.json', import.meta.url));
@@ -91,6 +92,14 @@ async function loadAdmin(state = {}, captured = new Map()) {
         '../firebase': { auth: {}, db: {} },
         'firebase/firestore': { collection: noop, getDocs: noop }
     };
+    dependencies['../features/admin/availability/useAdminAvailabilityEditor'] = await loadTsxComponent(
+        editorHookPath,
+        {
+            react: dependencies.react,
+            '../pis/pisTime': { groupEditSlots: () => ({}) },
+            './availabilityEditorActions': { createAvailabilityEditorActions: actions },
+        },
+    );
 
     runInNewContext(code, {
         module,

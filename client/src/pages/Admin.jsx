@@ -9,7 +9,7 @@ import Navbar from "../components/Navbar";
 import { loadAdminData } from "../features/admin/bootstrap/loadAdminData";
 import Loader from "../components/Loader";
 import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
-import { createAvailabilityEditorActions } from "../features/admin/availability/availabilityEditorActions";
+import useAdminAvailabilityEditor from "../features/admin/availability/useAdminAvailabilityEditor";
 import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
 import { createQuestionActions } from "../features/admin/pis/questionActions";
@@ -17,7 +17,6 @@ import {
     formatCurrentPISTime,
     formatSlotTime,
     formatTimeslot,
-    groupEditSlots,
 } from "../features/admin/pis/pisTime";
 import { createRescheduleActions } from "../features/admin/pis/rescheduleActions";
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
@@ -69,11 +68,26 @@ export default function Admin() {
     const [pisFormLoading, setPisFormLoading] = useState(false);
     const [brotherAvailabilities, setBrotherAvailabilities] = useState([]);
     
-    // Edit brother availability state
-    const [editingBrotherAvailability, setEditingBrotherAvailability] = useState(null);
-    const [editingSlots, setEditingSlots] = useState(new Set());
-    const [allPisTimeslots, setAllPisTimeslots] = useState([]);
-    const [savingAvailability, setSavingAvailability] = useState(false);
+    const {
+        editingBrotherAvailability,
+        editingSlots,
+        allPisTimeslots,
+        setAllPisTimeslots,
+        savingAvailability,
+        groupedEditSlots,
+        openEditAvailability,
+        closeEditAvailability,
+        toggleEditSlot,
+        selectAllEditSlots,
+        clearAllEditSlots,
+        saveEditedAvailability,
+    } = useAdminAvailabilityEditor({
+        apiBase,
+        getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
+        setBrotherAvailabilities,
+        axios,
+        toast,
+    });
 
     // Rush App disable state
     const [rushAppStatus, setRushAppStatus] = useState({ disable_bidcom: false, disable_regular: false, midterm_mode: false });
@@ -208,27 +222,6 @@ export default function Admin() {
     });
 
     const {
-        openEditAvailability,
-        closeEditAvailability,
-        toggleEditSlot,
-        selectAllEditSlots,
-        clearAllEditSlots,
-        saveEditedAvailability,
-    } = createAvailabilityEditorActions({
-        apiBase,
-        getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
-        editingBrotherAvailability,
-        editingSlots,
-        allPisTimeslots,
-        setEditingBrotherAvailability,
-        setEditingSlots,
-        setSavingAvailability,
-        setBrotherAvailabilities,
-        axios,
-        toast,
-    });
-
-    const {
         handleToggleRushAppAccess,
         handleToggleMidtermMode,
         handleToggleCommentVisibility,
@@ -244,8 +237,6 @@ export default function Admin() {
         toast,
         auth,
     });
-
-    const groupedEditSlots = groupEditSlots(allPisTimeslots);
 
     if (loading) {
         return <Loader />;
