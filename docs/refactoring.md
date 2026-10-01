@@ -1265,6 +1265,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     rejection before and after extraction. All 46 API unit tests and 47 tests
     with the integration feature pass against disposable MongoDB; the touched
     Rust files pass rustfmt.
+221. Extracted the PIS questions card from the page into a typed feature view,
+    reducing `PIS.jsx` from 256 to 212 lines while leaving collaboration and
+    autosave effects in place. Pre-extraction markup hashes match in loading,
+    pending, connected, and offline states; child-prop assertions cover answers,
+    brother fields, collaboration, and save status. All 358 client tests and the
+    production build pass with unchanged CSS. Touched-file ESLint reports no
+    errors in its configured files and two existing hook warnings in `PIS.jsx`;
+    the existing ESLint configuration does not cover TSX files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1317,7 +1325,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 356 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 358 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
