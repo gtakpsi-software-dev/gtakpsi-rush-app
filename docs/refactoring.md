@@ -901,6 +901,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the existing handler fills the second slot and retains the partial first.
     All 41 server tests with the integration feature pass in the isolated
     container.
+152. Moved brother PIS sign-up into its own module and replaced the nested
+    branches with a slot decision and one sequential-write helper. The read-only
+    brother PIS query remains unchanged. Both name updates remain separate and
+    ordered, and the duplicate, partial-slot, full-slot, missing-rushee, and
+    success responses retain their exact messages. A new unit test pins the
+    untrimmed BSON updates for both slots. All 42 server tests with the
+    integration feature pass against disposable MongoDB.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -948,9 +955,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 257 client tests, 40 server unit tests, 15 collaboration
+Current verified totals: 257 client tests, 41 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
-feature, and 41 server tests with the integration feature (including its
+feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
