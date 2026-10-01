@@ -1,3 +1,4 @@
+use super::timeslot_sort::sort_available_timeslots;
 use crate::controllers::db;
 use crate::middlewares::{pis, time_helpers};
 use crate::models::pis::PISSignup;
@@ -161,20 +162,7 @@ pub async fn get_available_timeslots() -> Result<Json<Value>, StatusCode> {
                 }
             }
 
-            // Sort by time
-            available_timeslots.sort_by(|a, b| {
-                let time_a = a["time"]["$date"]["$numberLong"]
-                    .as_str()
-                    .unwrap_or("0")
-                    .parse::<i64>()
-                    .unwrap_or(0);
-                let time_b = b["time"]["$date"]["$numberLong"]
-                    .as_str()
-                    .unwrap_or("0")
-                    .parse::<i64>()
-                    .unwrap_or(0);
-                time_a.cmp(&time_b)
-            });
+            sort_available_timeslots(&mut available_timeslots);
 
             Ok(Json(json!({
                 "status": "success",

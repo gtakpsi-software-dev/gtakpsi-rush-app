@@ -1233,6 +1233,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     hook-level listener-order check still passes. The hook is now 194 lines.
     All 352 client tests and the production build pass with unchanged CSS;
     lint debt remains 273 errors and 17 warnings.
+216. Moved available PIS timeslot sorting from the scheduling controller into
+    a tested helper, reducing `scheduling.rs` from 193 to 181 lines. The two
+    new tests pin the existing extended-JSON timestamp parsing, zero fallback,
+    and stable ordering for equal times. All 45 API unit tests and all 46 tests
+    with the integration feature pass against disposable MongoDB. The new
+    module passes rustfmt; repository-wide `cargo fmt --check` still reports
+    formatting debt in unrelated files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1265,6 +1272,9 @@ not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
+On this Mac, auth and route tests need normal system access: inside the
+filesystem sandbox, macOS Dynamic Store initialization panics before those
+tests run. The full suite passes with normal system access.
 Collaboration tests use `npm --prefix websocket-server test` and require permission
 to bind local ports; their pinned Socket.IO client is a development dependency.
 Tests must use isolated data and local services. Do not run season reset or
@@ -1280,9 +1290,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 352 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 352 client tests, 45 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 44 server tests with the integration feature (including its
+feature, and 46 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
