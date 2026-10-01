@@ -12,8 +12,8 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/index.tsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/AdminVotingDashboardView.tsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/index.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/AdminVotingDashboardView.tsx', import.meta.url));
 
 async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     const captured = new Map();

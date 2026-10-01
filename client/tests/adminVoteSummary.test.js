@@ -10,7 +10,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 
-const summaryPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/VoteSummary.tsx', import.meta.url));
+const summaryPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VoteSummary.tsx', import.meta.url));
 
 async function loadSummary(votes) {
     const posts = [];

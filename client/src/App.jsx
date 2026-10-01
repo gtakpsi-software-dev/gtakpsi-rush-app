@@ -24,7 +24,7 @@ import MyPISPage from './pages/MyPISPage';
 import NotFound from './pages/NotFound';
 import Comments from './pages/Comments';
 
-import AdminVotingDashboard from './pages/AdminVotingDashboardComponents';
+import AdminVotingDashboard from './pages/AdminVotingDashboard';
 import BrotherVotingPage from './pages/BrotherVotingPage';
 import AdminSorting from './pages/AdminSorting';
 import BidComSorting from './pages/BidComSorting';

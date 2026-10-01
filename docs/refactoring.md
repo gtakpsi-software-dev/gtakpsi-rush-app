@@ -2160,6 +2160,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     presence, operation, document, and version state for newly joined rooms.
     All 23 collaboration tests pass, including local Socket.IO protocol and
     reconnect coverage.
+377. Renamed the admin voting page directory from
+    `AdminVotingDashboardComponents` to `AdminVotingDashboard`, updating the
+    route import and six focused test paths. All 518 client tests, typecheck,
+    and build pass. Production JavaScript and CSS hashes match slice 375.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

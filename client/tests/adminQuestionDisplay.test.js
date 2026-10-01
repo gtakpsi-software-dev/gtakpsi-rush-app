@@ -8,7 +8,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { transformWithEsbuild } from "vite";
 
-const componentPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboardComponents/QuestionDisplay.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/QuestionDisplay.tsx", import.meta.url));
 
 async function loadQuestion({ question = "Current?", editing = true, inputValue = "New?" } = {}) {
     const updates = [];

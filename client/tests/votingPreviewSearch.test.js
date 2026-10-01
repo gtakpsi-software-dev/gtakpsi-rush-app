@@ -7,7 +7,7 @@ import { runInNewContext } from "node:vm";
 import { transformWithEsbuild } from "vite";
 
 const helperPath = fileURLToPath(new URL(
-    "../src/pages/AdminVotingDashboardComponents/previewRusheeSearch.ts",
+    "../src/pages/AdminVotingDashboard/previewRusheeSearch.ts",
     import.meta.url,
 ));
 

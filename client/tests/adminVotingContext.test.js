@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
-const contextPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboardComponents/AdminVotingContext.tsx", import.meta.url));
+const contextPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/AdminVotingContext.tsx", import.meta.url));
 
 test("admin voting provider retains its initial context and fetch transition", async () => {
     const initialStates = [];
