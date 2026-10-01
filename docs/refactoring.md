@@ -1796,6 +1796,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     in a typed feature view. `RusheeZoom.jsx` drops from 257 to 225 lines;
     loading, admin, copied-link, and restricted markup hashes match the prior
     page. All 435 client tests, typecheck, build, and changed-file ESLint pass.
+312. Colocated Rushee Zoom access defaults, visibility derivation, and fetch
+    effect in a focused hook without changing state-call order or the loader
+    gate. `RusheeZoom.jsx` drops from 225 to 200 lines. A new hook test pins
+    restricted defaults and fetch wiring; all 436 client tests, exact page
+    markup fixtures, typecheck, build, and changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1851,7 +1856,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 435 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 436 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

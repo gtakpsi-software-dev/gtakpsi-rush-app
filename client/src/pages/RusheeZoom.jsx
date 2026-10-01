@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import { verifyUser } from "../features/auth/verifyUser";
-import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
 import { createCommentCreateActions } from "../features/rushee/zoom/commentCreateActions";
 import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";
+import useRusheeZoomAccess from "../features/rushee/zoom/useRusheeZoomAccess";
 import RusheeZoomView from "../features/rushee/zoom/RusheeZoomView";
 import Loader from "../components/Loader";
-import { auth } from "../firebase";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import {
-    getVisibleComments,
-    hasOwnComment,
-    shouldShowAllComments,
-} from "../js/commentVisibility";
 
 const RATING_FIELDS = [
     "Why AKPsi",
@@ -60,11 +53,6 @@ export default function RusheeZoom() {
     const [editCommentWarnings, setEditCommentWarnings] = useState([]);
     const [ratings, setRatings] = useState(createDefaultRatings);
     const [ratingNotSeen, setRatingNotSeen] = useState(createDefaultNotSeen);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [isBidcom, setIsBidcom] = useState(false);
-    // Keep comments restricted until the access settings finish loading.
-    const [requireCommentToView, setRequireCommentToView] = useState(true);
-
     const navigate = useNavigate();
 
     const api = import.meta.env.VITE_API_PREFIX;
@@ -82,38 +70,25 @@ export default function RusheeZoom() {
 
     const ratingFields = RATING_FIELDS;
 
-    const visibilityOptions = { requireCommentToView, isAdmin, isBidcom };
-    const showAllComments = shouldShowAllComments(visibilityOptions);
-    const visibleComments = rushee
-        ? getVisibleComments(rushee.comments, user, visibilityOptions)
-        : [];
-    const userHasOwnComment = rushee ? hasOwnComment(rushee.comments, user) : false;
-
-    useEffect(() => {
-        async function fetch() {
-            await loadRusheeZoom({
-                verifyUser,
-                navigate,
-                errorTitle,
-                errorDescription,
-                auth,
-                setIsAdmin,
-                setIsBidcom,
-                axios,
-                api,
-                gtid,
-                setRushee,
-                setRequireCommentToView,
-                setError,
-                setLoading,
-                logError: (message, error) => console.error(message, error),
-                logData: (value) => console.log(value),
-            });
-        }
-
-        if (loading == true) {
-            fetch();
-        }
+    const {
+        isAdmin,
+        isBidcom,
+        requireCommentToView,
+        showAllComments,
+        visibleComments,
+        userHasOwnComment,
+    } = useRusheeZoomAccess({
+        loading,
+        navigate,
+        errorTitle,
+        errorDescription,
+        api,
+        gtid,
+        rushee,
+        user,
+        setRushee,
+        setError,
+        setLoading,
     });
 
     const {

@@ -18,6 +18,7 @@ const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.met
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
 const actionsPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeActions.tsx", import.meta.url));
 const layoutPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeZoomView.tsx", import.meta.url));
+const accessPath = fileURLToPath(new URL("../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomPageMarkup.json", import.meta.url));
 
 const rushee = {
@@ -50,37 +51,43 @@ async function loadPage(state = {}, captured = new Map()) {
     const noop = () => {};
     let stateIndex = 0;
     const actions = () => new Proxy({}, { get: () => noop });
-    const dependencies = {
-        react: {
-            ...React,
-            useState(initial) {
-                const index = stateIndex++;
-                const value = Object.hasOwn(state, index)
-                    ? state[index]
-                    : typeof initial === "function" ? initial() : initial;
-                return [value, noop];
-            },
-            useEffect: noop,
+    const reactHooks = {
+        ...React,
+        useState(initial) {
+            const index = stateIndex++;
+            const value = Object.hasOwn(state, index)
+                ? state[index]
+                : typeof initial === "function" ? initial() : initial;
+            return [value, noop];
         },
+        useEffect: noop,
+    };
+    const useRusheeZoomAccess = await loadTsxComponent(accessPath, {
+        react: reactHooks,
+        axios: {},
+        "../../../firebase": { auth: {} },
+        "../../../js/commentVisibility": {
+            getVisibleComments, hasOwnComment, shouldShowAllComments,
+        },
+        "../../auth/verifyUser": { verifyUser: noop },
+        "./loadRusheeZoom": { loadRusheeZoom: noop },
+    });
+    const dependencies = {
+        react: reactHooks,
         axios: {},
         "react-router-dom": {
             useNavigate: () => noop,
             useParams: () => ({ gtid: "123" }),
             useLocation: () => ({ pathname: "/brother/rushee/123", search: "" }),
         },
-        "../features/auth/verifyUser": { verifyUser: noop },
-        "../features/rushee/zoom/loadRusheeZoom": { loadRusheeZoom: noop },
         "../features/rushee/zoom/commentCreateActions": { createCommentCreateActions: actions },
         "../features/rushee/zoom/existingCommentActions": { createExistingCommentActions: actions },
+        "../features/rushee/zoom/useRusheeZoomAccess": useRusheeZoomAccess,
         "../features/rushee/zoom/RusheeZoomView": Layout,
         "../components/Loader": stub("loader"),
-        "../firebase": { auth: {} },
         "../js/speculativeWordBank": { validateComment: noop, generateWarnings: noop },
         "react-toastify": { toast: {} },
         "react-toastify/dist/ReactToastify.css": {},
-        "../js/commentVisibility": {
-            getVisibleComments, hasOwnComment, shouldShowAllComments,
-        },
     };
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
