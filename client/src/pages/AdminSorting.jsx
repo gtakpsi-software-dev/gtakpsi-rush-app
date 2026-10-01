@@ -13,6 +13,7 @@ import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import SortingColumn from "../features/sorting/SortingColumn";
 import { handleAdminSortingMessage } from "../features/sorting/handleAdminSortingMessage";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { applySortingDrop } from "../features/sorting/applySortingDrop";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -274,50 +275,9 @@ export default function AdminSorting() {
     const handleDrop = (targetColumn, targetIndex) => {
         if (!dragging) return;
         const { id, fromColumn } = dragging;
-        setColumns((prev) => {
-            const updated = { ...prev };
-            const sourceList = [...updated[fromColumn]];
-            const targetList = fromColumn === targetColumn ? sourceList : [...updated[targetColumn]];
-
-            const draggedItemIndex = sourceList.findIndex((r) => r.id === id);
-            if (draggedItemIndex === -1) return prev;
-            const [item] = sourceList.splice(draggedItemIndex, 1);
-            // if moving across, update status
-            const newItem = { ...item, sortingStatus: targetColumn };
-
-            let insertAt = targetIndex;
-            if (insertAt === null || insertAt === undefined || insertAt > targetList.length) {
-                insertAt = targetList.length;
-            }
-            targetList.splice(insertAt, 0, newItem);
-
-            // rebuild columns
-            if (fromColumn === targetColumn) {
-                updated[targetColumn] = targetList.map((r, idx) => ({
-                    ...r,
-                    sortingOrder: idx + 1,
-                }));
-            } else {
-                updated[fromColumn] = sourceList.map((r, idx) => ({
-                    ...r,
-                    sortingOrder: idx + 1,
-                }));
-                updated[targetColumn] = targetList.map((r, idx) => ({
-                    ...r,
-                    sortingOrder: idx + 1,
-                }));
-            }
-
-            // persist async move against latest backend state
-            enqueueMove({
-                fromColumn,
-                toColumn: targetColumn,
-                movedRusheeId: id,
-                targetIndex: insertAt,
-            });
-
-            return updated;
-        });
+        setColumns((prev) => applySortingDrop(prev, {
+            id, fromColumn, targetColumn, targetIndex, enqueueMove,
+        }));
         clearDragState();
     };
 
