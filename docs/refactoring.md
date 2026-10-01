@@ -908,6 +908,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     success responses retain their exact messages. A new unit test pins the
     untrimmed BSON updates for both slots. All 42 server tests with the
     integration feature pass against disposable MongoDB.
+153. Added database contracts for moving a rushee within one sorting column and
+    into a different column. They pin persisted order, status, author attribution,
+    and clamping of a negative target index before changing the mutation handler.
+    All 42 server tests pass against disposable MongoDB.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
