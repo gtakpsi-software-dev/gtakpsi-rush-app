@@ -16,10 +16,10 @@ import PisQuestionResponses from "../features/pis/PisQuestionResponses";
 import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
-import { applyPisQuestionsResponse } from "../features/pis/applyPisQuestionsResponse";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { performPisAutosave } from "../features/pis/performPisAutosave";
 import { loadPisPageData } from "../features/pis/loadPisPageData";
+import { startPisRevealPolling } from "../features/pis/startPisRevealPolling";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -94,21 +94,18 @@ export default function PIS() {
     useEffect(() => {
         if (loading || questionsAvailable || !revealAt) return;
 
-        const tick = () => {
-            const secondsLeft = Math.max(0, Math.round((revealAt.getTime() - Date.now()) / 1000));
-
-            if (secondsLeft <= 0) {
-                axios.get(`${api}/rushee/get-pis-questions/${gtid}`).then((response) => {
-                    applyPisQuestionsResponse(response, {
-                        setQuestions, setQuestionsAvailable, setRevealAt,
-                    });
-                });
-            }
-        };
-
-        tick();
-        const interval = setInterval(tick, 1000);
-        return () => clearInterval(interval);
+        return startPisRevealPolling({
+            revealAt,
+            api,
+            gtid,
+            get: (...args) => axios.get(...args),
+            setQuestions,
+            setQuestionsAvailable,
+            setRevealAt,
+            now: () => Date.now(),
+            scheduleInterval: (callback, delay) => setInterval(callback, delay),
+            clearScheduledInterval: (interval) => clearInterval(interval),
+        });
     }, [loading, questionsAvailable, revealAt, api, gtid]);
 
     // Handle answer input changes (for text areas - typing handled inside CollaborativeTextarea)
