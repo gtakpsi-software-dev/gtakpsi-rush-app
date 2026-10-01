@@ -6,6 +6,11 @@ import { createCommentCreateActions } from "../src/features/rushee/zoom/commentC
 const rushee = { first_name: "Ada", last_name: "Example" };
 const user = { firstname: "Sam", lastname: "Member" };
 const ratingFields = ["Why AKPsi", "Group Interactions"];
+const toastOptions = {
+    position: "top-center", autoClose: 5000, hideProgressBar: false,
+    closeOnClick: true, pauseOnHover: true, draggable: true,
+    progress: undefined, theme: "dark",
+};
 
 function setup({ currentRushee = rushee, newComment = "Good meeting", ratings = { "Why AKPsi": 4, "Group Interactions": 2 }, ratingNotSeen = { "Why AKPsi": false, "Group Interactions": true }, response = { status: "success" } } = {}) {
     const calls = [];
@@ -76,7 +81,7 @@ test("warnings still allow submission and only seen ratings enter the payload", 
     assert.deepEqual(calls[0], ["validate", "bad wording", "Ada", "Example"]);
     assert.deepEqual(calls[1], ["warnings", ["Warning"]]);
     assert.match(calls[2][1], /potentially problematic language/);
-    assert.equal(calls[2][2].autoClose, 5000);
+    assert.deepEqual(calls[2][2], toastOptions);
     assert.deepEqual(calls[4], ["log", user]);
     assert.deepEqual(calls[5], ["post", "/api/rushee/post-comment/123", {
         brother_id: "000000", brother_name: "Sam Member", comment: "bad wording",
@@ -92,6 +97,7 @@ test("server errors and network errors keep their distinct outcomes and reset th
     const rejected = setup({ response: { status: "error", message: "Denied" } });
     await rejected.actions.handleSubmitComment();
     assert.equal(rejected.calls.find(([kind]) => kind === "errorToast")[1], "Denied");
+    assert.deepEqual(rejected.calls.find(([kind]) => kind === "errorToast")[2], toastOptions);
     assert.ok(!rejected.calls.some(([kind]) => kind === "reload" || kind === "navigate"));
     assert.deepEqual(rejected.calls.at(-1), ["loading", false]);
 

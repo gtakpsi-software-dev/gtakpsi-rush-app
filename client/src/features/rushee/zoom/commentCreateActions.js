@@ -1,3 +1,5 @@
+import { createCommentToastOptions } from "./commentToastOptions.js";
+
 export function createCommentCreateActions({
     rushee,
     user,
@@ -62,16 +64,7 @@ export function createCommentCreateActions({
             setCommentWarnings(warnings);
 
             // Warn without blocking the existing comment submission flow.
-            toast.warning("Comment contains potentially problematic language. Please review before submitting.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
+            toast.warning("Comment contains potentially problematic language. Please review before submitting.", createCommentToastOptions());
         }
 
         setLoading(true);
@@ -101,16 +94,7 @@ export function createCommentCreateActions({
                 if (response.data.status === "success") {
                     reload();
                 } else {
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
+                    toast.error(`${response.data.message}`, createCommentToastOptions());
                 }
             })
             .catch((error) => {

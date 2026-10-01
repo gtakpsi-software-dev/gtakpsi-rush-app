@@ -10,6 +10,11 @@ const comment = {
     ratings: [{ name: "Why AKPsi", value: 4 }],
     night: { name: "Night 1" },
 };
+const toastOptions = {
+    position: "top-center", autoClose: 5000, hideProgressBar: false,
+    closeOnClick: true, pauseOnHover: true, draggable: true,
+    progress: undefined, theme: "dark",
+};
 
 function setup({ currentRushee = rushee, currentError = false, editedCommentText = "Edited comment", editResponse = { status: "success" }, deleteResponse = { status: "success" } } = {}) {
     const calls = [];
@@ -67,6 +72,7 @@ test("edited comments warn but submit the original ratings and night", async () 
     assert.deepEqual(calls[1], ["validate", "bad wording", "Ada", "Example"]);
     assert.deepEqual(calls[2], ["warnings", ["Warning"]]);
     assert.match(calls[3][1], /Edited comment contains potentially problematic language/);
+    assert.deepEqual(calls[3][2], toastOptions);
     assert.deepEqual(calls[5], ["post", "/api/rushee/edit-comment/123", {
         brother_id: "000000",
         brother_name: "Sam Member",
@@ -82,12 +88,14 @@ test("edit response and network errors retain their distinct logs and reset stat
     const denied = setup({ editResponse: { status: "error", message: "Denied" } });
     await denied.actions.handleSubmitEdit(comment);
     assert.equal(denied.calls.find(([kind]) => kind === "errorToast")[1], "Denied");
+    assert.deepEqual(denied.calls.find(([kind]) => kind === "errorToast")[2], toastOptions);
     assert.deepEqual(denied.calls.at(-1), ["loading", false]);
 
     const offline = setup({ currentError: true, editResponse: new Error("offline") });
     await offline.actions.handleSubmitEdit(comment);
     assert.deepEqual(offline.calls.find(([kind, value]) => kind === "log" && value === true), ["log", true]);
     assert.equal(offline.calls.find(([kind]) => kind === "errorToast")[1], "Some network error occurred");
+    assert.deepEqual(offline.calls.find(([kind]) => kind === "errorToast")[2], toastOptions);
     assert.deepEqual(offline.calls.at(-1), ["loading", false]);
 });
 
@@ -102,10 +110,12 @@ test("deleting passes the stored comment through and retains success and error c
     const denied = setup({ deleteResponse: { status: "error", message: "Denied" } });
     await denied.actions.handleDeleteComment(comment);
     assert.equal(denied.calls[2][1], "Denied");
+    assert.deepEqual(denied.calls[2][2], toastOptions);
     assert.deepEqual(denied.calls.at(-1), ["loading", false]);
 
     const offline = setup({ deleteResponse: new Error("offline") });
     await offline.actions.handleDeleteComment(comment);
     assert.deepEqual(offline.calls.map(([kind]) => kind), ["loading", "post", "log", "errorToast", "loading"]);
     assert.equal(offline.calls[3][1], "Some network error occurred");
+    assert.deepEqual(offline.calls[3][2], toastOptions);
 });

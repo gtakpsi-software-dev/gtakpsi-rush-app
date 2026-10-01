@@ -1,3 +1,5 @@
+import { createCommentToastOptions } from "./commentToastOptions.js";
+
 export function createExistingCommentActions({
     rushee,
     error,
@@ -41,16 +43,7 @@ export function createExistingCommentActions({
             setEditCommentWarnings(warnings);
 
             // Keep warnings advisory while submitting the edited comment.
-            toast.warning("Edited comment contains potentially problematic language. Please review before submitting.", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
+            toast.warning("Edited comment contains potentially problematic language. Please review before submitting.", createCommentToastOptions());
         }
 
         setLoading(true);
@@ -67,31 +60,13 @@ export function createExistingCommentActions({
                 if (response.data.status === "success") {
                     reload();
                 } else {
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
+                    toast.error(`${response.data.message}`, createCommentToastOptions());
                 }
             })
             .catch(() => {
                 // Preserve the page's error-state log; the rejected request is not logged here.
                 log(error);
-                toast.error(`Some network error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
+                toast.error(`Some network error occurred`, createCommentToastOptions());
             });
 
         setEditingCommentId(null);
@@ -108,31 +83,13 @@ export function createExistingCommentActions({
                 if (response.data.status === "success") {
                     reload();
                 } else {
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
+                    toast.error(`${response.data.message}`, createCommentToastOptions());
                 }
             })
             .catch((error) => {
                 log(error);
 
-                toast.error(`Some network error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
+                toast.error(`Some network error occurred`, createCommentToastOptions());
             });
 
         setLoading(false);

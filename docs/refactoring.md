@@ -2673,6 +2673,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     single-choice gradients, and the existing abstain-only empty chart with a
     separate breakdown count. All 575 client tests, typecheck, scoped lint,
     and build pass; generated CSS retains its prior hash.
+459. Centralized seven identical rushee-comment toast option blocks in
+    `features/rushee/zoom/commentToastOptions.js`, preserving a fresh options
+    object per warning or error. The creation and existing-comment action
+    modules fell from 140/147 to 124/104 lines. Tests now pin every warning
+    and error toast's full presentation contract, and rushee detail markup
+    hashes still pass. All 575 client tests, typecheck, scoped lint, and build
+    pass; generated CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
