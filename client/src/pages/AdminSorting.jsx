@@ -14,6 +14,7 @@ import SortingColumn from "../features/sorting/SortingColumn";
 import { handleAdminSortingMessage } from "../features/sorting/handleAdminSortingMessage";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 import { applySortingDrop } from "../features/sorting/applySortingDrop";
+import { applySavedSortingTags } from "../features/sorting/applySavedSortingTags";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -324,16 +325,7 @@ export default function AdminSorting() {
                 sortingTags: currentTags,
             });
             if (resp.data.status === "success") {
-                // Update tags in columns state
-                setColumns((prev) => {
-                    const updated = { ...prev };
-                    Object.keys(updated).forEach((colKey) => {
-                        updated[colKey] = updated[colKey].map((r) =>
-                            r.id === selectedRushee.id ? { ...r, sortingTags: currentTags } : r
-                        );
-                    });
-                    return updated;
-                });
+                setColumns((prev) => applySavedSortingTags(prev, selectedRushee.id, currentTags));
                 setNotesStatus("saved");
                 setTimeout(() => setNotesStatus("idle"), 800);
             } else {
