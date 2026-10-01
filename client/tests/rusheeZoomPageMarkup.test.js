@@ -16,6 +16,9 @@ import {
 import {
     getRusheeNumber, isBidCommitteeMode,
 } from "../src/features/rushee/zoom/routeContext.js";
+import {
+    RATING_FIELDS, createDefaultRatings, createDefaultNotSeen,
+} from "../src/features/rushee/zoom/commentRatingDefaults.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
@@ -88,6 +91,9 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/rushee/zoom/useRusheeZoomAccess": useRusheeZoomAccess,
         "../features/rushee/zoom/RusheeZoomView": Layout,
         "../features/rushee/zoom/routeContext": { getRusheeNumber, isBidCommitteeMode },
+        "../features/rushee/zoom/commentRatingDefaults": {
+            RATING_FIELDS, createDefaultRatings, createDefaultNotSeen,
+        },
         "../components/Loader": stub("loader"),
         "../features/comments/commentValidation": { validateComment: noop, generateWarnings: noop },
         "react-toastify": { toast: {} },

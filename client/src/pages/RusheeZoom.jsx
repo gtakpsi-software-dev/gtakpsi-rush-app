@@ -10,35 +10,21 @@ import {
     getRusheeNumber as getRusheeNumberFromSearch,
     isBidCommitteeMode as matchesBidCommitteeMode,
 } from "../features/rushee/zoom/routeContext";
+import {
+    RATING_FIELDS,
+    createDefaultRatings,
+    createDefaultNotSeen,
+} from "../features/rushee/zoom/commentRatingDefaults";
 import Loader from "../components/Loader";
 import { validateComment, generateWarnings } from "../features/comments/commentValidation";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-const RATING_FIELDS = [
-    "Why AKPsi",
-    "1:1 Interactions",
-    "Group Interactions",
-    "Professionalism",
-];
-
-const DEFAULT_RATING = 3;
-
-function createDefaultRatings() {
-    return Object.fromEntries(RATING_FIELDS.map((f) => [f, DEFAULT_RATING]));
-}
-
-function createDefaultNotSeen() {
-    return Object.fromEntries(RATING_FIELDS.map((f) => [f, true]));
-}
-
 export default function RusheeZoom() {
-
     const { gtid } = useParams();
     const location = useLocation();
-    const user = JSON.parse(localStorage.getItem('user'))
+    const user = JSON.parse(localStorage.getItem('user'));
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -190,7 +176,5 @@ export default function RusheeZoom() {
                 />
             )}
         </div>
-
     );
-
 }

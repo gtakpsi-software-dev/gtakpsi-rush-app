@@ -2288,6 +2288,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     classes, and phone formatter. The full static markup hash and focused
     interaction tests pass before and after; all 527 client tests, typecheck,
     targeted lint, and production build pass. Built CSS retains its prior hash.
+398. Moved the rushee comment rating fields and initial state factories from
+    the zoom page into `commentRatingDefaults`. A new test pins field order,
+    default values, and independent state objects. The zoom page markup and
+    comment-action tests pass before and after; all 528 client tests, typecheck,
+    targeted lint, and production build pass. Built CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2345,7 +2350,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 527 client tests, 64 server unit tests, 23 collaboration
+Current verified totals: 528 client tests, 64 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
