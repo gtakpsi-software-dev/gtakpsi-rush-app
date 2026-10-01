@@ -660,6 +660,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unused `hover:bg-blue-600` utility is the only generated CSS difference.
     All 207 client tests pass and the build succeeds. `RusheePage.jsx` is now
     378 lines; the new test passes lint.
+112. Rushee self-profile form: moved fields, select options, phone formatting,
+    and submit button into a focused component. The rendered form card matches
+    its pre-extraction hash, and tests cover submit/field handlers plus partial
+    and full phone formatting. All 210 client tests pass and the build succeeds.
+    CSS has no new difference from the prior slice. `RusheePage.jsx` is now
+    210 lines; the new test passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -705,7 +711,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 207 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 210 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
