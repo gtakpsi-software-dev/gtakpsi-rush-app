@@ -61,6 +61,9 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         './VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
         './AdminVotingDashboardView': ViewWithCapture,
+        './useAdminVotingSocket': {
+            useAdminVotingSocket: (props) => captured.set('socket', props),
+        },
         '../NotFound': stub('not-found'),
         '../../firebase': { auth: {} },
         '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://localhost' } },
@@ -105,6 +108,9 @@ test('admin voting dashboard retains auth gating and three socket-status layouts
             assert.equal(html, '');
         } else {
             assert.equal(captured.get('votes').showBreakdown, true);
+            assert.equal(captured.get('socket').authorized, true);
+            assert.equal(captured.get('socket').user._id, 'brother-1');
+            assert.equal(captured.get('socket').votingWebSocketUrl, 'ws://localhost');
             assert.match(html, /data-stub="question"/);
             assert.match(html, /data-stub="brothers"/);
         }

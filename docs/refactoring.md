@@ -1597,6 +1597,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unauthorized, and all three connection-status markup hashes and checks
     the vote-summary props. All 420 client tests and typecheck pass, the view
     is lint-clean, and controlled CSS is byte-identical.
+276. Moved admin voting socket connection, update dispatch, reconnect backoff,
+    and cleanup into `useAdminVotingSocket.ts`, leaving the refs and auth flow
+    in the page. The page falls to 106 lines. Three new tests cover the exact
+    admin socket URL, authorization gate, vote/rushee/question payloads,
+    malformed JSON, reconnect delays, the 30-second cap, and cleanup. All
+    423 client tests and typecheck pass; controlled CSS is byte-identical.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1652,7 +1658,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 420 client tests, 52 server unit tests, 19 collaboration
+Current verified totals: 423 client tests, 52 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 53 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

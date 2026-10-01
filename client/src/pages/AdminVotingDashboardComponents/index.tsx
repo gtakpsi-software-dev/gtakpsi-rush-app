@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminVotingContextProvider, useAdminVotingContext } from "./AdminVotingContext";
 import AdminVotingDashboardView from "./AdminVotingDashboardView";
@@ -6,6 +6,7 @@ import type { Brother, ConnectionStatus } from "./types";
 import NotFound from "../NotFound";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
+import { useAdminVotingSocket } from "./useAdminVotingSocket";
 
 // Parse allowlist once at module level
 const ALLOWLIST = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
@@ -68,88 +69,11 @@ function Content() {
         return () => unsubscribe();
     }, [storedUser, navigate, authChecked]);
 
-    // WebSocket connection with automatic reconnection
-    const connectWebSocket = useCallback(() => {
-        if (!authorized || !user) return;
-
-        // Clear any existing reconnect timeout
-        if (reconnectTimeoutRef.current) {
-            clearTimeout(reconnectTimeoutRef.current);
-            reconnectTimeoutRef.current = null;
-        }
-
-        setConnectionStatus('connecting');
-        const ws = new WebSocket(`${votingWebSocketUrl}/admin/${user._id}`);
-        socketRef.current = ws;
-
-        ws.onopen = () => {
-            console.log("WebSocket connected");
-            setConnectionStatus('connected');
-            reconnectAttemptsRef.current = 0; // Reset reconnect counter on successful connection
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data);
-                console.log(msg)
-
-                if (msg.type === "vote_update") {
-                    setVotes(msg.votes); // expects array of vote objects
-                }
-
-                if (msg.type === "rushee_update") {
-                    const parsedRushee =
-                        typeof msg.rushee === "string"
-                            ? JSON.parse(msg.rushee)
-                            : msg.rushee;
-
-                    setRushee(parsedRushee);
-                }
-
-                if (msg.type === "question_update") {
-                    setQuestion(msg.question)
-                }
-
-            } catch (err) {
-                console.error("Error parsing WebSocket message", err);
-            }
-        };
-
-        ws.onclose = () => {
-            console.log("WebSocket closed");
-            setConnectionStatus('disconnected');
-            
-            // Exponential backoff: 1s, 2s, 4s, 8s, max 30s
-            const backoffMs = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-            reconnectAttemptsRef.current++;
-            
-            console.log(`Reconnecting in ${backoffMs}ms (attempt ${reconnectAttemptsRef.current})`);
-            reconnectTimeoutRef.current = setTimeout(() => {
-                connectWebSocket();
-            }, backoffMs);
-        };
-
-        ws.onerror = (e) => {
-            console.error("WebSocket error", e);
-            ws.close(); // Trigger onclose for reconnection
-        };
-    }, [authorized, user, votingWebSocketUrl, setVotes, setRushee, setQuestion]);
-
-    useEffect(() => {
-        if (!authorized || !user) return;
-
-        connectWebSocket();
-
-        return () => {
-            // Cleanup on unmount
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-            }
-            if (socketRef.current) {
-                socketRef.current.close();
-            }
-        };
-    }, [connectWebSocket, authorized, user]);
+    useAdminVotingSocket({
+        authorized, user, votingWebSocketUrl, socketRef,
+        reconnectTimeoutRef, reconnectAttemptsRef, setConnectionStatus,
+        setVotes, setRushee, setQuestion,
+    });
 
     const handleSetQuestion = (value: string) => {
         console.log("Set question to:", value);
