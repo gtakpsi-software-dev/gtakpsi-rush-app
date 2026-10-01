@@ -1,3 +1,5 @@
+import { clearSortingGhost, moveSortingGhost, showSortingGhost } from "./sortingGhostState.js";
+
 export function handleSortingViewerMessage(msg, {
     ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
     showRusheeNames = false, now = Date.now,
@@ -7,51 +9,21 @@ export function handleSortingViewerMessage(msg, {
             setViewerCount(msg.count);
             break;
         case "drag_start":
-            ghostTimestampsRef.current[msg.rushee_id] = now();
-            setGhostCards((prev) => ({
-                ...prev,
-                [msg.rushee_id]: {
-                    rusheeId: msg.rushee_id,
-                    // INVARIANT: bid committee viewers must use the redacted label.
-                    rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
-                    x: msg.x,
-                    y: msg.y,
-                    draggerName: msg.dragger_name,
-                },
-            }));
+            // INVARIANT: bid committee viewers must use the redacted label.
+            showSortingGhost(msg, {
+                ghostTimestampsRef, setGhostCards, now,
+                rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
+            });
             break;
         case "drag_move":
-            ghostTimestampsRef.current[msg.rushee_id] = now();
-            setGhostCards((prev) => {
-                if (!prev[msg.rushee_id]) return prev;
-                return {
-                    ...prev,
-                    [msg.rushee_id]: {
-                        ...prev[msg.rushee_id],
-                        x: msg.x,
-                        y: msg.y,
-                    },
-                };
-            });
+            moveSortingGhost(msg, { ghostTimestampsRef, setGhostCards, now });
             break;
         case "drag_end":
-            delete ghostTimestampsRef.current[msg.rushee_id];
-            setGhostCards((prev) => {
-                if (!prev[msg.rushee_id]) return prev;
-                const next = { ...prev };
-                delete next[msg.rushee_id];
-                return next;
-            });
+            clearSortingGhost(msg.rushee_id, { ghostTimestampsRef, setGhostCards });
             break;
         case "card_moved":
             if (msg.rushee_id) {
-                delete ghostTimestampsRef.current[msg.rushee_id];
-                setGhostCards((prev) => {
-                    if (!prev[msg.rushee_id]) return prev;
-                    const next = { ...prev };
-                    delete next[msg.rushee_id];
-                    return next;
-                });
+                clearSortingGhost(msg.rushee_id, { ghostTimestampsRef, setGhostCards });
             }
             if (fetchDataRef.current) {
                 fetchDataRef.current();
@@ -59,17 +31,11 @@ export function handleSortingViewerMessage(msg, {
             break;
         case "current_drag":
             if (msg.active) {
-                ghostTimestampsRef.current[msg.rushee_id] = now();
-                setGhostCards((prev) => ({
-                    ...prev,
-                    [msg.rushee_id]: {
-                        rusheeId: msg.rushee_id,
-                        rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
-                        x: msg.x,
-                        y: msg.y,
-                        draggerName: msg.dragger_name,
-                    },
-                }));
+                // INVARIANT: replayed drags follow the same name visibility rule as new drags.
+                showSortingGhost(msg, {
+                    ghostTimestampsRef, setGhostCards, now,
+                    rusheeName: showRusheeNames ? msg.rushee_name : "Rushee",
+                });
             }
             break;
         default:

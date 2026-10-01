@@ -70,6 +70,15 @@ test("remote drag movement refreshes timestamps even before its ghost appears", 
     });
 });
 
+test("local drag movement does not create a remote ghost or refresh its timestamp", () => {
+    const { calls, state, refs, dependencies } = harness();
+    refs.draggingRef.current = { id: "r1" };
+    handleAdminSortingMessage({ type: "drag_move", rushee_id: "r1", x: 30, y: 40 }, dependencies);
+    assert.deepEqual(calls, []);
+    assert.deepEqual(refs.ghostTimestampsRef.current, {});
+    assert.deepEqual(state.ghostCards, {});
+});
+
 test("drag end clears ghost and lock while a missing ghost retains object identity", () => {
     const { calls, state, refs, dependencies } = harness();
     handleAdminSortingMessage({ type: "drag_start", ...remoteDrag }, dependencies);

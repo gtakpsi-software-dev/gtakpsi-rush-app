@@ -1,3 +1,5 @@
+import { clearSortingGhost, moveSortingGhost, showSortingGhost } from "./sortingGhostState.js";
+
 export function handleAdminSortingMessage(msg, {
     draggingRef, ghostTimestampsRef, fetchDataRef,
     setViewerCount, setGhostCards, setLockedCards, cancelDragState,
@@ -9,53 +11,20 @@ export function handleAdminSortingMessage(msg, {
             break;
         case "drag_start":
             if (draggingRef.current?.id !== msg.rushee_id) {
-                ghostTimestampsRef.current[msg.rushee_id] = now();
-                setGhostCards((prev) => ({
-                    ...prev,
-                    [msg.rushee_id]: {
-                        rusheeId: msg.rushee_id,
-                        rusheeName: msg.rushee_name,
-                        x: msg.x,
-                        y: msg.y,
-                        draggerName: msg.dragger_name,
-                    },
-                }));
-                setLockedCards((prev) => ({
-                    ...prev,
-                    [msg.rushee_id]: msg.dragger_name,
-                }));
+                showSortingGhost(msg, {
+                    ghostTimestampsRef, setGhostCards, setLockedCards, now,
+                    rusheeName: msg.rushee_name,
+                });
             }
             break;
         case "drag_move":
             if (draggingRef.current?.id !== msg.rushee_id) {
-                // Update timestamp to keep the ghost fresh
-                ghostTimestampsRef.current[msg.rushee_id] = now();
-                setGhostCards((prev) => {
-                    if (!prev[msg.rushee_id]) return prev;
-                    return {
-                        ...prev,
-                        [msg.rushee_id]: {
-                            ...prev[msg.rushee_id],
-                            x: msg.x,
-                            y: msg.y,
-                        },
-                    };
-                });
+                moveSortingGhost(msg, { ghostTimestampsRef, setGhostCards, now });
             }
             break;
         case "drag_end":
-            delete ghostTimestampsRef.current[msg.rushee_id];
-            setGhostCards((prev) => {
-                if (!prev[msg.rushee_id]) return prev;
-                const next = { ...prev };
-                delete next[msg.rushee_id];
-                return next;
-            });
-            setLockedCards((prev) => {
-                if (!prev[msg.rushee_id]) return prev;
-                const next = { ...prev };
-                delete next[msg.rushee_id];
-                return next;
+            clearSortingGhost(msg.rushee_id, {
+                ghostTimestampsRef, setGhostCards, setLockedCards,
             });
             break;
         case "drag_denied":
@@ -70,18 +39,8 @@ export function handleAdminSortingMessage(msg, {
         case "card_moved":
             // Clear ghost and lock state for this card (fallback if drag_end was missed)
             if (msg.rushee_id) {
-                delete ghostTimestampsRef.current[msg.rushee_id];
-                setGhostCards((prev) => {
-                    if (!prev[msg.rushee_id]) return prev;
-                    const next = { ...prev };
-                    delete next[msg.rushee_id];
-                    return next;
-                });
-                setLockedCards((prev) => {
-                    if (!prev[msg.rushee_id]) return prev;
-                    const next = { ...prev };
-                    delete next[msg.rushee_id];
-                    return next;
+                clearSortingGhost(msg.rushee_id, {
+                    ghostTimestampsRef, setGhostCards, setLockedCards,
                 });
             }
             if (fetchDataRef.current) {
@@ -90,21 +49,10 @@ export function handleAdminSortingMessage(msg, {
             break;
         case "current_drag":
             if (msg.active && draggingRef.current?.id !== msg.rushee_id) {
-                ghostTimestampsRef.current[msg.rushee_id] = now();
-                setGhostCards((prev) => ({
-                    ...prev,
-                    [msg.rushee_id]: {
-                        rusheeId: msg.rushee_id,
-                        rusheeName: msg.rushee_name,
-                        x: msg.x,
-                        y: msg.y,
-                        draggerName: msg.dragger_name,
-                    },
-                }));
-                setLockedCards((prev) => ({
-                    ...prev,
-                    [msg.rushee_id]: msg.dragger_name,
-                }));
+                showSortingGhost(msg, {
+                    ghostTimestampsRef, setGhostCards, setLockedCards, now,
+                    rusheeName: msg.rushee_name,
+                });
             }
             break;
         default:

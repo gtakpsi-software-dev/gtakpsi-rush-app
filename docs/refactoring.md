@@ -2694,6 +2694,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     insertion, and missing rushees. All 77 server unit tests and 78 isolated
     integration-feature tests pass; changed Rust files pass rustfmt. Corrected
     the README's scoped lint baseline from 8 to 6.
+462. Shared sorting ghost creation, movement, and removal between admin and
+    viewer message handlers in `features/sorting/sortingGhostState.js`. Admin
+    lock updates and viewer name redaction retain their existing behavior;
+    timestamp and setter order are preserved. Two new tests pin ignored
+    local admin moves and inactive viewer drag snapshots. All 577 client tests,
+    typecheck, scoped lint, and build pass; generated CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2753,7 +2759,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 575 client tests, 77 server unit tests, 28 collaboration
+Current verified totals: 577 client tests, 77 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 78 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only

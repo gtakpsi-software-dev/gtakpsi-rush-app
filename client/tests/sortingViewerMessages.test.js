@@ -89,6 +89,19 @@ test("current active drag is redacted; inactive and unknown messages have no eff
     });
 });
 
+test("inactive current drag leaves an existing viewer ghost untouched", () => {
+    const { calls, state, ghostTimestampsRef, deps } = harness();
+    handleSortingViewerMessage({ type: "drag_start", ...drag }, deps);
+    const ghosts = state.ghostCards;
+    const timestamp = ghostTimestampsRef.current.r1;
+    calls.length = 0;
+
+    handleSortingViewerMessage({ type: "current_drag", active: false, ...drag }, deps);
+    assert.equal(state.ghostCards, ghosts);
+    assert.equal(ghostTimestampsRef.current.r1, timestamp);
+    assert.deepEqual(calls, []);
+});
+
 test("brother viewers retain the message-supplied rushee name for both drag events", () => {
     const { state, deps } = harness();
     handleSortingViewerMessage({ type: "drag_start", ...drag }, {
