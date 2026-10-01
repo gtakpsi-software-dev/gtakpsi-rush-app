@@ -870,6 +870,9 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     The direct command produces the same 23 fake-service events and output as
     the prior committed script. All 44 maintenance tests and Python compilation
     pass; no live reset ran. Root Python bytecode caches are now ignored.
+146. Removed the tracked root and `server/` macOS `.DS_Store` metadata from Git
+    and ignored future copies. The local files remain in place; no runtime or
+    deployment file changes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
