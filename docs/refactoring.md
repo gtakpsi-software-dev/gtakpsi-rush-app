@@ -1099,6 +1099,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     dependencies or rendered JSX. All 307 client tests pass; production JS and
     CSS asset hashes match the preceding build. A fresh repository-wide ESLint
     scan reports 294 errors and 18 warnings.
+194. Split the blocking brother availability modal into a 125-line stateful
+    container, a 146-line view, and tested timeslot helpers. Tests pin payload
+    sort mutation, ISO selection, local date grouping, five exact markup states,
+    and the four view actions. All 312 client tests pass and the production
+    build succeeds; CSS retains its preceding asset hash. The production JS
+    bundle changes because the module boundary changed. Live browser parity is
+    still unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1146,7 +1153,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 307 client tests, 41 server unit tests, 16 collaboration
+Current verified totals: 312 client tests, 41 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
