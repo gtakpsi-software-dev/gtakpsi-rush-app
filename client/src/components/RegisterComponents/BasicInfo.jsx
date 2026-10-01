@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { formatPhoneInput } from "../../features/registration/formatPhoneInput.js";
 
 export default function BasicInfo(props) {
 
@@ -85,12 +85,7 @@ export default function BasicInfo(props) {
                                 type="tel"
                                 placeholder="(123) 456-7890"
                                 onChange={(e) => {
-                                    const input = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                                    const formatted = input
-                                        .replace(/^(\d{3})(\d{3})(\d{4})$/, "($1) $2-$3") // Format for full phone numbers
-                                        .replace(/^(\d{3})(\d{1,3})$/, "($1) $2") // Format for partial numbers
-                                        .replace(/^(\d{1,3})$/, "($1"); // Format for the area code only
-                                    e.target.value = formatted;
+                                    e.target.value = formatPhoneInput(e.target.value);
                                 }}
                             />
                         </div>
