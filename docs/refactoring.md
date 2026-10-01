@@ -2187,6 +2187,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     malformed attributes, and boolean-only role grants. Targeted rustfmt,
     all 63 server unit tests, and all 64 Docker-backed integration-feature tests
     pass.
+382. Consolidated the three season seed-file request loops into one internal
+    replay helper while preserving file and record order, endpoint paths,
+    progress labels, response decoding, and distinct error messages. Added an
+    offline multi-record test covering HTTP, API, and network failures. All 60
+    maintenance tests and Python compilation pass; no setup or reset command
+    was run.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2247,7 +2253,7 @@ require PyMongo or a database connection.
 Current verified totals: 520 client tests, 63 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 64 server tests with the integration feature (including its
-isolated database contract), plus 59 maintenance-script tests. The last
+isolated database contract), plus 60 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the

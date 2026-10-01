@@ -3,67 +3,56 @@
 import json
 
 
-def add_pis_timeslots(api_url, auth_headers, errors, post, request_exception, progress):
-    with open("pis_timeslots.json", "r") as file:
+def _replay_seed_file(filename, description, endpoint, http_error, network_error, *,
+                      api_url, auth_headers, errors, post, request_exception, progress):
+    with open(filename, "r") as file:
         data = json.load(file)
 
-        for i in progress(range(len(data)), desc="Adding PIS Timeslots"):
+        for i in progress(range(len(data)), desc=description):
             try:
-                response = post(
-                    api_url + "/admin/add_pis_timeslot",
-                    json=data[i],
-                    headers=auth_headers
-                )
+                response = post(api_url + endpoint, json=data[i], headers=auth_headers)
 
                 if response.status_code == 200:
                     if response.json().get("status") == "error":
                         errors.append(response.json().get("message"))
                 else:
-                    errors.append(f"Error adding PIS Timeslot at {data[i]['time']}: HTTP {response.status_code}")
+                    errors.append(http_error(data[i], response.status_code))
             except request_exception as e:
-                errors.append(f"Network error adding PIS Timeslot at {data[i]['time']}: {e}")
+                errors.append(network_error(data[i], e))
+
+
+def add_pis_timeslots(api_url, auth_headers, errors, post, request_exception, progress):
+    _replay_seed_file(
+        "pis_timeslots.json", "Adding PIS Timeslots", "/admin/add_pis_timeslot",
+        lambda item, status: f"Error adding PIS Timeslot at {item['time']}: HTTP {status}",
+        lambda item, error: (
+            f"Network error adding PIS Timeslot at {item['time']}: {error}"
+        ),
+        api_url=api_url, auth_headers=auth_headers, errors=errors,
+        post=post, request_exception=request_exception, progress=progress,
+    )
 
 
 def add_rush_nights(api_url, auth_headers, errors, post, request_exception, progress):
-    with open("rush_nights.json", "r") as file:
-        data = json.load(file)
-
-        for i in progress(range(len(data)), desc="Adding Rush Nights"):
-            try:
-                response = post(
-                    api_url + "/admin/add-rush-night",
-                    json=data[i],
-                    headers=auth_headers
-                )
-
-                if response.status_code == 200:
-                    if response.json().get("status") == "error":
-                        errors.append(response.json().get("message"))
-                else:
-                    errors.append(f"Error adding Rush Night {data[i]['name']}: HTTP {response.status_code}")
-            except request_exception as e:
-                errors.append(f"Network error adding Rush Night {data[i]['name']}: {e}")
+    _replay_seed_file(
+        "rush_nights.json", "Adding Rush Nights", "/admin/add-rush-night",
+        lambda item, status: f"Error adding Rush Night {item['name']}: HTTP {status}",
+        lambda item, error: f"Network error adding Rush Night {item['name']}: {error}",
+        api_url=api_url, auth_headers=auth_headers, errors=errors,
+        post=post, request_exception=request_exception, progress=progress,
+    )
 
 
 def add_pis_questions(api_url, auth_headers, errors, post, request_exception, progress):
-    with open("pis_questions.json", "r") as file:
-        data = json.load(file)
-
-        for i in progress(range(len(data)), desc="Adding PIS Questions"):
-            try:
-                response = post(
-                    api_url + "/admin/add_pis_question",
-                    json=data[i],
-                    headers=auth_headers
-                )
-
-                if response.status_code == 200:
-                    if response.json().get("status") == "error":
-                        errors.append(response.json().get("message"))
-                else:
-                    errors.append(f"Error adding PIS Question: HTTP {response.status_code}")
-            except request_exception as e:
-                errors.append(f"Network error adding PIS Question {data[i]['question']}: {e}")
+    _replay_seed_file(
+        "pis_questions.json", "Adding PIS Questions", "/admin/add_pis_question",
+        lambda _item, status: f"Error adding PIS Question: HTTP {status}",
+        lambda item, error: (
+            f"Network error adding PIS Question {item['question']}: {error}"
+        ),
+        api_url=api_url, auth_headers=auth_headers, errors=errors,
+        post=post, request_exception=request_exception, progress=progress,
+    )
 
 
 def seed_data(api_url, auth_headers, post, request_exception, progress):
