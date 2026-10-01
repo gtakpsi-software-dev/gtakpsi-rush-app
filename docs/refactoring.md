@@ -2363,6 +2363,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     shared source. Their saved markup fixtures, all 532 client tests, typecheck,
     scoped lint, and build pass; CSS retains its prior hash. The self-profile
     form is now 166 lines instead of 195.
+411. Separated the live legacy text-operation scenarios into
+    `websocket-server/tests/legacyProtocol.test.js`, reducing the mixed
+    protocol test file from 191 to 164 lines. Added a real Socket.IO test that
+    pins the stale-write rejection's silence on peer sockets after a peer
+    document-state round trip. All 24 collaboration tests pass on loopback;
+    runtime handlers, event names, and payloads are unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2422,7 +2428,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 532 client tests, 64 server unit tests, 23 collaboration
+Current verified totals: 532 client tests, 64 server unit tests, 24 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
