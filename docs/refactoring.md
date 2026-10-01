@@ -666,6 +666,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and full phone formatting. All 210 client tests pass and the build succeeds.
     CSS has no new difference from the prior slice. `RusheePage.jsx` is now
     210 lines; the new test passes lint.
+113. Bid Committee Sorting viewport: reused the tested sorting zoom, wheel,
+    and right-click pan handlers without changing the page's wheel listener
+    lifecycle or rendered JSX. All 210 client tests pass, the build succeeds,
+    and CSS has no new difference. `BidComSorting.jsx` is now 479 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
