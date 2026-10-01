@@ -7,7 +7,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/components/VoiceRecorder.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/voice/VoiceRecorder.tsx", import.meta.url));
 
 async function loadRecorder({ isRecording = false, isProcessing = false, disabled = false, error = "",
     startFailure = null, stopFailure = null, blob = { id: "audio" } } = {}) {
@@ -19,7 +19,7 @@ async function loadRecorder({ isRecording = false, isProcessing = false, disable
             ...React,
             useState: () => [error, (value) => updates.push(value)],
         },
-        "../hooks/useVoiceRecording": {
+        "./useVoiceRecording": {
             useVoiceRecording: () => ({
                 isRecording,
                 isProcessing,

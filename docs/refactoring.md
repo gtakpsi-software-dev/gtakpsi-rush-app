@@ -2131,6 +2131,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     client tests, typecheck, and build pass; changed-file ESLint has zero errors
     and three existing caller warnings. Production JS and CSS hashes match
     slice 370 exactly.
+372. Grouped the voice-recording hook, recorder component, and transcription
+    handler under `features/voice`, removing the now-empty generic `hooks`
+    directory. The nine existing voice tests retain microphone, upload,
+    transcription, and markup contracts. All 516 client tests, typecheck,
+    changed-file ESLint, and build pass; JS and CSS hashes match slice 371.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

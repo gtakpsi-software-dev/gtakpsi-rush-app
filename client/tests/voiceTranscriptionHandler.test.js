@@ -7,7 +7,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/components/VoiceTranscriptionHandler.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/voice/VoiceTranscriptionHandler.tsx", import.meta.url));
 
 function RecorderStub() {
     return React.createElement("span", { "data-stub": "recorder" });

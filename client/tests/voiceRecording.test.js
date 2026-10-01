@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const hookPath = fileURLToPath(new URL("../src/hooks/useVoiceRecording.js", import.meta.url));
+const hookPath = fileURLToPath(new URL("../src/features/voice/useVoiceRecording.js", import.meta.url));
 
 async function loadHook({ isRecording = false, microphoneFailure = null } = {}) {
     const calls = [];
