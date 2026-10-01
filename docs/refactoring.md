@@ -1449,6 +1449,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `/register`, `/create-account`, and `/error/Test/Message` had matching
     accessibility content and byte-identical PNG captures. These checks did
     not submit forms, authenticate, or use a live backend.
+252. Renamed the routed `404.jsx` module to `NotFound.jsx` and updated its three
+    imports, including the admin and brother voting views. The controlled
+    production JS and CSS are byte-identical before and after the rename; all
+    404 client tests pass, and lint remains at 222 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -21,7 +21,7 @@ import Attendance from './pages/Attendance';
 import AddTimeslotPage from './pages/AddTimeslotPage';
 import AddPIS from './pages/AddPIS';
 import MyPISPage from './pages/MyPISPage';
-import NotFound from './pages/404';
+import NotFound from './pages/NotFound';
 import Comments from './pages/Comments';
 
 import AdminVotingDashboard from './pages/AdminVotingDashboardComponents';

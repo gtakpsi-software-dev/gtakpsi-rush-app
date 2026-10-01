@@ -3,7 +3,7 @@ import SplitText from "../../components/ReactBitsComponents/SplitText";
 import { Brother } from "./types";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
 import { toast } from "react-toastify";
-import NotFound from "../404";
+import NotFound from "../NotFound";
 import axios from 'axios'
 
 const votingOptions = ["Yes", "No", "Abstain"];

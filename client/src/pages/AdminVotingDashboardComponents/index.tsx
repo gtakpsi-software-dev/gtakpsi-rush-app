@@ -8,7 +8,7 @@ import RusheeComments from "./RusheeComments";
 import VoteSummary from "./VoteSummary";
 import BrotherList from "./BrotherList";
 import { Brother } from "./types";
-import NotFound from "../404";
+import NotFound from "../NotFound";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
 
