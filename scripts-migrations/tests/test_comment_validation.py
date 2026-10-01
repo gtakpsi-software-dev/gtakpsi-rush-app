@@ -115,6 +115,30 @@ class CommentValidationTests(unittest.TestCase):
         self.assertIn("Rushees with issues: 3", report)
         self.assertIn("Total issues found: 4", report)
 
+    def test_scan_error_stops_before_printing_a_partial_summary(self):
+        def interrupted_cursor():
+            yield {"first_name": "Ada", "last_name": "Example", "gtid": "1", "comments": []}
+            raise RuntimeError("cursor interrupted")
+
+        client = MagicMock()
+        client.__getitem__.return_value.__getitem__.return_value.find.return_value = interrupted_cursor()
+        pymongo = types.ModuleType("pymongo")
+        pymongo.MongoClient = lambda _uri: client
+        script_path = SCRIPTS / "find_malformed_comments.py"
+
+        with patch.object(sys, "path", [str(SCRIPTS), *sys.path]), \
+             patch.dict(sys.modules, {"pymongo": pymongo}), \
+             patch.dict(os.environ, {"FIND_MALFORMED_COMMENTS_MONGO_URI": "mongodb://offline-test"}, clear=True):
+            script = runpy.run_path(str(script_path))
+            output = StringIO()
+            with redirect_stdout(output):
+                script["find_malformed_comments"]()
+
+        report = output.getvalue()
+        self.assertIn("❌ Error scanning database: cursor interrupted", report)
+        self.assertNotIn("SCAN SUMMARY", report)
+        client.admin.command.assert_called_once_with("ping")
+
     def test_missing_fields_keep_original_order_and_wording(self):
         self.assertEqual(check_comment_structure({}, "unused"), [
             "Missing field: brother_id",

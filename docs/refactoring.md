@@ -2428,6 +2428,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     conditions. Renamed the retention test file and added a case for an old
     timer observing a recreated, occupied room. All 25 collaboration tests,
     including the live reconnect protocol, pass.
+420. Moved the malformed-comment command's scan and report formatting into
+    `maintenance_commands/comment_report.py`, leaving connection setup and
+    the command path in `find_malformed_comments.py`. A new fake-cursor test
+    pins the interrupted-scan message and absence of a partial summary. The
+    command is now 45 lines instead of 82. All 61 offline maintenance tests
+    pass; no live MongoDB scan was run.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2490,7 +2496,7 @@ require PyMongo or a database connection.
 Current verified totals: 536 client tests, 66 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 67 server tests with the integration feature (including its
-isolated database contract), plus 60 maintenance-script tests. The last
+isolated database contract), plus 61 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
