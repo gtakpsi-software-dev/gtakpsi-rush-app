@@ -5,16 +5,22 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
+import { requestTranscription } from "../src/features/voice/requestTranscription.js";
 
 const hookPath = fileURLToPath(new URL("../src/features/voice/useVoiceRecording.js", import.meta.url));
 
-async function loadHook({ isRecording = false, microphoneFailure = null } = {}) {
+async function loadHook({
+    isRecording = false,
+    microphoneFailure = null,
+    apiKey = "test-key",
+    transcriptionResponse = { ok: true, json: async () => ({ text: "spoken answer" }) },
+} = {}) {
     const calls = [];
     const updates = [];
     const logs = [];
     const window = {};
     const source = (await readFile(hookPath, "utf8"))
-        .replaceAll("import.meta.env.VITE_OPENAI_API_KEY", '"test-key"');
+        .replaceAll("import.meta.env.VITE_OPENAI_API_KEY", JSON.stringify(apiKey));
     const { code } = await transformWithEsbuild(source, hookPath, {
         loader: "js", format: "cjs",
     });
@@ -47,6 +53,14 @@ async function loadHook({ isRecording = false, microphoneFailure = null } = {}) 
         fields = [];
         append(name, value) { this.fields.push([name, value]); }
     }
+    const web = {
+        File: FileStub,
+        FormData: FormDataStub,
+        async fetch(url, options) {
+            calls.push(["fetch", url, options]);
+            return transcriptionResponse;
+        },
+    };
 
     runInNewContext(code, {
         module,
@@ -66,11 +80,10 @@ async function loadHook({ isRecording = false, microphoneFailure = null } = {}) 
             },
         },
         console: { error: (...args) => logs.push(args) },
-        fetch: async (url, options) => {
-            calls.push(["fetch", url, options]);
-            return { ok: true, json: async () => ({ text: "spoken answer" }) };
-        },
         require(specifier) {
+            if (specifier === "./requestTranscription") {
+                return { requestTranscription: (blob, key) => requestTranscription(blob, key, web) };
+            }
             if (specifier === "react") {
                 return {
                     useState(initial) {
@@ -127,4 +140,29 @@ test("record-and-transcribe retains the microphone failure error", async () => {
     });
     assert.equal(context.logs[0][0], "Error starting recording:");
     assert.deepEqual(context.updates, []);
+});
+
+test("voice hook reports a missing transcription key and resets processing", async () => {
+    const context = await loadHook({ apiKey: "" });
+    await assert.rejects(context.hook.transcribeAudio(new Blob(["sound"])), {
+        message: "OpenAI API key not found. Please add VITE_OPENAI_API_KEY to your .env file.",
+    });
+    assert.equal(context.calls.some(([event]) => event === "fetch"), false);
+    assert.equal(context.logs[0][0], "Error transcribing audio:");
+    assert.deepEqual(context.updates, [[1, true], [1, false]]);
+});
+
+test("voice hook relays transcription API errors and resets processing", async () => {
+    const context = await loadHook({
+        transcriptionResponse: {
+            ok: false,
+            status: 429,
+            json: async () => ({ error: { message: "Rate limited" } }),
+        },
+    });
+    await assert.rejects(context.hook.transcribeAudio(new Blob(["sound"])), {
+        message: "Rate limited",
+    });
+    assert.equal(context.logs[0][0], "Error transcribing audio:");
+    assert.deepEqual(context.updates, [[1, true], [1, false]]);
 });

@@ -1,10 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { requestTranscription } from './requestTranscription';
 
-/**
- * Voice Recording Summary:
- * - Removes a catch that only rethrew the same error from recordAndTranscribe.
- * - Keeps microphone failure mapping, recording cleanup, and upload behavior.
- */
 export const useVoiceRecording = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -68,37 +64,7 @@ export const useVoiceRecording = () => {
     try {
       // Vite exposes this key to browsers; it must not be treated as a secret credential.
       const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error('OpenAI API key not found. Please add VITE_OPENAI_API_KEY to your .env file.');
-      }
-
-      // Keep the recorded WebM bytes when packaging the transcription upload.
-      const audioBuffer = await audioBlob.arrayBuffer();
-      const formData = new FormData();
-
-      const audioFile = new File([audioBuffer], 'recording.webm', { 
-        type: 'audio/webm;codecs=opus' 
-      });
-      
-      formData.append('file', audioFile);
-      formData.append('model', 'whisper-1');
-      formData.append('language', 'en');
-
-      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      return result.text || '';
+      return await requestTranscription(audioBlob, apiKey);
     } catch (error) {
       console.error('Error transcribing audio:', error);
       throw error;

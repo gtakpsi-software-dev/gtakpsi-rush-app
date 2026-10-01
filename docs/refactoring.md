@@ -2650,6 +2650,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     complete assignment, response text, and all four fields cleared. All 74
     server unit tests and 75 integration-feature tests pass; changed files
     pass rustfmt without reformatting unrelated baseline files.
+455. Extracted the retained voice hook's transcription upload into
+    `features/voice/requestTranscription.js`, reducing the hook from 141 to
+    107 lines. Characterization and direct request tests pin microphone and
+    processing state, WebM bytes, request fields, missing-key behavior, API
+    errors, and empty responses. All 574 client tests, typecheck, scoped lint,
+    and build pass. The voice controls have no app-page imports, and the built
+    JS and CSS asset hashes remain unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2709,7 +2716,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 567 client tests, 74 server unit tests, 28 collaboration
+Current verified totals: 574 client tests, 74 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 75 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only
