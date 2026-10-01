@@ -8,19 +8,13 @@ use futures::stream::StreamExt;
 use serde::Deserialize;
 
 /**
- * Add a PIS question
+ * PIS Question Handler Summary:
+ * - Inserts the validated payload directly and flattens question-list errors.
+ * - Preserves response shapes and the category-clear database operation.
  */
 pub async fn add_pis_question(Json(payload): Json<PISQuestion>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_questions_client().await;
-
-    let new_question = PISQuestion {
-        question: payload.question,
-        question_type: payload.question_type,
-        order: payload.order,
-        category: payload.category,
-    };
-
-    let result = connection.insert_one(new_question).await;
+    let result = connection.insert_one(payload).await;
 
     match result {
         Ok(_insert_result) => Ok(Json(json!({
@@ -34,12 +28,6 @@ pub async fn add_pis_question(Json(payload): Json<PISQuestion>) -> Result<Json<V
     }
 }
 
-/**
- * Set (or clear) the category bucket on an existing PIS question.
- * Matched by question text + question_type, same as delete_pis_question.
- * Pass `category: null` to make a question "fixed" (always shown, not
- * part of the randomized bucket draw).
- */
 #[derive(Debug, Deserialize)]
 pub struct UpdatePisQuestionCategoryPayload {
     pub question: String,
@@ -57,6 +45,7 @@ pub async fn update_pis_question_category(
         doc! {"question_type": payload.question_type}
     ]};
 
+    // INVARIANT: null removes the category so the interview selector treats it as fixed.
     let update = match &payload.category {
         Some(category) => doc! { "$set": { "category": category } },
         None => doc! { "$unset": { "category": "" } },
@@ -80,9 +69,6 @@ pub async fn update_pis_question_category(
     }
 }
 
-/**
- * Delete a PIS question
- */
 pub async fn delete_pis_question(
     Json(payload): Json<PISQuestion>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -107,40 +93,35 @@ pub async fn delete_pis_question(
     }
 }
 
-/**
- * Fetch all the PIS questions
- */
 pub async fn get_pis_questions() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_questions_client().await;
-    let result = connection.find(doc! {}).await;
-
-    match result {
-        Ok(mut cursor) => {
-            let mut pis_questions: Vec<PISQuestion> = Vec::new();
-
-            while let Some(question) = cursor.next().await {
-                match question {
-                    Ok(doc) => pis_questions.push(doc),
-                    Err(err) => {
-                        return Ok(Json(json!({
-                            "status": "error",
-                            "message": "some error occurred"
-                        })))
-                    }
-                }
-            }
-
-            Ok(Json(json!({
-                "status": "success",
-                "payload": pis_questions
+    let mut cursor = match connection.find(doc! {}).await {
+        Ok(cursor) => cursor,
+        Err(_) => {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "some error occurred while fetching data"
             })))
         }
+    };
 
-        Err(err) => Ok(Json(json!({
-            "status": "error",
-            "message": "some error occurred while fetching data"
-        }))),
+    let mut pis_questions: Vec<PISQuestion> = Vec::new();
+    while let Some(question) = cursor.next().await {
+        match question {
+            Ok(doc) => pis_questions.push(doc),
+            Err(_) => {
+                return Ok(Json(json!({
+                    "status": "error",
+                    "message": "some error occurred"
+                })))
+            }
+        }
     }
+
+    Ok(Json(json!({
+        "status": "success",
+        "payload": pis_questions
+    })))
 }
 
 #[cfg(test)]
