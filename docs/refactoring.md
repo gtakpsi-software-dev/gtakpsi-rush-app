@@ -1869,6 +1869,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests pin five prior markup states plus GTID, registration, submit, and
     Back actions. All 455 client tests, typecheck, build, and changed-file
     ESLint pass; full lint falls to 37 errors and 26 warnings.
+326. Cleaned the Home page's JSX text and redundant presentation comments.
+    New tests pin regular and midterm markup plus registration/login routes.
+    All 457 client tests, typecheck, build, and changed-file ESLint pass; full
+    lint falls to 34 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1898,7 +1902,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 37 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 34 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
@@ -1924,7 +1928,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 455 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 457 client tests, 57 server unit tests, 19 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last
