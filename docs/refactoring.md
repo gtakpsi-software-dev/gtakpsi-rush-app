@@ -64,9 +64,9 @@ The verified atomic slices are archived by range:
   controller and assignment logic under those tests.
 - Expand real-time failure, reconnect, and role-change coverage for all three
   protocols, then standardize internal handler and lifecycle names.
-- Inventory maintenance commands and seed inputs, move supported tools into
-  clear groups, and remove only scripts shown unused. Never validate a reset
-  by running it against a real database.
+- Review the remaining one-off maintenance commands for actual use before
+  removing any. The commands now live under `scripts/maintenance/`; old
+  generated exports are untracked. Never validate a reset against real data.
 - Verify authenticated browser flows, later registration steps, database
   workflows, CI runs, and deployed service roots before claiming parity.
 - Rotate the formerly embedded MongoDB credential outside this repository and

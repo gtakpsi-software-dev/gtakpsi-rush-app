@@ -141,14 +141,14 @@ unchanged.
 ### Sorting WebSocket service
 
 Set this service's Railway root directory to `server/websockets/sorting`. Its
-Dockerfile and `railway.toml` live there; the executable name, port default,
-and WebSocket messages are unchanged.
+Dockerfile and `railway.toml` live there. The executable is
+`rush-sorting-websocket`; its port default and WebSocket messages are unchanged.
 
 ### Voting WebSocket service
 
 Set this service's Railway root directory to `server/websockets/voting`. Its
-Dockerfile and `railway.toml` live there; the executable name, port default,
-and WebSocket messages are unchanged.
+Dockerfile and `railway.toml` live there. The executable is
+`rush-voting-websocket`; its port default and WebSocket messages are unchanged.
 
 ## Setup Script
 
@@ -163,8 +163,8 @@ Run this from the repository root. The reset runs only when this command is
 invoked directly. Importing `scripts.season_setup.__main__`
 does not connect to services or delete data. Its offline regression tests use
 fake MongoDB, Firebase, and HTTP clients. Authentication, reset, Storage cleanup,
-and seed uploads live under `scripts/season_setup/`; the input JSON paths are
-unchanged.
+and seed uploads live under `scripts/season_setup/`; seed files are read from
+`data/season_seed/`.
 
 Season seed files live in `data/season_seed/`. Setup and migration commands read
 them there directly.
