@@ -56,7 +56,7 @@ export const useCollaboration = (roomId, currentUser) => {
                 }, 3000);
             });
 
-            socketRef.current.on('connect_error', (error) => {
+            socketRef.current.on('connect_error', () => {
                 setIsConnected(false);
             });
 
@@ -345,63 +345,4 @@ export const useCollaboration = (roomId, currentUser) => {
     };
 };
 
-// Text operation utilities for Operational Transformation
-export const applyOperation = (text, operation) => {
-    const { type, position, content, length } = operation;
-    
-    switch (type) {
-        case 'insert':
-            return text.slice(0, position) + (content || '') + text.slice(position);
-        case 'delete':
-            return text.slice(0, position) + text.slice(position + (length || 0));
-        case 'replace':
-            return text.slice(0, position) + (content || '') + text.slice(position + (length || 0));
-        default:
-            return text;
-    }
-};
-
-export const createOperation = (type, position, content = '', length = 0, field = '') => ({
-    type,
-    position,
-    content,
-    length,
-    field,
-    timestamp: Date.now(),
-    id: Math.random().toString(36).substr(2, 9),
-});
-
-// Calculate the difference between two strings and create operations
-export const createOperationsFromDiff = (oldText, newText, field) => {
-    const operations = [];
-    
-    // Simple diff algorithm - find common prefix and suffix
-    let prefixLength = 0;
-    while (prefixLength < oldText.length && 
-           prefixLength < newText.length && 
-           oldText[prefixLength] === newText[prefixLength]) {
-        prefixLength++;
-    }
-    
-    let suffixLength = 0;
-    while (suffixLength < (oldText.length - prefixLength) && 
-           suffixLength < (newText.length - prefixLength) && 
-           oldText[oldText.length - 1 - suffixLength] === newText[newText.length - 1 - suffixLength]) {
-        suffixLength++;
-    }
-    
-    const oldMiddle = oldText.slice(prefixLength, oldText.length - suffixLength);
-    const newMiddle = newText.slice(prefixLength, newText.length - suffixLength);
-    
-    if (oldMiddle.length > 0) {
-        // Delete operation
-        operations.push(createOperation('delete', prefixLength, '', oldMiddle.length, field));
-    }
-    
-    if (newMiddle.length > 0) {
-        // Insert operation
-        operations.push(createOperation('insert', prefixLength, newMiddle, 0, field));
-    }
-    
-    return operations;
-}; 
+export { applyOperation, createOperation, createOperationsFromDiff } from "../features/pis/operations.js";
