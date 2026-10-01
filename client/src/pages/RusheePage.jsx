@@ -17,6 +17,7 @@ import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
 import { verifyInfo } from "../js/verifications";
+import { submitProfileChanges } from "../features/rushee/self/submitProfileChanges";
 
 export default function RusheePage() {
 
@@ -142,151 +143,19 @@ export default function RusheePage() {
 
     }
 
-    // Handle form submission
-    const handleSubmit = async (e) => {
-
-        setLoading(true)
-
-        if (
-            !rushee.first_name ||
-            !rushee.last_name ||
-            !rushee.housing ||
-            !rushee.phone_number ||
-            !rushee.email ||
-            !rushee.gtid ||
-            !rushee.major ||
-            !rushee.class ||
-            !rushee.pronouns ||
-            rushee.first_name === "" ||
-            rushee.last_name === "" ||
-            rushee.housing === "" ||
-            rushee.phone_number === "" ||
-            rushee.email === "" ||
-            rushee.gtid === "" ||
-            rushee.major === "" ||
-            rushee.class === "" ||
-            rushee.pronouns === ""
-        ) {
-            toast.error(`Fields cannot be empty`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-            return;
-        }
-
-        e.preventDefault();
-
-        if (!rushee || !initialRushee) {
-            toast.error(`${"Unable to parse changes"}`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-            return;
-        }
-
-        // Create a payload with only the changed fields
-        const payload = Object.keys(rushee)
-            .filter((key) => rushee[key] !== initialRushee[key]) // Compare initial and current state
-            .map((key) => ({
-                field: key,
-                new_value: rushee[key],
-            }));
-
-        if (payload.length === 0) {
-            toast.info(`${"No changes were made"}`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-            return;
-        }
-
-        try {
-
-            const checkValidity = await verifyInfo(rushee["gtid"], rushee["email"], rushee["phone_number"], rushee["gtid"] !== initialRushee["gtid"])
-
-            if (checkValidity.status === "error") {
-
-                toast.error(`${checkValidity.message}`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-
-                return;
-
-            }
-
-        } catch (err) {
-            console.log(err)
-            toast.error(`${"Failed to update rushee"}`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${api}/rushee/update-rushee/${gtid}`, payload);
-
-            if (response.data.status === "success") {
-                window.location.href = `${window.location.origin}/rushee/${rushee.gtid}/${link}`;
-            } else {
-                toast.error(`${response.data.message}`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
-            }
-
-        } catch (err) {
-            toast.error(`${err.response?.data?.message || "Failed to update rushee"}`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-        }
-
-        setLoading(false)
-    };
+    const handleSubmit = (e) => submitProfileChanges(e, {
+        rushee,
+        initialRushee,
+        api,
+        gtid,
+        link,
+        setLoading,
+        toast,
+        verifyInfo,
+        post: (...args) => axios.post(...args),
+        location: window.location,
+        logger: console,
+    });
 
     // Handle input changes
     const handleChange = (e) => {

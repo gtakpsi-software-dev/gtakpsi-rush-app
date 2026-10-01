@@ -641,6 +641,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     access, successful grouping, and request/token failures. All 193 client
     tests pass, the build succeeds, and CSS matches the baseline.
     `AdminSorting.jsx` is now 336 lines; new files pass lint.
+109. Rushee self-profile submission: extracted required-field checks, changed
+    field payload construction, verification, update request, toasts, and
+    redirect while retaining early-return timing and the same form handler.
+    Tests cover every required field, unchanged edits, GTID changes, server
+    errors, and network failures. All 200 client tests pass, the build succeeds,
+    and CSS matches the baseline. `RusheePage.jsx` is now 505 lines; new
+    files pass lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -686,7 +693,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 193 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 200 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
