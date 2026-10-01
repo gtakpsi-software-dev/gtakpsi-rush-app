@@ -6,6 +6,13 @@ import {
     rejectTextUpdate,
     normalizeDocumentState,
 } from '../features/pis/collaborationProtocol.js';
+import {
+    applyCursorPosition,
+    applyTypingIndicator,
+    pruneTypingUsers,
+    clearStaleCursors,
+    getActiveCursors,
+} from '../features/pis/collaborationPresence.js';
 
 export const useCollaboration = (roomId, currentUser) => {
     const [socket, setSocket] = useState(null);
@@ -118,40 +125,14 @@ export const useCollaboration = (roomId, currentUser) => {
 
             socketRef.current.on('cursor-position', (data) => {
                 if (data.userId === currentUser.id) return;
-                
-                setConnectedUsers(prev => 
-                    prev.map(user => 
-                        user.id === data.userId 
-                            ? { 
-                                ...user, 
-                                cursor: data.position, 
-                                field: data.position === null ? null : data.field,
-                                cursorTimestamp: data.timestamp || Date.now()
-                            }
-                            : user
-                    )
-                );
+
+                setConnectedUsers(prev => applyCursorPosition(prev, data));
             });
 
             socketRef.current.on('typing-indicator', (data) => {
                 if (data.userId === currentUser.id) return;
-                
-                setTypingUsers(prev => {
-                    const newMap = new Map(prev);
-                    const key = `${data.userId}-${data.field}`;
-                    
-                    if (data.isTyping) {
-                        newMap.set(key, {
-                            userId: data.userId,
-                            userName: data.userName,
-                            field: data.field,
-                            timestamp: Date.now()
-                        });
-                    } else {
-                        newMap.delete(key);
-                    }
-                    return newMap;
-                });
+
+                setTypingUsers(prev => applyTypingIndicator(prev, data));
             });
 
             socketRef.current.on('document-state', (state) => {
@@ -239,47 +220,19 @@ export const useCollaboration = (roomId, currentUser) => {
         }
     }, [socket, isConnected]);
 
-    // Clean up old typing indicators and stale cursor positions
     useEffect(() => {
         const interval = setInterval(() => {
             const now = Date.now();
-            
-            // Clean up typing indicators
-            setTypingUsers(prev => {
-                const filtered = new Map();
-                for (const [key, value] of prev) {
-                    if (now - value.timestamp < 3000) { // 3 second timeout
-                        filtered.set(key, value);
-                    }
-                }
-                return filtered;
-            });
-            
-            // Clean up stale cursor positions (> 10 seconds old)
-            setConnectedUsers(prev => 
-                prev.map(user => {
-                    if (user.cursor !== null && user.cursorTimestamp && now - user.cursorTimestamp > 10000) {
-                        return { ...user, cursor: null, field: null };
-                    }
-                    return user;
-                })
-            );
+
+            setTypingUsers(prev => pruneTypingUsers(prev, now));
+            setConnectedUsers(prev => clearStaleCursors(prev, now));
         }, 1000);
 
         return () => clearInterval(interval);
     }, []);
 
-    // Helper to get active cursors for a field (filters out stale cursors)
     const getActiveCursorsForField = useCallback((field) => {
-        const now = Date.now();
-        const CURSOR_STALE_THRESHOLD = 10000; // 10 seconds
-        
-        return connectedUsers.filter(user => 
-            user.field === field && 
-            user.cursor !== null && 
-            typeof user.cursor === 'number' &&
-            (!user.cursorTimestamp || now - user.cursorTimestamp < CURSOR_STALE_THRESHOLD)
-        );
+        return getActiveCursors(connectedUsers, field);
     }, [connectedUsers]);
 
     return {

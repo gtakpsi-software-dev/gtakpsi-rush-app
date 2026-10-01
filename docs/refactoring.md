@@ -739,6 +739,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     payloads, and update-history limits are retained. All 229 client tests pass,
     changed files pass ESLint, the build succeeds, and CSS is unchanged.
     `useCollaboration.js` is now 303 lines.
+127. PIS collaboration presence: moved cursor/typing transformations, expiry,
+    and active-cursor filtering into a feature module. Three tests pin timestamp
+    fallback, blur behavior, map replacement, and strict three- and ten-second
+    boundaries. The one-second cleanup interval and socket event payloads remain
+    in the hook. All 232 client tests and 14 collaboration-server tests pass;
+    changed files pass ESLint, the build succeeds, and CSS is unchanged.
+    `useCollaboration.js` is now 256 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -784,7 +791,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 229 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
+Current verified totals: 232 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
