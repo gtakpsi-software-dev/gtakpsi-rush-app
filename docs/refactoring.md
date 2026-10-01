@@ -1007,6 +1007,9 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     to coordinate availability, planning, and response counts. The same dotted
     MongoDB fields, trimmed names, GTID filter, and write-success condition are
     preserved. All 42 server tests with the integration feature pass.
+172. Moved the assignment planner's four existing unit tests into its own test
+    module without changing their assertions. The production planner is now
+    151 lines. All 41 server unit tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
