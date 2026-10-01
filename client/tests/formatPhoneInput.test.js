@@ -8,6 +8,28 @@ import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
 import { EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
+const fieldsPath = fileURLToPath(new URL("../src/features/registration/BasicInfoFields.tsx", import.meta.url));
+const contactPath = fileURLToPath(new URL("../src/features/registration/BasicContactFields.tsx", import.meta.url));
+
+async function loadFields() {
+    const BasicContactFields = await loadTsxComponent(contactPath, {
+        "./formatPhoneInput.js": { formatPhoneInput },
+    });
+    return loadTsxComponent(fieldsPath, {
+        "./BasicContactFields": BasicContactFields,
+        "../../data/majorOptions.js": { MAJOR_OPTIONS },
+        "./basicInfoOptions.js": { EXPOSURE_OPTIONS },
+    });
+}
+
+function findInput(node, id) {
+    if (Array.isArray(node)) return node.map((child) => findInput(child, id)).find(Boolean);
+    if (!React.isValidElement(node)) return null;
+    if (typeof node.type === "function") return findInput(node.type(node.props), id);
+    if (node.props.id === id) return node;
+    return findInput(node.props.children, id);
+}
+
 test("registration phone input keeps the existing partial and full formatting", () => {
     for (const [input, expected] of [
         ["", ""],
@@ -27,26 +49,29 @@ test("registration phone input keeps the existing partial and full formatting", 
 });
 
 test("the registration phone field still formats its target on change", async () => {
-    const componentPath = fileURLToPath(new URL("../src/features/registration/BasicInfoFields.tsx", import.meta.url));
-    const BasicInfoFields = await loadTsxComponent(componentPath, {
-        "./formatPhoneInput.js": { formatPhoneInput },
-        "../../data/majorOptions.js": { MAJOR_OPTIONS },
-        "./basicInfoOptions.js": { EXPOSURE_OPTIONS },
-    });
+    const BasicInfoFields = await loadFields();
     const tree = BasicInfoFields({});
-
-    function findPhone(node) {
-        if (Array.isArray(node)) {
-            return node.map(findPhone).find(Boolean);
-        }
-        if (!React.isValidElement(node)) return null;
-        if (node.props.id === "grid-phone") return node;
-        return findPhone(node.props.children);
-    }
-
-    const phone = findPhone(tree);
+    const phone = findInput(tree, "grid-phone");
     assert.ok(phone);
     const event = { target: { value: "404-555-0100" } };
     phone.props.onChange(event);
     assert.equal(event.target.value, "(404) 555-0100");
+});
+
+test("contact inputs keep the registration form's refs", async () => {
+    const BasicInfoFields = await loadFields();
+    const refs = {
+        email: { current: null },
+        housing: { current: null },
+        phone: { current: null },
+    };
+    const tree = BasicInfoFields(refs);
+
+    for (const [field, id] of [
+        ["email", "grid-email"],
+        ["housing", "grid-housing"],
+        ["phone", "grid-phone"],
+    ]) {
+        assert.equal(findInput(tree, id).ref, refs[field]);
+    }
 });
