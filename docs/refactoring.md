@@ -1591,6 +1591,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     lint-clean, the summary markup hash matches the pre-edit output, and
     controlled CSS is byte-identical. Client lint falls to 140 errors and
     26 warnings.
+275. Moved admin voting dashboard status indicators and panels into
+    `AdminVotingDashboardView.tsx`; auth and WebSocket lifecycles stay in the
+    page. The page falls from 228 to 182 lines. A new test pins loading,
+    unauthorized, and all three connection-status markup hashes and checks
+    the vote-summary props. All 420 client tests and typecheck pass, the view
+    is lint-clean, and controlled CSS is byte-identical.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1646,7 +1652,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 419 client tests, 52 server unit tests, 19 collaboration
+Current verified totals: 420 client tests, 52 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 53 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

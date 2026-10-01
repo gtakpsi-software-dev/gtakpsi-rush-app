@@ -1,6 +1,7 @@
 import React from 'react'
 
 export type VoteResult = "Yes" | "No" | "Abstain";
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 
 export interface Vote {
     brother_id: string;
