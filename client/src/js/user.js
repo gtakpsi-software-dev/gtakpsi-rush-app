@@ -16,11 +16,11 @@ import {
     orderBy
 } from "../firebase";
 import { isEmailAllowed } from "../data/allowedEmails";
-import { createdStoredUser } from "../features/auth/userSession";
-import { accountErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
+import { resetErrorMessage } from "../features/auth/errorMessages";
 import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
 import { loadBrotherDirectory } from "../features/brothers/loadBrotherDirectory";
 import { loginWithServices } from "../features/auth/loginWithServices";
+import { createAccountWithServices } from "../features/auth/createAccountWithServices";
 
 /**
  * Sign in with email and password
@@ -48,72 +48,18 @@ export async function login(credentials) {
  * Also creates a user document in Firestore
  */
 export async function createAccount(credentials) {
-    // Check if email is in the allowed list
-    if (!isEmailAllowed(credentials.email)) {
-        toast.error('This email is not authorized to create an account. Only GT AKPsi brothers can register.', {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-            theme: "dark",
-        });
-        return false;
-    }
-
-    try {
-        const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            credentials.email,
-            credentials.pwd
-        );
-        
-        const user = userCredential.user;
-        
-        // Update display name if provided
-        const displayName = `${credentials.firstName || ''} ${credentials.lastName || ''}`.trim();
-        if (displayName) {
-            await updateProfile(user, { displayName });
-        }
-        
-        // Create user document in Firestore
-        const userDoc = {
-            uid: user.uid,
-            email: user.email,
-            firstname: credentials.firstName || '',
-            lastname: credentials.lastName || '',
-            displayName: displayName,
-            createdAt: new Date().toISOString(),
-        };
-        
-        await setDoc(doc(db, "brothers", user.uid), userDoc);
-        
-        localStorage.setItem('user', JSON.stringify(createdStoredUser(user, credentials, displayName)));
-        
-        toast.success('Account created successfully!', {
-            position: "top-center",
-            autoClose: 3000,
-                    theme: "dark",
-                });
-        
-        return true;
-        
-    } catch (error) {
-        console.error("Create account error:", error);
-        
-        toast.error(accountErrorMessage(error.code), {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-            theme: "dark",
-        });
-        
-        return false;
-    }
+    return createAccountWithServices(credentials, {
+        isEmailAllowed,
+        auth,
+        createUserWithEmailAndPassword,
+        updateProfile,
+        db,
+        doc,
+        setDoc,
+        storeUser: (...args) => localStorage.setItem(...args),
+        toast,
+        logger: console,
+    });
 }
 
 /**
