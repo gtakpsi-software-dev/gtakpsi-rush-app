@@ -30,6 +30,13 @@ pub async fn check_contracts() {
         );
     }
     assert_eq!(stored_rushee().await.attendance.len(), 1);
+    assert_eq!(
+        rushee::update_attendance(Path("missing-rushee".to_string()))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "success", "message": "updated rushee attendance"})
+    );
 
     let edits = json!([{"field": "first_name", "new_value": "Updated"}]);
     assert_eq!(

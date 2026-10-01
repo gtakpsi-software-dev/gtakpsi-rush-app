@@ -2226,6 +2226,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `signups`, and removed a stale TODO and unused error binding without
     changing the response. Targeted rustfmt and all 64 isolated
     integration-feature tests pass before and after the cleanup.
+388. Pinned attendance's existing success response when the GTID has no
+    matching rushee, alongside the existing duplicate-scan assertion, before
+    simplifying the handler. Removed an inaccurate doc comment and redundant
+    temporary binding, and made the intentional matched-count behavior clear
+    at the write result. Targeted rustfmt and all 64 isolated integration
+    tests pass before and after the cleanup.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
