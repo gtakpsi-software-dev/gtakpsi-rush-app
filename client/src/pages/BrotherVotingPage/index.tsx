@@ -9,6 +9,7 @@ import RusheeComments from "./RusheeComments";
 import RusheePISInfo from "./RusheePISInfo";
 import RusheeScores from "./RusheeScores";
 import RusheeBidCommNotes from "./RusheeBidCommNotes";
+import VotingPanel from "./VotingPanel";
 import { Brother, ConnectionStatus } from "./types";
 import { useMidtermMode } from "../../contexts/MidtermModeContext";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
@@ -115,45 +116,21 @@ function Content() {
           
           {/* Four-panel grid layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Scores Panel */}
-            <div className="card-apple flex flex-col min-h-[320px]">
-              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-black">Scores</h3>
-              </div>
-              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
-                <RusheeScores />
-              </div>
-            </div>
+            <VotingPanel title="Scores">
+              <RusheeScores />
+            </VotingPanel>
             
-            {/* Bid Comm Notes Panel */}
-            <div className="card-apple flex flex-col min-h-[320px]">
-              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-black">Bid Committee Notes</h3>
-              </div>
-              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
-                <RusheeBidCommNotes />
-              </div>
-            </div>
+            <VotingPanel title="Bid Committee Notes">
+              <RusheeBidCommNotes />
+            </VotingPanel>
             
-            {/* Comments Panel */}
-            <div className="card-apple flex flex-col min-h-[320px]">
-              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-black">Comments</h3>
-              </div>
-              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
-                <RusheeComments />
-              </div>
-            </div>
+            <VotingPanel title="Comments">
+              <RusheeComments />
+            </VotingPanel>
             
-            {/* PIS Info Panel */}
-            <div className="card-apple flex flex-col min-h-[320px]">
-              <div className="p-5 border-b border-apple-gray-200 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-black">PIS Information</h3>
-              </div>
-              <div className="p-5 overflow-auto flex-1 max-h-[400px]" data-scrollable>
-                <RusheePISInfo />
-              </div>
-            </div>
+            <VotingPanel title="PIS Information">
+              <RusheePISInfo />
+            </VotingPanel>
           </div>
         </div>
       </div>

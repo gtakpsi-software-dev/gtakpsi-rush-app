@@ -2631,6 +2631,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     page markup hashes pass. All 567 client tests, typecheck, scoped lint, and
     build pass; CSS retains its prior hash. Scoped warnings fell from eight to
     six, so the CI gate now enforces that lower limit.
+452. Extracted the four identical voting cards into
+    `pages/BrotherVotingPage/VotingPanel.tsx`, reducing the page from 170 to
+    147 lines without changing card order or markup. The existing absent-user,
+    midterm, and socket-state markup hashes pass. All 567 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -9,10 +9,13 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
+import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/index.tsx', import.meta.url));
+const panelPath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/VotingPanel.tsx', import.meta.url));
 
 async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMode = false, status = 'connecting' } = {}) {
+    const VotingPanel = await loadTsxComponent(panelPath);
     const captured = new Map();
     const stub = (name) => function Stub(props) {
         captured.set(name, props);
@@ -45,6 +48,7 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         './RusheePISInfo': stub('pis'),
         './RusheeScores': stub('scores'),
         './RusheeBidCommNotes': stub('notes'),
+        './VotingPanel': VotingPanel,
         '../../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
         '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },
     };
