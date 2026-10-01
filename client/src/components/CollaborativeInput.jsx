@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
 import CollaborativeInputView from '../features/collaboration/CollaborativeInputView';
 import { reconcileRemoteFieldUpdate } from '../features/collaboration/reconcileRemoteFieldUpdate.js';
+import { syncPropValue } from '../features/collaboration/syncPropValue.js';
 
 const CollaborativeInput = ({ 
     fieldKey, 
@@ -107,20 +108,14 @@ const CollaborativeInput = ({
 
     // Sync with prop value changes
     useEffect(() => {
-        if (processingRemoteOp.current) return;
-
-        if (pendingLocalChangeRef.current) {
-            if (value === localValue) {
-                pendingLocalChangeRef.current = false;
-            }
-            return;
-        }
-
-        if (value !== localValue) {
-            const newValue = value || '';
-            setLocalValue(newValue);
-            lastSentValue.current = newValue;
-        }
+        syncPropValue({
+            value,
+            localValue,
+            processingRemoteOpRef: processingRemoteOp,
+            pendingLocalChangeRef,
+            setLocalValue,
+            lastSentValueRef: lastSentValue,
+        });
     }, [value, localValue]);
 
     useEffect(() => {

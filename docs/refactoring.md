@@ -1401,6 +1401,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     update, and printed results remain unchanged. All 50 offline maintenance
     tests pass, including import safety and failed-image paths; no live
     services or headshot files were accessed.
+243. Shared input and textarea prop-to-local synchronization in one collaboration
+    helper. The remote-operation guard, pending-local echo rule, empty-value
+    normalization, last-sent reference, and each component's effect dependencies
+    remain unchanged. Three new tests pin those rules; existing markup and
+    remote-wiring contracts pass. All 387 client tests and the production build
+    pass, and generated CSS remains byte-identical.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1453,7 +1459,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 384 client tests, 46 server unit tests, 18 collaboration
+Current verified totals: 387 client tests, 46 server unit tests, 18 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import React from 'react';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { syncPropValue } from '../src/features/collaboration/syncPropValue.js';
 
 const fields = [
     {
@@ -48,6 +49,7 @@ for (const field of fields) {
             '../features/collaboration/reconcileRemoteFieldUpdate.js': {
                 reconcileRemoteFieldUpdate: RemoteHelper,
             },
+            '../features/collaboration/syncPropValue.js': { syncPropValue },
         });
         const remoteUpdates = [{ field: 'notes', value: 'Remote', version: 3 }];
         const collaboration = {

@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
 import { reconcileRemoteFieldUpdate } from "../src/features/collaboration/reconcileRemoteFieldUpdate.js";
+import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
 
 const components = {
     input: fileURLToPath(new URL("../src/components/CollaborativeInput.jsx", import.meta.url)),
@@ -35,6 +36,7 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
         const Component = await loadTsxComponent(components[kind], {
             "../features/collaboration/activeCursorsForField.js": { activeCursorsForField },
             "../features/collaboration/reconcileRemoteFieldUpdate.js": { reconcileRemoteFieldUpdate },
+            "../features/collaboration/syncPropValue.js": { syncPropValue },
             "../features/collaboration/CollaborativeInputView": View,
             "../features/collaboration/CollaborativeTextareaView": View,
         });
