@@ -7,6 +7,7 @@ mod interviews;
 mod profile;
 mod registration;
 mod sorting;
+mod timeslots;
 
 use crate::controllers::db;
 use mongodb::{bson::doc, Client};
@@ -39,4 +40,5 @@ async fn database_contracts() {
     sorting::check_contracts().await;
     assignments::check_contracts().await;
     availability::check_contracts().await;
+    timeslots::check_contracts().await;
 }
