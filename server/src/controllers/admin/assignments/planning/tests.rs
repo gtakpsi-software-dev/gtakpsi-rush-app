@@ -94,3 +94,31 @@ fn second_only_assignment_excludes_existing_first_and_uses_tie_order() {
     assert_eq!(plan.second, Some(("Grace".into(), "Hopper".into())));
     assert!(!plan.still_missing_first && !plan.still_missing_second);
 }
+
+#[test]
+fn duplicate_availability_cannot_assign_one_brother_twice_in_a_slot() {
+    let mut planner = AssignmentPlanner::default();
+    let available = vec![
+        brothers()[0].clone(),
+        brothers()[0].clone(),
+        brothers()[1].clone(),
+    ];
+    let plan = planner.plan(1, &signup(("none", "none"), ("none", "none")), &available);
+
+    assert_eq!(plan.first, Some(("Ada".into(), "Lovelace".into())));
+    assert_eq!(plan.second, Some(("Grace".into(), "Hopper".into())));
+    assert!(!plan.still_missing_first && !plan.still_missing_second);
+    let next = planner.plan(1, &signup(("none", "none"), ("none", "none")), &available);
+    assert!(next.first.is_none() && next.second.is_none());
+}
+
+#[test]
+fn second_choice_excludes_trimmed_first_even_when_availability_is_not_normalized() {
+    let mut planner = AssignmentPlanner::default();
+    let available = vec![(" Ada ".into(), " Lovelace ".into()), brothers()[0].clone()];
+    let plan = planner.plan(1, &signup(("none", "none"), ("none", "none")), &available);
+
+    assert_eq!(plan.first, Some((" Ada ".into(), " Lovelace ".into())));
+    assert_eq!(plan.second, None);
+    assert!(!plan.still_missing_first && plan.still_missing_second);
+}
