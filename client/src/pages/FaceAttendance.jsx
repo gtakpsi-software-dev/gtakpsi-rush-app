@@ -7,7 +7,7 @@ import Loader from "../components/Loader";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { base64ToTensor } from "../js/image_processing";
+import { base64ToTensor } from "../lib/imageProcessing";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

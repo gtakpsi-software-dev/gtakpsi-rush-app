@@ -73,7 +73,7 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
                     },
                 },
                 "react-router-dom": { useNavigate: () => (path) => navigations.push(path) },
-                "../js/image_processing": {
+                "../lib/imageProcessing": {
                     async base64ToTensor(image, loadedModel) {
                         modelCalls.push(["tensor", image, loadedModel === model]);
                         return "tensor";

@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { base64ToBlob } from "../js/image_processing";
+import { base64ToBlob } from "../lib/imageProcessing";
 import { verifyInfo } from "../features/registration/registrationVerification";
 import { submitProfileChanges } from "../features/rushee/self/submitProfileChanges";
 import { submitRusheePhoto } from "../features/rushee/self/submitRusheePhoto";

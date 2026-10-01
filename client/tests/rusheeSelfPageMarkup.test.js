@@ -58,7 +58,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "react-icons/fa": { FaRegEdit: stub("edit-icon") },
         "../firebase": { storage: {} },
         "firebase/storage": { ref: noop, uploadBytes: noop, getDownloadURL: noop },
-        "../js/image_processing": { base64ToBlob: noop },
+        "../lib/imageProcessing": { base64ToBlob: noop },
         "../features/registration/registrationVerification": { verifyInfo: noop },
         "../features/rushee/self/submitProfileChanges": { submitProfileChanges: noop },
         "../features/rushee/self/submitRusheePhoto": { submitRusheePhoto: noop },

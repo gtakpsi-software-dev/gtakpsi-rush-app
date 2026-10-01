@@ -12,7 +12,7 @@ import { verifyInfo } from "../features/registration/registrationVerification";
 
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { base64ToBlob } from "../js/image_processing";
+import { base64ToBlob } from "../lib/imageProcessing";
 import { createBasicInfoSubmit } from "../features/registration/createBasicInfoSubmit";
 import { createPisSubmit } from "../features/registration/createPisSubmit";
 

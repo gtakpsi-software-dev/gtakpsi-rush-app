@@ -65,7 +65,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/registration/registrationVerification": { verifyInfo: noop },
         "../firebase": { storage: {} },
         "firebase/storage": { ref: noop, uploadBytes: noop, getDownloadURL: noop },
-        "../js/image_processing": { base64ToBlob: noop },
+        "../lib/imageProcessing": { base64ToBlob: noop },
         "../features/registration/createBasicInfoSubmit": { createBasicInfoSubmit: () => noop },
         "../features/registration/createPisSubmit": { createPisSubmit: () => noop },
     };
