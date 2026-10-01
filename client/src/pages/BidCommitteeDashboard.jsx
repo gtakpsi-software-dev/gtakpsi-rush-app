@@ -8,6 +8,7 @@ import Loader from "../components/Loader";
 import { verifyUser } from "../features/auth/verifyUser";
 import { filterBidCommitteeRushees } from "../features/dashboard/bidCommitteeList";
 import BidCommitteeRusheeCard from "../features/dashboard/BidCommitteeRusheeCard";
+import BidCommitteeFilters from "../features/dashboard/BidCommitteeFilters";
 import Button from "../components/Button";
 
 export default function BidCommitteeDashboard(props) {
@@ -152,85 +153,21 @@ export default function BidCommitteeDashboard(props) {
 
 
                                     {/* Search and Filters */}
-                                    <div className="card-apple p-6 mb-8">
-                                        {/* Search Bar */}
-                                        <div className="mb-4">
-                                            <input
-                                                type="text"
-                                                value={query}
-                                                onChange={handleSearch}
-                                                placeholder="Search by 9-digit GTID..."
-                                                className="input-apple text-apple-body"
-                                                maxLength="9"
-                                                pattern="[0-9]{9}"
-                                            />
-                                        </div>
-
-                                        {/* Filters */}
-                                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between">
-                                            <div className="flex flex-wrap gap-3">
-                                                {/* Major Filter */}
-                                                <div>
-                                                    <select
-                                                        value={selectedMajor}
-                                                        onChange={(e) => setSelectedMajor(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="All">All Majors</option>
-                                                        {Array.from(new Set(rushees.map((rushee) => rushee.major))).map((major, idx) => (
-                                                            <option key={idx} value={major}>
-                                                                {major}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-
-                                                {/* Class Filter */}
-                                                <div>
-                                                    <select
-                                                        value={selectedClass}
-                                                        onChange={(e) => setSelectedClass(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="All">All Classes</option>
-                                                        {Array.from(new Set(rushees.map((rushee) => rushee.class))).map((classYear, idx) => (
-                                                            <option key={idx} value={classYear}>
-                                                                {classYear}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-
-                                                {/* Sorting Dropdown */}
-                                                <div>
-                                                    <select
-                                                        value={selectedSort}
-                                                        onChange={(e) => setSelectedSort(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="none">No Sorting</option>
-                                                        <option value="rusheeId">Sort by Rushee ID</option>
-                                                        <option value="firstName">Sort by First Name</option>
-                                                        <option value="lastName">Sort by Last Name</option>
-                                                    </select>
-                                                </div>
-
-                                            </div>
-
-                                            {/* Shuffle and Export Buttons */}
-                                            <div className="mt-2 sm:mt-0 flex gap-3">
-                                                <button
-                                                    onClick={() => {
-                                                        const shuffled = shuffleArray(rushees);
-                                                        setFilteredRushees(shuffled);
-                                                    }}
-                                                    className="btn-apple-secondary px-6 py-3 text-apple-body font-light"
-                                                >
-                                                    Shuffle
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <BidCommitteeFilters
+                                        query={query}
+                                        handleSearch={handleSearch}
+                                        rushees={rushees}
+                                        selectedMajor={selectedMajor}
+                                        setSelectedMajor={setSelectedMajor}
+                                        selectedClass={selectedClass}
+                                        setSelectedClass={setSelectedClass}
+                                        selectedSort={selectedSort}
+                                        setSelectedSort={setSelectedSort}
+                                        onShuffle={() => {
+                                            const shuffled = shuffleArray(rushees);
+                                            setFilteredRushees(shuffled);
+                                        }}
+                                    />
                                 </div>
 
                                 <div className="container mx-auto px-4 max-w-7xl">

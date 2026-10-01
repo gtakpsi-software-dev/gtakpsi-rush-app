@@ -15,6 +15,7 @@ import { filterBidCommitteeRushees } from '../src/features/dashboard/bidCommitte
 
 const pagePath = fileURLToPath(new URL('../src/pages/BidCommitteeDashboard.jsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeRusheeCard.tsx', import.meta.url));
+const filtersPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeFilters.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/bidCommitteeDashboardMarkup.json', import.meta.url));
 const rushee = {
     id: 'rushee-1',
@@ -39,6 +40,7 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
         '../../components/Badge': Badges,
         '../../components/RusheeInteractionsByNight': stub('interactions')
     });
+    const Filters = await loadTsxComponent(filtersPath);
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
@@ -69,7 +71,8 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
         '../components/Button': stub('button'),
         '../features/auth/verifyUser': { verifyUser() {} },
         '../features/dashboard/bidCommitteeList': { filterBidCommitteeRushees },
-        '../features/dashboard/BidCommitteeRusheeCard': Card
+        '../features/dashboard/BidCommitteeRusheeCard': Card,
+        '../features/dashboard/BidCommitteeFilters': Filters
     };
 
     runInNewContext(code, {
@@ -129,4 +132,54 @@ test('numbered cards keep the profile URL and missing-number fallback', async ()
             '_blank'
         ]]);
     }
+});
+
+test('bid committee filters keep GTID input rules, options, and callbacks', async () => {
+    const Filters = await loadTsxComponent(filtersPath);
+    const calls = [];
+    const tree = Filters({
+        query: '900000001',
+        handleSearch: (event) => calls.push(['search', event.target.value]),
+        rushees: [rushee, { ...rushee, major: 'Engineering', class: '2027' }, rushee],
+        selectedMajor: 'All',
+        setSelectedMajor: (value) => calls.push(['major', value]),
+        selectedClass: 'All',
+        setSelectedClass: (value) => calls.push(['class', value]),
+        selectedSort: 'none',
+        setSelectedSort: (value) => calls.push(['sort', value]),
+        onShuffle: () => calls.push(['shuffle'])
+    });
+    const elements = [];
+
+    function collect(node) {
+        if (Array.isArray(node)) node.forEach(collect);
+        else if (React.isValidElement(node)) {
+            elements.push(node);
+            collect(node.props.children);
+        }
+    }
+    collect(tree);
+
+    const input = elements.find((element) => element.type === 'input');
+    const selects = elements.filter((element) => element.type === 'select');
+    const button = elements.find((element) => element.type === 'button');
+    assert.equal(input.props.maxLength, '9');
+    assert.equal(input.props.pattern, '[0-9]{9}');
+    input.props.onChange({ target: { value: '900000002' } });
+    selects[0].props.onChange({ target: { value: 'Engineering' } });
+    selects[1].props.onChange({ target: { value: '2027' } });
+    selects[2].props.onChange({ target: { value: 'rusheeId' } });
+    button.props.onClick();
+    assert.deepEqual(calls, [
+        ['search', '900000002'],
+        ['major', 'Engineering'],
+        ['class', '2027'],
+        ['sort', 'rusheeId'],
+        ['shuffle']
+    ]);
+
+    const html = renderToStaticMarkup(tree);
+    assert.match(html, /All Majors<\/option><option value="Business">Business<\/option><option value="Engineering">Engineering/);
+    assert.match(html, /All Classes<\/option><option value="2028">2028<\/option><option value="2027">2027/);
+    assert.match(html, /No Sorting<\/option><option value="rusheeId">Sort by Rushee ID/);
 });
