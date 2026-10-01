@@ -2667,6 +2667,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     integration tests now use the production alias instead of duplicating its
     type definition. All three voting unit tests and four Redis-backed
     WebSocket tests pass; the changed files pass rustfmt.
+458. Moved the admin voting summary's pie chart into
+    `pages/AdminVotingDashboard/VotePieChart.tsx`, reducing `VoteSummary.tsx`
+    from 162 to 87 lines. Tests pin the mixed-vote markup hash, both
+    single-choice gradients, and the existing abstain-only empty chart with a
+    separate breakdown count. All 575 client tests, typecheck, scoped lint,
+    and build pass; generated CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2726,7 +2732,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 574 client tests, 74 server unit tests, 28 collaboration
+Current verified totals: 575 client tests, 74 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 75 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only

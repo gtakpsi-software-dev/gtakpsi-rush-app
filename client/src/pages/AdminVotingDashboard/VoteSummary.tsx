@@ -3,81 +3,11 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import { FaSync } from "react-icons/fa";
 import { adminPost } from "../../features/admin/api";
 import { toast } from "react-toastify";
+import VotePieChart from "./VotePieChart";
 
 interface VoteSummaryProps {
   showBreakdown?: boolean;
 }
-
-// Simple CSS-based Pie Chart Component (Yes/No only)
-const PieChart = ({ yes, no, abstain }: { yes: number; no: number; abstain: number; total: number }) => {
-  const yesNoTotal = yes + no;
-  
-  if (yesNoTotal === 0) {
-    return (
-      <div className="w-48 h-48 mx-auto flex items-center justify-center bg-apple-gray-100 rounded-full border">
-        <span className="text-apple-gray-500 text-apple-footnote">No Yes/No votes yet</span>
-      </div>
-    );
-  }
-
-  // Calculate percentages based on Yes/No votes only (excluding abstains)
-  const yesPercentage = (yes / yesNoTotal) * 100;
-  const noPercentage = (no / yesNoTotal) * 100;
-
-  // Using conic-gradient for a simpler implementation
-  const generateGradient = () => {
-    let gradient = "conic-gradient(";
-    
-    if (yes > 0) {
-      gradient += `#22c55e 0% ${yesPercentage}%`;
-    }
-    
-    if (no > 0) {
-      if (yes > 0) gradient += ", ";
-      gradient += `#ef4444 ${yesPercentage}% 100%`;
-    }
-    
-    gradient += ")";
-    return gradient;
-  };
-
-  const slices: Array<{ label: string; count: number; percentage: number; color: string }> = [];
-  if (yes > 0) slices.push({ label: "Yes", count: yes, percentage: yesPercentage, color: "#22c55e" });
-  if (no > 0) slices.push({ label: "No", count: no, percentage: noPercentage, color: "#ef4444" });
-
-  console.log("Pie chart data (Yes/No only):", { yes, no, yesNoTotal, gradient: generateGradient() });
-
-  return (
-    <div className="flex flex-col items-center space-y-4">
-      <div 
-        className="w-48 h-48 rounded-full border-4 border-white shadow-lg"
-        style={{ background: generateGradient() }}
-      />
-      
-      {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-4">
-        {slices.map((slice, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div 
-              className="w-3 h-3 rounded-full border border-gray-300"
-              style={{ backgroundColor: slice.color }}
-            />
-            <span className="text-apple-footnote text-apple-gray-700">
-              {slice.label}: {slice.count} ({slice.percentage.toFixed(1)}%)
-            </span>
-          </div>
-        ))}
-      </div>
-      
-      {/* Show abstain count separately if there are any */}
-      {abstain > 0 && (
-        <div className="text-apple-footnote text-apple-gray-500 mt-2">
-          Abstain votes: {abstain}
-        </div>
-      )}
-    </div>
-  );
-};
 
 export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) {
   const { votes } = useAdminVotingContext();
@@ -90,20 +20,18 @@ export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) 
   const api = import.meta.env.VITE_API_PREFIX;
 
   const handleClearVotes = async () => {
-
-            await toast.promise(
-                adminPost(`${api}/admin/voting/clear-votes`, {}),
-                {
-                    pending: "Clearing votes...",
-                    success: "Votes cleared successfully!",
-                    error: "Failed to clear votes",
-                },
-                {
-                    position: "top-center",
-                    theme: "light",
-                }
-            );
-
+    await toast.promise(
+      adminPost(`${api}/admin/voting/clear-votes`, {}),
+      {
+        pending: "Clearing votes...",
+        success: "Votes cleared successfully!",
+        error: "Failed to clear votes",
+      },
+      {
+        position: "top-center",
+        theme: "light",
+      }
+    );
   };
 
   return (
@@ -122,14 +50,12 @@ export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) 
         Total Votes Received: <span className="font-medium text-black">{total}</span>
       </p>
 
-      {/* Pie Chart */}
       <div className="mb-6">
-        <PieChart yes={yes} no={no} abstain={abstain} total={total} />
+        <VotePieChart yes={yes} no={no} abstain={abstain} />
       </div>
 
       {showBreakdown && (
         <div className="mt-3 space-y-3">
-          {/* Yes/No breakdown - main focus */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-green-100 text-green-800 rounded-apple px-4 py-2 text-center">
               <p className="text-apple-footnote font-medium">Yes</p>
@@ -146,8 +72,7 @@ export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) 
               </p>
             </div>
           </div>
-          
-          {/* Abstain count - separate and less prominent */}
+
           {abstain > 0 && (
             <div className="bg-yellow-50 text-yellow-700 rounded-apple px-4 py-2 text-center border border-yellow-200">
               <p className="text-apple-footnote font-medium">Abstain</p>

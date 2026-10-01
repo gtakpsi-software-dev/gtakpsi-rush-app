@@ -9,11 +9,14 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
+import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const summaryPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VoteSummary.tsx', import.meta.url));
+const chartPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VotePieChart.tsx', import.meta.url));
 
 async function loadSummary(votes) {
     const posts = [];
+    const VotePieChart = await loadTsxComponent(chartPath);
     const dependencies = {
         './AdminVotingContext': {
             useAdminVotingContext: () => ({ votes, setVotes: () => {} }),
@@ -28,6 +31,7 @@ async function loadSummary(votes) {
             },
         },
         'react-toastify': { toast: { promise: (promise) => promise } },
+        './VotePieChart': VotePieChart,
     };
     const source = (await readFile(summaryPath, 'utf8'))
         .replaceAll('import.meta.env.VITE_API_PREFIX', '"/api"');
@@ -77,4 +81,24 @@ test('vote summary clears votes through the existing admin endpoint', async () =
     assert.deepEqual(posts.map(({ url, payload }) => ({ url, payload: { ...payload } })), [
         { url: '/api/admin/voting/clear-votes', payload: {} },
     ]);
+});
+
+test('vote summary keeps single-choice gradients and the abstain-only empty chart', async () => {
+    const cases = [
+        { votes: [{ vote: 'Yes' }], gradient: 'conic-gradient(#22c55e 0% 100%)' },
+        { votes: [{ vote: 'No' }], gradient: 'conic-gradient(#ef4444 0% 100%)' },
+    ];
+
+    for (const { votes, gradient } of cases) {
+        const { Summary } = await loadSummary(votes);
+        const html = renderToStaticMarkup(React.createElement(Summary, { showBreakdown: false }));
+        assert.ok(html.includes(gradient));
+        assert.doesNotMatch(html, /No Yes\/No votes yet/);
+    }
+
+    const { Summary: AbstainOnly } = await loadSummary([{ vote: 'Abstain' }]);
+    const html = renderToStaticMarkup(React.createElement(AbstainOnly));
+    assert.match(html, /No Yes\/No votes yet/);
+    assert.doesNotMatch(html, /Abstain votes: 1/);
+    assert.match(html, /Not included in percentages/);
 });
