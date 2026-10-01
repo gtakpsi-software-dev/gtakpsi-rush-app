@@ -1704,6 +1704,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     database scenario covers missing, active, resent, and inactive form states;
     all 58 server tests with the integration feature pass and changed Rust files
     pass rustfmt.
+294. Moved the Rushee Zoom PIS navigation and copy-link card into a focused
+    component, keeping its condition, labels, classes, and callbacks intact.
+    Existing rendered-markup fixtures match for loading, admin, copied-link,
+    and restricted states. All 429 client tests, typecheck, production build,
+    and changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

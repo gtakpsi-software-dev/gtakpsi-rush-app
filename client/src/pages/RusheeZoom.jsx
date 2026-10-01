@@ -12,6 +12,7 @@ import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
 import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
 import RusheePisDetails from "../features/rushee/zoom/RusheePisDetails";
 import RusheeCommentsView from "../features/rushee/zoom/RusheeCommentsView";
+import RusheeActions from "../features/rushee/zoom/RusheeActions";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
@@ -211,20 +212,12 @@ export default function RusheeZoom() {
                                 />
 
                                 {!isBidCommitteeMode() && (
-                                    <div className="card-apple p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <button 
-                                            onClick={() => navigate(`/pis/${gtid}`)}
-                                            className="btn-apple px-6 py-4 text-apple-headline font-light"
-                                        >
-                                            Submit PIS
-                                        </button>
-                                        <button 
-                                            onClick={handleCopy} 
-                                            className="btn-apple-secondary px-6 py-4 text-apple-headline font-light"
-                                        >
-                                            {copied ? "Link Copied!" : "Copy Edit Page Link"}
-                                        </button>
-                                    </div>
+                                    <RusheeActions
+                                        gtid={gtid}
+                                        copied={copied}
+                                        onSubmitPis={navigate}
+                                        onCopyLink={handleCopy}
+                                    />
                                 )}
 
                                 <RusheeRatings rushee={rushee} showAllComments={showAllComments} />

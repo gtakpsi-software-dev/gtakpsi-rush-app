@@ -16,6 +16,7 @@ import {
 
 const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
+const actionsPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeActions.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomPageMarkup.json", import.meta.url));
 
 const rushee = {
@@ -31,6 +32,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "./NewCommentForm": stub("new-comment"),
         "./ExistingCommentList": stub("existing-comments"),
     });
+    const Actions = await loadTsxComponent(actionsPath, {});
     const ViewWithCapture = (props) => {
         captured.set("comments-view", props);
         return React.createElement(View, props);
@@ -66,6 +68,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/rushee/zoom/RusheeRatings": stub("ratings"),
         "../features/rushee/zoom/RusheePisDetails": stub("pis-details"),
         "../features/rushee/zoom/RusheeCommentsView": ViewWithCapture,
+        "../features/rushee/zoom/RusheeActions": Actions,
         "../components/Loader": stub("loader"),
         "../firebase": { auth: {} },
         "../js/speculativeWordBank": { validateComment: noop, generateWarnings: noop },
