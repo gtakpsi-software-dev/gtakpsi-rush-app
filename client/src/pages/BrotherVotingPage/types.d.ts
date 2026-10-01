@@ -44,6 +44,8 @@ export interface Brother {
     _id: string;
 }
 
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
+
 export interface BrotherVotingContextType {
     rushee: Rushee | null;
     question: string | null;

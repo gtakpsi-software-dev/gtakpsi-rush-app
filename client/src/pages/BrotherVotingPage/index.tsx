@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { BrotherVotingContextProvider, useBrotherVotingContext } from "./BrotherVotingContext";
@@ -8,15 +8,13 @@ import RusheeComments from "./RusheeComments";
 import RusheePISInfo from "./RusheePISInfo";
 import RusheeScores from "./RusheeScores";
 import RusheeBidCommNotes from "./RusheeBidCommNotes";
-import { Brother } from "./types";
+import { Brother, ConnectionStatus } from "./types";
 import { useMidtermMode } from "../../contexts/MidtermModeContext";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
-
-// Connection status type
-type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
+import { useBrotherVotingSocket } from "./useBrotherVotingSocket";
 
 function Content() {
-  const { rushee, question, setRushee, setQuestion } = useBrotherVotingContext();
+  const { setRushee, setQuestion } = useBrotherVotingContext();
   const { isMidtermMode } = useMidtermMode();
   const votingWebSocketUrl: string = realtimeBaseUrls.voting;
   const socketRef = useRef<WebSocket | null>(null);
@@ -39,79 +37,16 @@ function Content() {
     }
   }, [storedUser, navigate]);
 
-  // WebSocket connection with automatic reconnection
-  const connectWebSocket = useCallback(() => {
-    if (!user) return;
-
-    // Clear any existing reconnect timeout
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-
-    setConnectionStatus('connecting');
-    const ws = new WebSocket(`${votingWebSocketUrl}/voter/${user._id}`);
-    socketRef.current = ws;
-
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-      setConnectionStatus('connected');
-      reconnectAttemptsRef.current = 0; // Reset reconnect counter on successful connection
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        console.log(msg)
-        if (msg.type === "rushee_update") {
-          const parsedRushee =
-            typeof msg.rushee === "string" ? JSON.parse(msg.rushee) : msg.rushee;
-          setRushee(parsedRushee);
-        }
-
-        if (msg.type === "question_update") {
-          setQuestion(msg.question);
-        }
-      } catch (err) {
-        console.error("Error parsing WebSocket message", err);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket closed");
-      setConnectionStatus('disconnected');
-      
-      // Exponential backoff: 1s, 2s, 4s, 8s, max 30s
-      const backoffMs = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-      reconnectAttemptsRef.current++;
-      
-      console.log(`Reconnecting in ${backoffMs}ms (attempt ${reconnectAttemptsRef.current})`);
-      reconnectTimeoutRef.current = setTimeout(() => {
-        connectWebSocket();
-      }, backoffMs);
-    };
-
-    ws.onerror = (e) => {
-      console.error("WebSocket error", e);
-      ws.close(); // Trigger onclose for reconnection
-    };
-  }, [user, votingWebSocketUrl, setRushee, setQuestion]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    connectWebSocket();
-
-    return () => {
-      // Cleanup on unmount
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
-  }, [connectWebSocket, user]);
+  useBrotherVotingSocket({
+    user,
+    votingWebSocketUrl,
+    socketRef,
+    reconnectTimeoutRef,
+    reconnectAttemptsRef,
+    setConnectionStatus,
+    setRushee,
+    setQuestion,
+  });
 
   if (!storedUser || !user) {
     return null;
