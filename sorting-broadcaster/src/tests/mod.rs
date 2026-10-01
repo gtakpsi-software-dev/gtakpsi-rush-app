@@ -12,6 +12,8 @@ mod cleanup;
 mod drag;
 mod protocol;
 mod websocket;
+mod websocket_access;
+mod websocket_support;
 
 fn state() -> (Arc<AppState>, Receiver<String>) {
     let state = crate::state::new_state();

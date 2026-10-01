@@ -2047,6 +2047,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     test imports. The season dates and implementation are unchanged. All 503
     client tests, typecheck, changed-file ESLint, and build pass; production
     JS and CSS hashes match slice 356 exactly.
+358. Added a sorting WebSocket loopback test showing that a binary frame does
+    not close the connection before a valid admin save event. Split the
+    268-line WebSocket test module into snapshot/reconnect and access/failure
+    modules with a shared fixture (115, 132, and 56 lines respectively).
+    Rustfmt and all 13 sorting tests pass; production protocol code is
+    unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2105,7 +2111,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 503 client tests, 58 server unit tests, 22 collaboration
-tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
+tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 59 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
