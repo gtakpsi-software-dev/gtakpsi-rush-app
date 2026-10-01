@@ -5,7 +5,7 @@ import SplashPage from "../components/AttendanceComponents/SplashPage";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { verifyGTID } from "../js/verifications";
+import { verifyGTID } from "../features/registration/registrationVerification";
 import { verifyUser } from "../js/verifications";
 import axios from "axios";
 import DisplayInfo from "../components/AttendanceComponents/DisplayInfo";

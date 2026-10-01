@@ -1056,6 +1056,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the original Firebase callback order, access-check fail-open path, toast,
     and legacy storage keys. All 299 client tests and changed-file ESLint pass;
     the production JS and CSS asset hashes match the preceding build.
+183. Pointed registration and attendance GTID/basic-info imports directly at
+    the registration feature. All 299 client tests and the production build
+    pass with unchanged JS and CSS asset hashes. The touched files' pre-existing
+    ESLint counts remain 15 errors and one warning, with no new findings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -11,7 +11,7 @@ import SuccessPage from "../components/RegisterComponents/SuccessPage";
 import Loader from "../components/Loader";
 
 import { useNavigate } from "react-router-dom";
-import { verifyInfo } from "../js/verifications";
+import { verifyInfo } from "../features/registration/registrationVerification";
 
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";

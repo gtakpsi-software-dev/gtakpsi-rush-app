@@ -14,7 +14,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
-import { verifyInfo } from "../js/verifications";
+import { verifyInfo } from "../features/registration/registrationVerification";
 import { submitProfileChanges } from "../features/rushee/self/submitProfileChanges";
 import { submitRusheePhoto } from "../features/rushee/self/submitRusheePhoto";
 import RusheePhotoModal from "../features/rushee/self/RusheePhotoModal";

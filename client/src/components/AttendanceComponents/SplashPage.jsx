@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { verifyGTID } from "../../js/verifications";
+import { verifyGTID } from "../../features/registration/registrationVerification";
 import { useNavigate } from "react-router-dom";
 
 export default function SplashPage(props) {
