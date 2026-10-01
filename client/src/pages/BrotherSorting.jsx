@@ -7,6 +7,7 @@ import axios from "axios";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
+import { createBrotherSortingDetailsHandlers } from "../features/sorting/createBrotherSortingDetailsHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
@@ -68,30 +69,15 @@ export default function BrotherSorting() {
         showRusheeNames: true,
     });
 
-    const openDetails = async (rushee) => {
-        setSelectedRushee(rushee);
-        setNotes("");
-        setNotesTags([]);
-        setNotesLoading(true);
-        
-        try {
-            const response = await axios.get(`${apiBase}/rushees/${rushee.id}/notes`);
-            if (response.data.status === "success") {
-                setNotes(response.data.sortingNotes || "");
-                setNotesTags(response.data.sortingTags || []);
-            }
-        } catch (err) {
-            console.error("Failed to fetch notes", err);
-        } finally {
-            setNotesLoading(false);
-        }
-    };
-
-    const closeDetails = () => {
-        setSelectedRushee(null);
-        setNotes("");
-        setNotesTags([]);
-    };
+    const { openDetails, closeDetails } = createBrotherSortingDetailsHandlers({
+        apiBase,
+        getNotes: (path) => axios.get(path),
+        setSelectedRushee,
+        setNotes,
+        setNotesTags,
+        setNotesLoading,
+        logger: console,
+    });
 
     const {
         zoomIn,

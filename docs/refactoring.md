@@ -2528,6 +2528,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     The test loader accepts injected globals for the wrapper test. All 552
     client tests, typecheck, scoped lint, and build pass; CSS retains its prior
     hash.
+434. Moved brother sorting's read-only notes request and open/close state
+    updates into `features/sorting/createBrotherSortingDetailsHandlers.js`.
+    `BrotherSorting.jsx` is now 148 lines instead of 162. Five new tests pin
+    request order, empty fallbacks, unsuccessful responses, error logging, and
+    close behavior; a page test pins the Axios endpoint and callback wiring.
+    All 558 client tests, typecheck, scoped lint, and build pass; CSS retains
+    its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2587,7 +2594,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 552 client tests, 67 server unit tests, 25 collaboration
+Current verified totals: 558 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests with the integration feature (including its
 isolated database contract), plus 62 maintenance-script tests. The last

@@ -75,7 +75,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "react-toastify/dist/ReactToastify.css": {},
         "../components/Navbar": stub("navbar"),
         "../firebase": { auth: {} },
-        axios: { get: noop },
+        axios: { get: (path) => captured.set("axios-get", path) },
         "../features/admin/api": { adminGet: noop, adminPut: noop },
         "../features/auth/parseAdminAllowlist": { parseAdminAllowlist },
         "../features/sorting/board": { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
@@ -91,6 +91,14 @@ async function loadPage(name, state = {}, captured = new Map()) {
         },
         "../features/sorting/createSortingNotesHandlers": {
             createSortingNotesHandlers: () => new Proxy({}, { get: () => noop }),
+        },
+        "../features/sorting/createBrotherSortingDetailsHandlers": {
+            createBrotherSortingDetailsHandlers: (options) => {
+                captured.set("brother-details-options", options);
+                const handlers = { openDetails: () => {}, closeDetails: () => {} };
+                captured.set("brother-details-handlers", handlers);
+                return handlers;
+            },
         },
         "../features/sorting/useSortingViewerConnection": {
             useSortingViewerConnection: (options) => captured.set("viewer-connection", options),
@@ -176,4 +184,21 @@ test("viewer pages pass the original board state and audience to their controls"
         assert.equal(captured.get(details).selectedRushee, selected);
         assert.equal(typeof captured.get(details).onViewRushee, "function");
     }
+});
+
+test("brother sorting wires its notes request and details callbacks", async () => {
+    const captured = new Map();
+    const Page = await loadPage("BrotherSorting", {
+        0: false,
+        2: { id: "r1" },
+    }, captured);
+    renderToStaticMarkup(React.createElement(Page));
+
+    const options = captured.get("brother-details-options");
+    const handlers = captured.get("brother-details-handlers");
+    assert.equal(options.apiBase, "/api/brother");
+    options.getNotes("/api/brother/rushees/r1/notes");
+    assert.equal(captured.get("axios-get"), "/api/brother/rushees/r1/notes");
+    assert.equal(captured.get("board-view").onOpen, handlers.openDetails);
+    assert.equal(captured.get("read-only-details").onClose, handlers.closeDetails);
 });
