@@ -12,7 +12,7 @@ import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import {
     getVisibleComments, hasOwnComment, shouldShowAllComments,
-} from "../src/js/commentVisibility.js";
+} from "../src/features/comments/commentVisibility.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
@@ -66,7 +66,7 @@ async function loadPage(state = {}, captured = new Map()) {
         react: reactHooks,
         axios: {},
         "../../../firebase": { auth: {} },
-        "../../../js/commentVisibility": {
+        "../../comments/commentVisibility": {
             getVisibleComments, hasOwnComment, shouldShowAllComments,
         },
         "../../auth/verifyUser": { verifyUser: noop },

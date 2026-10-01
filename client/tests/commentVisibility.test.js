@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { shouldShowAllComments, shouldShowRatings, getVisibleComments, hasOwnComment, getBrotherDisplayName } from "../src/js/commentVisibility.js";
+import { shouldShowAllComments, shouldShowRatings, getVisibleComments, hasOwnComment, getBrotherDisplayName } from "../src/features/comments/commentVisibility.js";
 
 const user = { firstname: 'Alex', lastname: 'Brother' };
 const comments = [

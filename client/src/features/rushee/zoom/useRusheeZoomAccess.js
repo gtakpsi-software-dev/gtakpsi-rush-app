@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import { auth } from "../../../firebase";
-import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../../../js/commentVisibility";
+import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../../comments/commentVisibility";
 import { verifyUser } from "../../auth/verifyUser";
 import { loadRusheeZoom } from "./loadRusheeZoom";
 

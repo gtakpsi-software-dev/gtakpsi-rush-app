@@ -1989,6 +1989,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     their test loaders. All 501 client tests, typecheck, changed-file ESLint,
     and build pass. Production JavaScript and CSS hashes match slice 346;
     the two pre-existing comment-effect dependency warnings remain.
+348. Moved the pure comment visibility policy into `features/comments/`,
+    updating its hook, voting, zoom, and test imports. All 501 client tests,
+    typecheck, changed-file ESLint, and build pass. Production JavaScript and
+    CSS hashes match slice 347 exactly; the existing voting-comment effect
+    dependency warning remains.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

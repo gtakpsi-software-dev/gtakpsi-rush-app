@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../src/js/commentVisibility.js";
+import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../src/features/comments/commentVisibility.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const hookPath = fileURLToPath(new URL("../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
@@ -25,7 +25,7 @@ test("Rushee Zoom access stays restricted while loading and forwards the origina
         },
         axios,
         "../../../firebase": { auth },
-        "../../../js/commentVisibility": {
+        "../../comments/commentVisibility": {
             getVisibleComments, hasOwnComment, shouldShowAllComments,
         },
         "../../auth/verifyUser": { verifyUser },

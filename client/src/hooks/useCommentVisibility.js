@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { auth } from "../firebase";
-import { shouldShowAllComments } from "../js/commentVisibility.js";
+import { shouldShowAllComments } from "../features/comments/commentVisibility.js";
 
 /**
  * Fetches the comment-visibility setting + the current user's admin/bidcom
