@@ -13,7 +13,7 @@ import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { usePisAutosave } from "../features/pis/usePisAutosave";
 import { usePisPageBootstrap } from "../features/pis/usePisPageBootstrap";
-import { startPisRevealPolling } from "../features/pis/startPisRevealPolling";
+import { usePisRevealPolling } from "../features/pis/usePisRevealPolling";
 import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
 
 export default function PIS() {
@@ -61,24 +61,10 @@ export default function PIS() {
         setQuestionsAvailable, setRevealAt, setLoading,
     });
 
-    // While the randomized questions are still hidden, poll and re-fetch from
-    // the server once time's up so the assigned questions get drawn.
-    useEffect(() => {
-        if (loading || questionsAvailable || !revealAt) return;
-
-        return startPisRevealPolling({
-            revealAt,
-            api,
-            gtid,
-            get: (...args) => axios.get(...args),
-            setQuestions,
-            setQuestionsAvailable,
-            setRevealAt,
-            now: () => Date.now(),
-            scheduleInterval: (callback, delay) => setInterval(callback, delay),
-            clearScheduledInterval: (interval) => clearInterval(interval),
-        });
-    }, [loading, questionsAvailable, revealAt, api, gtid]);
+    usePisRevealPolling({
+        loading, questionsAvailable, revealAt, api, gtid,
+        setQuestions, setQuestionsAvailable, setRevealAt,
+    });
 
     const { handleAnswerChange, handleMCChange } = createPisAnswerHandlers({
         setAnswers,

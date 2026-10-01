@@ -74,7 +74,9 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "../features/pis/usePisPageBootstrap": {
             usePisPageBootstrap: (props) => captured.set("bootstrap", props),
         },
-        "../features/pis/startPisRevealPolling": { startPisRevealPolling: noop },
+        "../features/pis/usePisRevealPolling": {
+            usePisRevealPolling: (props) => captured.set("reveal-polling", props),
+        },
         "../features/pis/createPisAnswerHandlers": {
             createPisAnswerHandlers: () => ({ handleAnswerChange: noop, handleMCChange: noop }),
         },
@@ -153,4 +155,7 @@ test("PIS questions retain answer, brother, collaboration, and save props", asyn
     assert.equal(captured.get("bootstrap").gtid, "123");
     assert.equal(captured.get("bootstrap").loading, false);
     assert.equal(captured.get("bootstrap").currentUser, user);
+    assert.equal(captured.get("reveal-polling").loading, false);
+    assert.equal(captured.get("reveal-polling").questionsAvailable, true);
+    assert.equal(captured.get("reveal-polling").gtid, "123");
 });
