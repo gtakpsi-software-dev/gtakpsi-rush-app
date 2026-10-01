@@ -14,6 +14,8 @@ use futures_util::{SinkExt, StreamExt};
 use std::{net::SocketAddr, sync::Arc};
 use tokio::sync::broadcast;
 
+mod drag_lifecycle;
+
 pub(crate) async fn ws_handler(
     ws: WebSocketUpgrade,
     State(state): State<Arc<AppState>>,
@@ -42,23 +44,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
 
     broadcast_viewer_count(&state).await;
 
-    // Hydrate active drags so a new viewer sees in-progress movement immediately.
-    {
-        let drag = state.drag_state.read().await;
-        for state in drag.values() {
-            let msg = OutgoingMessage::CurrentDrag {
-                active: true,
-                dragger_name: Some(state.dragger_name.clone()),
-                rushee_id: Some(state.rushee_id.clone()),
-                rushee_name: Some(state.rushee_name.clone()),
-                x: state.position_x,
-                y: state.position_y,
-            };
-            if let Ok(json) = serde_json::to_string(&msg) {
-                let _ = tx.send(json);
-            }
-        }
-    }
+    drag_lifecycle::send_current_drags(&state, &tx).await;
 
     let send_task = tokio::spawn(async move {
         loop {
@@ -90,26 +76,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
 
     send_task.abort();
 
-    // Release owned cards on disconnect so other clients can drag them again.
-    let released = {
-        let mut drag = state.drag_state.write().await;
-        let released_ids: Vec<String> = drag
-            .iter()
-            .filter(|(_, state)| state.dragger_id == client_id)
-            .map(|(id, _)| id.clone())
-            .collect();
-        for id in &released_ids {
-            drag.remove(id);
-        }
-        released_ids
-    };
-
-    for rushee_id in released {
-        let msg = OutgoingMessage::DragEnd { rushee_id };
-        if let Ok(json) = serde_json::to_string(&msg) {
-            let _ = state.broadcast_tx.send(json);
-        }
-    }
+    drag_lifecycle::release_client_drags(&state, &client_id).await;
 
     state.clients.remove(&client_id);
     println!("Client disconnected: {}", client_id);

@@ -939,6 +939,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     then proves a reconnected admin can reacquire the same card with the existing
     `drag_start` event. All 10 sorting WebSocket tests pass on the original
     session implementation.
+159. Extracted sorting socket drag hydration and disconnect release into
+    `session/drag_lifecycle.rs`, reducing `session.rs` from 126 to 93 lines.
+    Hydration still precedes message handling; disconnect drag-end events still
+    precede client removal and the updated viewer count. All 10 sorting
+    WebSocket tests pass after extraction.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
