@@ -23,14 +23,12 @@ import {
 import ReschedulePisCard from "../features/admin/pis/ReschedulePisCard";
 import { createRescheduleActions } from "../features/admin/pis/rescheduleActions";
 import AdminSchedulingCards from "../features/admin/scheduling/AdminSchedulingCards";
-import AdminDataActions from "../features/admin/data/AdminDataActions";
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
 import { downloadCsv } from "../features/admin/data/downloadCsv";
-import AdminAccessCard from "../features/admin/access/AdminAccessCard";
 import { createPromotionActions } from "../features/admin/access/promotionActions";
-import AccessSettingsCards from "../features/admin/access/AccessSettingsCards";
 import { createAccessSettingsActions } from "../features/admin/access/accessSettingsActions";
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
+import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
 import { auth, db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -257,7 +255,6 @@ export default function Admin() {
 
     return (
         <div className="min-h-screen w-full bg-white">
-            {/* Edit Brother Availability Modal */}
             {editingBrotherAvailability && (
                 <AvailabilityEditorModal
                     editingBrotherAvailability={editingBrotherAvailability}
@@ -278,7 +275,6 @@ export default function Admin() {
 
             <div className="pt-24 p-4 pb-20">
                 <div className="container mx-auto px-4 max-w-4xl">
-                    {/* Header */}
                     <div className="mb-8">
                         <h1 className="text-apple-large font-light text-black">Admin Panel</h1>
                         <p className="text-apple-body text-apple-gray-600 font-light mt-2">
@@ -286,57 +282,21 @@ export default function Admin() {
                         </p>
                     </div>
 
-                    {/* Exports & Fetch Section */}
-                    <div className="mb-10">
-                        <h2 className="text-apple-title2 font-normal text-black mb-4">Exports & Data</h2>
-                        
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {/* Export and fetch actions */}
-                            <AdminDataActions
-                                exportRusheeNumbers={exportRusheeNumbers}
-                                exportPISSchedule={exportPISSchedule}
-                                exportRusheePersonalInfo={exportRusheePersonalInfo}
-                                handleRequest={handleRequest}
-                            />
+                    <AdminExportsAccessSection {...{
+                        exportRusheeNumbers, exportPISSchedule, exportRusheePersonalInfo, handleRequest,
+                        brotherSearch, setBrotherSearch, selectedBrother, setSelectedBrother,
+                        filteredBrothers, handleSelectBrother, brotherAdminStatus, brotherBidcomStatus,
+                        isPromoting, handleSetAdmin, handleSetBidcom, rushAppStatus,
+                        rushAppLoading, handleToggleRushAppAccess, commentVisibilityStatus, commentVisibilityLoading,
+                        handleToggleCommentVisibility, midtermLoading, handleToggleMidtermMode,
+                    }} />
 
-                            {/* Admin Access */}
-                            <AdminAccessCard
-                                brotherSearch={brotherSearch}
-                                setBrotherSearch={setBrotherSearch}
-                                selectedBrother={selectedBrother}
-                                setSelectedBrother={setSelectedBrother}
-                                filteredBrothers={filteredBrothers}
-                                handleSelectBrother={handleSelectBrother}
-                                brotherAdminStatus={brotherAdminStatus}
-                                brotherBidcomStatus={brotherBidcomStatus}
-                                isPromoting={isPromoting}
-                                handleSetAdmin={handleSetAdmin}
-                                handleSetBidcom={handleSetBidcom}
-                            />
-
-                            {/* Rush App Control */}
-                            <AccessSettingsCards
-                                rushAppStatus={rushAppStatus}
-                                rushAppLoading={rushAppLoading}
-                                handleToggleRushAppAccess={handleToggleRushAppAccess}
-                                commentVisibilityStatus={commentVisibilityStatus}
-                                commentVisibilityLoading={commentVisibilityLoading}
-                                handleToggleCommentVisibility={handleToggleCommentVisibility}
-                                midtermLoading={midtermLoading}
-                                handleToggleMidtermMode={handleToggleMidtermMode}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Divider */}
                     <div className="border-t border-apple-gray-200 my-10"></div>
 
-                    {/* Add/Delete Section */}
                     <div>
                         <h2 className="text-apple-title2 font-normal text-black mb-4">Manage Data</h2>
 
                         <div className="space-y-6">
-                            {/* PIS Questions */}
                             <PisQuestionsCard
                                 question={question}
                                 setQuestion={setQuestion}
@@ -355,7 +315,6 @@ export default function Admin() {
                                 saveQuestionCategory={saveQuestionCategory}
                             />
 
-                            {/* PIS Timeslots and Rush Nights */}
                             <AdminSchedulingCards
                                 timeslotTime={timeslotTime}
                                 setTimeslotTime={setTimeslotTime}
@@ -368,7 +327,6 @@ export default function Admin() {
                                 handleRequest={handleRequest}
                             />
 
-                            {/* Reschedule PIS */}
                             <ReschedulePisCard
                                 rusheeSearch={rusheeSearch}
                                 setRusheeSearch={setRusheeSearch}
@@ -384,9 +342,8 @@ export default function Admin() {
                                 handleReschedulePIS={handleReschedulePIS}
                             />
                         </div>
-            </div>
+                    </div>
 
-                    {/* Divider */}
                     <div className="border-t border-apple-gray-200 my-10"></div>
 
                     <PisAvailabilitySection
