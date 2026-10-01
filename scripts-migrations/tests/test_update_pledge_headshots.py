@@ -1,3 +1,5 @@
+import hashlib
+import json
 import os
 import runpy
 import sys
@@ -119,6 +121,18 @@ def run_script(execute=True, firebase_initialized=False, rushee_exists=True, ima
 
 
 class UpdatePledgeHeadshotsTests(unittest.TestCase):
+    def test_filename_identity_map_keeps_all_existing_gtids(self):
+        namespace, events, _ = run_script(execute=False)
+        mapping = namespace["FILENAME_TO_GTID"]
+        encoded = json.dumps(mapping, sort_keys=True, separators=(",", ":")).encode()
+
+        self.assertEqual(len(mapping), 29)
+        self.assertEqual(
+            hashlib.sha256(encoded).hexdigest(),
+            "ae4e128e3b79979e038af3f0aba07fb1b9b50c2e4a86021847ebb57aa23f2019",
+        )
+        self.assertEqual(events, [])
+
     def test_import_does_not_initialize_services_or_upload(self):
         namespace, events, output = run_script(execute=False)
         self.assertIn("main", namespace)

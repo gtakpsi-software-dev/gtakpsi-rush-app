@@ -1391,6 +1391,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     their original root paths as links, preserving setup and migration inputs.
     SHA-256 hashes and parsed JSON match before and after the move; all 49
     offline maintenance tests pass. No reset or migration command was run.
+241. Added a fixed-map contract for all 29 pledge headshot filename-to-GTID
+    assignments before reorganizing that script. It checks the complete
+    mapping without initializing Firebase or MongoDB. All 50 offline
+    maintenance tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1446,7 +1450,7 @@ require PyMongo or a database connection.
 Current verified totals: 384 client tests, 46 server unit tests, 18 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
-isolated database contract), plus 49 maintenance-script tests. The last
+isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated
