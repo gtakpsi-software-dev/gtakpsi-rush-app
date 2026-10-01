@@ -14,7 +14,7 @@ import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicat
 import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
-import { handleSortingViewerMessage } from "../features/sorting/handleSortingViewerMessage";
+import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 
 // Parse allowlist once at module level (admins)
@@ -106,46 +106,17 @@ export default function BidComSorting() {
 
     // Connect to sorting broadcaster WebSocket for real-time updates
     useEffect(() => {
-        const connectWs = () => {
-            const ws = new WebSocket(`${realtimeBaseUrls.sorting}/ws`);
-            wsRef.current = ws;
-
-            ws.onopen = () => {
-                console.log("Connected to sorting broadcaster (viewer)");
-                setWsConnected(true);
-                // Join as viewer (non-admin)
-                const user = auth.currentUser;
-                const name = user?.displayName || user?.email?.split("@")[0] || "Viewer";
-                ws.send(JSON.stringify({ type: "join", is_admin: false, name }));
-            };
-
-            ws.onmessage = (event) => {
-                try {
-                    const msg = JSON.parse(event.data);
-                    handleSortingViewerMessage(msg, {
-                        ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
-                        showRusheeNames: false,
-                    });
-                } catch (e) {
-                    console.error("Failed to parse WS message", e);
-                }
-            };
-
-            ws.onclose = () => {
-                console.log("Disconnected from sorting broadcaster");
-                setWsConnected(false);
-                setGhostCards({});
-                // Reconnect after 3 seconds
-                setTimeout(connectWs, 3000);
-            };
-
-            ws.onerror = (err) => {
-                console.error("WebSocket error", err);
-                ws.close();
-            };
-        };
-
-        connectWs();
+        connectSortingViewer({
+            url: `${realtimeBaseUrls.sorting}/ws`,
+            wsRef,
+            getCurrentUser: () => auth.currentUser,
+            ghostTimestampsRef,
+            fetchDataRef,
+            setWsConnected,
+            setViewerCount,
+            setGhostCards,
+            showRusheeNames: false,
+        });
 
         const staleCleanupInterval = setInterval(() => {
             cleanupStaleSortingGhosts({ ghostTimestampsRef, setGhostCards });

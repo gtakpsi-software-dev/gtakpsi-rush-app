@@ -1251,6 +1251,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     156 to 69 lines; message types, broadcasts, authorization, and deployment
     names remain unchanged. All 10 sorting WebSocket tests pass, including
     live loopback and reconnect coverage; the package passes rustfmt.
+219. Shared the sorting viewer WebSocket connection lifecycle between brother
+    and bid committee boards. Their join role, viewer-name fallbacks, message
+    handling, error/close behavior, three-second reconnect, and existing effect
+    cleanup remain unchanged; each board keeps its original name-visibility
+    setting. Four focused tests cover opening, messages, reconnects, errors,
+    and join-name fallbacks. All 356 client tests and the production build pass
+    with unchanged CSS. Targeted lint has no errors and four existing warnings
+    in the two page files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1303,7 +1311,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 352 client tests, 45 server unit tests, 16 collaboration
+Current verified totals: 356 client tests, 45 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 46 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
