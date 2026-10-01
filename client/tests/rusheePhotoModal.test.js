@@ -8,7 +8,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheePhotoModal.jsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheePhotoModal.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheePhotoModal.json", import.meta.url));
 const webcamRef = { current: null };
 

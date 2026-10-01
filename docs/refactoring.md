@@ -1853,6 +1853,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     encoded brother request and API-key header, and profile navigation. All
     452 client tests, typecheck, build, and changed-file ESLint pass; full lint
     falls to 54 errors and 26 warnings.
+323. Typed the rushee self-service photo modal's camera ref, preview image,
+    and four action callbacks without changing its JSX. Existing camera,
+    preview, action, and page markup tests pass; all 452 client tests,
+    typecheck, build, and changed-file ESLint pass. The production bundle hash
+    is unchanged, and full lint falls to 47 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1882,7 +1887,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 54 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 47 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
