@@ -2321,6 +2321,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     one connection per page session; cleanup closes the latest socket ref after
     reconnects. Four existing hook tests pin both behaviors and pass. Targeted
     lint is clean; full lint now reports 8 errors and 11 warnings.
+404. Split the admin voting rushee preview's search panel and selected-rushee
+    display into focused components, leaving API requests and selection state
+    in the parent. New tests pin five rendered states by markup hash plus the
+    search request and selection order before and after extraction. All 532
+    client tests, typecheck, targeted lint, and build pass; CSS retains its
+    prior hash. The parent is now 84 lines instead of 181.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2378,7 +2384,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 530 client tests, 64 server unit tests, 23 collaboration
+Current verified totals: 532 client tests, 64 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
