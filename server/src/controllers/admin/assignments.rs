@@ -6,7 +6,9 @@ use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+mod persistence;
 mod planning;
+use persistence::persist_assignment;
 use planning::{index_availability, AssignmentPlanner};
 
 /// Auto-assign brothers to PIS slots based on availability
@@ -90,20 +92,7 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         let plan = planner.plan(ts_millis, &rushee.pis_signup, available_brothers);
 
         if plan.first.is_some() || plan.second.is_some() {
-            let mut update_doc = doc! {};
-            if let Some(first) = &plan.first {
-                update_doc.insert("pis_signup.first_brother_first_name", first.0.trim());
-                update_doc.insert("pis_signup.first_brother_last_name", first.1.trim());
-            }
-            if let Some(second) = &plan.second {
-                update_doc.insert("pis_signup.second_brother_first_name", second.0.trim());
-                update_doc.insert("pis_signup.second_brother_last_name", second.1.trim());
-            }
-
-            let filter = doc! { "gtid": &rushee.gtid };
-            let update = doc! { "$set": update_doc };
-
-            if let Ok(_) = rushee_collection.update_one(filter, update).await {
+            if persist_assignment(&rushee_collection, rushee, &plan).await {
                 assignments_made += 1;
             }
 

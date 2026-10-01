@@ -1003,6 +1003,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     skipping a filled slot, and clearing both names. The fixture reset now
     clears availability submissions between scenarios. All 42 server tests with
     the integration feature pass in the disposable MongoDB harness.
+171. Moved PIS assignment persistence into its own module, leaving the handler
+    to coordinate availability, planning, and response counts. The same dotted
+    MongoDB fields, trimmed names, GTID filter, and write-success condition are
+    preserved. All 42 server tests with the integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
