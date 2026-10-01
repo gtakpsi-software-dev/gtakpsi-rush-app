@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import { realtimeBaseUrls } from '../config/realtimeBaseUrls.js';
 import {
     acceptRemoteTextUpdate,
     acknowledgeTextUpdate,
@@ -31,7 +32,7 @@ export const useCollaboration = (roomId, currentUser) => {
     const pendingUpdatesRef = useRef({}); // field -> { clientUpdateId, value }
     const resendingFieldsRef = useRef(new Set()); // tracks fields currently being resent after reject
 
-    const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001';
+    const pisCollaborationUrl = realtimeBaseUrls.pisCollaboration;
 
     useEffect(() => {
         if (!roomId || !currentUser || !currentUser.id) {
@@ -43,7 +44,7 @@ export const useCollaboration = (roomId, currentUser) => {
         }
 
         const connectSocket = () => {
-            socketRef.current = io(WEBSOCKET_URL, {
+            socketRef.current = io(pisCollaborationUrl, {
                 forceNew: true,
             });
 
@@ -155,7 +156,7 @@ export const useCollaboration = (roomId, currentUser) => {
                 socketRef.current = null;
             }
         };
-    }, [roomId, currentUser, WEBSOCKET_URL]);
+    }, [roomId, currentUser, pisCollaborationUrl]);
 
     const sendTextOperation = useCallback((operation) => {
         if (socket && isConnected) {

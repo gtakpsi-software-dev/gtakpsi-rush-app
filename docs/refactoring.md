@@ -857,6 +857,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and 289 lines, down from 309 and 333. All 255 client tests and the production
     build pass; the CSS hash is unchanged. Full lint is down to 315 errors and
     19 warnings, with the two pages now free of lint errors.
+144. Centralized client real-time base URLs in `config/realtimeBaseUrls.js` with
+    domain names for PIS collaboration, sorting, and voting. The three existing
+    deployment keys, per-service fallbacks, and caller URL suffixes remain the
+    same. Tests cover configured and missing values, including voting's lack of
+    a fallback. All 257 client tests and the build pass; generated CSS is
+    unchanged. Full lint now reports 314 errors and 19 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -884,7 +890,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 315 errors and 19 warnings, so it is tracked debt,
+the current baseline has 314 errors and 19 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -904,7 +910,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 255 client tests, 40 server unit tests, 15 collaboration
+Current verified totals: 257 client tests, 40 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 41 server tests with the integration feature (including its
 isolated database contract), plus 41 maintenance-script tests. The last

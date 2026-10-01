@@ -27,6 +27,17 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
 ```
 
+The three real-time services retain their deployment variable names:
+
+| Client variable | Service | Local fallback |
+| --- | --- | --- |
+| `VITE_WEBSOCKET_URL` | PIS collaborative editing (Socket.IO) | `http://localhost:3001` |
+| `VITE_SORTING_BROADCASTER_URL` | Sorting board (WebSocket) | `ws://localhost:4001` |
+| `VITE_BROADCASTER_API_PREFIX` | Voting updates (WebSocket) | None |
+
+Client code reads them through `client/src/config/realtimeBaseUrls.js`. Existing
+deployment variable names and service roots stay unchanged.
+
 ### Server (.env in /server)
 
 ```env

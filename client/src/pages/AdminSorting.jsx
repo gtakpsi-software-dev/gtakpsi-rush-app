@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
+import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../js/adminAxios";
 import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
@@ -19,8 +20,6 @@ import { createSortingDragHandlers } from "../features/sorting/createSortingDrag
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
-
-const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
 // Parse allowlist once at module level
 const ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
@@ -66,7 +65,7 @@ export default function AdminSorting() {
     // Connect to sorting broadcaster WebSocket
     useEffect(() => {
         const connectWs = () => {
-            const ws = new WebSocket(`${SORTING_WS_URL}/ws`);
+            const ws = new WebSocket(`${realtimeBaseUrls.sorting}/ws`);
             wsRef.current = ws;
 
             ws.onopen = () => {

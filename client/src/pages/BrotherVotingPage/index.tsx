@@ -10,6 +10,7 @@ import RusheeScores from "./RusheeScores";
 import RusheeBidCommNotes from "./RusheeBidCommNotes";
 import { Brother } from "./types";
 import { useMidtermMode } from "../../contexts/MidtermModeContext";
+import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
 
 // Connection status type
 type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
@@ -17,7 +18,7 @@ type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 function Content() {
   const { rushee, question, setRushee, setQuestion } = useBrotherVotingContext();
   const { isMidtermMode } = useMidtermMode();
-  const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
+  const votingWebSocketUrl: string = realtimeBaseUrls.voting;
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttemptsRef = useRef(0);
@@ -49,7 +50,7 @@ function Content() {
     }
 
     setConnectionStatus('connecting');
-    const ws = new WebSocket(`${websocketAPI}/voter/${user._id}`);
+    const ws = new WebSocket(`${votingWebSocketUrl}/voter/${user._id}`);
     socketRef.current = ws;
 
     ws.onopen = () => {
@@ -94,7 +95,7 @@ function Content() {
       console.error("WebSocket error", e);
       ws.close(); // Trigger onclose for reconnection
     };
-  }, [user, websocketAPI, setRushee, setQuestion]);
+  }, [user, votingWebSocketUrl, setRushee, setQuestion]);
 
   useEffect(() => {
     if (!user) return;

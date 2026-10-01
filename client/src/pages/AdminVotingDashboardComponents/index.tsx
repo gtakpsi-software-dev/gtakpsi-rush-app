@@ -10,6 +10,7 @@ import BrotherList from "./BrotherList";
 import { Brother } from "./types";
 import NotFound from "../404";
 import { auth } from "../../firebase";
+import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
 
 // Connection status type
 type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
@@ -24,7 +25,7 @@ function Content() {
 
     const { votes, rushee, question, setVotes, setRushee, setQuestion } = useAdminVotingContext();
 
-    const websocketAPI: string = (import.meta.env as any).VITE_BROADCASTER_API_PREFIX;
+    const votingWebSocketUrl: string = realtimeBaseUrls.voting;
     const socketRef = useRef<WebSocket | null>(null);
     const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const reconnectAttemptsRef = useRef(0);
@@ -86,7 +87,7 @@ function Content() {
         }
 
         setConnectionStatus('connecting');
-        const ws = new WebSocket(`${websocketAPI}/admin/${user._id}`);
+        const ws = new WebSocket(`${votingWebSocketUrl}/admin/${user._id}`);
         socketRef.current = ws;
 
         ws.onopen = () => {
@@ -140,7 +141,7 @@ function Content() {
             console.error("WebSocket error", e);
             ws.close(); // Trigger onclose for reconnection
         };
-    }, [authorized, user, websocketAPI, setVotes, setRushee, setQuestion]);
+    }, [authorized, user, votingWebSocketUrl, setVotes, setRushee, setQuestion]);
 
     useEffect(() => {
         if (!authorized || !user) return;

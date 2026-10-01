@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
+import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import axios from "axios";
 import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
@@ -14,8 +15,6 @@ import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { handleSortingViewerMessage } from "../features/sorting/handleSortingViewerMessage";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
-
-const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
 export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
@@ -82,7 +81,7 @@ export default function BrotherSorting() {
     // Connect to sorting broadcaster WebSocket for real-time updates
     useEffect(() => {
         const connectWs = () => {
-            const ws = new WebSocket(`${SORTING_WS_URL}/ws`);
+            const ws = new WebSocket(`${realtimeBaseUrls.sorting}/ws`);
             wsRef.current = ws;
 
             ws.onopen = () => {
