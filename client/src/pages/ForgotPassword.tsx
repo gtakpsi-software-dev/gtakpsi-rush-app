@@ -1,14 +1,20 @@
 import { useState, useRef } from "react";
+import type { KeyboardEvent } from "react";
 import { Link } from 'react-router-dom'
 
 import { resetPassword } from "../js/user";
 import Navbar from "../components/Navbar";
 
+/**
+ * Password Reset Summary:
+ * - Types the email input and Enter-key handler without changing the request flow.
+ * - Keeps form, sending, and sent display states unchanged.
+ */
 export default function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
     
-    const email = useRef();
+    const email = useRef<HTMLInputElement>(null);
 
     const handleResetPassword = async () => {
         if (!email.current?.value) {
@@ -26,7 +32,7 @@ export default function ForgotPassword() {
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             handleResetPassword();
         }
@@ -44,7 +50,6 @@ export default function ForgotPassword() {
                         <div className="w-96 card-apple animate-slide-up" style={{animationDelay: '0.1s'}}>
                             <div className="p-8 space-y-6">
                                 {emailSent ? (
-                                    // Success State
                                     <div className="text-center space-y-4">
                                         <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
                                             <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,10 +60,10 @@ export default function ForgotPassword() {
                                             Check Your Email
                                         </h1>
                                         <p className="text-apple-subheadline text-apple-gray-600">
-                                            We've sent a password reset link to <span className="font-medium text-black">{email.current?.value}</span>
+                                            {"We've"} sent a password reset link to <span className="font-medium text-black">{email.current?.value}</span>
                                         </p>
                                         <p className="text-apple-footnote text-apple-gray-500">
-                                            Didn't receive the email? Check your spam folder or try again.
+                                            {"Didn't"} receive the email? Check your spam folder or try again.
                                         </p>
                                         <div className="pt-6 space-y-4">
                                             <button 
@@ -75,14 +80,13 @@ export default function ForgotPassword() {
                                         </div>
                                     </div>
                                 ) : (
-                                    // Form State
                                     <>
                                         <div className="text-center">
                                             <h1 className="text-apple-title1 font-light text-black mb-2">
                                                 Reset Password
                                             </h1>
                                             <p className="text-apple-subheadline text-apple-gray-600">
-                                                Enter your email and we'll send you a reset link
+                                                Enter your email and {"we'll"} send you a reset link
                                             </p>
                                         </div>
                                         <div className="space-y-5">
@@ -107,7 +111,6 @@ export default function ForgotPassword() {
                                                 {loading ? 'Sending...' : 'Send Reset Link'}
                                             </button>
                                             
-                                            {/* Back to Login */}
                                             <div className="text-center pt-2">
                                                 <Link to='/login' className="text-apple-footnote text-black font-medium hover:text-apple-gray-600 transition-colors duration-200">
                                                     ← Back to Sign In
@@ -124,4 +127,3 @@ export default function ForgotPassword() {
         </div>
     );
 }
-
