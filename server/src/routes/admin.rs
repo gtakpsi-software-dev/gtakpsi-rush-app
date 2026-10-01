@@ -8,6 +8,7 @@ use axum::{
 };
 use std::sync::Arc;
 
+mod pis_availability;
 mod voting;
 
 pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
@@ -92,40 +93,8 @@ pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
             post(controllers::admin::make_bidcom).options(|| async { StatusCode::OK }),
         );
 
-    voting::routes(routes)
-        // PIS Availability admin routes
-        .route(
-            "/admin/pis-availability/send-form",
-            post(controllers::admin::send_pis_availability_form)
-                .options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/clear-and-resend",
-            post(controllers::admin::clear_and_resend_pis_availability_form)
-                .options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/deactivate",
-            post(controllers::admin::deactivate_pis_availability_form)
-                .options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/all",
-            get(controllers::admin::get_all_brother_availabilities)
-                .options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/auto-assign",
-            post(controllers::admin::auto_assign_pis_brothers).options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/clear-assignments",
-            post(controllers::admin::clear_pis_assignments).options(|| async { StatusCode::OK }),
-        )
-        .route(
-            "/admin/pis-availability/export-csv",
-            get(controllers::admin::export_pis_with_brothers).options(|| async { StatusCode::OK }),
-        )
+    // INVARIANT: all admin domains receive the same auth layer below.
+    pis_availability::routes(voting::routes(routes))
         // Rush App access control routes
         .route(
             "/admin/rush-app/update",

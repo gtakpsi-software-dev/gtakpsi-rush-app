@@ -92,6 +92,25 @@ async fn voting_routes_keep_their_methods_and_admin_auth_boundary() {
 }
 
 #[tokio::test]
+async fn admin_pis_availability_routes_keep_admin_auth_boundary() {
+    for (method, path) in [
+        (Method::POST, "/admin/pis-availability/send-form"),
+        (Method::POST, "/admin/pis-availability/clear-and-resend"),
+        (Method::POST, "/admin/pis-availability/deactivate"),
+        (Method::GET, "/admin/pis-availability/all"),
+        (Method::POST, "/admin/pis-availability/auto-assign"),
+        (Method::POST, "/admin/pis-availability/clear-assignments"),
+        (Method::GET, "/admin/pis-availability/export-csv"),
+    ] {
+        let protected = app()
+            .oneshot(request(method, path, "{}", true))
+            .await
+            .unwrap();
+        assert_eq!(protected.status(), StatusCode::UNAUTHORIZED, "{path}");
+    }
+}
+
+#[tokio::test]
 async fn public_json_routes_keep_extractor_validation_and_api_key_gating() {
     let api_key_enabled = env::var("API_KEY").is_ok_and(|key| !key.is_empty());
     let response = app()
