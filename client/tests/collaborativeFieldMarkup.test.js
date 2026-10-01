@@ -12,7 +12,10 @@ const components = {
     input: fileURLToPath(new URL("../src/components/CollaborativeInput.jsx", import.meta.url)),
     textarea: fileURLToPath(new URL("../src/components/CollaborativeTextarea.jsx", import.meta.url)),
 };
-const textareaViewPath = fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextareaView.tsx", import.meta.url));
+const views = {
+    input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInputView.tsx", import.meta.url)),
+    textarea: fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextareaView.tsx", import.meta.url)),
+};
 
 const cursors = [1, 2, 3, 4].map((index) => ({
     id: `user-${index}`, name: `Editor ${index}`, cursor: index,
@@ -27,10 +30,11 @@ const scenarios = [
 
 for (const [kind, state, connected, activeCursors, extra, expectedHash] of scenarios) {
     test(`${kind} ${state} markup retains its original structure`, async () => {
-        const TextareaView = kind === "textarea" ? await loadTsxComponent(textareaViewPath) : null;
+        const View = await loadTsxComponent(views[kind]);
         const Component = await loadTsxComponent(components[kind], {
             "../features/collaboration/activeCursorsForField.js": { activeCursorsForField },
-            "../features/collaboration/CollaborativeTextareaView": TextareaView,
+            "../features/collaboration/CollaborativeInputView": View,
+            "../features/collaboration/CollaborativeTextareaView": View,
         });
         const collaboration = {
             isConnected: connected,
