@@ -65,7 +65,7 @@ async function loadPage(state = {}, captured = new Map()) {
         '../components/Navbar': stub('navbar'),
         '../firebase': { auth: {} },
         '../config/realtimeBaseUrls': { realtimeBaseUrls: { sorting: 'ws://localhost' } },
-        '../js/adminAxios': { adminGet: noop, adminPut: noop },
+        '../features/admin/api': { adminGet: noop, adminPut: noop },
         '../features/sorting/board': { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
         '../features/sorting/AdminSortingBoardView': ViewWithCapture,
         '../features/sorting/EditableNotesPanel': stub('notes'),

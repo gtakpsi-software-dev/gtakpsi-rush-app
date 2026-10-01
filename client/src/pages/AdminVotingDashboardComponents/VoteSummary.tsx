@@ -1,7 +1,7 @@
 import React from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import { FaSync } from "react-icons/fa";
-import { adminPost } from "../../js/adminAxios";
+import { adminPost } from "../../features/admin/api";
 import { toast } from "react-toastify";
 
 interface VoteSummaryProps {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import Loader from "../../components/Loader";
-import { adminGet, adminPost } from "../../js/adminAxios";
+import { adminGet, adminPost } from "../../features/admin/api";
 
 export default function BrotherList() {
   const { brothers, votes } = useAdminVotingContext();

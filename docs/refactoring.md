@@ -2070,6 +2070,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     The facade's behavior and comments are unchanged. All 503 client tests,
     typecheck, changed-file ESLint, and the production build pass; JS and CSS
     asset hashes match slice 357 exactly.
+362. Characterized the admin HTTP wrapper's missing-user rejection, per-request
+    Firebase token, optional API key, and GET/POST/PUT forwarding with three
+    tests before moving it from `client/src/js` to `features/admin`. Updated
+    caller imports and page-test mocks, and documented why tokens must stay in
+    the request client. All 506 client tests, typecheck, and build pass;
+    changed-file ESLint has zero errors and seven existing hook warnings in
+    callers. Production JS and CSS hashes match slice 357 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2127,7 +2134,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 503 client tests, 59 server unit tests, 22 collaboration
+Current verified totals: 506 client tests, 59 server unit tests, 22 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 60 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

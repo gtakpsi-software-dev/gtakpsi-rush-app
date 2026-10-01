@@ -12,7 +12,7 @@ import {
     formatPisAppointmentTime,
     getPisAppointmentRelativeTime,
 } from "../features/brotherPis/appointments";
-import { adminPost } from "../js/adminAxios";
+import { adminPost } from "../features/admin/api";
 
 export default function MyPISPage() {
     const user = JSON.parse(localStorage.getItem("user"));

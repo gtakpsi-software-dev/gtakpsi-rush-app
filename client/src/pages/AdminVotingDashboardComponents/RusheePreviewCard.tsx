@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
 import axios from "axios";
-import { adminPost } from "../../js/adminAxios";
+import { adminPost } from "../../features/admin/api";
 import { Rushee } from "./types";
 import { toast } from "react-toastify";
 import { filterPreviewRushees, previewRusheeName } from "./previewRusheeSearch";

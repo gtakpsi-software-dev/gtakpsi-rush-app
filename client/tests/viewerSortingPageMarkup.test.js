@@ -76,7 +76,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../firebase": { auth: {} },
         "../config/realtimeBaseUrls": { realtimeBaseUrls: { sorting: "ws://localhost" } },
         axios: { get: noop },
-        "../js/adminAxios": { adminGet: noop, adminPut: noop },
+        "../features/admin/api": { adminGet: noop, adminPut: noop },
         "../features/sorting/board": { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
         "../features/sorting/ReadOnlyDetailsPanel": stub("read-only-details"),
         "../features/sorting/EditableNotesPanel": stub("editable-notes"),

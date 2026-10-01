@@ -21,7 +21,7 @@ async function loadSummary(votes) {
         'react-icons/fa': {
             FaSync: () => React.createElement('span', { 'data-icon': 'sync' }),
         },
-        '../../js/adminAxios': {
+        '../../features/admin/api': {
             adminPost: (url, payload) => {
                 posts.push({ url, payload });
                 return Promise.resolve({ status: 'success' });

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
-import { adminGet, adminPut } from "../js/adminAxios";
+import { adminGet, adminPut } from "../features/admin/api";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import AdminSortingBoardView from "../features/sorting/AdminSortingBoardView";
 import { connectSortingAdmin } from "../features/sorting/connectSortingAdmin";

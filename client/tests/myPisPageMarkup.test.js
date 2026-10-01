@@ -57,7 +57,7 @@ async function loadPage(state = {}, captured = new Map()) {
             getPisAppointmentRelativeTime: () => ({ text: "Completed", color: "text-green-600" }),
         },
         "../features/brotherPis/PisAppointmentCard": CardWithCapture,
-        "../js/adminAxios": { adminPost: noop },
+        "../features/admin/api": { adminPost: noop },
     };
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
