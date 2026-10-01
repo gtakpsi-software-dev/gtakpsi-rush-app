@@ -12,6 +12,7 @@ import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/MyPISPage.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/brotherPis/MyPisPageView.tsx", import.meta.url));
 const cardPath = fileURLToPath(new URL("../src/features/brotherPis/PisAppointmentCard.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/myPisPageMarkup.json", import.meta.url));
 
@@ -34,6 +35,17 @@ async function loadPage(state = {}, captured = new Map()) {
         captured.set("appointment-card", props);
         return React.createElement(Card, props);
     };
+    const appointmentFormatting = {
+        formatPisAppointmentTime: () => "Wednesday at noon",
+        getPisAppointmentRelativeTime: () => ({ text: "Completed", color: "text-green-600" }),
+    };
+    const View = await loadTsxComponent(viewPath, {
+        "../../components/Navbar": stub("navbar"),
+        "../../components/Loader": stub("loader"),
+        "../../components/Error": stub("error"),
+        "./PisAppointmentCard": CardWithCapture,
+        "./appointments": appointmentFormatting,
+    });
     let stateIndex = 0;
     const noop = () => {};
     const dependencies = {
@@ -46,17 +58,12 @@ async function loadPage(state = {}, captured = new Map()) {
             useEffect: noop,
         },
         "react-router-dom": { useNavigate: () => (path) => captured.set("navigation", path) },
-        "../components/Navbar": stub("navbar"),
-        "../components/Loader": stub("loader"),
-        "../components/Error": stub("error"),
         "../components/Badge": stub("badge"),
         "../features/auth/verifyUser": { verifyUser: noop },
         "../features/brotherPis/appointments": {
             sortPisAppointments: noop,
-            formatPisAppointmentTime: () => "Wednesday at noon",
-            getPisAppointmentRelativeTime: () => ({ text: "Completed", color: "text-green-600" }),
         },
-        "../features/brotherPis/PisAppointmentCard": CardWithCapture,
+        "../features/brotherPis/MyPisPageView": View,
         "../features/admin/api": { adminPost: noop },
     };
     const source = (await readFile(pagePath, "utf8"))

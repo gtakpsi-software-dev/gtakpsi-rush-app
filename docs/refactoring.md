@@ -2441,6 +2441,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     typecheck, build, and the scoped lint gate pass. The gate now allows at
     most 9 warnings, down from 10; CSS retains its prior hash. Full lint still
     reports Attendance's 8 undefined-setter errors and 10 warnings total.
+422. Moved the My PIS page's error, loading, empty, and appointment markup into
+    `features/brotherPis/MyPisPageView.tsx`. The routed page retains its state,
+    authentication check, fetch effect, and request order; it is now 67 lines
+    instead of 124. Existing fixtures keep the markup hashes and profile
+    navigation unchanged across all four states. All 537 client tests,
+    typecheck, build, and the scoped lint gate pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

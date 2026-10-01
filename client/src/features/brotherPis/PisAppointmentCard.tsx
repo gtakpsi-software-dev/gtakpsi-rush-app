@@ -1,6 +1,6 @@
 import Badges from "../../components/Badge";
 
-type Rushee = {
+export type PisAppointmentRushee = {
     image_url?: string;
     name?: string;
     attendance?: { name: string }[];
@@ -12,7 +12,7 @@ type Rushee = {
 };
 
 type Props = {
-    rushee: Rushee;
+    rushee: PisAppointmentRushee;
     formattedTime: string;
     relativeTime: { text: string; color: string } | null;
     onView: () => void;
