@@ -8,7 +8,9 @@ pub use queries::{get_sorting_rushees, get_sorting_rushees_public};
 mod notes;
 pub use notes::{get_rushee_notes, update_rushee_notes};
 mod mutations;
-pub use mutations::{bulk_reorder, move_rushee, update_rushee_sorting};
+pub use mutations::{bulk_reorder, update_rushee_sorting};
+mod move_rushee;
+pub use move_rushee::move_rushee;
 
 use models::{
     BulkReorderPayload, MoveRusheePayload, NotesPayload, SortingRushee, UpdateSortingPayload,

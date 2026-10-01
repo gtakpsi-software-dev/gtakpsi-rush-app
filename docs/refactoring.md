@@ -912,6 +912,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     into a different column. They pin persisted order, status, author attribution,
     and clamping of a negative target index before changing the mutation handler.
     All 42 server tests pass against disposable MongoDB.
+154. Moved the sorting move handler into `sorting/move_rushee.rs`, leaving the
+    single-update and bulk-reorder handlers in an 83-line `mutations.rs`. One
+    helper now performs each column's ordered writes, retaining a separate
+    timestamp and update for every rushee, source-before-target write order,
+    and the existing partial-write error response. The isolated database move
+    scenarios and all 42 server tests pass after extraction.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
