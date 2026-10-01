@@ -918,6 +918,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     timestamp and update for every rushee, source-before-target write order,
     and the existing partial-write error response. The isolated database move
     scenarios and all 42 server tests pass after extraction.
+155. Extracted the Firestore brother-directory query from `client/src/js/user.js`
+    into `features/brothers/loadBrotherDirectory.js`. The voting dashboard's
+    `getAllBrothers()` entrypoint remains the same. Two tests pin query order,
+    returned fields, snapshot order, and the logged empty-list fallback. All
+    259 client tests, the client build, and ESLint on changed files pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -965,7 +970,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 257 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 259 client tests, 41 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last

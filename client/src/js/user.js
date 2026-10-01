@@ -19,6 +19,7 @@ import { isEmailAllowed } from "../data/allowedEmails";
 import { createdStoredUser, loginStoredUser } from "../features/auth/userSession";
 import { accountErrorMessage, loginErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
 import { checkRushAppAccess } from "../features/auth/checkRushAppAccess";
+import { loadBrotherDirectory } from "../features/brothers/loadBrotherDirectory";
 
 /**
  * Sign in with email and password
@@ -171,29 +172,14 @@ export async function createAccount(credentials) {
  * Returns array of brother objects with _id, firstname, lastname, email
  */
 export async function getAllBrothers() {
-    try {
-        const brothersRef = collection(db, "brothers");
-        const q = query(brothersRef, orderBy("firstname"));
-        const querySnapshot = await getDocs(q);
-        
-        const brothers = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            brothers.push({
-                _id: doc.id,
-                uid: data.uid,
-                firstname: data.firstname,
-                lastname: data.lastname,
-                email: data.email,
-                displayName: data.displayName,
-            });
-        });
-        
-        return brothers;
-    } catch (error) {
-        console.error("Error fetching brothers:", error);
-        return [];
-    }
+    return loadBrotherDirectory({
+        db,
+        collection,
+        query,
+        orderBy,
+        getDocs,
+        logError: (...args) => console.error(...args),
+    });
 }
 
 /**
