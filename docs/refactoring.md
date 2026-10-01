@@ -1801,6 +1801,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     gate. `RusheeZoom.jsx` drops from 225 to 200 lines. A new hook test pins
     restricted defaults and fetch wiring; all 436 client tests, exact page
     markup fixtures, typecheck, build, and changed-file ESLint pass.
+313. Typed the shared rating slider's props without changing its JSX or
+    handlers. New tests pin enabled/restricted markup and callback values;
+    the production bundle hash matches the prior build. All 438 client tests,
+    typecheck, build, and changed-file ESLint pass. Full client lint drops
+    from 86 errors to 81 errors, with 26 warnings unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1830,7 +1835,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 86 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 81 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
@@ -1856,7 +1861,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 436 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 438 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

@@ -1,5 +1,19 @@
 
-export default function RatingSlider({ label, value, notSeen, onValueChange, onNotSeenChange }) {
+type RatingSliderProps = {
+    label: string;
+    value: number;
+    notSeen: boolean;
+    onValueChange: (value: number) => void;
+    onNotSeenChange: (notSeen: boolean) => void;
+};
+
+export default function RatingSlider({
+    label,
+    value,
+    notSeen,
+    onValueChange,
+    onNotSeenChange,
+}: RatingSliderProps) {
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
