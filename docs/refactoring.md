@@ -1259,6 +1259,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and join-name fallbacks. All 356 client tests and the production build pass
     with unchanged CSS. Targeted lint has no errors and four existing warnings
     in the two page files.
+220. Grouped all seven admin voting endpoints in a focused route module without
+    changing their paths, methods, OPTIONS handlers, router state, or placement
+    inside the admin auth layer. A route test pinned method/path and missing-token
+    rejection before and after extraction. All 46 API unit tests and 47 tests
+    with the integration feature pass against disposable MongoDB; the touched
+    Rust files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1311,9 +1317,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 356 client tests, 45 server unit tests, 16 collaboration
+Current verified totals: 356 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 46 server tests with the integration feature (including its
+feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing

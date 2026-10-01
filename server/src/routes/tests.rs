@@ -71,6 +71,27 @@ async fn protected_routes_reject_missing_bearer_tokens_before_database_access() 
 }
 
 #[tokio::test]
+async fn voting_routes_keep_their_methods_and_admin_auth_boundary() {
+    let router = app();
+    for (method, path) in [
+        (Method::POST, "/admin/voting/change-rushee"),
+        (Method::POST, "/admin/voting/clear-votes"),
+        (Method::POST, "/admin/voting/make-eligible"),
+        (Method::POST, "/admin/voting/make-ineligible"),
+        (Method::GET, "/admin/voting/get-eligibility"),
+        (Method::POST, "/admin/voting/post-question"),
+        (Method::GET, "/admin/voting/get-rushee"),
+    ] {
+        let response = router
+            .clone()
+            .oneshot(request(method, path, "{}", true))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{path}");
+    }
+}
+
+#[tokio::test]
 async fn public_json_routes_keep_extractor_validation_and_api_key_gating() {
     let api_key_enabled = env::var("API_KEY").is_ok_and(|key| !key.is_empty());
     let response = app()
