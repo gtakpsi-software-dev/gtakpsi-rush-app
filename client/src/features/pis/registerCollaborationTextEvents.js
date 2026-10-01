@@ -11,8 +11,26 @@ export function registerCollaborationTextEvents({
     knownVersionsRef,
     pendingUpdatesRef,
     resendingFieldsRef,
+    setRemoteOperations,
     setRemoteUpdates,
 }) {
+    socket.on('text-operation', (operation) => {
+        if (operation.userId === currentUser?.id) {
+            return;
+        }
+
+        setRemoteOperations((previous) => {
+            // Bound operation history and ignore duplicate delivery so edits cannot replay.
+            const exists = previous.some((item) => item.id === operation.id);
+            if (exists) {
+                return previous;
+            }
+
+            const next = [...previous, operation];
+            return next.length > 50 ? next.slice(-50) : next;
+        });
+    });
+
     socket.on('text-update', (data) => {
         const update = acceptRemoteTextUpdate(
             data, currentUser.id, knownVersionsRef.current, resendingFieldsRef.current

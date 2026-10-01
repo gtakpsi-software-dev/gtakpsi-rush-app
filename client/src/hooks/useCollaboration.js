@@ -59,25 +59,6 @@ export const useCollaboration = (roomId, currentUser) => {
                 setConnectedUsers(users.filter(user => user.id !== currentUser.id));
             });
 
-            socketRef.current.on('text-operation', (operation) => {
-                // Avoid processing our own operations
-                if (operation.userId === currentUser?.id) {
-                    return;
-                }
-                
-                setRemoteOperations(prev => {
-                    // Avoid duplicate operations
-                    const exists = prev.some(op => op.id === operation.id);
-                    if (exists) {
-                        return prev;
-                    }
-                    
-                    // Keep only the last 50 operations to prevent memory issues
-                    const newOps = [...prev, operation];
-                    return newOps.length > 50 ? newOps.slice(-50) : newOps;
-                });
-            });
-
             registerCollaborationTextEvents({
                 socket: socketRef.current,
                 socketRef,
@@ -85,6 +66,7 @@ export const useCollaboration = (roomId, currentUser) => {
                 knownVersionsRef,
                 pendingUpdatesRef,
                 resendingFieldsRef,
+                setRemoteOperations,
                 setRemoteUpdates,
             });
 

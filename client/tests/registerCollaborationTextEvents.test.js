@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { registerCollaborationTextEvents } from '../src/features/pis/registerCollaborationTextEvents.js';
 
-function setup(initialUpdates = []) {
+function setup(initialUpdates = [], initialOperations = []) {
     const handlers = new Map();
     const emitted = [];
     const socket = {
@@ -14,6 +14,7 @@ function setup(initialUpdates = []) {
     const pendingUpdatesRef = { current: {} };
     const resendingFieldsRef = { current: new Set() };
     let remoteUpdates = initialUpdates;
+    let remoteOperations = initialOperations;
 
     registerCollaborationTextEvents({
         socket,
@@ -22,19 +23,24 @@ function setup(initialUpdates = []) {
         knownVersionsRef,
         pendingUpdatesRef,
         resendingFieldsRef,
+        setRemoteOperations: (update) => { remoteOperations = update(remoteOperations); },
         setRemoteUpdates: (update) => { remoteUpdates = update(remoteUpdates); },
     });
 
     return {
         handlers, emitted, knownVersionsRef, pendingUpdatesRef,
-        resendingFieldsRef, getRemoteUpdates: () => remoteUpdates,
+        resendingFieldsRef,
+        getRemoteOperations: () => remoteOperations,
+        getRemoteUpdates: () => remoteUpdates,
     };
 }
 
 test('registers text listeners in order and bounds accepted remote history', () => {
     const initial = Array.from({ length: 100 }, (_, index) => ({ field: 'old', value: index }));
     const state = setup(initial);
-    assert.deepEqual([...state.handlers.keys()], ['text-update', 'text-ack', 'text-reject']);
+    assert.deepEqual([...state.handlers.keys()], [
+        'text-operation', 'text-update', 'text-ack', 'text-reject',
+    ]);
 
     state.handlers.get('text-update')({ field: 'answer', userId: 'me', value: 'self', version: 1 });
     assert.equal(state.getRemoteUpdates(), initial);
@@ -45,6 +51,23 @@ test('registers text listeners in order and bounds accepted remote history', () 
     assert.equal(state.getRemoteUpdates()[0], initial[1]);
     assert.deepEqual(state.getRemoteUpdates().at(-1), update);
     assert.equal(state.knownVersionsRef.current.answer, 2);
+});
+
+test('ignores self and duplicate operations while retaining the latest 50', () => {
+    const initial = Array.from({ length: 50 }, (_, index) => ({
+        id: `operation-${index}`, userId: 'other',
+    }));
+    const state = setup([], initial);
+
+    state.handlers.get('text-operation')({ id: 'self', userId: 'me' });
+    state.handlers.get('text-operation')({ id: 'operation-49', userId: 'other' });
+    assert.equal(state.getRemoteOperations(), initial);
+
+    const next = { id: 'operation-50', userId: 'other' };
+    state.handlers.get('text-operation')(next);
+    assert.equal(state.getRemoteOperations().length, 50);
+    assert.equal(state.getRemoteOperations()[0], initial[1]);
+    assert.equal(state.getRemoteOperations().at(-1), next);
 });
 
 test('rejected local text rebases, resends, and clears after matching acknowledgement', () => {
