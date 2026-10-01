@@ -2,7 +2,6 @@
 Upload pledge headshots to Firebase Storage and update image_url in MongoDB.
 """
 
-import io
 import os
 import time
 
@@ -12,38 +11,8 @@ from firebase_admin import credentials, storage
 from PIL import Image, ImageOps
 from pymongo import MongoClient
 
-# Map filename (without extension) → GTID
-FILENAME_TO_GTID = {
-    "aarav-sardana":       "904093762",
-    "abhinav-pinisetti":   "904093480",
-    "addison-lewis":       "904105404",
-    "adi-belde":           "903980383",
-    "adithiya-balaguru":   "904127962",
-    "aditi-deshmukh":      "904089682",
-    "anushka-agarwal":     "904095608",
-    "anushka-prabhu":      "904125061",
-    "arka-battacharjee":   "903952769",
-    "arnav-munjal":        "904121424",
-    "chameli-tissera":     "903977281",
-    "daniel-yang":         "904003896",
-    "garv-jain":           "904005511",
-    "gautam-khaji":        "904121280",
-    "indira-dwivedi":      "904167024",
-    "joanna-george":       "904125538",
-    "krishnasai-akula":    "904127022",
-    "laya-andripalli":     "903993361",
-    "nikunj-gupta":        "903991110",
-    "om-tasgoankar":       "904122922",
-    "prisha-umashankar":   "903981932",
-    "riya-makan":          "904121543",
-    "sanjana-jarugumilli": "904073218",
-    "siddhani-lahori":     "904116694",
-    "srikar-gandikota":    "903960723",
-    "stuti-thummala":      "903960076",
-    "sunayna-singh":       "904122885",
-    "vanee-pattani":       "904099472",
-    "vivaan-sahni":        "904100267",
-}
+from lib.headshot_image import prepare_headshot
+from lib.headshot_mapping import FILENAME_TO_GTID
 
 
 def process_headshot(filename, headshots_dir, collection, bucket):
@@ -63,15 +32,7 @@ def process_headshot(filename, headshots_dir, collection, bucket):
     blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
 
     try:
-        # Apply EXIF orientation before resizing so the uploaded image stays upright.
-        img = Image.open(file_path)
-        img = ImageOps.exif_transpose(img)
-        img = img.convert("RGB")
-        img.thumbnail((600, 600), Image.LANCZOS)
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=82, optimize=True)
-        compressed_size = buffer.tell()
-        buffer.seek(0)
+        buffer, compressed_size = prepare_headshot(file_path, Image, ImageOps)
 
         original_size = os.path.getsize(file_path)
         print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")

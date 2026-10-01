@@ -1395,6 +1395,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     assignments before reorganizing that script. It checks the complete
     mapping without initializing Firebase or MongoDB. All 50 offline
     maintenance tests pass.
+242. Moved the pledge headshot identity map and image preparation into
+    `scripts-migrations/lib/`, reducing the command from 142 to 103 lines.
+    The fixed map, EXIF/RGB/resize/JPEG order, upload path, public URL, MongoDB
+    update, and printed results remain unchanged. All 50 offline maintenance
+    tests pass, including import safety and failed-image paths; no live
+    services or headshot files were accessed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

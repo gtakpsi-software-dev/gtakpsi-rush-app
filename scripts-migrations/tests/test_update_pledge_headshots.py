@@ -110,7 +110,7 @@ def run_script(execute=True, firebase_initialized=False, rushee_exists=True, ima
             return 1024
         return actual_getsize(path)
 
-    with patch.dict(sys.modules, modules):
+    with patch.dict(sys.modules, modules), patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
         with patch.dict(os.environ, environment, clear=True):
             with patch("os.listdir", fake_listdir), patch("os.path.getsize", fake_getsize):
                 with patch("time.time", return_value=1000):
