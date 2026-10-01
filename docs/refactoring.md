@@ -2252,6 +2252,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Existing markup hashes remain unchanged. All 527 client tests, typecheck,
     and build pass; CSS remains byte-identical, and full lint remains at the
     existing eight Attendance errors and 22 warnings.
+392. Removed the tracked Firebase Hosting upload cache and an empty root npm
+    lockfile; neither is a source dependency. Ignored future client Firebase
+    caches while retaining the client and PIS WebSocket lockfiles. The client
+    production build still emits the same JS and CSS asset names.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
