@@ -20,6 +20,7 @@ import { useCommentVisibility } from "../hooks/useCommentVisibility";
 import { filterDashboardRushees, shuffleArray } from "../features/dashboard/list";
 import { loadDashboardData } from "../features/dashboard/loadDashboardData";
 import DashboardRusheeCard from "../features/dashboard/DashboardRusheeCard";
+import DashboardFilters from "../features/dashboard/DashboardFilters";
 
 export default function Dashboard(props) {
     const { isMidtermMode } = useMidtermMode();
@@ -122,81 +123,21 @@ export default function Dashboard(props) {
                                     
 
                                     {/* Search and Filters */}
-                                    <div className="card-apple p-6 mb-6">
-                                        {/* Search Bar */}
-                                        <div className="mb-4">
-                                            <input
-                                                type="text"
-                                                value={query}
-                                                onChange={handleSearch}
-                                                placeholder="Search by name, email, major, or GTID..."
-                                                className="input-apple text-apple-body"
-                                            />
-                                        </div>
-
-                                        {/* Filters */}
-                                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between">
-                                            <div className="flex flex-wrap gap-3">
-                                                {/* Major Filter */}
-                                                <div>
-                                                    <select
-                                                        value={selectedMajor}
-                                                        onChange={(e) => setSelectedMajor(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="All">All Majors</option>
-                                                        {Array.from(new Set(rushees.map((rushee) => rushee.major))).map((major, idx) => (
-                                                            <option key={idx} value={major}>
-                                                                {major}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-
-                                                {/* Class Filter */}
-                                                <div>
-                                                    <select
-                                                        value={selectedClass}
-                                                        onChange={(e) => setSelectedClass(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="All">All Years</option>
-                                                        {Array.from(new Set(rushees.map((rushee) => rushee.class))).map((classYear, idx) => (
-                                                            <option key={idx} value={classYear}>
-                                                                {classYear}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-
-                                                {/* Sorting Dropdown */}
-                                                <div>
-                                                    <select
-                                                        value={selectedSort}
-                                                        onChange={(e) => setSelectedSort(e.target.value)}
-                                                        className="input-apple text-apple-body"
-                                                    >
-                                                        <option value="none">No Sorting</option>
-                                                        <option value="firstName">First Name</option>
-                                                        <option value="lastName">Last Name</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            {/* Shuffle Button */}
-                                            <div className="mt-2 sm:mt-0">
-                                                <button
-                                                    onClick={() => {
-                                                        const shuffled = shuffleArray(rushees);
-                                                        setFilteredRushees(shuffled);
-                                                    }}
-                                                    className="btn-apple-secondary px-6 py-3 text-apple-body font-light"
-                                                >
-                                                    Shuffle
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <DashboardFilters
+                                        query={query}
+                                        handleSearch={handleSearch}
+                                        rushees={rushees}
+                                        selectedMajor={selectedMajor}
+                                        setSelectedMajor={setSelectedMajor}
+                                        selectedClass={selectedClass}
+                                        setSelectedClass={setSelectedClass}
+                                        selectedSort={selectedSort}
+                                        setSelectedSort={setSelectedSort}
+                                        onShuffle={() => {
+                                            const shuffled = shuffleArray(rushees);
+                                            setFilteredRushees(shuffled);
+                                        }}
+                                    />
 
                                     {/* Rushee Cards Grid */}
                                                                             <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

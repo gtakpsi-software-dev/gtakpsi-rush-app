@@ -13,6 +13,7 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/Dashboard.jsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../src/features/dashboard/DashboardRusheeCard.tsx', import.meta.url));
+const filtersPath = fileURLToPath(new URL('../src/features/dashboard/DashboardFilters.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/dashboardPageMarkup.json', import.meta.url));
 const rushee = {
     id: 'rushee-1',
@@ -37,6 +38,7 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
         '../../components/Badge': Badges,
         '../../components/RusheeInteractionsByNight': stub('interactions')
     });
+    const Filters = await loadTsxComponent(filtersPath);
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
@@ -73,6 +75,7 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
         '../features/dashboard/list': { filterDashboardRushees() {}, shuffleArray() {} },
         '../features/dashboard/loadDashboardData': { loadDashboardData() {} },
         '../features/dashboard/DashboardRusheeCard': Card,
+        '../features/dashboard/DashboardFilters': Filters,
         '../firebase': { auth: {}, db: {} },
         'firebase/firestore': { doc() {}, getDoc() {} }
     };
@@ -130,4 +133,55 @@ test('dashboard card keeps the profile URL and disables its click in midterm mod
     const MidtermDashboard = await loadDashboard({ state, midterm: true });
     const midtermCard = findCard(MidtermDashboard({ user: { uid: 'brother-1' } }));
     assert.equal(midtermCard.type(midtermCard.props).props.onClick, undefined);
+});
+
+test('dashboard filters keep option order, selections, search, and shuffle callbacks', async () => {
+    const Filters = await loadTsxComponent(filtersPath);
+    const calls = [];
+    const tree = Filters({
+        query: 'Ada',
+        handleSearch: (event) => calls.push(['search', event.target.value]),
+        rushees: [
+            { major: 'Computer Science', class: '2028' },
+            { major: 'Mathematics', class: '2027' },
+            { major: 'Computer Science', class: '2028' }
+        ],
+        selectedMajor: 'All',
+        setSelectedMajor: (value) => calls.push(['major', value]),
+        selectedClass: 'All',
+        setSelectedClass: (value) => calls.push(['class', value]),
+        selectedSort: 'none',
+        setSelectedSort: (value) => calls.push(['sort', value]),
+        onShuffle: () => calls.push(['shuffle'])
+    });
+    const elements = [];
+
+    function collect(node) {
+        if (Array.isArray(node)) node.forEach(collect);
+        else if (React.isValidElement(node)) {
+            elements.push(node);
+            collect(node.props.children);
+        }
+    }
+    collect(tree);
+
+    const input = elements.find((element) => element.type === 'input');
+    const selects = elements.filter((element) => element.type === 'select');
+    const button = elements.find((element) => element.type === 'button');
+    input.props.onChange({ target: { value: 'Grace' } });
+    selects[0].props.onChange({ target: { value: 'Mathematics' } });
+    selects[1].props.onChange({ target: { value: '2027' } });
+    selects[2].props.onChange({ target: { value: 'lastName' } });
+    button.props.onClick();
+
+    assert.deepEqual(calls, [
+        ['search', 'Grace'],
+        ['major', 'Mathematics'],
+        ['class', '2027'],
+        ['sort', 'lastName'],
+        ['shuffle']
+    ]);
+    const html = renderToStaticMarkup(tree);
+    assert.match(html, /All Majors<\/option><option value="Computer Science">Computer Science<\/option><option value="Mathematics">Mathematics/);
+    assert.match(html, /All Years<\/option><option value="2028">2028<\/option><option value="2027">2027/);
 });

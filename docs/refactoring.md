@@ -1120,6 +1120,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     test pins the profile URL and midterm click gate. All 322 client tests pass,
     the production build succeeds, and the CSS asset hash is unchanged. The
     JavaScript bundle changes because the card is now a separate module.
+197. Moved dashboard search, major/class filters, sort selection, and shuffle
+    control into a 96-line view, reducing `Dashboard.jsx` from 221 to 162 lines.
+    The existing six page markup fixtures still match; a new interaction test
+    pins option order, deduplication, all filter callbacks, and shuffle. All
+    323 client tests pass, the production build succeeds, and the CSS asset
+    hash remains unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1167,7 +1173,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 322 client tests, 41 server unit tests, 16 collaboration
+Current verified totals: 323 client tests, 41 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
