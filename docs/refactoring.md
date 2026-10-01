@@ -2657,6 +2657,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     errors, and empty responses. All 574 client tests, typecheck, scoped lint,
     and build pass. The voice controls have no app-page imports, and the built
     JS and CSS asset hashes remain unchanged.
+456. Renamed the PIS collaboration service's socket-keyed membership map from
+    `userSockets` to `membershipsBySocket` across server composition, room
+    guards, handlers, and tests. The data still maps each socket ID to its room
+    and user information; all 28 collaboration tests pass, including live
+    connection, reconnection, update, and presence contracts.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

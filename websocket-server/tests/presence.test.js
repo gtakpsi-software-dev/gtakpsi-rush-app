@@ -11,13 +11,13 @@ test('presence ignores unjoined and missing-room sockets', () => {
         to: (roomId) => ({ emit: (name, payload) => emitted.push([roomId, name, payload]) }),
     };
     const rooms = new Map();
-    const userSockets = new Map();
-    registerPresenceHandlers(socket, rooms, userSockets);
+    const membershipsBySocket = new Map();
+    registerPresenceHandlers(socket, rooms, membershipsBySocket);
 
     for (const name of ['cursor-position', 'typing-indicator']) {
         listeners.get(name)({ field: 'notes', userId: 'spoofed' });
     }
-    userSockets.set('socket-1', { roomId: 'missing', userInfo: { id: 'joined', name: 'Joined' } });
+    membershipsBySocket.set('socket-1', { roomId: 'missing', userInfo: { id: 'joined', name: 'Joined' } });
     for (const name of ['cursor-position', 'typing-indicator']) {
         listeners.get(name)({ field: 'notes', userId: 'spoofed' });
     }
@@ -36,10 +36,10 @@ test('both presence events use joined identity and update room activity', (t) =>
     };
     const room = { lastActivity: 'old' };
     const rooms = new Map([['pis-1', room]]);
-    const userSockets = new Map([['socket-1', {
+    const membershipsBySocket = new Map([['socket-1', {
         roomId: 'pis-1', userInfo: { id: 'brother-1', name: 'Brother One' },
     }]]);
-    registerPresenceHandlers(socket, rooms, userSockets);
+    registerPresenceHandlers(socket, rooms, membershipsBySocket);
 
     listeners.get('cursor-position')({ field: 'notes', position: 3, userId: 'spoofed', userName: 'Spoofed' });
     listeners.get('typing-indicator')({ field: 'notes', isTyping: true, userId: 'spoofed', userName: 'Spoofed' });

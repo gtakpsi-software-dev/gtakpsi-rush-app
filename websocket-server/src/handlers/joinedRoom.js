@@ -1,9 +1,9 @@
-function joinedRoom(socket, rooms, userSockets) {
+function joinedRoom(socket, rooms, membershipsBySocket) {
     // INVARIANT: unjoined or stale sockets cannot mutate or broadcast room state.
-    const userData = userSockets.get(socket.id);
-    if (!userData) return null;
+    const membership = membershipsBySocket.get(socket.id);
+    if (!membership) return null;
 
-    const { roomId, userInfo } = userData;
+    const { roomId, userInfo } = membership;
     const room = rooms.get(roomId);
     if (!room) return null;
 

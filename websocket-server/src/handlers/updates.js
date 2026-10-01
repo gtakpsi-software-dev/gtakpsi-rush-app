@@ -2,9 +2,9 @@ const { joinedRoom } = require('./joinedRoom');
 const { parseTextUpdate } = require('./parseTextUpdate');
 const { applyVersionedTextUpdate } = require('../operations/versionedText');
 
-function registerUpdateHandlers(socket, rooms, userSockets) {
+function registerUpdateHandlers(socket, rooms, membershipsBySocket) {
     socket.on('text-update', (payload) => {
-        const joined = joinedRoom(socket, rooms, userSockets);
+        const joined = joinedRoom(socket, rooms, membershipsBySocket);
         if (!joined) return;
         const { roomId, room } = joined;
 

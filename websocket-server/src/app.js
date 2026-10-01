@@ -21,14 +21,14 @@ function createCollaborationServer({ timers = globalThis } = {}) {
         cors: { origin: '*', methods: ['GET', 'POST'] },
     });
     const rooms = new Map();
-    const userSockets = new Map();
+    const membershipsBySocket = new Map();
 
     registerRoutes(app, rooms);
     io.on('connection', (socket) => {
-        registerMembershipHandlers(io, socket, rooms, userSockets, timers);
-        registerLegacyTextOperationHandlers(socket, rooms, userSockets);
-        registerUpdateHandlers(socket, rooms, userSockets);
-        registerPresenceHandlers(socket, rooms, userSockets);
+        registerMembershipHandlers(io, socket, rooms, membershipsBySocket, timers);
+        registerLegacyTextOperationHandlers(socket, rooms, membershipsBySocket);
+        registerUpdateHandlers(socket, rooms, membershipsBySocket);
+        registerPresenceHandlers(socket, rooms, membershipsBySocket);
     });
     scheduleRoomCleanup(rooms, timers);
 

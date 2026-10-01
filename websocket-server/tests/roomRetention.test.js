@@ -27,13 +27,13 @@ test('periodic cleanup removes only empty rooms older than one hour', (t) => {
 test('disconnect cleanup waits five minutes and retains a room that has been rejoined', () => {
     const handlers = new Map();
     const rooms = new Map();
-    const userSockets = new Map();
+    const membershipsBySocket = new Map();
     const pending = [];
     const socket = {
         id: 'socket-1', on: (name, callback) => handlers.set(name, callback),
         join() {}, emit() {}, to: () => ({ emit() {} }),
     };
-    registerMembershipHandlers({ to: () => ({ emit() {} }) }, socket, rooms, userSockets, {
+    registerMembershipHandlers({ to: () => ({ emit() {} }) }, socket, rooms, membershipsBySocket, {
         setTimeout(callback, delay) {
             assert.equal(delay, 300000);
             pending.push(callback);
@@ -42,7 +42,7 @@ test('disconnect cleanup waits five minutes and retains a room that has been rej
     const join = () => handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother', userName: 'Brother' });
     join();
     handlers.get('disconnect')();
-    assert.equal(userSockets.size, 0);
+    assert.equal(membershipsBySocket.size, 0);
     assert.equal(rooms.size, 1);
     join();
     pending.shift()();

@@ -15,10 +15,10 @@ test('unjoined and stale sockets cannot send text or presence events', () => {
         to: (roomId) => ({ emit: (name, payload) => emitted.push([roomId, name, payload]) }),
     };
     const rooms = new Map();
-    const userSockets = new Map();
-    registerLegacyTextOperationHandlers(socket, rooms, userSockets);
-    registerUpdateHandlers(socket, rooms, userSockets);
-    registerPresenceHandlers(socket, rooms, userSockets);
+    const membershipsBySocket = new Map();
+    registerLegacyTextOperationHandlers(socket, rooms, membershipsBySocket);
+    registerUpdateHandlers(socket, rooms, membershipsBySocket);
+    registerPresenceHandlers(socket, rooms, membershipsBySocket);
 
     const events = [
         ['text-operation', { field: 'notes', type: 'insert', position: 0, content: 'x' }],
@@ -28,7 +28,7 @@ test('unjoined and stale sockets cannot send text or presence events', () => {
     ];
 
     for (const [name, payload] of events) listeners.get(name)(payload);
-    userSockets.set(socket.id, {
+    membershipsBySocket.set(socket.id, {
         roomId: 'missing',
         userInfo: { id: 'brother-1', name: 'Brother One' },
     });

@@ -2,7 +2,7 @@ const { createRoom, snapshotDocument } = require('../rooms');
 const { scheduleEmptyRoomRemoval } = require('../roomRetention');
 const { joinedRoom } = require('./joinedRoom');
 
-function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
+function registerMembershipHandlers(io, socket, rooms, membershipsBySocket, timers) {
     socket.on('join-room', ({ roomId, userId, userName }) => {
         socket.join(roomId);
 
@@ -12,7 +12,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
             socketId: socket.id,
             connectedAt: new Date().toISOString()
         };
-        userSockets.set(socket.id, { roomId, userInfo });
+        membershipsBySocket.set(socket.id, { roomId, userInfo });
 
         if (!rooms.has(roomId)) {
             rooms.set(roomId, createRoom());
@@ -29,7 +29,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
     });
 
     socket.on('request-document-state', () => {
-        const joined = joinedRoom(socket, rooms, userSockets);
+        const joined = joinedRoom(socket, rooms, membershipsBySocket);
         if (!joined) return;
         const { room } = joined;
 
@@ -37,12 +37,12 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
     });
 
     socket.on('disconnect', () => {
-        const userData = userSockets.get(socket.id);
-        if (!userData) {
+        const membership = membershipsBySocket.get(socket.id);
+        if (!membership) {
             return;
         }
 
-        const { roomId, userInfo } = userData;
+        const { roomId, userInfo } = membership;
         const room = rooms.get(roomId);
 
         if (room) {
@@ -58,7 +58,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
             }
         }
 
-        userSockets.delete(socket.id);
+        membershipsBySocket.delete(socket.id);
     });
 }
 

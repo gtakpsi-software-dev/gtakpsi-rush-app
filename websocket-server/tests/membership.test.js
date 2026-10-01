@@ -17,9 +17,9 @@ function setup() {
         to: (roomId) => ({ emit: (name, payload) => broadcasts.push([roomId, name, payload]) }),
     };
     const rooms = new Map();
-    const userSockets = new Map();
-    registerMembershipHandlers(io, socket, rooms, userSockets, { setTimeout() {} });
-    return { handlers, direct, broadcasts, rooms, userSockets };
+    const membershipsBySocket = new Map();
+    registerMembershipHandlers(io, socket, rooms, membershipsBySocket, { setTimeout() {} });
+    return { handlers, direct, broadcasts, rooms, membershipsBySocket };
 }
 
 test('join and explicit requests serialize the same document fields and legacy version zero', () => {
@@ -46,7 +46,7 @@ test('join and explicit requests serialize the same document fields and legacy v
         }],
     ]);
     assert.notEqual(state.direct[0][1], state.direct[1][1]);
-    assert.equal(state.userSockets.get('socket-1').roomId, 'pis-1');
+    assert.equal(state.membershipsBySocket.get('socket-1').roomId, 'pis-1');
     assert.equal(room.users.get('brother-1').name, 'Brother One');
     assert.ok(Number.isFinite(Date.parse(room.lastActivity)));
     assert.equal(state.broadcasts[1][1], 'users-updated');
@@ -55,7 +55,7 @@ test('join and explicit requests serialize the same document fields and legacy v
 test('document-state requests without a joined room remain silent', () => {
     const state = setup();
     state.handlers.get('request-document-state')();
-    state.userSockets.set('socket-1', { roomId: 'missing' });
+    state.membershipsBySocket.set('socket-1', { roomId: 'missing' });
     state.handlers.get('request-document-state')();
     assert.deepEqual(state.direct, []);
 });
