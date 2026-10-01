@@ -2549,6 +2549,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     `set_custom_claims` function. Two new fake-SDK tests pin bidcom-only claim
     preservation and write-failure output. All 64 offline maintenance tests
     and Python compilation pass; no live Firebase request ran.
+437. Moved the PIS availability submissions count and brother buttons into
+    `features/admin/availability/PisAvailabilitySubmissionsCard.tsx`, reducing
+    `PisAvailabilitySection.tsx` from 181 to 149 lines. Existing four-state
+    markup hashes, button callbacks, and disabled states remain unchanged; a
+    new test pins the zero-timeslot fallback and edit callback. All 559 client
+    tests, typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2608,7 +2614,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 558 client tests, 68 server unit tests, 25 collaboration
+Current verified totals: 559 client tests, 68 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests from the last integration-feature run (before
 the latest planner test, including its isolated database contract), plus 64

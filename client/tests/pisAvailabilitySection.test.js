@@ -10,6 +10,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/pisAvailabilitySection.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySection.tsx", import.meta.url));
+const submissionsCardPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySubmissionsCard.tsx", import.meta.url));
 const submissions = [
     { brother_first_name: "Ada", brother_last_name: "Example", available_timeslots: [{}, {}] },
     { brother_first_name: "Bob", brother_last_name: "Example", available_timeslots: [] },
@@ -34,15 +35,23 @@ function props(overrides = {}) {
 function buttonsIn(node, buttons = []) {
     if (Array.isArray(node)) node.forEach((child) => buttonsIn(child, buttons));
     else if (React.isValidElement(node)) {
+        if (typeof node.type === "function") return buttonsIn(node.type(node.props), buttons);
         if (node.type === "button") buttons.push(node);
         buttonsIn(node.props.children, buttons);
     }
     return buttons;
 }
 
+async function loadSection() {
+    const Card = await loadTsxComponent(submissionsCardPath);
+    return loadTsxComponent(componentPath, {
+        "./PisAvailabilitySubmissionsCard": Card,
+    });
+}
+
 test("PIS availability section retains inactive, active, busy, and submission markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
-    const PisAvailabilitySection = await loadTsxComponent(componentPath);
+    const PisAvailabilitySection = await loadSection();
     const scenarios = {
         inactive: {},
         active: { pisFormStatus: { is_active: true, sent_at: null } },
@@ -57,7 +66,7 @@ test("PIS availability section retains inactive, active, busy, and submission ma
 });
 
 test("last-sent label accepts ISO and extended-JSON dates", async () => {
-    const PisAvailabilitySection = await loadTsxComponent(componentPath);
+    const PisAvailabilitySection = await loadSection();
     const timestamp = Date.parse("2026-10-01T12:00:00Z");
     const values = [new Date(timestamp).toISOString(), { $date: { $numberLong: String(timestamp) } }];
 
@@ -70,7 +79,7 @@ test("last-sent label accepts ISO and extended-JSON dates", async () => {
 });
 
 test("availability actions retain their callbacks and disabled states", async () => {
-    const PisAvailabilitySection = await loadTsxComponent(componentPath);
+    const PisAvailabilitySection = await loadSection();
     const calls = [];
     const handlers = {
         handleSendPISForm: () => calls.push("send"),
@@ -97,4 +106,19 @@ test("availability actions retain their callbacks and disabled states", async ()
     assert.deepEqual(calls, [
         "send", "deactivate", "resend", ["edit", submissions[0]], "assign", "clear", "export",
     ]);
+});
+
+test("a submission without timeslots still shows zero and opens that brother", async () => {
+    const Card = await loadTsxComponent(submissionsCardPath);
+    const brother = { brother_first_name: "Ada", brother_last_name: "Example" };
+    const opened = [];
+    const cardProps = {
+        brotherAvailabilities: [brother],
+        onEditAvailability: (value) => opened.push(value),
+    };
+
+    const html = renderToStaticMarkup(React.createElement(Card, cardProps));
+    assert.match(html, /Ada Example<span[^>]*>\(0\)<\/span>/);
+    buttonsIn(Card(cardProps))[0].props.onClick();
+    assert.deepEqual(opened, [brother]);
 });
