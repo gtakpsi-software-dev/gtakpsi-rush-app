@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts/season_setup/__main__.py"
+SEED_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "season_seed"
 SEED_DATA = {
     "pis_timeslots.json": [{"time": "slot-one"}],
     "rush_nights.json": [{"name": "Night One"}],
@@ -129,9 +130,9 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_override
     real_open = open
 
     def fake_open(path, *args, **kwargs):
-        if path in SEED_DATA:
-            events.append(("open", path))
-            return io.StringIO(json.dumps(SEED_DATA[path]))
+        if isinstance(path, Path) and path.parent == SEED_DIRECTORY and path.name in SEED_DATA:
+            events.append(("open", str(path)))
+            return io.StringIO(json.dumps(SEED_DATA[path.name]))
         return real_open(path, *args, **kwargs)
 
     output = io.StringIO()
@@ -158,7 +159,7 @@ class SetupTests(unittest.TestCase):
         self.assertLess(operations.index("delete_blob"), operations.index("open"))
         self.assertIn(("list_blobs", "profile-pictures/"), events)
         self.assertEqual([event[1] for event in events if event[0] == "open"],
-                         ["pis_timeslots.json", "rush_nights.json", "pis_questions.json"])
+                         [str(SEED_DIRECTORY / name) for name in SEED_DATA])
         self.assertEqual([event[1] for event in events if event[0] == "progress"],
                          ["Adding PIS Timeslots", "Adding Rush Nights", "Adding PIS Questions"])
         seed_posts = [event for event in events if event[0] == "post"][1:]

@@ -1,9 +1,13 @@
 import io
 import json
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts.season_setup.seeds import seed_data
+
+
+SEED_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "season_seed"
 
 
 class SeedReplayTests(unittest.TestCase):
@@ -41,8 +45,9 @@ class SeedReplayTests(unittest.TestCase):
 
         def fake_open(name, mode):
             self.assertEqual(mode, "r")
+            self.assertEqual(name.parent, SEED_DIRECTORY)
             opened.append(name)
-            return io.StringIO(json.dumps(seed_files[name]))
+            return io.StringIO(json.dumps(seed_files[name.name]))
 
         def post(url, *, json, headers):
             requests.append((url, json, headers))
@@ -59,7 +64,7 @@ class SeedReplayTests(unittest.TestCase):
         with patch("builtins.open", fake_open):
             errors = seed_data("https://api.example.test", headers, post, NetworkError, progress)
 
-        self.assertEqual(opened, list(seed_files))
+        self.assertEqual(opened, [SEED_DIRECTORY / name for name in seed_files])
         self.assertEqual(progress_labels, [
             "Adding PIS Timeslots", "Adding Rush Nights", "Adding PIS Questions",
         ])

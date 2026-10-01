@@ -1,6 +1,10 @@
 """Replay the three seed files through their existing admin API endpoints."""
 
 import json
+from pathlib import Path
+
+
+SEED_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "season_seed"
 
 
 def _replay_seed_file(filename, description, endpoint, http_error, network_error, *,
@@ -23,7 +27,7 @@ def _replay_seed_file(filename, description, endpoint, http_error, network_error
 
 def add_pis_timeslots(api_url, auth_headers, errors, post, request_exception, progress):
     _replay_seed_file(
-        "pis_timeslots.json", "Adding PIS Timeslots", "/admin/add_pis_timeslot",
+        SEED_DIRECTORY / "pis_timeslots.json", "Adding PIS Timeslots", "/admin/add_pis_timeslot",
         lambda item, status: f"Error adding PIS Timeslot at {item['time']}: HTTP {status}",
         lambda item, error: (
             f"Network error adding PIS Timeslot at {item['time']}: {error}"
@@ -35,7 +39,7 @@ def add_pis_timeslots(api_url, auth_headers, errors, post, request_exception, pr
 
 def add_rush_nights(api_url, auth_headers, errors, post, request_exception, progress):
     _replay_seed_file(
-        "rush_nights.json", "Adding Rush Nights", "/admin/add-rush-night",
+        SEED_DIRECTORY / "rush_nights.json", "Adding Rush Nights", "/admin/add-rush-night",
         lambda item, status: f"Error adding Rush Night {item['name']}: HTTP {status}",
         lambda item, error: f"Network error adding Rush Night {item['name']}: {error}",
         api_url=api_url, auth_headers=auth_headers, errors=errors,
@@ -45,7 +49,7 @@ def add_rush_nights(api_url, auth_headers, errors, post, request_exception, prog
 
 def add_pis_questions(api_url, auth_headers, errors, post, request_exception, progress):
     _replay_seed_file(
-        "pis_questions.json", "Adding PIS Questions", "/admin/add_pis_question",
+        SEED_DIRECTORY / "pis_questions.json", "Adding PIS Questions", "/admin/add_pis_question",
         lambda _item, status: f"Error adding PIS Question: HTTP {status}",
         lambda item, error: (
             f"Network error adding PIS Question {item['question']}: {error}"

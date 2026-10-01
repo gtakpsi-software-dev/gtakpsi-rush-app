@@ -114,7 +114,9 @@ class AddPisQuestionOrderTests(unittest.TestCase):
         self.assertEqual(events[2], ("database", "rush-app"))
         self.assertEqual(events[3], ("collection", "pis-questions"))
         self.assertEqual(events[0], ("dotenv", os.path.join(str(SCRIPT.parent), "..", ".env")))
-        self.assertEqual(events[4], ("open", os.path.join(str(SCRIPT.parent), "..", "pis_questions.json")))
+        self.assertEqual(events[4], ("open", os.path.join(
+            str(SCRIPT.parent), "..", "data", "season_seed", "pis_questions.json"
+        )))
         self.assertEqual(events[6], ("delete", {}))
         self.assertEqual(collection.inserted, QUESTIONS)
         self.assertIn("Loaded 2 questions from pis_questions.json", output)

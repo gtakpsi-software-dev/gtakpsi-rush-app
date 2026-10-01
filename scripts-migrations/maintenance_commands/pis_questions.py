@@ -1,7 +1,7 @@
 """Keep the PIS question replacement order and entrypoint-relative paths together.
 
-The command supplies its original file path so moving this implementation does
-not change which .env and JSON files it reads.
+The command supplies its entrypoint path so moving this implementation does
+not change which root .env and canonical season seed file it reads.
 """
 
 import json
@@ -25,7 +25,9 @@ def replace_questions(script_path, load_dotenv, mongo_client):
     db = client['rush-app']
     collection = db['pis-questions']
 
-    json_path = os.path.join(os.path.dirname(script_path), '..', 'pis_questions.json')
+    json_path = os.path.join(
+        os.path.dirname(script_path), '..', 'data', 'season_seed', 'pis_questions.json'
+    )
     with open(json_path, 'r') as f:
         questions_from_json = json.load(f)
 

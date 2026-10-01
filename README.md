@@ -63,8 +63,9 @@ ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 
 `scripts-migrations/add_pis_question_order.py` remains the command for replacing
 PIS questions. Its implementation lives in `scripts-migrations/maintenance_commands/`;
-the command still reads the root `.env` and `pis_questions.json` and performs
-the same delete, insert, and verification sequence.
+the command still reads the root `.env` and
+`data/season_seed/pis_questions.json`, then performs the same delete, insert,
+and verification sequence.
 `scripts-migrations/delete_test_data.py` also retains its path, dry-run default,
 and `--apply` gate; its preview and deletion sequence lives in that same package.
 `scripts-migrations/reset_rushees_for_new_rush.py` keeps its season-specific GTID
@@ -162,9 +163,8 @@ fake MongoDB, Firebase, and HTTP clients. Authentication, reset, Storage cleanup
 and seed uploads live under `scripts/season_setup/`; the input JSON paths are
 unchanged.
 
-Season seed files live in `data/season_seed/`. The three original JSON paths at
-the repository root are links to those files, so existing setup and migration
-commands read the same data.
+Season seed files live in `data/season_seed/`. Setup and migration commands read
+them there directly.
 
 This will:
 - Clear all rushees from MongoDB
