@@ -2333,6 +2333,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     question records, and read/serialization/write errors retain their exact
     messages. Targeted rustfmt and all 65 isolated integration-feature server
     tests pass before and after the extraction.
+406. Standardized the API database adapter's imports and collection return
+    types, replaced its repeated database literal with one local constant,
+    and removed a deprecated Mongo client accessor with no in-repository
+    callers. The binary crate's collection names and initialization paths are
+    unchanged. Targeted rustfmt and all 65 isolated integration-feature server
+    tests pass before and after.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

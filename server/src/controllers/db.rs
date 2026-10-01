@@ -1,14 +1,20 @@
-use mongodb::{options::ClientOptions, Client, Collection};
-use std::sync::Arc;
 use std::env;
+use std::sync::Arc;
+
+use mongodb::{options::ClientOptions, Client, Collection};
 use redis::aio::ConnectionManager;
 use tokio::sync::OnceCell;
 
 use crate::models::{
-    misc::RushNight, 
-    pis::{PISQuestion, PISTimeslot, PISAvailabilityFormStatus, BrotherPISAvailability, RushAppStatus, CommentVisibilitySettings}, 
-    rushee::RusheeModel
+    misc::RushNight,
+    pis::{
+        BrotherPISAvailability, CommentVisibilitySettings, PISAvailabilityFormStatus, PISQuestion,
+        PISTimeslot, RushAppStatus,
+    },
+    rushee::RusheeModel,
 };
+
+const DATABASE_NAME: &str = "rush-app";
 
 pub static MONGO_CLIENT: OnceCell<Arc<Client>> = OnceCell::const_new();
 pub static REDIS_CLIENT: OnceCell<Arc<ConnectionManager>> = OnceCell::const_new();
@@ -39,50 +45,48 @@ pub async fn get_redis_conn() -> Arc<ConnectionManager> {
         .clone()
 }
 
-/// DEPRECATED, Get a reference to the MongoDB client
-pub fn get_client() -> Arc<Client> {
-    MONGO_CLIENT
-        .get()
-        .expect("MongoDB client is not initialized. Call `get_mongo_client` first.")
-        .clone()
-}
-
-pub async fn get_rushee_client() -> mongodb::Collection<RusheeModel> {
+pub async fn get_rushee_client() -> Collection<RusheeModel> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("rushees")
+    client.database(DATABASE_NAME).collection("rushees")
 }
 
 pub async fn get_pis_questions_client() -> Collection<PISQuestion> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("pis-questions")
+    client.database(DATABASE_NAME).collection("pis-questions")
 }
 
 pub async fn get_pis_timeslots_client() -> Collection<PISTimeslot> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("pis-timeslots")
+    client.database(DATABASE_NAME).collection("pis-timeslots")
 }
 
 pub async fn get_rush_nights_client() -> Collection<RushNight> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("rush-nights")
+    client.database(DATABASE_NAME).collection("rush-nights")
 }
 
 pub async fn get_pis_availability_form_status_client() -> Collection<PISAvailabilityFormStatus> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("pis-availability-form-status")
+    client
+        .database(DATABASE_NAME)
+        .collection("pis-availability-form-status")
 }
 
 pub async fn get_brother_pis_availability_client() -> Collection<BrotherPISAvailability> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("brother-pis-availability")
+    client
+        .database(DATABASE_NAME)
+        .collection("brother-pis-availability")
 }
 
 pub async fn get_rush_app_status_client() -> Collection<RushAppStatus> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("rush-app-status")
+    client.database(DATABASE_NAME).collection("rush-app-status")
 }
 
 pub async fn get_comment_visibility_settings_client() -> Collection<CommentVisibilitySettings> {
     let client = get_mongo_client().await;
-    client.database("rush-app").collection("comment-visibility-settings")
+    client
+        .database(DATABASE_NAME)
+        .collection("comment-visibility-settings")
 }
