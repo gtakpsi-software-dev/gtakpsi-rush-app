@@ -31,8 +31,10 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         'react-router-dom': { useNavigate: () => noop },
         '../../components/Navbar': stub('navbar'),
         './BrotherVotingContext': {
-            BrotherVotingContextProvider: ({ children }) => children,
             useBrotherVotingContext: () => ({ setRushee: noop, setQuestion: noop }),
+        },
+        './BrotherVotingContextProvider': {
+            BrotherVotingContextProvider: ({ children }) => children,
         },
         './useBrotherVotingSocket': {
             useBrotherVotingSocket: (options) => captured.set('socket', options),

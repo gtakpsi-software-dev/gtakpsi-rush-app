@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
-import { BrotherVotingContextType, Rushee } from "./types";
+import { createContext, useContext } from "react";
+import type { BrotherVotingContextType } from "./types";
 
-const BrotherVotingContext = createContext<BrotherVotingContextType | null>(null);
+export const BrotherVotingContext = createContext<BrotherVotingContextType | null>(null);
 
 export const useBrotherVotingContext = () => {
 
@@ -12,14 +12,3 @@ export const useBrotherVotingContext = () => {
     return context;
 
 }
-
-export const BrotherVotingContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [rushee, setRushee] = useState<Rushee | null>(null);
-  const [question, setQuestion] = useState<string | null>(null);
-
-  return (
-    <BrotherVotingContext.Provider value={{ rushee, question, setRushee, setQuestion }}>
-      {children}
-    </BrotherVotingContext.Provider>
-  );
-};

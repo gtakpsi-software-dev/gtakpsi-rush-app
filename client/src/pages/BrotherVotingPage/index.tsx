@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import { BrotherVotingContextProvider, useBrotherVotingContext } from "./BrotherVotingContext";
+import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { BrotherVotingContextProvider } from "./BrotherVotingContextProvider";
 import QuestionBanner from "./QuestionBanner";
 import RusheePreviewCard from "./RusheePreviewCard";
 import RusheeComments from "./RusheeComments";
