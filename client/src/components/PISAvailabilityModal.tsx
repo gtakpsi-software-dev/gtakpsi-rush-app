@@ -6,17 +6,30 @@ import {
     selectAllTimeslots,
     sortTimeslots
 } from '../features/brotherPisAvailability/timeslots';
+import { submitAvailability } from '../features/brotherPisAvailability/submitAvailability';
 import PISAvailabilityView from '../features/brotherPisAvailability/PISAvailabilityView';
+
+type BrotherUser = {
+    uid?: string;
+    email?: string;
+    firstName?: string;
+    firstname?: string;
+    lastName?: string;
+    lastname?: string;
+    displayName?: string;
+};
+
+type PISAvailabilityModalProps = {
+    user: BrotherUser;
+    onSubmit: () => void;
+};
 
 /**
  * PIS Availability Modal
  * Displays a blocking modal for brothers to select their available PIS timeslots.
  * Cannot be dismissed until the form is submitted.
  */
-export default function PISAvailabilityModal({ 
-    user, 
-    onSubmit 
-}) {
+export default function PISAvailabilityModal({ user, onSubmit }: PISAvailabilityModalProps) {
     const [timeslots, setTimeslots] = useState([]);
     const [selectedSlots, setSelectedSlots] = useState(new Set());
     const [loading, setLoading] = useState(true);
@@ -60,52 +73,16 @@ export default function PISAvailabilityModal({
         setSelectedSlots(new Set());
     };
 
-    const handleSubmit = async () => {
-        // Allow submission with zero slots (brother is not available for any)
-
-        // Extract first and last names, handling various possible formats
-        let firstName = user.firstName || user.firstname || '';
-        let lastName = user.lastName || user.lastname || '';
-        
-        // If names are empty but we have a displayName, try to parse it
-        if ((!firstName || !lastName) && user.displayName) {
-            const nameParts = user.displayName.trim().split(' ');
-            if (!firstName) firstName = nameParts[0] || '';
-            if (!lastName) lastName = nameParts.slice(1).join(' ') || '';
-        }
-        
-        // Trim names to avoid whitespace issues
-        firstName = firstName.trim();
-        lastName = lastName.trim();
-        
-        if (!firstName || !lastName) {
-            toast.error('Unable to determine your name. Please contact an admin.');
-            return;
-        }
-
-        setSubmitting(true);
-        try {
-            const response = await axios.post(`${api}/brother/pis-availability/submit`, {
-                brother_uid: user.uid,
-                brother_email: user.email,
-                brother_first_name: firstName,
-                brother_last_name: lastName,
-                available_timeslots: Array.from(selectedSlots)
-            });
-
-            if (response.data.status === 'success') {
-                toast.success('Availability submitted successfully!');
-                onSubmit();
-            } else {
-                toast.error(response.data.message || 'Failed to submit');
-            }
-        } catch (error) {
-            console.error('Failed to submit availability:', error);
-            toast.error('Failed to submit availability');
-        } finally {
-            setSubmitting(false);
-        }
-    };
+    const handleSubmit = () => submitAvailability({
+        user,
+        selectedSlots,
+        api,
+        axios,
+        toast,
+        onSubmit,
+        setSubmitting,
+        logError: console.error
+    });
 
     const groupedSlots = groupTimeslots(timeslots);
 

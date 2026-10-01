@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import test from 'node:test';
+import { setImmediate } from 'node:timers';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 
@@ -11,40 +12,51 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 
 import * as timeslots from '../src/features/brotherPisAvailability/timeslots.js';
+import { submitAvailability } from '../src/features/brotherPisAvailability/submitAvailability.js';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const componentPath = fileURLToPath(new URL('../src/components/PISAvailabilityModal.jsx', import.meta.url));
+const componentPath = fileURLToPath(new URL('../src/components/PISAvailabilityModal.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/brotherPisAvailability/PISAvailabilityView.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/brotherPisAvailabilityModal.json', import.meta.url));
 const slot = { time: { $date: { $numberLong: String(new Date(2030, 0, 1, 13, 30).getTime()) } } };
 const slotIso = timeslots.timeslotIso(slot);
 
-async function loadModal(states) {
+async function loadModal(states, options = {}) {
     const View = await loadTsxComponent(viewPath, { './timeslots': timeslots });
     const source = (await readFile(componentPath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, componentPath, {
-        loader: 'jsx',
+        loader: 'tsx',
         format: 'cjs',
         jsx: 'automatic'
     });
     const module = { exports: {} };
     const requireFromComponent = createRequire(componentPath);
     let stateIndex = 0;
+    const effects = options.effects || [];
 
     runInNewContext(code, {
         module,
         exports: module.exports,
         require(specifier) {
             if (specifier === 'react') {
-                return { ...React, useState: () => [states[stateIndex++], () => {}], useEffect: () => {} };
+                return {
+                    ...React,
+                    useState: () => {
+                        const index = stateIndex++;
+                        return [states[index], (value) => options.setState?.(index, value)];
+                    },
+                    useEffect: (callback) => effects.push(callback)
+                };
             }
-            if (specifier === 'axios') return {};
-            if (specifier === 'react-toastify') return { toast: {} };
+            if (specifier === 'axios') return options.axios || {};
+            if (specifier === 'react-toastify') return { toast: options.toast || {} };
             if (specifier === '../features/brotherPisAvailability/timeslots') return timeslots;
+            if (specifier === '../features/brotherPisAvailability/submitAvailability') return { submitAvailability };
             if (specifier === '../features/brotherPisAvailability/PISAvailabilityView') return View;
             return requireFromComponent(specifier);
-        }
+        },
+        console: options.console || console
     }, { filename: componentPath });
 
     return module.exports.default;
@@ -69,6 +81,70 @@ test('brother availability modal retains loading, empty, selected, and submittin
         const hash = createHash('sha256').update(html).digest('hex');
         assert.equal(hash, expected[scenario], `${scenario} markup changed`);
     }
+});
+
+test('brother availability fetch keeps request, payload sorting, and loading order', async () => {
+    const calls = [];
+    const effects = [];
+    const later = { time: { $date: { $numberLong: String(new Date(2030, 0, 2).getTime()) } } };
+    const payload = [later, slot];
+    const Modal = await loadModal([[], new Set(), true, false], {
+        effects,
+        axios: {
+            get: async (url) => {
+                calls.push(['get', url]);
+                return { data: { status: 'success', payload } };
+            }
+        },
+        setState: (index, value) => calls.push(['state', index, value])
+    });
+    Modal({ user: {}, onSubmit() {} });
+    assert.equal(effects.length, 1);
+    effects[0]();
+    await new Promise(setImmediate);
+
+    assert.deepEqual(calls, [
+        ['get', '/api/admin/get_pis_timeslots'],
+        ['state', 0, [slot, later]],
+        ['state', 2, false]
+    ]);
+    assert.equal(payload[0], slot);
+});
+
+test('brother availability fetch leaves slots unchanged on non-success', async () => {
+    const calls = [];
+    const effects = [];
+    const Modal = await loadModal([[], new Set(), true, false], {
+        effects,
+        axios: { get: async () => ({ data: { status: 'error', payload: [slot] } }) },
+        setState: (index, value) => calls.push(['state', index, value])
+    });
+    Modal({ user: {}, onSubmit() {} });
+    effects[0]();
+    await new Promise(setImmediate);
+    assert.deepEqual(calls, [['state', 2, false]]);
+});
+
+test('brother availability fetch reports transport failures and clears loading', async () => {
+    const calls = [];
+    const effects = [];
+    const failure = new Error('offline');
+    const Modal = await loadModal([[], new Set(), true, false], {
+        effects,
+        axios: { get: async () => { throw failure; } },
+        toast: { error: (message) => calls.push(['toast', message]) },
+        console: { error: (...args) => calls.push(['log', ...args]) },
+        setState: (index, value) => calls.push(['state', index, value])
+    });
+    Modal({ user: {}, onSubmit() {} });
+    effects[0]();
+    await new Promise(setImmediate);
+
+    assert.deepEqual(calls, [
+        ['log', 'Failed to fetch timeslots:', failure],
+        ['toast', 'Failed to load timeslots'],
+        ['state', 2, false]
+    ]);
 });
 
 test('brother availability view keeps bulk, slot, and submit callbacks', async () => {
