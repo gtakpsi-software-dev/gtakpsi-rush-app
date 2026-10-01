@@ -2,14 +2,15 @@
 Upload pledge headshots to Firebase Storage and update image_url in MongoDB.
 """
 
+import io
 import os
 import time
-import io
-from pymongo import MongoClient
-from dotenv import load_dotenv
+
 import firebase_admin
+from dotenv import load_dotenv
 from firebase_admin import credentials, storage
 from PIL import Image, ImageOps
+from pymongo import MongoClient
 
 # Map filename (without extension) → GTID
 FILENAME_TO_GTID = {
@@ -45,6 +46,51 @@ FILENAME_TO_GTID = {
 }
 
 
+def process_headshot(filename, headshots_dir, collection, bucket):
+    stem = os.path.splitext(filename)[0]
+    gtid = FILENAME_TO_GTID.get(stem)
+
+    if not gtid:
+        return f"  No GTID mapping for: {filename}"
+
+    rushee = collection.find_one({"gtid": gtid})
+    if not rushee:
+        return f"  Rushee not found in DB for GTID {gtid} ({stem})"
+
+    file_path = os.path.join(headshots_dir, filename)
+    timestamp = int(time.time() * 1000)
+    # Keep each public profile image under its GTID and upload timestamp.
+    blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
+
+    try:
+        # Apply EXIF orientation before resizing so the uploaded image stays upright.
+        img = Image.open(file_path)
+        img = ImageOps.exif_transpose(img)
+        img = img.convert("RGB")
+        img.thumbnail((600, 600), Image.LANCZOS)
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=82, optimize=True)
+        compressed_size = buffer.tell()
+        buffer.seek(0)
+
+        original_size = os.path.getsize(file_path)
+        print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")
+
+        blob = bucket.blob(blob_name)
+        blob.upload_from_file(buffer, content_type="image/jpeg")
+        # Existing image_url values use public links; access must remain public for profiles to load.
+        blob.make_public()
+        url = blob.public_url
+
+        collection.update_one({"gtid": gtid}, {"$set": {"image_url": url}})
+
+        name = f"{rushee.get('first_name')} {rushee.get('last_name')}"
+        print(f"✓ {name}")
+        return None
+    except Exception as e:
+        return f"  ✗ {stem} ({gtid}): {e}"
+
+
 def main():
     load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
@@ -74,50 +120,11 @@ def main():
         if not filename.lower().endswith(('.jpeg', '.jpg', '.png')):
             continue
 
-        stem = os.path.splitext(filename)[0]
-        gtid = FILENAME_TO_GTID.get(stem)
-
-        if not gtid:
-            errors.append(f"  No GTID mapping for: {filename}")
-            continue
-
-        rushee = collection.find_one({"gtid": gtid})
-        if not rushee:
-            errors.append(f"  Rushee not found in DB for GTID {gtid} ({stem})")
-            continue
-
-        file_path = os.path.join(headshots_dir, filename)
-        timestamp = int(time.time() * 1000)
-        blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
-
-        try:
-            # Compress: fix EXIF rotation first, then resize to max 600px, quality 82
-            img = Image.open(file_path)
-            img = ImageOps.exif_transpose(img)  # Apply EXIF orientation before stripping metadata
-            img = img.convert("RGB")
-            img.thumbnail((600, 600), Image.LANCZOS)
-            buffer = io.BytesIO()
-            img.save(buffer, format="JPEG", quality=82, optimize=True)
-            compressed_size = buffer.tell()
-            buffer.seek(0)
-
-            original_size = os.path.getsize(file_path)
-            print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")
-
-            blob = bucket.blob(blob_name)
-            blob.upload_from_file(buffer, content_type="image/jpeg")
-            # The stored image_url uses this public URL; changing access breaks existing profile images.
-            blob.make_public()
-            url = blob.public_url
-
-            collection.update_one({"gtid": gtid}, {"$set": {"image_url": url}})
-
-            name = f"{rushee.get('first_name')} {rushee.get('last_name')}"
-            print(f"✓ {name}")
+        error = process_headshot(filename, headshots_dir, collection, bucket)
+        if error:
+            errors.append(error)
+        else:
             success += 1
-
-        except Exception as e:
-            errors.append(f"  ✗ {stem} ({gtid}): {e}")
 
     print(f"\n── Results ──────────────────────────────")
     print(f"Updated: {success} rushees")

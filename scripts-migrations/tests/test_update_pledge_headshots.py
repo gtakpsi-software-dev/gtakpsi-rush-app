@@ -12,10 +12,12 @@ from unittest.mock import patch
 SCRIPT = Path(__file__).resolve().parents[1] / "update_pledge_headshots.py"
 
 
-def run_script(execute=True, firebase_initialized=False):
+def run_script(execute=True, firebase_initialized=False, rushee_exists=True, image_error=False):
     events = []
     collection = types.SimpleNamespace(
-        find_one=lambda query: events.append(("find", query)) or {"first_name": "A", "last_name": "B"},
+        find_one=lambda query: events.append(("find", query)) or (
+            {"first_name": "A", "last_name": "B"} if rushee_exists else None
+        ),
         update_one=lambda query, change: events.append(("update", query, change)),
     )
 
@@ -45,6 +47,8 @@ def run_script(execute=True, firebase_initialized=False):
 
         def save(self, buffer, format, quality, optimize):
             events.append(("save", format, quality, optimize))
+            if image_error:
+                raise OSError("invalid image")
             buffer.write(b"jpeg-data")
 
     image = FakeImage()
@@ -145,6 +149,26 @@ class UpdatePledgeHeadshotsTests(unittest.TestCase):
         self.assertNotIn("certificate", names)
         self.assertNotIn("firebase", names)
         self.assertIn("bucket", names)
+
+    def test_missing_rushee_skips_upload_and_reports_error(self):
+        _, events, output = run_script(rushee_exists=False)
+        names = [event[0] for event in events]
+        self.assertNotIn("open", names)
+        self.assertNotIn("upload", names)
+        self.assertNotIn("update", names)
+        self.assertEqual(names[-1], "close")
+        self.assertIn("Rushee not found in DB for GTID 904093762", output)
+        self.assertIn("Updated: 0 rushees", output)
+
+    def test_failed_image_processing_skips_upload_and_reports_error(self):
+        _, events, output = run_script(image_error=True)
+        names = [event[0] for event in events]
+        self.assertIn("save", names)
+        self.assertNotIn("upload", names)
+        self.assertNotIn("update", names)
+        self.assertEqual(names[-1], "close")
+        self.assertIn("aarav-sardana (904093762): invalid image", output)
+        self.assertIn("Updated: 0 rushees", output)
 
 
 if __name__ == "__main__":
