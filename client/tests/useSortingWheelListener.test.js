@@ -30,6 +30,8 @@ test('wheel listener waits for the canvas and binds only on loading transitions'
     };
     useSortingWheelListener(canvasRef, handleWheel, false);
     assert.deepEqual(Array.from(effects[1].dependencies), [false]);
+    useSortingWheelListener(canvasRef, () => {}, false);
+    assert.deepEqual(Array.from(effects[2].dependencies), Array.from(effects[1].dependencies));
     const cleanup = effects[1].effect();
     cleanup();
 

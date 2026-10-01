@@ -9,5 +9,6 @@ export function useSortingWheelListener(canvasRef, handleWheel, loading) {
 
         canvas.addEventListener('wheel', handleWheel, { passive: false });
         return () => canvas.removeEventListener('wheel', handleWheel);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Rebinding on handler changes would alter the existing loading-only lifecycle.
     }, [loading]);
 }
