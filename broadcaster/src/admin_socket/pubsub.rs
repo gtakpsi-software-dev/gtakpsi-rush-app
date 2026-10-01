@@ -1,27 +1,12 @@
 use crate::clients::{broadcast_to_clients, ClientMap};
 use crate::db::{get_redis_conn, get_redis_pubsub, reset_redis_conn, REDIS_CALL_TIMEOUT};
 use crate::protocol::{shared_update, vote_update};
+use crate::pubsub_retry::spawn_reconnecting_listener;
 use futures_util::StreamExt;
 use redis::AsyncCommands;
-use std::time::Duration;
 
 pub async fn spawn_pubsub_listener(clients: ClientMap) {
-    tokio::spawn(async move {
-        loop {
-            println!("🔄 Admin PubSub: Connecting to Redis...");
-
-            match run_admin_pubsub_listener(clients.clone()).await {
-                Ok(_) => {
-                    println!("⚠️ Admin PubSub: Stream ended unexpectedly, reconnecting...");
-                }
-                Err(e) => {
-                    println!("❌ Admin PubSub error: {}, reconnecting in 3s...", e);
-                }
-            }
-
-            tokio::time::sleep(Duration::from_secs(3)).await;
-        }
-    });
+    spawn_reconnecting_listener(clients, "Admin", run_admin_pubsub_listener);
 }
 
 async fn run_admin_pubsub_listener(

@@ -49,7 +49,7 @@ The verified atomic slices are archived by range:
 - [Slices 101–200](refactoring-history/101-200.md)
 - [Slices 201–300](refactoring-history/201-300.md)
 - [Slices 301–400](refactoring-history/301-400.md)
-- [Slices 401–463](refactoring-history/401-463.md)
+- [Slices 401–500](refactoring-history/401-500.md)
 
 ## Next slices
 
@@ -105,7 +105,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 577 client tests, 77 server unit tests, 28 collaboration
-tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
+tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, and 78 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`

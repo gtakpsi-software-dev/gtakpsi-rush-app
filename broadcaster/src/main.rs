@@ -4,6 +4,7 @@ mod clients;
 mod db;
 mod handlers;
 mod protocol;
+mod pubsub_retry;
 mod session;
 mod snapshot;
 mod voter_socket;
