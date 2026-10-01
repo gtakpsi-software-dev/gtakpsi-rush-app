@@ -1,3 +1,14 @@
+function createRoom() {
+    return {
+        users: new Map(),
+        operations: [],
+        // Keep document text and versions separate so legacy operations can retain version zero.
+        document: new Map(),
+        versions: new Map(),
+        lastActivity: new Date().toISOString()
+    };
+}
+
 function scheduleRoomCleanup(rooms, timers) {
     timers.setInterval(() => {
         const now = Date.now();
@@ -22,4 +33,4 @@ function snapshotDocument(room) {
     return documentState;
 }
 
-module.exports = { scheduleRoomCleanup, snapshotDocument };
+module.exports = { createRoom, scheduleRoomCleanup, snapshotDocument };

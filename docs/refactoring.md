@@ -2155,6 +2155,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     fixtures passing. All 518 client tests, typecheck, and build pass; CSS is
     unchanged. Full ESLint remains at the same eight Attendance errors and 25
     warnings.
+376. Moved collaborative PIS room initialization from the membership event
+    handler into the room module. A new characterization test pins independent
+    presence, operation, document, and version state for newly joined rooms.
+    All 23 collaboration tests pass, including local Socket.IO protocol and
+    reconnect coverage.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2212,7 +2217,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 518 client tests, 61 server unit tests, 22 collaboration
+Current verified totals: 518 client tests, 61 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 62 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

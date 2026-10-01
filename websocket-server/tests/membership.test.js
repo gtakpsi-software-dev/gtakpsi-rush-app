@@ -59,3 +59,24 @@ test('document-state requests without a joined room remain silent', () => {
     state.handlers.get('request-document-state')();
     assert.deepEqual(state.direct, []);
 });
+
+test('joining a new room initializes independent text, version, and presence state', () => {
+    const state = setup();
+    state.handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother-1', userName: 'Brother One' });
+    state.handlers.get('join-room')({ roomId: 'pis-2', userId: 'brother-2', userName: 'Brother Two' });
+
+    const first = state.rooms.get('pis-1');
+    const second = state.rooms.get('pis-2');
+    assert.deepEqual([...first.users.keys()], ['brother-1']);
+    assert.deepEqual([...second.users.keys()], ['brother-2']);
+    assert.deepEqual(first.operations, []);
+    assert.deepEqual([...first.document], []);
+    assert.deepEqual([...first.versions], []);
+    assert.notEqual(first.operations, second.operations);
+    assert.notEqual(first.document, second.document);
+    assert.notEqual(first.versions, second.versions);
+    assert.ok(Number.isFinite(Date.parse(first.lastActivity)));
+    assert.deepEqual(state.direct.map(([name, payload]) => [name, payload]), [
+        ['document-state', {}], ['document-state', {}],
+    ]);
+});

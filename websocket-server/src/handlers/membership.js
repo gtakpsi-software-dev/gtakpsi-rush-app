@@ -1,4 +1,4 @@
-const { snapshotDocument } = require('../rooms');
+const { createRoom, snapshotDocument } = require('../rooms');
 const { joinedRoom } = require('./joinedRoom');
 
 function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
@@ -14,13 +14,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
         userSockets.set(socket.id, { roomId, userInfo });
 
         if (!rooms.has(roomId)) {
-            rooms.set(roomId, {
-                users: new Map(),
-                operations: [],
-                document: new Map(), // Store document state per field
-                versions: new Map(), // Store per-field versions for conflict control
-                lastActivity: new Date().toISOString()
-            });
+            rooms.set(roomId, createRoom());
         }
 
         const room = rooms.get(roomId);
