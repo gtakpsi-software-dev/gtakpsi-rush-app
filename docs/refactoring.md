@@ -1032,6 +1032,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     validation order and messages, network bypass for existing registrations,
     duplicate lookup, unexpected server replies, and request failure. All 295
     client tests pass; the new test file passes ESLint.
+178. Moved registration GTID and basic-info verification unchanged into
+    `features/registration/registrationVerification.js`; the existing
+    `js/verifications.js` imports still resolve through re-exports. A
+    whitespace-normalized comparison confirms the moved function bodies are
+    identical. All 295 client tests and the production build pass; changed files
+    pass ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

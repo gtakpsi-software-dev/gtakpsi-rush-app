@@ -7,7 +7,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/js/verifications.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../src/features/registration/registrationVerification.js", import.meta.url));
 const requireFromSource = createRequire(sourcePath);
 
 async function loadVerifications(get = async () => ({ data: { status: "success" } })) {
@@ -28,8 +28,6 @@ async function loadVerifications(get = async () => ({ data: { status: "success" 
         },
         require(specifier) {
             if (specifier === "axios") return { get: (...args) => { calls.push(args); return get(...args); } };
-            if (specifier === "react-toastify") return { toast: { error() {} } };
-            if (specifier === "../firebase") return { auth: {}, signOut() {} };
             return requireFromSource(specifier);
         },
     }, { filename: sourcePath });
