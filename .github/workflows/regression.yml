@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
-      - run: cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
+      - run: cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 
   voting:
     runs-on: ubuntu-24.04

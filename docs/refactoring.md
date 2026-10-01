@@ -27,19 +27,18 @@ Services currently deployed independently:
 | `client` | Rush application UI | React / HTTP / real-time clients |
 | `server/api` | API, authentication, persistence | Axum / MongoDB / Redis |
 | `broadcaster` | Voting updates | Axum WebSocket / Redis |
-| `sorting-broadcaster` | Shared sorting sessions | Axum WebSocket |
+| `server/websockets/sorting` | Shared sorting sessions | Axum WebSocket |
 | `server/websockets/pis` | Collaborative PIS editing | Socket.IO |
 
-The API and PIS socket sources now live at `server/api` and
-`server/websockets/pis`; their deployment roots must point there before this
-branch is deployed. Executable names, routes, runtime events, and JSON names
-remain unchanged. Move the sorting and voting services under
-`server/websockets/` in subsequent verified slices.
+The API, PIS, and sorting sources now live under `server/`; their deployment
+roots must point to the listed directories before this branch is deployed.
+Executable names, routes, runtime events, and JSON names remain unchanged.
+Move the voting service under `server/websockets/` in the next verified slice.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
-PIS editing is `rush-pis-websocket`. The Rust services retain their original
-deployment roots until moved. The Rust binaries remain `broadcaster` and
+PIS editing is `rush-pis-websocket`. The voting service retains its original
+deployment root until moved. The Rust binaries remain `broadcaster` and
 `sorting-broadcaster`, matching the current Dockerfiles.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
@@ -56,7 +55,7 @@ The verified atomic slices are archived by range:
 
 ## Remaining work
 
-- Move and rename the remaining two real-time services under
+- Move and rename the remaining voting service under
   `server/websockets/{pis,sorting,voting}`. Update CI, test runners, local
   commands, and Railway roots without changing socket URLs or event payloads.
 - Finish dense client page and feature boundaries, including Admin, Rushee Zoom,

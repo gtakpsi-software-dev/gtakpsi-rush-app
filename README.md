@@ -85,7 +85,7 @@ npm --prefix client test
 npm --prefix client run typecheck
 npm --prefix server/websockets/pis test
 cargo test --locked --manifest-path server/api/Cargo.toml
-cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
+cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 scripts/testing/api-integration.sh
 python3 scripts/testing/voting-integration.py
 python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'
@@ -133,6 +133,12 @@ Set the API service's Railway root directory to `server/api`. Its Dockerfile and
 Set this Socket.IO service's deployment root to `server/websockets/pis`. Run it
 there with `npm start`; its package name, port default, and event protocol are
 unchanged.
+
+### Sorting WebSocket service
+
+Set this service's Railway root directory to `server/websockets/sorting`. Its
+Dockerfile and `railway.toml` live there; the executable name, port default,
+and WebSocket messages are unchanged.
 
 ## Setup Script
 
