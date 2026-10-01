@@ -11,10 +11,14 @@ from unittest.mock import MagicMock, patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(SCRIPTS))
 
 
 class RemainingMongoScriptTests(unittest.TestCase):
+    def setUp(self):
+        path_patch = patch.object(sys, "path", [str(SCRIPTS), *sys.path])
+        path_patch.start()
+        self.addCleanup(path_patch.stop)
+
     def test_pis_export_imports_without_connecting_and_keeps_projection_and_columns(self):
         events = []
         pymongo = types.ModuleType("pymongo")

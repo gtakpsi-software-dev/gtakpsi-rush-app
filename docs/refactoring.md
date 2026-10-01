@@ -1651,6 +1651,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     implementation. All 429 client tests, typecheck, and the production build
     pass; changed files pass ESLint, the CSS asset hash remains unchanged, and
     full client lint stays at 127 errors and 26 warnings.
+285. Removed an import-path leak from the maintenance test module and gave the
+    data-export and rating-repair tests a scoped script path, matching direct
+    Python command execution. The full 50-test maintenance suite passes, and
+    all 14 test files now pass when run independently in fresh processes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

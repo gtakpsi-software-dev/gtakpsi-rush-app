@@ -45,7 +45,8 @@ def run_script(execute=True):
     pandas.DataFrame = FakeDataFrame
 
     with patch.dict(sys.modules, {"pymongo": pymongo, "pandas": pandas}), \
-         patch.dict(os.environ, {"DATA_PULL_MONGO_URI": "mongodb://offline-test"}, clear=True):
+         patch.dict(os.environ, {"DATA_PULL_MONGO_URI": "mongodb://offline-test"}, clear=True), \
+         patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
         output = StringIO()
         with redirect_stdout(output):
             namespace = runpy.run_path(str(SCRIPT), run_name="__main__" if execute else "<run_path>")

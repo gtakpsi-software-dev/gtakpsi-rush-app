@@ -54,7 +54,8 @@ def run_script(execute=True):
     modules = {"pymongo": pymongo, "pandas": pandas, "requests": requests, "tqdm": tqdm}
 
     with patch.dict(sys.modules, modules), \
-         patch.dict(os.environ, {"TEMP_RATINGS_FIX_MONGO_URI": "mongodb://offline-test"}, clear=True):
+         patch.dict(os.environ, {"TEMP_RATINGS_FIX_MONGO_URI": "mongodb://offline-test"}, clear=True), \
+         patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
         output = StringIO()
         with redirect_stdout(output):
             namespace = runpy.run_path(str(SCRIPT), run_name="__main__" if execute else "<run_path>")
