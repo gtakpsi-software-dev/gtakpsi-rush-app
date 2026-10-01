@@ -2268,6 +2268,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     channel choice, and send order remain unchanged. Targeted rustfmt and all
     13 sorting WebSocket tests, including real loopback sessions, pass before
     and after the change.
+395. Cleaned the season setup entrypoint's imports, spacing, and comments.
+    The docstring now states that the script resets data, and the comments
+    explain the date gate, server-only credentials, and direct-execution
+    boundary rather than restating individual statements. The command's
+    strings, environment reads, service calls, and reset/seed order remain
+    unchanged. All 60 offline maintenance tests pass before and after;
+    `setup.py` compiles.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
