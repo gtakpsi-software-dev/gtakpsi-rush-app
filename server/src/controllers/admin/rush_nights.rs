@@ -6,9 +6,6 @@ use crate::controllers::db;
 use crate::middlewares::time_helpers::string_to_bson_datetime;
 use crate::models::misc::{IncomingRushNight, RushNight};
 
-/**
- * Add Rush Night
- */
 pub async fn add_rush_night(
     Json(payload): Json<IncomingRushNight>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -19,38 +16,30 @@ pub async fn add_rush_night(
         name: payload.name,
     };
 
-    let result = connection.insert_one(new_rush_night).await;
-
-    match result {
-        Ok(_insert_result) => Ok(Json(json!({
+    match connection.insert_one(new_rush_night).await {
+        Ok(_) => Ok(Json(json!({
             "status": "success",
             "message": "successfully added rush night"
         }))),
 
-        Err(_err) => Ok(Json(json!({
+        Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "couldn't add rush night"
         }))),
     }
 }
 
-/**
- * Delete a Rush Night
- * Fix this later -> make it only date, right now the time is set to 12:00 PM, or should be
- */
 pub async fn delete_rush_night(Json(payload): Json<RushNight>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rush_nights_client().await;
 
-    let filter = doc! {"time": payload.time};
-    let result = connection.delete_one(filter).await;
-
-    match result {
-        Ok(_delete_result) => Ok(Json(json!({
+    // Match the full stored timestamp; the name does not affect this endpoint's lookup.
+    match connection.delete_one(doc! {"time": payload.time}).await {
+        Ok(_) => Ok(Json(json!({
             "status": "success",
             "message": "successfully deleted rush night"
         }))),
 
-        Err(_err) => Ok(Json(json!({
+        Err(_) => Ok(Json(json!({
             "status": "error",
             "message": "there was an issue while deleting the rush night"
         }))),

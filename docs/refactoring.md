@@ -2275,6 +2275,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     strings, environment reads, service calls, and reset/seed order remain
     unchanged. All 60 offline maintenance tests pass before and after;
     `setup.py` compiles.
+396. Added an isolated MongoDB scenario for admin rush-night insertion and
+    deletion before cleaning the handler. It pins the current behavior: delete
+    matches the full timestamp, ignores the supplied name, and reports success
+    even when no row matches. Removed an inaccurate "fix this later" comment
+    and unused result bindings without changing those responses. Targeted
+    rustfmt and all 65 isolated integration-feature tests pass before and
+    after the cleanup.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
