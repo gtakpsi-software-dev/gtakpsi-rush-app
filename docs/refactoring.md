@@ -2282,6 +2282,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and unused result bindings without changing those responses. Targeted
     rustfmt and all 65 isolated integration-feature tests pass before and
     after the cleanup.
+397. Extracted the registration form's ten field groups into
+    `BasicInfoFields`, leaving the heading, form container, and Continue action
+    in `BasicInfoForm`. The fields retain their original refs, labels, options,
+    classes, and phone formatter. The full static markup hash and focused
+    interaction tests pass before and after; all 527 client tests, typecheck,
+    targeted lint, and production build pass. Built CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
