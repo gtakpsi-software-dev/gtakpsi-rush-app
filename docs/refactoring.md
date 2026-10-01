@@ -1921,6 +1921,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests, typecheck, build, and changed-file ESLint pass; full lint falls to
     27 errors and 26 warnings. The production JS and CSS asset hashes match
     the preceding build exactly.
+336. Extracted the PIS dashboard's verification, fetch, and error handling into
+    a 46-line loader, reducing the page to 53 lines. New page-effect tests pin
+    the request after a false verification result, success state order, and
+    status, network, and verification errors. All 476 client tests, typecheck,
+    build, and changed-file ESLint pass; full lint remains 27 errors and 26
+    warnings. Production JS and CSS asset hashes remain unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1976,7 +1982,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 474 client tests, 57 server unit tests, 22 collaboration
+Current verified totals: 476 client tests, 57 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

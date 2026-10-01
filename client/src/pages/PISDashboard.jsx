@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import PisDashboardView from "../features/pis/dashboard/PisDashboardView";
+import { loadPisDashboardData } from "../features/pis/dashboard/loadPisDashboardData";
 
 import { verifyUser } from "../features/auth/verifyUser";
 import { useCommentVisibility } from "../hooks/useCommentVisibility";
@@ -24,50 +25,19 @@ export default function PISDashboard() {
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
-        async function fetch() {
-            setLoading(true);
-            await verifyUser()
-                .then(async (response) => {
-                    if (response === false) {
-                        navigate("/");
-                    }
-
-                    const payload = {
-                        "first_name": user.firstname,
-                        "last_name": user.lastname,
-                    }
-
-                    await axios
-                        .post(`${api}/admin/get-brother-pis`, payload)
-                        .then((response) => {
-                            if (response.data.status === "success") {
-
-                                setRushees(response.data.payload);
-                                console.log(response.data.payload)
-
-                            } else {
-                                setErrorDescription("There was some issue fetching the rushees");
-                                setError(true);
-                            }
-                        })
-                        .catch(() => {
-                            setErrorDescription("There was some network error while fetching the rushees.");
-                            setError(true);
-                        });
-                })
-                .catch((error) => {
-
-                    console.log(error)
-
-                    setErrorDescription("There was an error verifying your credentials.");
-                    setError(true);
-                });
-
-            setLoading(false);
-        }
-
         if (loading === true) {
-            fetch();
+            loadPisDashboardData({
+                verifyUser,
+                navigate,
+                user,
+                api,
+                post: (...args) => axios.post(...args),
+                setRushees,
+                setLoading,
+                setErrorDescription,
+                setError,
+                log: (value) => console.log(value),
+            });
         }
     }, [loading, navigate]);
 

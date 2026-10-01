@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import test from "node:test";
+import { setImmediate } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
@@ -10,6 +11,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadPisDashboardData } from "../src/features/pis/dashboard/loadPisDashboardData.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/PISDashboard.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/pis/dashboard/PisDashboardView.tsx", import.meta.url));
@@ -19,7 +21,7 @@ const rushee = {
     attendance: [{ name: "Night One" }], ratings: [{ name: "Professionalism", value: 4 }],
 };
 
-async function loadPage(state = {}, showRatings = false, navigations = []) {
+async function loadPage(state = {}, showRatings = false, navigations = [], runtime = {}) {
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
@@ -42,24 +44,32 @@ async function loadPage(state = {}, showRatings = false, navigations = []) {
         module,
         exports: module.exports,
         localStorage: { getItem: () => '{"firstname":"A","lastname":"B"}' },
+        console: { log: (value) => runtime.logs?.push(value) },
         require(specifier) {
             const dependencies = {
                 react: {
                     ...React,
                     useState(initial) {
                         const index = stateIndex++;
-                        return [Object.hasOwn(state, index) ? state[index] : initial, () => {}];
+                        return [Object.hasOwn(state, index) ? state[index] : initial,
+                            (value) => runtime.updates?.push([index, value])];
                     },
-                    useEffect() {},
+                    useEffect(effect) { runtime.effects?.push(effect); },
                 },
                 "react-router-dom": { useNavigate: () => (path) => navigations.push(path) },
-                axios: { post() {} },
+                axios: { post: (...args) => {
+                    runtime.requests?.push(args);
+                    return runtime.post?.(...args) ?? Promise.resolve({ data: { status: "success", payload: [] } });
+                } },
                 "../components/Loader": Stub,
                 "../components/Navbar": Stub,
                 "../components/Badge": Stub,
                 "../components/Error": Stub,
                 "../features/pis/dashboard/PisDashboardView": View,
-                "../features/auth/verifyUser": { verifyUser() {} },
+                "../features/pis/dashboard/loadPisDashboardData": { loadPisDashboardData },
+                "../features/auth/verifyUser": {
+                    verifyUser: () => runtime.verify?.() ?? Promise.resolve(true),
+                },
                 "../hooks/useCommentVisibility": { useCommentVisibility: () => ({ showAll: showRatings }) },
             };
             return Object.hasOwn(dependencies, specifier)
@@ -107,4 +117,55 @@ test("PIS card retains navigation to the selected rushee", async () => {
         .find((element) => element.props.className?.includes("hover:border-blue-500"));
     card.props.onClick();
     assert.deepEqual(navigations, ["/brother/rushee/900000001"]);
+});
+
+async function runFetch(runtime) {
+    const navigations = [];
+    const Page = await loadPage({}, false, navigations, runtime);
+    Page();
+    runtime.effects[0]();
+    await setImmediate();
+    return navigations;
+}
+
+test("PIS dashboard retains verification, request, and success update order", async () => {
+    const runtime = {
+        effects: [], updates: [], requests: [], logs: [],
+        verify: async () => false,
+        post: async () => ({ data: { status: "success", payload: [rushee] } }),
+    };
+    const navigations = await runFetch(runtime);
+
+    assert.deepEqual(navigations, ["/"]);
+    assert.deepEqual(JSON.parse(JSON.stringify(runtime.requests)), [[
+        "/api/admin/get-brother-pis", { first_name: "A", last_name: "B" },
+    ]]);
+    assert.deepEqual(runtime.updates, [[1, true], [0, [rushee]], [1, false]]);
+    assert.deepEqual(runtime.logs, [[rushee]]);
+});
+
+test("PIS dashboard retains status, network, and verification error messages", async () => {
+    for (const [post, expected] of [
+        [async () => ({ data: { status: "error" } }), "There was some issue fetching the rushees"],
+        [async () => { throw Error("offline"); }, "There was some network error while fetching the rushees."],
+    ]) {
+        const runtime = { effects: [], updates: [], requests: [], post };
+        await runFetch(runtime);
+        assert.deepEqual(runtime.updates, [
+            [1, true], [4, expected], [2, true], [1, false],
+        ]);
+    }
+
+    const failure = Error("invalid token");
+    const runtime = {
+        effects: [], updates: [], requests: [], logs: [],
+        verify: async () => { throw failure; },
+    };
+    await runFetch(runtime);
+    assert.deepEqual(runtime.requests, []);
+    assert.deepEqual(runtime.logs, [failure]);
+    assert.deepEqual(runtime.updates, [
+        [1, true], [4, "There was an error verifying your credentials."],
+        [2, true], [1, false],
+    ]);
 });
