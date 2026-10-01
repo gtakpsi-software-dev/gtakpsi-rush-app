@@ -12,7 +12,14 @@ const ADMIN_ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
     .map((e) => e.trim().toLowerCase())
     .filter((e) => e.length > 0);
 
-export default function Navbar(props) {
+/**
+ * Navbar Summary:
+ * - Types the shared stripped-mode input without changing auth or menu state.
+ * - Existing render fixtures pin loading, access, and display variants.
+ */
+type NavbarProps = { stripped?: boolean };
+
+export default function Navbar(props: NavbarProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [showMore, setShowMore] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
