@@ -70,6 +70,9 @@ and `--apply` gate; its preview and deletion sequence lives in that same package
 `scripts-migrations/reset_rushees_for_new_rush.py` keeps its season-specific GTID
 list and command path; the delete, reset, and report sequence lives in the same
 package.
+`scripts-migrations/data_pull.py` keeps its command path and `rushees.xlsx`
+output; the export columns and row mapping live in
+`scripts-migrations/maintenance_commands/rushee_export.py`.
 
 ## Tests
 

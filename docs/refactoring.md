@@ -2339,6 +2339,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     callers. The binary crate's collection names and initialization paths are
     unchanged. Targeted rustfmt and all 65 isolated integration-feature server
     tests pass before and after.
+407. Moved the rushee Excel export's column order and row projection into
+    `maintenance_commands/rushee_export.py`, leaving `data_pull.py` as the
+    command that reads MongoDB and writes `rushees.xlsx`. The direct-command
+    test pins query order, projected values, columns, filename, and output.
+    All 60 offline maintenance tests pass before and after; both files compile.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
