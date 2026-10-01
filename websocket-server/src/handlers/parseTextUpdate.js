@@ -1,0 +1,20 @@
+/**
+ * Text Update Summary:
+ * - Keeps the current protocol's validation and empty-string value fallback together.
+ * - Preserves accepted field and version types while leaving room writes to the handler.
+ */
+function parseTextUpdate(payload) {
+    const field = payload?.field;
+    const value = typeof payload?.value === 'string' ? payload.value : '';
+    const baseVersion = typeof payload?.baseVersion === 'number' ? payload.baseVersion : undefined;
+    const clientUpdateId = typeof payload?.clientUpdateId === 'string' ? payload.clientUpdateId : undefined;
+
+    // INVARIANT: incomplete updates cannot change a room's document or version.
+    if (!field || baseVersion === undefined || !clientUpdateId) {
+        return null;
+    }
+
+    return { field, value, baseVersion, clientUpdateId };
+}
+
+module.exports = { parseTextUpdate };

@@ -1910,6 +1910,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     under that database contract, preserving response bodies and category-clear
     semantics. The isolated MongoDB suite passes all 58 server tests, and
     rustfmt and whitespace checks pass for the changed handler.
+334. Extracted full-text update payload validation and value normalization from
+    the collaboration Socket.IO handler into a pure parser. New tests pin valid
+    payloads, ignored incomplete updates, the empty-string fallback, and types
+    the legacy protocol still accepts. All 22 collaboration tests pass,
+    including live room and reconnect protocol checks.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1965,7 +1970,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 472 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 472 client tests, 57 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

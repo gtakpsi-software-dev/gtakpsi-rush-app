@@ -1,4 +1,5 @@
 const { joinedRoom } = require('./joinedRoom');
+const { parseTextUpdate } = require('./parseTextUpdate');
 
 function registerUpdateHandlers(socket, rooms, userSockets) {
     socket.on('text-update', (payload) => {
@@ -6,14 +7,9 @@ function registerUpdateHandlers(socket, rooms, userSockets) {
         if (!joined) return;
         const { roomId, room } = joined;
 
-        const field = payload?.field;
-        const value = typeof payload?.value === 'string' ? payload.value : '';
-        const baseVersion = typeof payload?.baseVersion === 'number' ? payload.baseVersion : undefined;
-        const clientUpdateId = typeof payload?.clientUpdateId === 'string' ? payload.clientUpdateId : undefined;
-
-        if (!field || baseVersion === undefined || !clientUpdateId) {
-            return;
-        }
+        const update = parseTextUpdate(payload);
+        if (!update) return;
+        const { field, value, baseVersion, clientUpdateId } = update;
 
         const currentVersion = room.versions.get(field) || 0;
 
