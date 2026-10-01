@@ -1,5 +1,5 @@
 import RusheeInteractionsByNight from "../../../components/RusheeInteractionsByNight";
-import type { NightInteractionSummary } from "../../../js/rusheeInteractions.types";
+import type { NightInteractionSummary } from "../interactions.types";
 
 type RusheeRatingsProps = {
     rushee: {

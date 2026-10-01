@@ -1,6 +1,6 @@
 import Badges from '../../components/Badge';
 import RusheeInteractionsByNight from '../../components/RusheeInteractionsByNight';
-import type { NightInteractionSummary } from '../../js/rusheeInteractions.types';
+import type { NightInteractionSummary } from '../rushee/interactions.types';
 
 type DashboardRushee = {
     gtid: string;

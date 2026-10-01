@@ -9,7 +9,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import {
     computeInteractionsByNight,
     formatNightInteractionLine,
-} from "../src/js/rusheeInteractions.js";
+} from "../src/features/rushee/interactions.js";
 
 const componentPath = fileURLToPath(new URL(
     "../src/components/RusheeInteractionsByNight.tsx", import.meta.url,
@@ -19,7 +19,7 @@ test("interaction summaries keep regular, compact, and empty markup", async () =
     const Component = await loadTsxComponent(componentPath, {
         react: React,
         axios: {},
-        "../js/rusheeInteractions": { computeInteractionsByNight, formatNightInteractionLine },
+        "../features/rushee/interactions": { computeInteractionsByNight, formatNightInteractionLine },
     });
     const scenarios = [
         {

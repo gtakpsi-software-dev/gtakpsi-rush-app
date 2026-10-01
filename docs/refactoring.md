@@ -2042,6 +2042,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     client tests, typecheck, changed-file ESLint, and build pass. Full lint
     remains at 8 errors and 26 warnings; production JS and CSS hashes match
     slice 355 exactly.
+357. Moved the shared rushee rush-night interaction logic and its summary type
+    from generic `js/` to `features/rushee/`, updating dashboard, zoom, and
+    test imports. The season dates and implementation are unchanged. All 503
+    client tests, typecheck, changed-file ESLint, and build pass; production
+    JS and CSS hashes match slice 356 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -3,8 +3,8 @@ import axios from "axios";
 import {
     computeInteractionsByNight,
     formatNightInteractionLine,
-} from "../js/rusheeInteractions";
-import type { NightInteractionSummary } from "../js/rusheeInteractions.types";
+} from "../features/rushee/interactions";
+import type { NightInteractionSummary } from "../features/rushee/interactions.types";
 
 /**
  * Interaction View Summary:
