@@ -1246,6 +1246,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     counts, wording, and line breaks. A new exact-output test passed before
     and after extraction; all 49 offline maintenance tests pass. No live scan
     or migration was run.
+218. Extracted drag ownership and start/move/end handling from the sorting
+    WebSocket dispatcher into a dedicated module. The dispatcher falls from
+    156 to 69 lines; message types, broadcasts, authorization, and deployment
+    names remain unchanged. All 10 sorting WebSocket tests pass, including
+    live loopback and reconnect coverage; the package passes rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1283,6 +1288,8 @@ filesystem sandbox, macOS Dynamic Store initialization panics before those
 tests run. The full suite passes with normal system access.
 Collaboration tests use `npm --prefix websocket-server test` and require permission
 to bind local ports; their pinned Socket.IO client is a development dependency.
+The two sorting WebSocket loopback tests also require local port access; the
+remaining eight sorting tests pass inside the filesystem sandbox.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
 
