@@ -56,6 +56,35 @@ class CommentValidationTests(unittest.TestCase):
         self.assertIn("Total issues found: 1", report)
         client.admin.command.assert_called_once_with("ping")
 
+    def test_report_keeps_missing_wrong_type_and_non_object_diagnostics(self):
+        rushees = [
+            {"first_name": "Ada", "last_name": "Example", "gtid": "1"},
+            {"first_name": "Bea", "last_name": "Example", "gtid": "2", "comments": None},
+            {"first_name": "Cam", "last_name": "Example", "gtid": "3", "comments": [7, "bad"]},
+            {"first_name": "Dee", "last_name": "Example", "gtid": "4", "comments": []},
+        ]
+        client = MagicMock()
+        client.__getitem__.return_value.__getitem__.return_value.find.return_value = rushees
+        pymongo = types.ModuleType("pymongo")
+        pymongo.MongoClient = lambda _uri: client
+        script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
+
+        with patch.dict(sys.modules, {"pymongo": pymongo}), \
+             patch.dict(os.environ, {"FIND_MALFORMED_COMMENTS_MONGO_URI": "mongodb://offline-test"}, clear=True):
+            script = runpy.run_path(str(script_path))
+            output = StringIO()
+            with redirect_stdout(output):
+                script["find_malformed_comments"]()
+
+        report = output.getvalue()
+        self.assertIn("Missing 'comments' field entirely", report)
+        self.assertIn("'comments' should be array, got <class 'NoneType'>", report)
+        self.assertIn("Comment 0: Should be object, got <class 'int'>", report)
+        self.assertIn("Comment 1: Should be object, got <class 'str'>", report)
+        self.assertIn("Total rushees scanned: 4", report)
+        self.assertIn("Rushees with issues: 3", report)
+        self.assertIn("Total issues found: 4", report)
+
     def test_missing_fields_keep_original_order_and_wording(self):
         self.assertEqual(check_comment_structure({}, "unused"), [
             "Missing field: brother_id",

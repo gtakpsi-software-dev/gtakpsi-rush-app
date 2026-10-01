@@ -800,6 +800,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     matched the previous version's event order and output in four offline
     scenarios. All 40 maintenance tests and Python compilation pass; no live
     database or Firebase call ran.
+135. Malformed-comment report: extracted per-rushee diagnostics from the scan
+    loop without changing output or issue counts. Added coverage for missing,
+    wrong-type, and non-object comments; three offline scenarios produced the
+    same report text as the previous version. All 41 maintenance tests and
+    Python compilation pass; no live database command ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -847,7 +852,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 246 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 40 maintenance-script tests. The last
+tests with the integration feature, plus 41 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated
