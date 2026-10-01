@@ -46,8 +46,9 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         },
         "../components/Loader": stub("loader"),
         axios: { get: noop },
-        "../features/pis/useCollaboration": {
-            useCollaboration: () => {
+        "../features/pis/usePisCollaborationState": {
+            usePisCollaborationState: (options) => {
+                captured.set("collaboration-options", options);
                 const collaboration = {
                     isConnected: connected,
                     connectedUsers: connected ? [{}, {}] : [],
@@ -64,9 +65,6 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "../features/pis/PisInterviewView": View,
         "../features/pis/PisQuestionsPending": stub("pending"),
         "../features/pis/saveStatus": { SAVE_STATUS: { IDLE: "idle" } },
-        "../features/pis/collaborationState": {
-            applyDocumentState: noop, applyRemoteUpdates: noop,
-        },
         "../features/pis/performPisAutosave": { performPisAutosave: noop },
         "../features/pis/usePisAutosave": {
             usePisAutosave: (props) => captured.set("autosave", props),
@@ -155,6 +153,8 @@ test("PIS questions retain answer, brother, collaboration, and save props", asyn
     assert.equal(captured.get("bootstrap").gtid, "123");
     assert.equal(captured.get("bootstrap").loading, false);
     assert.equal(captured.get("bootstrap").currentUser, user);
+    assert.equal(captured.get("collaboration-options").gtid, "123");
+    assert.equal(captured.get("collaboration-options").currentUser, user);
     assert.equal(captured.get("reveal-polling").loading, false);
     assert.equal(captured.get("reveal-polling").questionsAvailable, true);
     assert.equal(captured.get("reveal-polling").gtid, "123");

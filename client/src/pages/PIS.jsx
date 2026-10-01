@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import Loader from "../components/Loader";
 import axios from "axios";
-import { useCollaboration } from "../features/pis/useCollaboration";
+import { usePisCollaborationState } from "../features/pis/usePisCollaborationState";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 import PisInterviewView from "../features/pis/PisInterviewView";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
-import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { usePisAutosave } from "../features/pis/usePisAutosave";
 import { usePisPageBootstrap } from "../features/pis/usePisPageBootstrap";
 import { usePisRevealPolling } from "../features/pis/usePisRevealPolling";
@@ -35,23 +34,9 @@ export default function PIS() {
     const autosaveTimeoutRef = useRef(null);
     const isInitialLoadRef = useRef(true);
 
-    // Initialize WebSocket collaboration
-    const collaboration = useCollaboration(`pis-${gtid}`, currentUser);
-
-    // Request latest document state once connected
-    useEffect(() => {
-        if (collaboration.isConnected) {
-            collaboration.requestDocumentState();
-        }
-    }, [collaboration.isConnected]);
-
-    useEffect(() => {
-        applyDocumentState(collaboration.documentState, { setBrotherA, setBrotherB, setAnswers });
-    }, [collaboration.documentState]);
-
-    useEffect(() => {
-        applyRemoteUpdates(collaboration.remoteUpdates, { setBrotherA, setBrotherB, setAnswers });
-    }, [collaboration.remoteUpdates]);
+    const collaboration = usePisCollaborationState({
+        gtid, currentUser, setBrotherA, setBrotherB, setAnswers,
+    });
 
     const api = import.meta.env.VITE_API_PREFIX;
 
