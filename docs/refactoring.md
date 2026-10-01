@@ -1155,6 +1155,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     selection, input identity, and first/last/registration sorting. All 326
     client tests pass, the production build succeeds, and the CSS asset hash
     remains unchanged. Full browser parity remains unverified.
+203. Extracted the bid committee's numbered rushee card into a 61-line view,
+    reducing its dashboard page from 299 to 263 lines. Four page markup
+    fixtures pin loading, error, empty, and populated states; a callback test
+    pins the exact profile URL and missing-number fallback. All 328 client
+    tests pass, the production build succeeds, and the CSS asset hash remains
+    unchanged. The JavaScript bundle changes with the new module boundary.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1202,7 +1208,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 326 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 328 client tests, 43 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
