@@ -809,6 +809,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the sole editor, confirms the empty room remains available, then rejoins and
     continues from the retained document version. The server code is unchanged;
     all 15 collaboration tests pass against an isolated loopback server.
+137. Navbar authentication: moved verification, token refresh, and role state
+    updates into an injected navigation helper. Five tests pin update order,
+    allowlist handling, missing users, failures, and the existing falsy admin
+    value when email is absent. All 251 client tests and the production build
+    pass; the rendered JSX text is unchanged. The helper and tests pass ESLint;
+    `Navbar.jsx` still has three pre-existing lint findings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -854,7 +860,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 246 client tests, 37 server unit tests, 15 collaboration tests, 9 sorting
+Current verified totals: 251 client tests, 37 server unit tests, 15 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 41 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

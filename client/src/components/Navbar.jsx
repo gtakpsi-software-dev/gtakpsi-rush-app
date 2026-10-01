@@ -5,6 +5,7 @@ import { logout } from "../js/user";
 import { verifyUser } from "../js/verifications";
 import { auth } from "../firebase";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
+import { loadNavbarAuth } from "../features/navigation/loadNavbarAuth";
 
 // Parse admin allowlist once
 const ADMIN_ALLOWLIST = (import.meta.env.VITE_ADMIN_ALLOWLIST || "")
@@ -24,31 +25,15 @@ export default function Navbar(props) {
     const { isMidtermMode } = useMidtermMode();
 
     useEffect(() => {
-        async function checkAuth() {
-            try {
-                const authenticated = await verifyUser();
-                setIsAuthenticated(authenticated);
-                
-                // Check admin/bidcom status
-                const user = auth.currentUser;
-                if (user) {
-                    const tokenResult = await user.getIdTokenResult(true);
-                    const adminClaim = tokenResult.claims?.admin === true;
-                    const bidcomClaim = tokenResult.claims?.bidcom === true;
-                    const email = user.email ? user.email.toLowerCase() : "";
-                    const isAllowlisted = email && ADMIN_ALLOWLIST.includes(email);
-                    
-                    setIsAdmin(adminClaim || isAllowlisted);
-                    setIsBidcom(bidcomClaim);
-                }
-            } catch (error) {
-                setIsAuthenticated(false);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        
-        checkAuth();
+        loadNavbarAuth({
+            verifyUser,
+            auth,
+            allowlist: ADMIN_ALLOWLIST,
+            setIsAuthenticated,
+            setIsAdmin,
+            setIsBidcom,
+            setIsLoading,
+        });
     }, []);
 
     // Don't render navbar if user is not authenticated
