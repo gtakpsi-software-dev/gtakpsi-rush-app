@@ -2,11 +2,12 @@ use crate::models::pis::{BrotherPISAvailability, PISSignup};
 use std::collections::{HashMap, HashSet};
 
 type BrotherName = (String, String);
+pub(super) type AvailabilityByTimeslot = HashMap<i64, Vec<BrotherName>>;
 
 pub(super) fn index_availability(
     availabilities: &[BrotherPISAvailability],
-) -> HashMap<i64, Vec<BrotherName>> {
-    let mut by_timeslot: HashMap<i64, Vec<BrotherName>> = HashMap::new();
+) -> AvailabilityByTimeslot {
+    let mut by_timeslot = AvailabilityByTimeslot::new();
 
     for availability in availabilities {
         let first = availability.brother_first_name.trim().to_string();

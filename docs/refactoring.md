@@ -2680,6 +2680,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     and error toast's full presentation contract, and rushee detail markup
     hashes still pass. All 575 client tests, typecheck, scoped lint, and build
     pass; generated CSS retains its prior hash.
+460. Moved the PIS auto-assignment loop into
+    `controllers/admin/assignments/execution.rs`, reducing its HTTP
+    coordinator from 98 to 54 lines. The isolated database test now also pins
+    the no-matching-timeslot response and unchanged signup fields before
+    checking partial, complete, and already-complete assignments. All 74
+    server unit tests and 75 integration-feature tests pass; changed files
+    pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

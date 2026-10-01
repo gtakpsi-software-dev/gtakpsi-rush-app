@@ -7,7 +7,7 @@ use crate::{
     models::pis::BrotherPISAvailability,
 };
 
-async fn add_availability(first: &str, last: &str) {
+async fn add_availability_at(first: &str, last: &str, slot: &str) {
     db::get_brother_pis_availability_client()
         .await
         .insert_one(BrotherPISAvailability {
@@ -15,11 +15,15 @@ async fn add_availability(first: &str, last: &str) {
             brother_email: "brother@example.invalid".to_string(),
             brother_first_name: first.to_string(),
             brother_last_name: last.to_string(),
-            available_timeslots: vec![DateTime::parse_rfc3339_str(SLOT).unwrap()],
+            available_timeslots: vec![DateTime::parse_rfc3339_str(slot).unwrap()],
             submitted_at: DateTime::from_millis(0),
         })
         .await
         .unwrap();
+}
+
+async fn add_availability(first: &str, last: &str) {
+    add_availability_at(first, last, SLOT).await;
 }
 
 pub async fn check_contracts() {
@@ -33,6 +37,18 @@ pub async fn check_contracts() {
             "message": "No brother availabilities found. Have brothers fill out the form first."
         })
     );
+
+    add_availability_at("Unavailable", "Brother", "2030-01-02T18:00:00Z").await;
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 0 PIS slots. 1 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let unmatched = stored_rushee().await.pis_signup;
+    assert_eq!(unmatched.first_brother_first_name, "none");
+    assert_eq!(unmatched.second_brother_first_name, "none");
 
     add_availability("Ada", "Lovelace").await;
     assert_eq!(
