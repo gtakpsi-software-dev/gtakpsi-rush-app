@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { KeyboardEvent } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 
 import { verifyUser } from "../features/auth/verifyUser";
@@ -6,6 +7,11 @@ import Loader from "../components/Loader";
 import { login } from "../js/user";
 import Navbar from "../components/Navbar";
 
+/**
+ * Login Page Summary:
+ * - Types the input refs and Enter handler while retaining the existing auth effect.
+ * - Keeps login requests, routes, loading states, and form markup unchanged.
+ */
 export default function Login() {
 
     const [loading, setLoading] = useState(true)
@@ -16,7 +22,7 @@ export default function Login() {
 
         async function fetch() {
             setLoading(true)
-            const well = await verifyUser()
+            await verifyUser()
             .then((response) => {
                 console.log(response)
                 if (response == true) {
@@ -37,8 +43,8 @@ export default function Login() {
 
     })
 
-    const email = useRef()
-    const password = useRef()
+    const email = useRef<HTMLInputElement>(null)
+    const password = useRef<HTMLInputElement>(null)
 
     const handleLogin = async () => {
         const success = await login({
@@ -51,7 +57,7 @@ export default function Login() {
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             handleLogin();
         }
@@ -115,7 +121,6 @@ export default function Login() {
                                         Sign In
                                     </button>
                                     
-                                    {/* Divider */}
                                     <div className="relative">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className="w-full border-t border-apple-gray-200"></div>
@@ -125,7 +130,6 @@ export default function Login() {
                                         </div>
                                     </div>
                                     
-                                    {/* Create Account Button */}
                                     <Link to='/create-account' className="mt-2 block">
                                         <button className="btn-apple-secondary w-full">
                                             Create Account
