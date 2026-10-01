@@ -2513,6 +2513,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     three-state markup hashes, request order, Enter submission, and retry tests
     pass; a new test pins failed-reset loading cleanup. All 544 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash.
+432. Moved password-reset Firebase/toast handling into
+    `features/auth/resetPasswordWithServices.js`, matching the injected-service
+    boundary already used by login and account creation. `account.js` keeps
+    the same public `resetPassword(email)` call and is now 94 lines instead of
+    115. Four new tests pin success/error call order, mapped and fallback
+    messages, and the public wrapper's Firebase wiring. All 548 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2572,7 +2579,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 544 client tests, 67 server unit tests, 25 collaboration
+Current verified totals: 548 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests with the integration feature (including its
 isolated database contract), plus 62 maintenance-script tests. The last

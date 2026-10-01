@@ -1,9 +1,9 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { 
-    auth, 
+import {
+    auth,
     db,
-    signInWithEmailAndPassword, 
+    signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
@@ -12,10 +12,11 @@ import {
     setDoc,
 } from "../../firebase";
 import { isEmailAllowed } from "../../data/allowedEmails";
-import { resetErrorMessage } from "./errorMessages";
 import { checkRushAppAccess } from "./checkRushAppAccess";
-import { loginWithServices } from "./loginWithServices";
 import { createAccountWithServices } from "./createAccountWithServices";
+import { resetErrorMessage } from "./errorMessages";
+import { loginWithServices } from "./loginWithServices";
+import { resetPasswordWithServices } from "./resetPasswordWithServices";
 
 /**
  * Sign in with email and password
@@ -57,36 +58,14 @@ export async function createAccount(credentials) {
     });
 }
 
-/**
- * Send password reset email
- */
-export async function resetPassword(email) {
-    try {
-        await sendPasswordResetEmail(auth, email);
-        
-        toast.success('Password reset email sent! Check your inbox.', {
-            position: "top-center",
-            autoClose: 5000,
-                    theme: "dark",
-                });
-        
-        return true;
-        
-    } catch (error) {
-        console.error("Password reset error:", error);
-        
-        toast.error(resetErrorMessage(error.code), {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "dark",
-            });
-
-        return false;
-    }
+export function resetPassword(email) {
+    return resetPasswordWithServices(email, {
+        auth,
+        sendPasswordResetEmail,
+        toast,
+        resetErrorMessage,
+        logger: console,
+    });
 }
 
 /**
