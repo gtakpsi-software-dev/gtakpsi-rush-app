@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
 import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Attendance.jsx", import.meta.url));
@@ -14,7 +15,9 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
     const updates = [];
     const requests = [];
     const errors = [];
+    const effects = [];
     const captured = new Map();
+    const navigate = () => {};
     let stateIndex = 0;
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
@@ -45,7 +48,9 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
                         return [Object.hasOwn(state, index) ? state[index] : initial,
                             (value) => updates.push([index, value])];
                     },
-                    useEffect() {},
+                    useEffect(callback, dependencies) {
+                        effects.push({ callback, dependencies });
+                    },
                 },
                 "../components/Loader": stub("loader"),
                 "../components/AttendanceComponents/SplashPage": stub("splash"),
@@ -67,7 +72,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
                         return postResponse ?? { data: { status: "success" } };
                     },
                 },
-                "react-router-dom": { useNavigate: () => () => {} },
+                "react-router-dom": { useNavigate: () => navigate },
             };
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -75,7 +80,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
         },
     }, { filename: pagePath });
 
-    return { Page: module.exports.default, captured, updates, requests, errors };
+    return { Page: module.exports.default, captured, updates, requests, errors, effects, navigate };
 }
 
 function renderBranch(page) {
@@ -85,6 +90,20 @@ function renderBranch(page) {
     }
     return element;
 }
+
+test("attendance keeps its wrapper markup and fetch-effect dependencies", async () => {
+    for (const [state, expected] of [
+        [{}, '<div><div><span data-stub="splash"></span></div></div>'],
+        [{ 2: true }, '<div><span data-stub="loader"></span></div>'],
+        [{ 1: 1 }, '<div><div><div><span data-stub="info"></span></div></div></div>'],
+        [{ 1: 2 }, '<div><div><div><span data-stub="success"></span></div></div></div>'],
+    ]) {
+        const page = await loadPage({ state });
+        assert.equal(renderToStaticMarkup(React.createElement(page.Page)), expected);
+        assert.equal(page.effects.length, 1);
+        assert.deepEqual(Array.from(page.effects[0].dependencies), [state[2], page.navigate]);
+    }
+});
 
 test("attendance retains its splash, loading, confirmation, and success branches", async () => {
     for (const [state, expected] of [
