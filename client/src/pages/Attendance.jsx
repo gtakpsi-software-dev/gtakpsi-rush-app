@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import Loader from '../components/Loader'
+import Loader from "../components/Loader";
 import SplashPage from "../components/AttendanceComponents/SplashPage";
 
 import { toast } from "react-toastify";
@@ -13,15 +13,13 @@ import { useNavigate } from "react-router-dom";
 import { createAttendanceActions } from "../features/attendance/createAttendanceActions";
 
 export default function Attendance() {
-
-    const [gtid, setGtid] = useState()
-    const [page, setPage] = useState(0)
-    const [loading, setLoading] = useState()
-    const [rushee, setRushee] = useState()
+    const [gtid, setGtid] = useState();
+    const [page, setPage] = useState(0);
+    const [loading, setLoading] = useState();
+    const [rushee, setRushee] = useState();
 
     const api = import.meta.env.VITE_API_PREFIX;
-
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetch() {
@@ -39,8 +37,7 @@ export default function Attendance() {
                                 setRushees(response.data.payload);
                                 setFilteredRushees(response.data.payload);
 
-                                console.log(response.data.payload)
-
+                                console.log(response.data.payload);
                             } else {
                                 setErrorDescription("There was some issue fetching the rushees");
                                 setError(true);
@@ -70,29 +67,24 @@ export default function Attendance() {
     });
 
     return (
-
         <div>
-
-            {loading ? <Loader /> : <div>
-
-                {page == 0 ? <SplashPage
-                    func={handleSubmit}
-                    gtid={gtid}
-                    setGtid={setGtid}
-                /> : <div>
-
-                    {page == 1 ? <DisplayInfo
-                        rushee={rushee}
-                        goBack={goBack}
-                        checkIn={checkIn}
-                    /> : <SuccessPage goBack={goBack} />}
-
-                </div>}
-
-            </div>}
-
+            {loading ? (
+                <Loader />
+            ) : (
+                <div>
+                    {page == 0 ? (
+                        <SplashPage func={handleSubmit} gtid={gtid} setGtid={setGtid} />
+                    ) : (
+                        <div>
+                            {page == 1 ? (
+                                <DisplayInfo rushee={rushee} goBack={goBack} checkIn={checkIn} />
+                            ) : (
+                                <SuccessPage goBack={goBack} />
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
-
-    )
-
+    );
 }
