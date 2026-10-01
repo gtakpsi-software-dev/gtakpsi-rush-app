@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import Navbar from "../components/Navbar";
 import { loadAdminData } from "../features/admin/bootstrap/loadAdminData";
 import Loader from "../components/Loader";

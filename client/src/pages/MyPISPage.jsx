@@ -7,7 +7,7 @@ import Loader from "../components/Loader";
 import Error from "../components/Error";
 import Badges from "../components/Badge";
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import { adminPost } from "../js/adminAxios";
 
 export default function MyPISPage() {

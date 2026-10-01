@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios'
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 

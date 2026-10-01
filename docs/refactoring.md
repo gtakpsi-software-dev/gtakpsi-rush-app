@@ -1060,6 +1060,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the registration feature. All 299 client tests and the production build
     pass with unchanged JS and CSS asset hashes. The touched files' pre-existing
     ESLint counts remain 15 errors and one warning, with no new findings.
+184. Pointed the 14 Firebase verification callers directly at the auth feature.
+    All 299 client tests and the production build pass; the touched files'
+    ESLint totals remain 59 errors and 13 warnings, with no new findings. No
+    client source file imports the old verification facade now.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

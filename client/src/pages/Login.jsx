@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom'
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import Loader from "../components/Loader";
 import { login } from "../js/user";
 import Navbar from "../components/Navbar";

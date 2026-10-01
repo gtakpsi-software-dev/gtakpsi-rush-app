@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
 import { createCommentCreateActions } from "../features/rushee/zoom/commentCreateActions";
 import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";

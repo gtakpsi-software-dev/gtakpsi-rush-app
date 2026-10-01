@@ -7,7 +7,7 @@ import Error from "../components/Error";
 import Loader from "../components/Loader";
 import Badges from "../components/Badge";
 import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import Button from "../components/Button";
 
 export default function BidCommitteeDashboard(props) {

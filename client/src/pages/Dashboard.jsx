@@ -13,7 +13,7 @@ import { useMidtermMode } from "../contexts/MidtermModeContext";
 
 import Fuse from "fuse.js";
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import Button from "../components/Button";
 import PISAvailabilityModal from "../components/PISAvailabilityModal";
 import { auth, db } from "../firebase";

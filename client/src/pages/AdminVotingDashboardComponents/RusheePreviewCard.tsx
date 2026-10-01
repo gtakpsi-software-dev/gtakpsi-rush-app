@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
-import { verifyUser } from "../../js/verifications";
+import { verifyUser } from "../../features/auth/verifyUser";
 import axios from "axios";
 import { adminPost } from "../../js/adminAxios";
 import Loader from "../../components/Loader";

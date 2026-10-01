@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import { useCollaboration } from "../hooks/useCollaboration";
 
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import { useNavigate, useParams } from "react-router-dom";
 import { auth } from "../firebase";
 

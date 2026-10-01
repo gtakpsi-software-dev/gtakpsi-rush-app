@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { logout } from "../js/user";
-import { verifyUser } from "../js/verifications";
+import { verifyUser } from "../features/auth/verifyUser";
 import { auth } from "../firebase";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
 import { loadNavbarAuth } from "../features/navigation/loadNavbarAuth";
