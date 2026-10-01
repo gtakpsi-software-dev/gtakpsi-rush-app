@@ -951,6 +951,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and the existing empty-field early return that leaves loading set. Removed
     unused imports and a discarded catch binding. All 270 client tests, the
     client build, and changed-file ESLint pass.
+161. Moved registration image upload and final PIS submission into
+    `features/registration/createPisSubmit.js`, retaining the page's JSX and
+    class names. Five tests pin the GTID Storage path, upload-before-API order,
+    exact signup payload, response navigation, request failure handling, and
+    the existing loading and missing-slot edge cases. All 275 client tests,
+    the client build, and changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -998,7 +1004,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 270 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 275 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last

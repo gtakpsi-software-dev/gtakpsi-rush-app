@@ -17,6 +17,7 @@ import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
 import { createBasicInfoSubmit } from "../features/registration/createBasicInfoSubmit";
+import { createPisSubmit } from "../features/registration/createPisSubmit";
 
 export default function Register() {
 
@@ -92,90 +93,41 @@ export default function Register() {
 
     }
 
-    const pis_submit = async () => {
-
-        setCurrLoading(true)
-        setPage(3)
-
-        let imageUrl;
-
-        try {
-            // Create a reference to the file in Firebase Storage
-            const fileName = `profile-pictures/${gtidVal}.jpg`;
-            const storageRef = ref(storage, fileName);
-            
-            // Convert base64 to blob and upload
-            const blob = base64ToBlob(image);
-            await uploadBytes(storageRef, blob);
-            
-            // Get the download URL
-            imageUrl = await getDownloadURL(storageRef);
-
-        } catch (error) {
-
-            console.log(error)
-
-            setErrorTitle("Uh Oh! Something Unexpected Occurred..")
-            setErrorDescription("There was an error uploading your image to the cloud.")
-            navigate(`/error/${errorTitle}/${"There was an error uploading your image to the cloud."}`)
-            return;
-
-        }
-
-        // TODO: set up zoom api thingy i am too lazy
-
-        const payload = {
-            first_name: firstnameVal,
-            last_name: lastnameVal,
+    const pisSubmit = createPisSubmit({
+        api,
+        form: {
+            firstName: firstnameVal,
+            lastName: lastnameVal,
             housing: housingVal,
-            phone_number: phoneVal,
+            phone: phoneVal,
             email: emailVal,
             gtid: gtidVal,
             major: majorVal,
-            class: yearVal,
+            year: yearVal,
             pronouns: pronounsVal,
-            image_url: imageUrl,
             exposure: exposureVal,
-            pis_meeting_id: "meeting123",
-            pis_timeslot: selectedSlot.time, // ISO 8601 format
-            pis_link: "https://example.com/pis_meeting",
-            flex_window: flexWindow,
-        };
-
-        try {
-            await axios.post(`${api}/rushee/signup`, payload)
-                .then((response) => {
-
-                    if (response.data.status === "error") {
-                        navigate(`/error/${errorTitle}/${errorDescription}`)
-                    } else if (response.data.status === "success") {
-
-                        setAccessCode(response.data.payload)
-
-                    } else {
-                        navigate(`/error/${errorTitle}/${errorDescription}`)
-                    }
-
-
-                })
-                .catch(() => {
-
-                    console.log(error)
-
-                    navigate(`/error/${errorTitle}/${errorDescription}`)
-                })
-        } catch (err) {
-
-            console.log(err)
-
-            navigate(`/error/${errorTitle}/${errorDescription}`)
-
-        }
-
-        setCurrLoading(false)
-        setError(false)
-
-    }
+            selectedSlot,
+            flexWindow,
+            image,
+        },
+        pageError: error,
+        errorTitle,
+        errorDescription,
+        storage,
+        ref,
+        base64ToBlob,
+        uploadBytes,
+        getDownloadURL,
+        post: (...args) => axios.post(...args),
+        navigate,
+        setCurrLoading,
+        setPage,
+        setErrorTitle,
+        setErrorDescription,
+        setAccessCode,
+        setError,
+        logError: (error) => console.log(error),
+    });
 
     // If we're on the success page (page 3) and not loading, render it fullscreen
     if (page === 3 && !currLoading) {
@@ -219,7 +171,7 @@ export default function Register() {
                             setSelectedSlot={setSelectedSlot}
                             flexWindow={flexWindow}
                             setFlexWindow={setFlexWindow}
-                            func={pis_submit}
+                            func={pisSubmit}
                         /> : <div>
 
                             {currLoading ? <Loader /> : null}
