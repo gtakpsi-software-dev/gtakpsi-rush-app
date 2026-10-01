@@ -11,6 +11,7 @@ import SortingZoomControls from "../features/sorting/SortingZoomControls";
 import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
 import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -243,88 +244,26 @@ export default function BidComSorting() {
         };
     }, []);
 
-    const openNotes = async (rushee) => {
-        setSelectedRushee(rushee);
-        setNotesStatus("loading");
-        try {
-            const resp = await adminGet(`${apiBase}/rushees/${rushee.id}/notes`);
-            if (resp.data.status === "success") {
-                setNotes(resp.data.sortingNotes || "");
-                setTags(resp.data.sortingTags || []);
-                setNotesStatus("idle");
-            } else {
-                setNotes("");
-                setTags([]);
-                setNotesStatus("error");
-            }
-        } catch (err) {
-            setNotes("");
-            setTags([]);
-            setNotesStatus("error");
-        }
-    };
-
-    const closeNotes = () => {
-        setSelectedRushee(null);
-        setNotes("");
-        setTags([]);
-        setNotesStatus("idle");
-        if (notesTimer.current) {
-            clearTimeout(notesTimer.current);
-        }
-        if (tagsTimer.current) {
-            clearTimeout(tagsTimer.current);
-        }
-    };
-
-    const saveNotes = async (text, currentTags) => {
-        if (!selectedRushee) return;
-        setNotesStatus("saving");
-        try {
-            const resp = await adminPut(`${apiBase}/rushees/${selectedRushee.id}/notes`, {
-                sortingNotes: text,
-                sortingTags: currentTags,
-            });
-            if (resp.data.status === "success") {
-                // Update tags in columns state
-                setColumns((prev) => {
-                    const updated = { ...prev };
-                    Object.keys(updated).forEach((colKey) => {
-                        updated[colKey] = updated[colKey].map((r) =>
-                            r.id === selectedRushee.id ? { ...r, sortingTags: currentTags } : r
-                        );
-                    });
-                    return updated;
-                });
-                setNotesStatus("saved");
-                setTimeout(() => setNotesStatus("idle"), 800);
-            } else {
-                setNotesStatus("error");
-            }
-        } catch (err) {
-            setNotesStatus("error");
-        }
-    };
-
-    const onNotesChange = (e) => {
-        const val = e.target.value;
-        setNotes(val);
-        if (notesTimer.current) clearTimeout(notesTimer.current);
-        notesTimer.current = setTimeout(() => {
-            saveNotes(val, tags);
-        }, 500);
-    };
-
-    const toggleTag = (tagKey) => {
-        const newTags = tags.includes(tagKey)
-            ? tags.filter((t) => t !== tagKey)
-            : [...tags, tagKey];
-        setTags(newTags);
-        if (tagsTimer.current) clearTimeout(tagsTimer.current);
-        tagsTimer.current = setTimeout(() => {
-            saveNotes(notes, newTags);
-        }, 300);
-    };
+    const {
+        openNotes,
+        closeNotes,
+        onNotesChange,
+        toggleTag,
+    } = createSortingNotesHandlers({
+        apiBase,
+        selectedRushee,
+        notes,
+        tags,
+        notesTimer,
+        tagsTimer,
+        getNotes: adminGet,
+        putNotes: adminPut,
+        setSelectedRushee,
+        setNotes,
+        setTags,
+        setNotesStatus,
+        setColumns,
+    });
 
     const {
         zoomIn,

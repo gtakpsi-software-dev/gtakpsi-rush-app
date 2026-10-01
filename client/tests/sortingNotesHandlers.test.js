@@ -5,7 +5,10 @@ import { createSortingNotesHandlers } from "../src/features/sorting/createSortin
 
 const rushee = { id: "r1", sortingTags: [] };
 
-function harness({ selectedRushee = rushee, notes = "Existing", tags = ["night_1"], getNotes, putNotes } = {}) {
+function harness({
+    apiBase = "/api/admin", selectedRushee = rushee, notes = "Existing",
+    tags = ["night_1"], getNotes, putNotes,
+} = {}) {
     const calls = [];
     const timers = [];
     const state = {
@@ -15,7 +18,7 @@ function harness({ selectedRushee = rushee, notes = "Existing", tags = ["night_1
     const notesTimer = { current: null };
     const tagsTimer = { current: null };
     const handlers = createSortingNotesHandlers({
-        apiBase: "/api/admin",
+        apiBase,
         selectedRushee,
         notes,
         tags,
@@ -52,6 +55,32 @@ test("opening notes keeps the request path and success fallbacks", async () => {
     ]);
     assert.equal(state.notes, "");
     assert.deepEqual(state.tags, []);
+});
+
+test("bid committee notes use the same save behavior with the bidcom endpoint", async () => {
+    const requests = [];
+    const { handlers, state } = harness({
+        apiBase: "/api/bidcom",
+        getNotes: async (url) => {
+            requests.push(["get", url]);
+            return { data: { status: "success", sortingNotes: "Read", sortingTags: ["pis"] } };
+        },
+        putNotes: async (url, payload) => {
+            requests.push(["put", url, payload]);
+            return { data: { status: "success" } };
+        },
+    });
+    await handlers.openNotes(rushee);
+    await handlers.saveNotes("Updated", ["night_2"]);
+    assert.deepEqual(requests, [
+        ["get", "/api/bidcom/rushees/r1/notes"],
+        ["put", "/api/bidcom/rushees/r1/notes", {
+            sortingNotes: "Updated", sortingTags: ["night_2"],
+        }],
+    ]);
+    assert.equal(state.notes, "Read");
+    assert.deepEqual(state.tags, ["pis"]);
+    assert.deepEqual(state.columns.UNSORTED[0].sortingTags, ["night_2"]);
 });
 
 test("opening notes retains saved values and clears them on failed responses or requests", async () => {
