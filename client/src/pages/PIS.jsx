@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -8,7 +8,6 @@ import { verifyUser } from "../js/verifications";
 import { useNavigate, useParams } from "react-router-dom";
 import { auth } from "../firebase";
 
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import PisProfileHeader from "../features/pis/PisProfileHeader";
@@ -17,11 +16,10 @@ import PisQuestionResponses from "../features/pis/PisQuestionResponses";
 import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
-import { createPisCollaborator } from "../features/pis/createPisCollaborator";
 import { applyPisQuestionsResponse } from "../features/pis/applyPisQuestionsResponse";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { performPisAutosave } from "../features/pis/performPisAutosave";
-import { applyPisRusheeResponse } from "../features/pis/applyPisRusheeResponse";
+import { loadPisPageData } from "../features/pis/loadPisPageData";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -65,45 +63,29 @@ export default function PIS() {
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
-        async function fetch() {
-            await verifyUser()
-                .then(async (response) => {
-                    if (response === false) {
-                        navigate(`/error/${errorTitle}/${errorDescription}`);
-                    }
-
-                    if (!currentUser || !currentUser.id) {
-                        setCurrentUser(createPisCollaborator(auth.currentUser, localStorage.getItem('user')));
-                    }
-
-                    await axios.get(`${api}/rushee/${gtid}`)
-                        .then((response) => {
-                            applyPisRusheeResponse(response, {
-                                setRushee, setAnswers, setBrotherA, setBrotherB,
-                                navigate, errorTitle,
-                            });
-                        });
-
-                    // Fetch this rushee's PIS questions (fixed questions always included;
-                    // randomized category questions only once within 5 min of their PIS time).
-                    await axios.get(`${api}/rushee/get-pis-questions/${gtid}`)
-                        .then((response) => {
-                            applyPisQuestionsResponse(response, {
-                                setQuestions, setQuestionsAvailable, setRevealAt,
-                                onFailure: () => navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`),
-                            });
-                        });
-                })
-                .catch((error) => {
-                    console.log(error);
-                    navigate(`/error/${errorTitle}/${errorDescription}`);
-                });
-
-            setLoading(false);
-        }
-
         if (loading) {
-            fetch();
+            loadPisPageData({
+                verifyUser,
+                navigate,
+                errorTitle,
+                errorDescription,
+                currentUser,
+                auth,
+                getStoredUser: () => localStorage.getItem('user'),
+                setCurrentUser,
+                get: (...args) => axios.get(...args),
+                api,
+                gtid,
+                setRushee,
+                setAnswers,
+                setBrotherA,
+                setBrotherB,
+                setQuestions,
+                setQuestionsAvailable,
+                setRevealAt,
+                setLoading,
+                logError: (error) => console.log(error),
+            });
         }
     }, [loading, api, gtid, navigate]);
 

@@ -957,6 +957,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     exact signup payload, response navigation, request failure handling, and
     the existing loading and missing-slot edge cases. All 275 client tests,
     the client build, and changed-file ESLint pass.
+162. Moved the PIS page's initial identity and data load into
+    `features/pis/loadPisPageData.js`. Four tests pin collaborator hydration,
+    rushee-before-questions request order, failure navigation, and the existing
+    false-verification path that continues its requests after navigating.
+    Removed two unused imports. All 279 client tests and the build pass;
+    changed-file ESLint has no errors and retains two hook-dependency warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -984,7 +990,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 314 errors and 19 warnings, so it is tracked debt,
+the current baseline has 309 errors and 19 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -1004,7 +1010,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 275 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 279 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
