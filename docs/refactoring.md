@@ -1190,6 +1190,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     261 lines. Board ref, pointer-handler, and child-prop checks pass alongside
     all 333 client tests. The production build succeeds with unchanged CSS;
     authenticated browser parity remains pending.
+209. Extracted the collaboration textarea's DOM and remote-cursor rendering
+    into a 97-line view, reducing the stateful component from 259 to 194 lines.
+    Its existing offline/locked markup fixtures still match, and a new test
+    covers handler forwarding, caret positions, and stable cursor colors.
+    All 334 client tests and the production build pass with unchanged CSS.
+    Repository-wide lint debt is now 274 errors and 17 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1217,7 +1223,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 276 errors and 17 warnings, so it is tracked debt,
+the current baseline has 274 errors and 17 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -1237,7 +1243,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 333 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 334 client tests, 43 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
