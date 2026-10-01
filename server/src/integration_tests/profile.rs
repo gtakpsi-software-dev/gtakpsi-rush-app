@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{extract::Path, Json};
 use bson::DateTime;
 use serde_json::json;
 
@@ -63,6 +63,8 @@ pub async fn check_contracts() {
     assert_eq!(list["payload"].as_array().unwrap().len(), 1);
     assert_eq!(list["payload"][0]["name"], "Updated Rushee");
     assert_eq!(list["payload"][0]["registration_order"], 1);
+    assert!(list["payload"][0].get("access_code").is_none());
+    assert!(list["payload"][0].get("comments").is_none());
     let nights = list["payload"][0]["interactions_by_night"]
         .as_array()
         .unwrap();
@@ -78,6 +80,23 @@ pub async fn check_contracts() {
     let detail = rushee::get_rushee(path()).await.unwrap().0;
     assert_eq!(detail["payload"]["first_name"], "Updated");
     assert_eq!(detail["payload"]["comments"], json!([]));
+    assert_eq!(
+        rushee::get_rushee(Path("missing-rushee".to_string()))
+            .await
+            .unwrap()
+            .0["message"],
+        "Rushee with GTID missing-rushee does not exist"
+    );
+    assert_eq!(
+        rushee::does_rushee_exist(Path("missing-rushee".to_string()))
+            .await
+            .unwrap()
+            .0,
+        json!({
+            "status": "success",
+            "message": "Rushee with GTID missing-rushee does not exist"
+        })
+    );
     println!(
         "attendance, profile edits, partial-write ordering, and rushee lookup contracts passed"
     );

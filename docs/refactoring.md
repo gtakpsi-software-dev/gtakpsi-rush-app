@@ -1680,6 +1680,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the normal delete. All 57 server tests with the integration feature pass;
     changed Rust files pass rustfmt. The comment pull still precedes every
     rating write, retaining the prior partial-write order.
+290. Flattened rushee list, detail, and existence query handling while keeping
+    the list's privacy projection, registration-order numbering, response text,
+    and legacy error-field spelling. The isolated profile contract now checks
+    private fields stay absent and both missing-ID responses. All 57 server
+    tests with the integration feature pass; changed Rust files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
