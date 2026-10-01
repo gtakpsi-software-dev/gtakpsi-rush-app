@@ -1453,6 +1453,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     imports, including the admin and brother voting views. The controlled
     production JS and CSS are byte-identical before and after the rename; all
     404 client tests pass, and lint remains at 222 errors and 20 warnings.
+253. Removed the unreferenced `OldHome.jsx` prototype. The controlled
+    production JS is byte-identical after deletion. Tailwind drops 14 selectors
+    whose class tokens have no remaining source references; no reachable page
+    or route imports the component. All 404 client tests pass, and client lint
+    falls to 215 errors with 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1480,7 +1485,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 222 errors and 20 warnings, so it is tracked debt,
+the current baseline has 215 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
