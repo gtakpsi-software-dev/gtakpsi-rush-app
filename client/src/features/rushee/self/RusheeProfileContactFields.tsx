@@ -1,5 +1,7 @@
 import type { ChangeEvent } from "react";
 
+import { formatPhoneInput } from "../../../lib/formatPhoneInput.js";
+
 export type RusheeContactProfile = {
     housing: string;
     phone_number: string;
@@ -36,12 +38,7 @@ export default function RusheeProfileContactFields({
                         name="phone_number"
                         value={rushee.phone_number}
                         onChange={(e) => {
-                            const input = e.target.value.replace(/\D/g, "");
-                            const formatted = input
-                                .replace(/^(\d{3})(\d{3})(\d{4})$/, "($1) $2-$3")
-                                .replace(/^(\d{3})(\d{1,3})$/, "($1) $2")
-                                .replace(/^(\d{1,3})$/, "($1");
-                            e.target.value = formatted;
+                            e.target.value = formatPhoneInput(e.target.value);
                             onChange(e);
                         }}
                         className="input-apple"

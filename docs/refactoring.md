@@ -2577,6 +2577,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     phone-event tests pass; a new test pins the other contact values and change
     callbacks. All 562 client tests, typecheck, scoped lint, and build pass;
     CSS retains its prior hash.
+442. Moved the unchanged phone formatter from registration into
+    `lib/formatPhoneInput.js` and reused it in the self-profile contact fields,
+    removing the matching inline formatter. The moved helper's file hash is
+    identical to the original; both forms' markup and phone-event tests pass.
+    All 562 client tests, typecheck, scoped lint, and build pass; CSS retains
+    its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -6,7 +6,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
-import { formatPhoneInput } from "../src/features/registration/formatPhoneInput.js";
+import { formatPhoneInput } from "../src/lib/formatPhoneInput.js";
 import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
 import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
 import { EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
@@ -18,7 +18,7 @@ const expectedHash = "ea94be2a5ee2dd4436a9e19eed43d9388e04c88f6121dcf7d0d3a7df57
 
 test("basic information form keeps its original labels, fields, options, and markup", async () => {
     const BasicContactFields = await loadTsxComponent(contactPath, {
-        "./formatPhoneInput.js": { formatPhoneInput },
+        "../../lib/formatPhoneInput.js": { formatPhoneInput },
     });
     const BasicInfoFields = await loadTsxComponent(fieldsPath, {
         "./BasicContactFields": BasicContactFields,

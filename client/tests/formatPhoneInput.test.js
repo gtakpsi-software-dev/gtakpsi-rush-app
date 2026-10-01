@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import React from "react";
-import { formatPhoneInput } from "../src/features/registration/formatPhoneInput.js";
+import { formatPhoneInput } from "../src/lib/formatPhoneInput.js";
 import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
 import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
 import { EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
@@ -14,7 +14,7 @@ const contactPath = fileURLToPath(new URL("../src/features/registration/BasicCon
 
 async function loadFields() {
     const BasicContactFields = await loadTsxComponent(contactPath, {
-        "./formatPhoneInput.js": { formatPhoneInput },
+        "../../lib/formatPhoneInput.js": { formatPhoneInput },
     });
     return loadTsxComponent(fieldsPath, {
         "./BasicContactFields": BasicContactFields,

@@ -1,6 +1,6 @@
 import type { Ref } from "react";
 
-import { formatPhoneInput } from "./formatPhoneInput.js";
+import { formatPhoneInput } from "../../lib/formatPhoneInput.js";
 
 export type BasicContactFieldsProps = {
     email: Ref<HTMLInputElement>;
