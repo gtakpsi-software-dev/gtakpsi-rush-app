@@ -107,7 +107,7 @@ pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
         )
         .route(
             "/admin/voting/get-eligibility",
-            get(controllers::voting::get_elibibility).options(|| async { StatusCode::OK }),
+            get(controllers::voting::get_eligibility).options(|| async { StatusCode::OK }),
         )
         .route(
             "/admin/voting/post-question",
