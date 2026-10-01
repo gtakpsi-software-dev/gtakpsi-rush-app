@@ -1,5 +1,6 @@
 use crate::clients::ClientList;
 use crate::db::get_redis_conn;
+use crate::socket_receive::{monitor_messages, SocketRole};
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     extract::{ConnectInfo, Path},
@@ -69,28 +70,12 @@ async fn handle_socket(
 
     let tx_for_pong = tx.clone();
 
-    let recv_task = tokio::spawn(async move {
-        while let Some(msg) = ws_receiver.next().await {
-            match msg {
-                Ok(Message::Close(_)) => {
-                    println!("Client {} sent close", id);
-                    break;
-                }
-                Ok(Message::Ping(data)) => {
-                    if tx_for_pong.send(Message::Pong(data)).is_err() {
-                        println!("Failed to send pong to client {}", id);
-                        break;
-                    }
-                }
-                Ok(Message::Text(_)) | Ok(Message::Binary(_)) => {}
-                Ok(Message::Pong(_)) => {}
-                Err(e) => {
-                    println!("WebSocket error for client {}: {}", id, e);
-                    break;
-                }
-            }
-        }
-    });
+    let recv_task = tokio::spawn(monitor_messages(
+        ws_receiver,
+        tx_for_pong,
+        id,
+        SocketRole::Admin,
+    ));
 
     tokio::select! {
         _ = send_task => {

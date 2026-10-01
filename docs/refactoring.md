@@ -1381,6 +1381,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     ping handling. Each connection currently emits two Pong frames per Ping;
     the test records that existing behavior before any session refactor. All
     four voting WebSocket tests pass against disposable Redis.
+239. Shared the admin and voter WebSocket receive loop for close, ping/pong,
+    ignored data frames, and errors while preserving each role's log messages.
+    Snapshot-before-registration order and live broadcast tasks remain in the
+    original session modules. All four voting WebSocket tests pass with
+    disposable Redis, including both roles' existing two-Pong behavior;
+    isolated rustfmt passes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

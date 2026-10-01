@@ -4,6 +4,7 @@ mod clients;
 mod db;
 mod protocol;
 mod snapshot;
+mod socket_receive;
 mod voter_socket;
 
 #[cfg(test)]
