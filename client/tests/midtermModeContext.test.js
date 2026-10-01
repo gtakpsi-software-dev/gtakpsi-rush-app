@@ -31,7 +31,7 @@ async function loadContext(get) {
             useCallback: (callback) => callback,
             useEffect: (effect) => { refreshEffect = effect; },
         },
-        "../js/apiClient": {
+        "../api/client": {
             get(path) {
                 requests.push(path);
                 return get();

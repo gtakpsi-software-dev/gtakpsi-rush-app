@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/js/apiClient.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../src/api/client.js", import.meta.url));
 
 async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
     const source = (await readFile(sourcePath, "utf8"))

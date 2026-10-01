@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import apiClient from '../js/apiClient';
+import apiClient from '../api/client';
 
 type MidtermModeValue = {
     isMidtermMode: boolean;

@@ -2083,6 +2083,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     helper without changing either public client or its request contract.
     All 508 client tests, typecheck, changed-file ESLint, and build pass. CSS
     is unchanged; the JS hash changed with the emitted helper.
+364. Characterized global Axios startup configuration with two tests, then
+    moved the default client and side-effect setup into `client/src/api`.
+    Updated the startup and midterm-context imports and their tests. All 510
+    client tests, typecheck, and build pass; changed-file ESLint has zero errors
+    and one existing fast-refresh warning. Production JS and CSS hashes match
+    slice 363 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2140,7 +2146,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 508 client tests, 59 server unit tests, 22 collaboration
+Current verified totals: 510 client tests, 59 server unit tests, 22 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 60 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

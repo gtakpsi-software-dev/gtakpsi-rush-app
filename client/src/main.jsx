@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 // Configure axios with API key globally (must be imported early)
-import './js/axiosSetup.js'
+import './api/configureAxios.js'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
