@@ -536,6 +536,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unused imports. All 118 client tests pass, the build succeeds, and both
     CSS and the generated JavaScript bundle match slice 90 exactly. `PIS.jsx`
     is now 569 lines.
+92. PIS brother fields: extracted assigned-brother display and four
+    collaborative inputs. Original rendered HTML hashes match fully assigned,
+    partially assigned, unassigned, and missing-signup states; tests check
+    field keys, required flags, collaboration props, and update routes. All
+    120 client tests pass, the build succeeds, and CSS matches the baseline.
+    `PIS.jsx` is now 505 lines; the new test passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -581,7 +587,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 118 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 120 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing

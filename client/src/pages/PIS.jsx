@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import CollaborativeTextarea from "../components/CollaborativeTextarea";
-import CollaborativeInput from "../components/CollaborativeInput";
 import axios from "axios";
 import { useCollaboration } from "../hooks/useCollaboration";
 
@@ -14,6 +13,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import PisProfileHeader from "../features/pis/PisProfileHeader";
+import PisBrotherFields from "../features/pis/PisBrotherFields";
 import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
@@ -425,80 +425,16 @@ export default function PIS() {
                                     </p>
                                 </div>
                                 
-                                {/* Brother Information */}
-                                <div className="mb-8 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple">
-                                    <h3 className="text-apple-title2 font-normal text-black mb-4">Brother Information</h3>
-                                    
-                                    {/* Show current assignments if they exist */}
-                                    {rushee.pis_signup && (rushee.pis_signup.first_brother_first_name !== "none" || rushee.pis_signup.second_brother_first_name !== "none") && (
-                                        <div className="mb-6 p-4 bg-apple-gray-100 border border-apple-gray-200 rounded-apple">
-                                            <h4 className="text-apple-body text-black font-normal mb-2">Currently Assigned:</h4>
-                                            {rushee.pis_signup.first_brother_first_name !== "none" && (
-                                                <p className="text-apple-body text-apple-gray-600 font-light">
-                                                    Brother 1: {rushee.pis_signup.first_brother_first_name} {rushee.pis_signup.first_brother_last_name}
-                                                </p>
-                                            )}
-                                            {rushee.pis_signup.second_brother_first_name !== "none" && (
-                                                <p className="text-apple-body text-apple-gray-600 font-light">
-                                                    Brother 2: {rushee.pis_signup.second_brother_first_name} {rushee.pis_signup.second_brother_last_name}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-                                    
-                                    {/* Brother A */}
-                                    <div className="mb-6">
-                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother A:</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <CollaborativeInput
-                                                fieldKey="_brotherA_firstName"
-                                                placeholder="First Name"
-                                                value={brotherA.firstName}
-                                                onChange={(value) => handleBrotherAChange('firstName', value)}
-                                                className="input-apple text-apple-footnote"
-                                                collaboration={collaboration}
-                                                currentUser={currentUser}
-                                                required
-                                            />
-                                            <CollaborativeInput
-                                                fieldKey="_brotherA_lastName"
-                                                placeholder="Last Name"
-                                                value={brotherA.lastName}
-                                                onChange={(value) => handleBrotherAChange('lastName', value)}
-                                                className="input-apple text-apple-footnote"
-                                                collaboration={collaboration}
-                                                currentUser={currentUser}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Brother B */}
-                                    <div className="mb-0">
-                                        <label className="block text-apple-footnote font-normal text-apple-gray-700 mb-2">Brother B:</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <CollaborativeInput
-                                                fieldKey="_brotherB_firstName"
-                                                placeholder="First Name"
-                                                value={brotherB.firstName}
-                                                onChange={(value) => handleBrotherBChange('firstName', value)}
-                                                className="input-apple text-apple-footnote"
-                                                collaboration={collaboration}
-                                                currentUser={currentUser}
-                                            />
-                                            <CollaborativeInput
-                                                fieldKey="_brotherB_lastName"
-                                                placeholder="Last Name"
-                                                value={brotherB.lastName}
-                                                onChange={(value) => handleBrotherBChange('lastName', value)}
-                                                className="input-apple text-apple-footnote"
-                                                collaboration={collaboration}
-                                                currentUser={currentUser}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                
+                                <PisBrotherFields
+                                    rushee={rushee}
+                                    brotherA={brotherA}
+                                    brotherB={brotherB}
+                                    collaboration={collaboration}
+                                    currentUser={currentUser}
+                                    handleBrotherAChange={handleBrotherAChange}
+                                    handleBrotherBChange={handleBrotherBChange}
+                                />
+
                                 {questions.length > 0 ? (
                                     questions.map((question, idx) => (
                                         <div key={idx} className="mb-8">
