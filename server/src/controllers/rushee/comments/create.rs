@@ -1,9 +1,9 @@
-use super::average_rating_value;
+use super::rating_updates::update_global_ratings;
 use crate::controllers::db;
 use crate::middlewares::{attendance, valid::check_valid_comment};
 use crate::models::{
     misc::RushNight,
-    rushee::{Comment, IncomingComment, Rating},
+    rushee::{Comment, IncomingComment},
 };
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
@@ -107,67 +107,14 @@ pub async fn post_comment(
                                 }
                             }
 
-                            // update ratings
-                            for rating in payload.ratings.iter() {
-                                let new_value = average_rating_value(
-                                    &rushee.comments,
-                                    &rating.name,
-                                    Some(rating.value),
-                                )
-                                .unwrap_or(0.0);
-
-                                let search_rating = rushee
-                                    .ratings
-                                    .iter()
-                                    .find(|r: &&Rating| rating.name == r.name);
-
-                                match search_rating {
-                                    Some(_y) => {
-                                        // Update existing rating
-                                        let filter = doc! {
-                                            "gtid": id.clone(),
-                                            "ratings.name": rating.name.clone(),
-                                        };
-                                        let update = doc! {
-                                            "$set": {
-                                                "ratings.$.value": new_value,
-                                            },
-                                        };
-                                        let update_result_try =
-                                            connection.update_one(filter, update).await;
-
-                                        match update_result_try {
-                                            Ok(_update_result) => {
-                                                // do nothing
-                                            }
-                                            Err(_err) => {
-                                                return Ok(Json(json!({
-                                                    "status": "error",
-                                                    "message": "there was an error updating the rushee's global ratings"
-                                                })))
-                                            }
-                                        }
-                                    }
-                                    None => {
-                                        // **This is the important part for an empty array or new category**
-                                        let filter = doc! {"gtid": id.clone()};
-                                        let update = doc! {"$push": {"ratings": {"name": rating.name.clone(), "value": new_value}}};
-                                        let update_result_try =
-                                            connection.update_one(filter, update).await;
-
-                                        match update_result_try {
-                                            Ok(_update_result) => {
-                                                // do nothing
-                                            }
-                                            Err(_err) => {
-                                                return Ok(Json(json!({
-                                                    "status": "error",
-                                                    "message": "there was an error updating the rushee's global ratings"
-                                                })))
-                                            }
-                                        }
-                                    }
-                                }
+                            if update_global_ratings(&connection, &id, &rushee, &payload.ratings)
+                                .await
+                                .is_err()
+                            {
+                                return Ok(Json(json!({
+                                    "status": "error",
+                                    "message": "there was an error updating the rushee's global ratings"
+                                })));
                             }
 
                             let mut bson_comment;

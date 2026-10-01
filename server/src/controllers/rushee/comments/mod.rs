@@ -10,6 +10,8 @@ pub use edit::edit_comment;
 mod queries;
 pub use queries::get_brother_comments;
 
+mod rating_updates;
+
 use crate::models::rushee::Comment;
 
 /// Only 1–5 values contribute to averages; legacy zero ratings remain on comments.

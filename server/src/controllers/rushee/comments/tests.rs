@@ -3,7 +3,7 @@ use crate::models::{
     misc::RushNight,
     rushee::{Comment, Rating},
 };
-use bson::DateTime;
+use bson::{doc, DateTime};
 
 fn comment(ratings: &[(&str, f32)]) -> Comment {
     Comment {
@@ -62,4 +62,27 @@ fn rating_average_excludes_legacy_and_invalid_values_and_preserves_empty_result(
     assert_eq!(average_rating_value(&comments, "fit", None), None);
     assert_eq!(average_rating_value(&comments, "fit", Some(6.0)), None);
     assert_eq!(average_rating_value(&comments, "fit", Some(2.5)), Some(2.5));
+}
+
+#[test]
+fn rating_updates_keep_existing_and_new_category_filters_and_operators() {
+    let rating = Rating {
+        name: "Professionalism".into(),
+        value: 4.0,
+    };
+
+    assert_eq!(
+        rating_updates::build_rating_update("123", &rating, 3.0, true),
+        (
+            doc! { "gtid": "123", "ratings.name": "Professionalism" },
+            doc! { "$set": { "ratings.$.value": 3.0 } },
+        )
+    );
+    assert_eq!(
+        rating_updates::build_rating_update("123", &rating, 3.0, false),
+        (
+            doc! { "gtid": "123" },
+            doc! { "$push": { "ratings": { "name": "Professionalism", "value": 3.0 } } },
+        )
+    );
 }
