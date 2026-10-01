@@ -9,174 +9,81 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
 
-/**
- * Post a new comment to some rushee
- * Uses timestamp to record date
- */
+fn comment_error(message: &'static str) -> Result<Json<Value>, StatusCode> {
+    Ok(Json(json!({ "status": "error", "message": message })))
+}
+
 pub async fn post_comment(
     Path(id): Path<String>,
     Json(payload): Json<IncomingComment>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
-    let fetch_rush_nights = attendance::get_rush_nights().await;
+    let rush_nights = match attendance::get_rush_nights().await {
+        Ok(nights) => nights,
+        Err(_) => return comment_error("there was some error while matching the rush night"),
+    };
+    let Some(active_night) =
+        crate::middlewares::rush_nights::current_rush_night(&rush_nights, bson::DateTime::now())
+    else {
+        return comment_error("no rush nights are configured");
+    };
+    let Some(rush_night) = rush_nights
+        .iter()
+        .find(|night| night.name == active_night.name)
+    else {
+        return comment_error("couldn't match a rush night");
+    };
 
-    match fetch_rush_nights {
-        Ok(rush_nights) => {
-            let active_night = crate::middlewares::rush_nights::current_rush_night(
-                &rush_nights,
-                bson::DateTime::now(),
-            );
-            let active_night_name = match active_night {
-                Some(n) => n.name,
-                None => {
-                    return Ok(Json(json!({
-                        "status": "error",
-                        "message": "no rush nights are configured"
-                    })))
-                }
-            };
-            for rush_night in rush_nights.iter() {
-                if rush_night.name == active_night_name {
-                    // found rush night
-                    let attempt_bson_night = to_bson(&rush_night);
-                    let mut bson_night;
+    // Preserve the night serialization gate before any rushee or rating write.
+    if to_bson(&rush_night).is_err() {
+        return comment_error("some issue occurred when serializing the rush night");
+    }
 
-                    match attempt_bson_night {
-                        Ok(x) => {
-                            bson_night = x;
-                        }
+    let my_rush_night = RushNight {
+        name: rush_night.name.clone(),
+        time: rush_night.time,
+    };
+    let new_comment = Comment {
+        brother_id: payload.brother_id.clone(),
+        brother_name: payload.brother_name.clone(),
+        comment: payload.comment.clone(),
+        ratings: payload.ratings.clone(),
+        night: my_rush_night.clone(),
+    };
 
-                        Err(_err) => {
-                            return Ok(Json(json!({
-                                "status": "error",
-                                "message": "some issue occurred when serializing the rush night"
-                            })))
-                        }
-                    }
+    let rushee = match connection.find_one(doc! { "gtid": id.clone() }).await {
+        Ok(Some(rushee)) => rushee,
+        Ok(None) => return comment_error("some error occurred"),
+        Err(_) => return comment_error("something wrong occurred"),
+    };
 
-                    let my_rush_night = RushNight {
-                        name: rush_night.name.clone(),
-                        time: rush_night.time,
-                    };
+    if check_valid_comment(&payload.brother_name, &my_rush_night, &rushee.comments)
+        .await
+        .is_err()
+    {
+        return comment_error("you have already made a comment for this rush night");
+    }
 
-                    let new_comment = Comment {
-                        brother_id: payload.brother_id.clone(),
-                        brother_name: payload.brother_name.clone(),
-                        comment: payload.comment.clone(),
-                        ratings: payload.ratings.clone(),
-                        night: my_rush_night.clone(),
-                    };
+    // Ratings are written before appending the comment; retain that partial-write order.
+    if update_global_ratings(&connection, &id, &rushee, &payload.ratings)
+        .await
+        .is_err()
+    {
+        return comment_error("there was an error updating the rushee's global ratings");
+    }
 
-                    // fetch the rushee
-                    let get_rushee_result = connection.find_one(doc! {"gtid": id.clone()}).await;
+    let bson_comment = match to_bson(&new_comment) {
+        Ok(comment) => comment,
+        Err(_) => return comment_error("some error occurred"),
+    };
+    let filter = doc! { "gtid": id };
+    let update = doc! { "$push": { "comments": bson_comment } };
 
-                    match get_rushee_result {
-                        Ok(rushee_option) => {
-                            let mut rushee;
-
-                            match rushee_option {
-                                Some(x) => {
-                                    rushee = x;
-                                }
-                                None => {
-                                    return Ok(Json(json!({
-                                        "status": "error",
-                                        "message": "some error occurred"
-                                    })))
-                                }
-                            }
-
-                            // check if brother has already made a comment
-                            let is_valid = check_valid_comment(
-                                &payload.brother_name,
-                                &my_rush_night,
-                                &rushee.comments,
-                            )
-                            .await;
-
-                            match is_valid {
-                                Ok(_result) => {
-                                    // do nothing
-                                }
-
-                                Err(_err) => {
-                                    return Ok(Json(json!({
-                                        "status": "error",
-                                        "message": "you have already made a comment for this rush night"
-                                    })))
-                                }
-                            }
-
-                            if update_global_ratings(&connection, &id, &rushee, &payload.ratings)
-                                .await
-                                .is_err()
-                            {
-                                return Ok(Json(json!({
-                                    "status": "error",
-                                    "message": "there was an error updating the rushee's global ratings"
-                                })));
-                            }
-
-                            let mut bson_comment;
-                            let mut bson_comment_try = to_bson(&new_comment);
-
-                            match bson_comment_try {
-                                Ok(x) => {
-                                    bson_comment = x;
-                                }
-                                Err(err) => {
-                                    return Ok(Json(json!({
-                                        "status": "error",
-                                        "message": "some error occurred"
-                                    })))
-                                }
-                            }
-
-                            let filter = doc! {"gtid": id};
-                            let update = doc! {"$push": {
-                                "comments": bson_comment,
-                            }};
-
-                            let result = connection.update_one(filter, update).await;
-
-                            match result {
-                                Ok(_update_result) => {
-                                    return Ok(Json(json!({
-                                        "status": "success",
-                                        "message": "successfully updated rushee"
-                                    })))
-                                }
-
-                                Err(_err) => {
-                                    return Ok(Json(json!({
-                                        "status": "error",
-                                        "message": "something wrong occurred"
-                                    })))
-                                }
-                            }
-                        }
-
-                        Err(_err) => {
-                            return Ok(Json(json!({
-                                "status": "error",
-                                "message": "something wrong occurred"
-                            })))
-                        }
-                    }
-                }
-            }
-
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "couldn't match a rush night"
-            })));
-        }
-
-        Err(_err) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "there was some error while matching the rush night"
-            })))
-        }
+    match connection.update_one(filter, update).await {
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "successfully updated rushee"
+        }))),
+        Err(_) => comment_error("something wrong occurred"),
     }
 }

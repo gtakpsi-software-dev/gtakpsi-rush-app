@@ -1138,6 +1138,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     response's null timeslot and interaction fields alongside the existing
     self-service privacy contract. All 43 API unit tests and all 44 tests with
     disposable MongoDB pass; the new module passes rustfmt checks.
+200. Flattened `post_comment` from 182 to 89 lines with early returns and a
+    shared response constructor. The night-serialization gate and rating-before-
+    comment write order remain in place. New isolated database assertions pin
+    the no-night and missing-rushee messages; existing duplicate, rating, edit,
+    and deletion scenarios still pass. All 43 API unit tests and all 44 tests
+    with disposable MongoDB pass. API test-build warnings fall from 42 to 35.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

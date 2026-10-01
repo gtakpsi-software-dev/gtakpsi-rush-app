@@ -19,6 +19,13 @@ fn payload(name: &str, value: f32) -> IncomingComment {
 pub async fn check_contracts() {
     reset().await;
     register().await;
+    assert_eq!(
+        rushee::post_comment(path(), Json(payload("Alex", 0.0)))
+            .await
+            .unwrap()
+            .0["message"],
+        "no rush nights are configured"
+    );
     db::get_rush_nights_client()
         .await
         .insert_one(RushNight {
@@ -27,6 +34,16 @@ pub async fn check_contracts() {
         })
         .await
         .unwrap();
+    assert_eq!(
+        rushee::post_comment(
+            axum::extract::Path("missing-rushee".to_string()),
+            Json(payload("Alex", 0.0)),
+        )
+        .await
+        .unwrap()
+        .0["message"],
+        "some error occurred"
+    );
     assert_eq!(
         rushee::post_comment(path(), Json(payload("Alex", 0.0)))
             .await
