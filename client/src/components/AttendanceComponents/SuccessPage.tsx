@@ -1,10 +1,16 @@
 
-export default function SuccessPage(props) {
+/**
+ * Attendance Success Summary:
+ * - Types the optional Back action used by the check-in page.
+ * - Keeps the confirmation message and button placement unchanged.
+ */
+type Props = { goBack?: () => void };
+
+export default function SuccessPage(props: Props) {
 
     return (
         <div className="min-h-screen w-full bg-white flex items-center justify-center p-4">
             <div className="text-center max-w-lg w-full">
-                {/* Success Icon */}
                 <div className="flex items-center justify-center w-28 h-28 bg-black rounded-apple-2xl mx-auto mb-8">
                     <svg
                         className="w-16 h-16 text-white"
@@ -22,11 +28,9 @@ export default function SuccessPage(props) {
                     </svg>
                 </div>
 
-                {/* Title */}
-                <h1 className="text-apple-large font-light text-black mb-3">You're Checked In!</h1>
+                <h1 className="text-apple-large font-light text-black mb-3">{"You're"} Checked In!</h1>
                 <div className="w-16 h-0.5 bg-black mx-auto mb-6"></div>
 
-                {/* Description */}
                 <p className="text-apple-title2 text-apple-gray-600 font-light leading-relaxed">
                     Make sure to grab a name tag and proceed inside the room.
                 </p>

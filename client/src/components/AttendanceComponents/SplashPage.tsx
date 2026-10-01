@@ -1,15 +1,26 @@
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 import { verifyGTID } from "../../features/registration/registrationVerification";
 import { useNavigate } from "react-router-dom";
 
-export default function SplashPage(props) {
+/**
+ * Attendance Splash Summary:
+ * - Types the GTID input and submit callbacks without changing validation.
+ * - Preserves the existing button-disabled value and rendered form states.
+ */
+type Props = {
+    setGtid: (gtid: string) => void;
+    func: () => void;
+};
+
+export default function SplashPage(props: Props) {
 
     const [inputValue, setInputValue] = useState("");
     const [error, setError] = useState("");
 
     const navigate = useNavigate()
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         props.setGtid(e.target.value);
         setInputValue(e.target.value)
         if (e.target.value.trim() === "" || !verifyGTID(e.target.value.trim())) {
@@ -20,9 +31,11 @@ export default function SplashPage(props) {
         console.log(error)
     };
 
+    // React treats the legacy truthy error string as a disabled button.
+    const disableSubmit = (!inputValue.trim() || error) as boolean;
+
     return (
         <div className="min-h-screen w-full bg-white flex items-center justify-center p-4">
-            {/* Background Pattern */}
             <svg 
                 className="absolute inset-0 w-full h-full"
                 xmlns="http://www.w3.org/2000/svg"
@@ -46,20 +59,17 @@ export default function SplashPage(props) {
                 <rect width="100%" height="100%" fill="url(#geometricPattern)"/>
             </svg>
 
-            {/* Content */}
             <div className="relative z-10 text-center max-w-md w-full">
-                {/* Registration Link */}
                 <button 
                     onClick={() => navigate("/register")}
                     className="inline-flex items-center gap-2 py-2 px-4 mb-8 text-apple-footnote text-apple-gray-600 bg-apple-gray-100 hover:bg-apple-gray-200 rounded-apple-2xl transition-all duration-200 font-light"
                 >
-                    <span>Don't have an account? Create one now</span>
+                    <span>{"Don't"} have an account? Create one now</span>
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
 
-                                {/* Logo */}
                 <div className="mb-6">
                     <img 
                         src="/akpsilogo.png" 
@@ -68,7 +78,6 @@ export default function SplashPage(props) {
                     />
                 </div>
 
-                {/* Title */}
                 <h1 className="text-apple-large md:text-6xl text-black font-light mb-2">
                     GT AKPsi Rush
                 </h1>
@@ -77,7 +86,6 @@ export default function SplashPage(props) {
                     Check In
                 </p>
 
-                {/* Input Form */}
                 <div className="space-y-4">
                     <input
                         type="text"
@@ -89,7 +97,7 @@ export default function SplashPage(props) {
                     
                     <button
                         onClick={props.func}
-                        disabled={!inputValue.trim() || error}
+                        disabled={disableSubmit}
                         className={`w-full py-4 px-6 text-apple-headline font-light rounded-apple-xl transition-all duration-200 ${
                             inputValue.trim() && !error
                                 ? 'bg-black text-white hover:bg-apple-gray-800'
@@ -100,7 +108,6 @@ export default function SplashPage(props) {
                     </button>
                 </div>
 
-                {/* Error Message */}
                 {error && (
                     <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-apple text-red-700 text-apple-footnote font-light">
                         {error}
