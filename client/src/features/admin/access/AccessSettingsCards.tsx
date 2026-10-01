@@ -126,7 +126,7 @@ export default function AccessSettingsCards({
             <div className="card-apple p-5">
                 <h3 className="text-apple-headline font-normal text-black mb-2">Midterm Mode</h3>
                 <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                    Strips the app to voting-only for all brothers. Admins retain full access. The navbar title changes to "AKPsi Midterm" and the contact bar is hidden.
+                    Strips the app to voting-only for all brothers. Admins retain full access. The navbar title changes to &quot;AKPsi Midterm&quot; and the contact bar is hidden.
                 </p>
 
                 <div className="flex items-center justify-between">

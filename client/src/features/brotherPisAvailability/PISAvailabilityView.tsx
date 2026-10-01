@@ -37,7 +37,7 @@ export default function PISAvailabilityView({
                         PIS Availability Form
                     </h2>
                     <p className="text-apple-footnote text-apple-gray-400 mt-1 font-light">
-                        Select all timeslots you're available to host PIS interviews (or submit with none if unavailable)
+                        Select all timeslots you&apos;re available to host PIS interviews (or submit with none if unavailable)
                     </p>
                 </div>
 

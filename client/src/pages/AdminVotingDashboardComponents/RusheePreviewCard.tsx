@@ -129,7 +129,7 @@ export default function RusheePreviewCard() {
                             </ul>
                         ) : searchQuery.trim() ? (
                             <div className="p-4 text-center text-apple-gray-500 text-apple-footnote">
-                                No rushees found matching "{searchQuery}"
+                                No rushees found matching &quot;{searchQuery}&quot;
                             </div>
                         ) : null}
                     </div>

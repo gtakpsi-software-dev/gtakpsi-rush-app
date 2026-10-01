@@ -137,7 +137,7 @@ export default function PisAvailabilitySection({
                 <div className="card-apple p-6">
                     <h3 className="text-apple-headline font-normal text-black mb-2">Auto-Assign Brothers</h3>
                     <p className="text-apple-footnote text-apple-gray-600 font-light mb-4">
-                        Automatically assign 2 available brothers to each rushee's PIS slot based on submitted availability.
+                        Automatically assign 2 available brothers to each rushee&apos;s PIS slot based on submitted availability.
                         Brothers are load-balanced to distribute assignments evenly.
                     </p>
 

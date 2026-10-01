@@ -27,7 +27,7 @@ export default function BasicInfoForm(props: BasicInfoFormProps) {
                 </h1>
                 <div className="w-16 h-0.5 bg-black mx-auto mb-4"></div>
                 <p className="text-apple-subheadline text-apple-gray-600 font-light">
-                    Let's get some basic information about you to get started
+                    Let&apos;s get some basic information about you to get started
                 </p>
             </div>
             <div className="card-apple animate-slide-up mb-16" style={{animationDelay: '0.1s'}}>

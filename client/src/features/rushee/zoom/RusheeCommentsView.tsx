@@ -48,7 +48,7 @@ export default function RusheeCommentsView({
                 {showVisibilityNotice && (
                     <div className="mt-6 p-6 bg-apple-gray-50 border border-apple-gray-200 rounded-apple text-center">
                         <p className="text-apple-body text-apple-gray-600 font-light">
-                            Post your comment to save your ratings and notes. You won't see other brothers' comments.
+                            Post your comment to save your ratings and notes. You won&apos;t see other brothers&apos; comments.
                         </p>
                     </div>
                 )}
