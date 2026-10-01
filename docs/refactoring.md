@@ -2625,6 +2625,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     154 to 123 lines. Tests pin method and OPTIONS behavior before auth plus
     unauthorized responses on the assembled router. All 73 server unit tests
     and all 74 isolated database integration-feature tests pass.
+451. Shared the identical wheel-listener effect across the admin, bid-committee,
+    and brother sorting pages in `useSortingWheelListener.js`, preserving the
+    loading-only attachment lifecycle. A direct listener test and existing
+    page markup hashes pass. All 567 client tests, typecheck, scoped lint, and
+    build pass; CSS retains its prior hash. Scoped warnings fell from eight to
+    six, so the CI gate now enforces that lower limit.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2656,10 +2662,10 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 9 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 7 warnings, so it is
 tracked debt, not a passing check.
 `npm --prefix client run lint:ci` gates the rest of the client at no more than
-8 warnings. The regression workflow runs this scoped gate, the passing suites,
+6 warnings. The regression workflow runs this scoped gate, the passing suites,
 and the client build on pushes and pull requests; its first GitHub run remains
 unverified.
 
@@ -2684,7 +2690,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 566 client tests, 73 server unit tests, 28 collaboration
+Current verified totals: 567 client tests, 73 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 74 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only

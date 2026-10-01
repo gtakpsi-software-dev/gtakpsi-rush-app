@@ -9,6 +9,7 @@ import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createBrotherSortingDetailsHandlers } from "../features/sorting/createBrotherSortingDetailsHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
 
@@ -98,13 +99,7 @@ export default function BrotherSorting() {
 
     const canvasRef = useRef(null);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        canvas.addEventListener("wheel", handleWheel, { passive: false });
-        return () => canvas.removeEventListener("wheel", handleWheel);
-    }, [loading]);
+    useSortingWheelListener(canvasRef, handleWheel, loading);
 
     if (loading) {
         return (

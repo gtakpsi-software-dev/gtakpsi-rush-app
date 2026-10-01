@@ -81,6 +81,11 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/createAdminSortingMoveActions': { createAdminSortingMoveActions },
         '../features/sorting/createSortingDragHandlers': { createSortingDragHandlers: actions },
         '../features/sorting/createSortingViewportHandlers': { createSortingViewportHandlers: actions },
+        '../features/sorting/useSortingWheelListener': {
+            useSortingWheelListener: (canvasRef, handleWheel, loading) => {
+                captured.set('wheel-listener', { canvasRef, handleWheel, loading });
+            },
+        },
         '../features/sorting/createSortingNotesHandlers': { createSortingNotesHandlers: actions },
         '../features/sorting/loadAdminSortingData': { loadAdminSortingData: noop },
     };
@@ -134,6 +139,8 @@ test('admin sorting page passes board state and callbacks to its controls', asyn
     assert.equal(captured.get('presence').viewerCount, 3);
     assert.equal(captured.get('zoom').scale, 1.5);
     assert.equal(captured.get('board-root-ref'), captured.get('view').canvasRef);
+    assert.equal(captured.get('wheel-listener').canvasRef, captured.get('view').canvasRef);
+    assert.equal(captured.get('wheel-listener').loading, false);
     assert.equal(captured.get('board-root').onMouseDown, captured.get('view').onMouseDown);
     assert.equal(captured.get('board-root').onMouseMove, captured.get('view').onMouseMove);
     assert.equal(captured.get('board-root').onMouseUp, captured.get('view').onMouseUp);

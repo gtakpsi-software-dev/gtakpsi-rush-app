@@ -89,6 +89,11 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/createSortingViewportHandlers": {
             createSortingViewportHandlers: () => new Proxy({}, { get: () => noop }),
         },
+        "../features/sorting/useSortingWheelListener": {
+            useSortingWheelListener: (canvasRef, handleWheel, loading) => {
+                captured.set("wheel-listener", { canvasRef, handleWheel, loading });
+            },
+        },
         "../features/sorting/createSortingNotesHandlers": {
             createSortingNotesHandlers: () => new Proxy({}, { get: () => noop }),
         },
@@ -176,6 +181,8 @@ test("viewer pages pass the original board state and audience to their controls"
         assert.equal(captured.get("presence").connected, true);
         assert.equal(captured.get("presence").viewerCount, 3);
         assert.equal(captured.get("board-root-ref"), captured.get("board-view").canvasRef);
+        assert.equal(captured.get("wheel-listener").canvasRef, captured.get("board-view").canvasRef);
+        assert.equal(captured.get("wheel-listener").loading, false);
         assert.equal(captured.get("board-root").onMouseDown, captured.get("board-view").onMouseDown);
         assert.equal(captured.get("board-root").onMouseMove, captured.get("board-view").onMouseMove);
         assert.equal(captured.get("board-root").onMouseUp, captured.get("board-view").onMouseUp);

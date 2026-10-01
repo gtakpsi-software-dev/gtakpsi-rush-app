@@ -8,6 +8,7 @@ import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/bo
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
@@ -120,13 +121,7 @@ export default function BidComSorting() {
 
     const canvasRef = useRef(null);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        canvas.addEventListener("wheel", handleWheel, { passive: false });
-        return () => canvas.removeEventListener("wheel", handleWheel);
-    }, [loading]);
+    useSortingWheelListener(canvasRef, handleWheel, loading);
 
     if (loading) {
         return (

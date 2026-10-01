@@ -10,6 +10,7 @@ import { useSortingAdminConnection } from "../features/sorting/useSortingAdminCo
 import { createAdminSortingMoveActions } from "../features/sorting/createAdminSortingMoveActions";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
@@ -166,13 +167,7 @@ export default function AdminSorting() {
 
     const canvasRef = useRef(null);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        canvas.addEventListener("wheel", handleWheel, { passive: false });
-        return () => canvas.removeEventListener("wheel", handleWheel);
-    }, [loading]);
+    useSortingWheelListener(canvasRef, handleWheel, loading);
 
     if (loading) {
         return (
