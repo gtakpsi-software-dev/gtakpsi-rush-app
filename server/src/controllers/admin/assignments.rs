@@ -1,21 +1,20 @@
 use crate::controllers::db;
-use crate::models::pis::BrotherPISAvailability;
-use crate::models::rushee::RusheeModel;
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
-use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+mod clear;
+mod loading;
 mod persistence;
 mod planning;
+pub use clear::clear_pis_assignments;
+use loading::{load_brother_availabilities, load_rushees};
 use persistence::persist_assignment;
 use planning::{index_availability, AssignmentPlanner};
 
 /// Auto-assign brothers to PIS slots based on availability
 pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
-    let availability_collection = db::get_brother_pis_availability_client().await;
-    let mut availability_cursor = match availability_collection.find(doc! {}).await {
-        Ok(cursor) => cursor,
+    let brother_availabilities = match load_brother_availabilities().await {
+        Ok(availabilities) => availabilities,
         Err(_) => {
             return Ok(Json(json!({
                 "status": "error",
@@ -23,13 +22,6 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
             })));
         }
     };
-
-    let mut brother_availabilities: Vec<BrotherPISAvailability> = Vec::new();
-    while let Some(item) = availability_cursor.next().await {
-        if let Ok(avail) = item {
-            brother_availabilities.push(avail);
-        }
-    }
 
     if brother_availabilities.is_empty() {
         return Ok(Json(json!({
@@ -42,8 +34,8 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
     let mut planner = AssignmentPlanner::default();
 
     let rushee_collection = db::get_rushee_client().await;
-    let mut rushee_cursor = match rushee_collection.find(doc! {}).await {
-        Ok(cursor) => cursor,
+    let rushees = match load_rushees(&rushee_collection).await {
+        Ok(rushees) => rushees,
         Err(_) => {
             return Ok(Json(json!({
                 "status": "error",
@@ -51,13 +43,6 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
             })));
         }
     };
-
-    let mut rushees: Vec<RusheeModel> = Vec::new();
-    while let Some(item) = rushee_cursor.next().await {
-        if let Ok(rushee) = item {
-            rushees.push(rushee);
-        }
-    }
 
     // Register every existing assignment before choosing new ones so later rushees cannot conflict.
     for rushee in &rushees {
@@ -110,29 +95,4 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         "message": format!("Assigned brothers to {} PIS slots. {} slots could not be fully assigned (all available brothers at that time were busy).",
                           assignments_made, assignment_failures)
     })))
-}
-
-/// Clear all brother assignments from PIS slots
-pub async fn clear_pis_assignments() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
-
-    let update = doc! {
-        "$set": {
-            "pis_signup.first_brother_first_name": "none",
-            "pis_signup.first_brother_last_name": "none",
-            "pis_signup.second_brother_first_name": "none",
-            "pis_signup.second_brother_last_name": "none"
-        }
-    };
-
-    match collection.update_many(doc! {}, update).await {
-        Ok(result) => Ok(Json(json!({
-            "status": "success",
-            "message": format!("Cleared assignments from {} rushees", result.modified_count)
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to clear assignments"
-        }))),
-    }
 }

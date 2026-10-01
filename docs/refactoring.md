@@ -2642,6 +2642,14 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     pages fell from 189/168/143 to 173/152/127 lines. Existing page markup
     hashes and viewport behavior tests pass; all 567 client tests, typecheck,
     scoped lint, and build pass with unchanged CSS.
+454. Separated PIS assignment input loading and assignment clearing into
+    `controllers/admin/assignments/loading.rs` and `clear.rs`, reducing the
+    assignment coordinator from 138 to 98 lines. A new unit test pins the
+    existing behavior of skipping malformed cursor rows while retaining later
+    valid rows. The isolated database scenario still verifies partial and
+    complete assignment, response text, and all four fields cleared. All 74
+    server unit tests and 75 integration-feature tests pass; changed files
+    pass rustfmt without reformatting unrelated baseline files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2701,9 +2709,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 567 client tests, 73 server unit tests, 28 collaboration
+Current verified totals: 567 client tests, 74 server unit tests, 28 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 74 server tests from the latest integration-feature run, plus 65
+feature, and 75 server tests from the latest integration-feature run, plus 65
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
