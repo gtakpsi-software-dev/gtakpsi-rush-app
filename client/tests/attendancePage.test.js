@@ -8,6 +8,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
+import { createAttendanceActions } from "../src/features/attendance/createAttendanceActions.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Attendance.jsx", import.meta.url));
 
@@ -60,6 +61,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
                 "react-toastify/dist/ReactToastify.css": {},
                 "../features/registration/registrationVerification": {},
                 "../features/auth/verifyUser": { verifyUser: async () => true },
+                "../features/attendance/createAttendanceActions": { createAttendanceActions },
                 axios: {
                     get: async (url) => {
                         requests.push(["get", url]);

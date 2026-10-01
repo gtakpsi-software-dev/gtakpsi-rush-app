@@ -10,19 +10,7 @@ import axios from "axios";
 import DisplayInfo from "../components/AttendanceComponents/DisplayInfo";
 import SuccessPage from "../components/AttendanceComponents/SuccessPage";
 import { useNavigate } from "react-router-dom";
-
-function showAttendanceError(message) {
-    toast.error(message, {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-}
+import { createAttendanceActions } from "../features/attendance/createAttendanceActions";
 
 export default function Attendance() {
 
@@ -76,76 +64,10 @@ export default function Attendance() {
         }
     }, [loading, navigate]);
 
-    const handleSubmit = async () => {
-
-        setLoading(true)
-
-        // fetch rushee
-        await axios.get(`${api}/rushee/${gtid}`)
-            .then((response) => {
-
-                if (response.data.status == "success") {
-
-                    setPage(1)
-                    setRushee(response.data.payload)
-
-                    console.log(response.data.payload)
-
-                } else {
-
-                    showAttendanceError(`${response.data.message}`);
-
-                }
-
-            })
-            .catch((error) => {
-
-                console.log(error)
-
-                showAttendanceError("Some internal network error occurred");
-
-            })
-
-        setLoading(false)
-
-    }
-
-    const goBack = () => {
-
-        setGtid()
-        setPage(0)
-        setRushee()
-
-    }
-
-    const checkIn = async () => {
-
-        setLoading(true)
-
-        await axios.post(`${api}/rushee/update-attendance/${gtid}`)
-        .then((response) => {
-
-            if (response.data.status == "success") {
-
-                setPage(2)
-
-            } else {
-
-                showAttendanceError(`${response.data.message}`);
-
-            }
-
-        })
-        .catch((error) => {
-
-            console.log(error)
-            showAttendanceError("Some internal network error occurred");
-
-        })
-
-        setLoading(false)
-
-    }
+    const { handleSubmit, goBack, checkIn } = createAttendanceActions({
+        api, gtid, setLoading, setPage, setRushee, setGtid,
+        axios, toast, log: (value) => console.log(value),
+    });
 
     return (
 
