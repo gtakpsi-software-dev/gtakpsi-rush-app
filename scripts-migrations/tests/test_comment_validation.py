@@ -8,9 +8,10 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+SCRIPTS = Path(__file__).resolve().parents[1]
 
-from lib.comment_validation import check_comment_structure
+with patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
+    from lib.comment_validation import check_comment_structure
 
 
 class CommentValidationTests(unittest.TestCase):
@@ -28,7 +29,8 @@ class CommentValidationTests(unittest.TestCase):
         pymongo = types.ModuleType("pymongo")
         pymongo.MongoClient = lambda _uri: None
         script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
-        with patch.dict(sys.modules, {"pymongo": pymongo}):
+        with patch.object(sys, "path", [str(SCRIPTS), *sys.path]), \
+             patch.dict(sys.modules, {"pymongo": pymongo}):
             script = runpy.run_path(str(script_path))
 
         output = StringIO()
@@ -68,7 +70,8 @@ class CommentValidationTests(unittest.TestCase):
         pymongo.MongoClient = lambda _uri: client
         script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
 
-        with patch.dict(sys.modules, {"pymongo": pymongo}), \
+        with patch.object(sys, "path", [str(SCRIPTS), *sys.path]), \
+             patch.dict(sys.modules, {"pymongo": pymongo}), \
              patch.dict(os.environ, {"FIND_MALFORMED_COMMENTS_MONGO_URI": "mongodb://offline-test"}, clear=True):
             script = runpy.run_path(str(script_path))
             output = StringIO()
@@ -95,7 +98,8 @@ class CommentValidationTests(unittest.TestCase):
         pymongo.MongoClient = lambda _uri: client
         script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
 
-        with patch.dict(sys.modules, {"pymongo": pymongo}), \
+        with patch.object(sys, "path", [str(SCRIPTS), *sys.path]), \
+             patch.dict(sys.modules, {"pymongo": pymongo}), \
              patch.dict(os.environ, {"FIND_MALFORMED_COMMENTS_MONGO_URI": "mongodb://offline-test"}, clear=True):
             script = runpy.run_path(str(script_path))
             output = StringIO()

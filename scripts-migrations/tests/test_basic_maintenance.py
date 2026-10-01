@@ -10,7 +10,6 @@ from unittest.mock import MagicMock, patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(SCRIPTS))
 
 
 def load_script(name, execute=False, argv=None, collections=None):
@@ -21,7 +20,8 @@ def load_script(name, execute=False, argv=None, collections=None):
     pymongo = types.ModuleType("pymongo")
     pymongo.MongoClient = lambda uri: events.append(("connect", uri)) or client
 
-    with patch.dict(sys.modules, {"pymongo": pymongo}):
+    with patch.object(sys, "path", [str(SCRIPTS), *sys.path]), \
+         patch.dict(sys.modules, {"pymongo": pymongo}):
         key = f"{Path(name).stem.upper()}_MONGO_URI"
         with patch.dict(os.environ, {key: "mongodb://offline-test"}, clear=True):
             with patch.object(sys, "argv", argv or [name]):

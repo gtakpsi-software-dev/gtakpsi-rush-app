@@ -2,11 +2,12 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from lib.mongo_config import resolve_mongo_uri
+SCRIPTS = Path(__file__).resolve().parents[1]
+with patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
+    from lib.mongo_config import resolve_mongo_uri
 
 
 class MongoConfigTests(unittest.TestCase):

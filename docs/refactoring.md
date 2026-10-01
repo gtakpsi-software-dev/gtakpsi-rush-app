@@ -1767,6 +1767,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     AST matches the original. New offline tests cover import safety, exact
     projection, first-match counting, sorted status output, and the empty case;
     all 56 maintenance tests pass without a database connection.
+306. Scoped maintenance-test import paths instead of modifying `sys.path` for
+    the whole test process. All 56 offline tests pass together, and all 14 test
+    files also pass in independent Python processes, confirming they do not
+    depend on collection order or another file's import-path changes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
