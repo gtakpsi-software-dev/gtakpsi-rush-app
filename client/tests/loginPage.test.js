@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Login.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/auth/LoginView.tsx", import.meta.url));
 
 async function loadPage({ loading = false, loginSuccess = true, verify = async () => false } = {}) {
     const updates = [];
@@ -27,6 +28,11 @@ async function loadPage({ loading = false, loginSuccess = true, verify = async (
     function LoaderStub() {
         return React.createElement("span", { "data-stub": "loader" });
     }
+    const View = await loadTsxComponent(viewPath, {
+        "react-router-dom": { Link: LinkStub },
+        "../../components/Loader": LoaderStub,
+        "../../components/Navbar": NavbarStub,
+    });
 
     const Page = await loadTsxComponent(pagePath, {
         react: {
@@ -42,6 +48,7 @@ async function loadPage({ loading = false, loginSuccess = true, verify = async (
         "../features/auth/verifyUser": { verifyUser: verify },
         "../components/Loader": LoaderStub,
         "../components/Navbar": NavbarStub,
+        "../features/auth/LoginView": View,
         "../features/auth/account": {
             login: async (credentials) => {
                 loginRequests.push(credentials);
@@ -55,7 +62,11 @@ async function loadPage({ loading = false, loginSuccess = true, verify = async (
 function collect(node, elements = []) {
     if (!React.isValidElement(node)) return elements;
     elements.push(node);
-    React.Children.forEach(node.props.children, (child) => collect(child, elements));
+    if (typeof node.type === "function") {
+        collect(node.type(node.props), elements);
+    } else {
+        React.Children.forEach(node.props.children, (child) => collect(child, elements));
+    }
     return elements;
 }
 
@@ -106,4 +117,21 @@ test("login retains verification redirects and loading transitions", async () =>
         assert.deepEqual(page.navigations, navigations);
         assert.deepEqual(page.updates, updates);
     }
+});
+
+test("idle login does not reverify or submit for another key", async () => {
+    let verifications = 0;
+    const page = await loadPage({
+        loading: false,
+        verify: async () => { verifications += 1; return true; },
+    });
+    const input = collect(page.Page()).find((element) => element.type === "input");
+    page.effects[0]();
+    input.props.onKeyPress({ key: "Tab" });
+    await setImmediate();
+
+    assert.equal(verifications, 0);
+    assert.deepEqual(page.loginRequests, []);
+    assert.deepEqual(page.navigations, []);
+    assert.deepEqual(page.updates, []);
 });

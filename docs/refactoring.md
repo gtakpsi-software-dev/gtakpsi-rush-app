@@ -2501,6 +2501,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     client tests, typecheck, scoped lint, and build pass; CSS retains its prior
     hash. Full lint still reports Attendance's 8 undefined-setter errors and
     9 warnings total.
+430. Moved the login form and loader markup into `features/auth/LoginView.tsx`,
+    leaving verification, credential refs, and submit actions in the 69-line
+    route instead of the former 146-line page. Existing loading/form hashes,
+    credentials, redirects, and Enter submission tests pass; a new test pins
+    the idle verification gate and non-Enter no-op. All 543 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2560,7 +2566,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 542 client tests, 67 server unit tests, 25 collaboration
+Current verified totals: 543 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests with the integration feature (including its
 isolated database contract), plus 62 maintenance-script tests. The last

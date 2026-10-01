@@ -1,146 +1,69 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
-import { verifyUser } from "../features/auth/verifyUser";
-import Loader from "../components/Loader";
 import { login } from "../features/auth/account";
-import Navbar from "../components/Navbar";
+import LoginView from "../features/auth/LoginView";
+import { verifyUser } from "../features/auth/verifyUser";
 
 /**
  * Login Page Summary:
- * - Types the input refs and Enter handler while retaining the existing auth effect.
- * - Keeps login requests, routes, loading states, and form markup unchanged.
+ * - Verification stays in the route because it controls the redirect and initial loader.
+ * - The view receives refs and actions so the form keeps its existing submit behavior.
  */
 export default function Login() {
-
-    const [loading, setLoading] = useState(true)
-    
-    const navigate = useNavigate()
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
-
         async function fetch() {
-            setLoading(true)
+            setLoading(true);
             await verifyUser()
-            .then((response) => {
-                console.log(response)
-                if (response == true) {
-                    navigate('/dashboard')
-                } else {
-                    setLoading(false)
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-                setLoading(false)
-            })
+                .then((response) => {
+                    console.log(response);
+                    if (response == true) {
+                        navigate("/dashboard");
+                    } else {
+                        setLoading(false);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setLoading(false);
+                });
         }
 
         if (loading == true) {
-            fetch()
+            fetch();
         }
+    });
 
-    })
-
-    const email = useRef<HTMLInputElement>(null)
-    const password = useRef<HTMLInputElement>(null)
+    const email = useRef<HTMLInputElement>(null);
+    const password = useRef<HTMLInputElement>(null);
 
     const handleLogin = async () => {
         const success = await login({
             email: email.current?.value,
             pwd: password.current?.value,
         });
-        
         if (success) {
-            navigate('/dashboard');
+            navigate("/dashboard");
         }
     };
 
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
             handleLogin();
         }
     };
 
     return (
-        <div className="bg-white min-h-screen">
-            <Navbar/>
-            {loading ? <Loader/> : <div className="animate-fade-in">
-            <div className="text-left">
-                    <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-                        <a href="#" className="flex items-center mb-8 animate-slide-up">
-                            <img className="w-20 h-20 mr-3" src="akpsilogo.png" alt="logo"/>
-                        </a>
-                        <div className="w-96 card-apple animate-slide-up" style={{animationDelay: '0.1s'}}>
-                            <div className="p-8 space-y-6">
-                                <div className="text-center">
-                                    <h1 className="text-apple-title1 font-light text-black mb-2">
-                                        Welcome Back
-                                    </h1>
-                                    <p className="text-apple-subheadline text-apple-gray-600">
-                                        Sign in to your account
-                                    </p>
-                                </div>
-                                <div className="space-y-5">
-                                    <div>
-                                        <label htmlFor="email" className="block mb-2 text-apple-footnote font-normal text-apple-gray-700">Email Address</label>
-                                        <input 
-                                            ref={email} 
-                                            type="email" 
-                                            name="email" 
-                                            id="email" 
-                                            className="input-apple" 
-                                            placeholder="name@example.com" 
-                                            onKeyPress={handleKeyPress}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="password" className="block mb-2 text-apple-footnote font-normal text-apple-gray-700">Password</label>
-                                        <input 
-                                            ref={password} 
-                                            type="password" 
-                                            name="password" 
-                                            id="password" 
-                                            placeholder="Enter your password" 
-                                            className="input-apple" 
-                                            onKeyPress={handleKeyPress}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-end">
-                                        <Link to='/forgot-password'>
-                                            <p className="text-apple-footnote font-normal text-black hover:text-apple-gray-600 transition-colors duration-200">Forgot Password?</p>
-                                        </Link>
-                                    </div>
-                                    <button 
-                                        onClick={handleLogin} 
-                                        className="btn-apple w-full"
-                                    >
-                                        Sign In
-                                    </button>
-                                    
-                                    <div className="relative">
-                                        <div className="absolute inset-0 flex items-center">
-                                            <div className="w-full border-t border-apple-gray-200"></div>
-                                        </div>
-                                        <div className="relative flex justify-center text-sm">
-                                            <span className="px-4 bg-white text-apple-gray-500">or</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <Link to='/create-account' className="mt-2 block">
-                                        <button className="btn-apple-secondary w-full">
-                                            Create Account
-                                        </button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            </div>
-        </div>}
-        </div>
-    )
+        <LoginView
+            loading={loading}
+            email={email}
+            password={password}
+            handleLogin={handleLogin}
+            handleKeyPress={handleKeyPress}
+        />
+    );
 }
