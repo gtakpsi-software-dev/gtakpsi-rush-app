@@ -17,6 +17,7 @@ import { applySortingDrop } from "../features/sorting/applySortingDrop";
 import { applySavedSortingTags } from "../features/sorting/applySavedSortingTags";
 import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
+import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -289,90 +290,32 @@ export default function AdminSorting() {
         }, 300);
     };
 
-    // Zoom controls
-    const zoomIn = () => {
-        setScale((prev) => Math.min(MAX_SCALE, prev + 0.1));
-    };
+    const {
+        zoomIn,
+        zoomOut,
+        resetView,
+        handleWheel,
+        onMouseDown,
+        onContextMenu,
+        onMouseMove,
+        onMouseUp,
+    } = createSortingViewportHandlers({
+        scaleLimits: { min: MIN_SCALE, max: MAX_SCALE },
+        panState,
+        translate,
+        setScale,
+        setTranslate,
+    });
 
-    const zoomOut = () => {
-        setScale((prev) => Math.max(MIN_SCALE, prev - 0.1));
-    };
-
-    const resetView = () => {
-        setScale(1);
-        setTranslate({ x: 0, y: 0 });
-    };
-
-    // Canvas ref for wheel listener with passive: false
     const canvasRef = useRef(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        const handleWheel = (e) => {
-            // Check if scrolling inside a scrollable element (like the notes panel)
-            // If so, let the native scroll behavior happen
-            const scrollableParent = e.target.closest('[data-scrollable]');
-            if (scrollableParent) {
-                // Allow native scrolling inside scrollable elements
-                return;
-            }
-
-            if (e.ctrlKey || e.metaKey) {
-                // Zoom with ctrl/cmd + scroll (pinch-to-zoom)
-                e.preventDefault();
-                const delta = -e.deltaY * 0.001;
-                setScale((prev) => {
-                    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta));
-                    return next;
-                });
-            } else {
-                // Pan with two-finger drag (trackpad scroll)
-                e.preventDefault();
-                setTranslate((prev) => ({
-                    x: prev.x - e.deltaX,
-                    y: prev.y - e.deltaY,
-                }));
-            }
-        };
-
         canvas.addEventListener("wheel", handleWheel, { passive: false });
         return () => canvas.removeEventListener("wheel", handleWheel);
     }, [loading]);
-
-    const onMouseDown = (e) => {
-        // Only pan with right-click (button 2)
-        if (e.button !== 2) return;
-        if (e.target.closest("[data-card]")) return;
-        e.preventDefault();
-        panState.current = {
-            panning: true,
-            startX: e.clientX,
-            startY: e.clientY,
-            origX: translate.x,
-            origY: translate.y,
-        };
-    };
-
-    const onContextMenu = (e) => {
-        // Prevent context menu on right-click for panning
-        e.preventDefault();
-    };
-
-    const onMouseMove = (e) => {
-        if (!panState.current.panning) return;
-        const dx = e.clientX - panState.current.startX;
-        const dy = e.clientY - panState.current.startY;
-        setTranslate({
-            x: panState.current.origX + dx,
-            y: panState.current.origY + dy,
-        });
-    };
-
-    const onMouseUp = () => {
-        panState.current.panning = false;
-    };
 
     if (loading) {
         return (
