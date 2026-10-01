@@ -30,6 +30,7 @@ import AdminAccessCard from "../features/admin/access/AdminAccessCard";
 import { createPromotionActions } from "../features/admin/access/promotionActions";
 import AccessSettingsCards from "../features/admin/access/AccessSettingsCards";
 import { createAccessSettingsActions } from "../features/admin/access/accessSettingsActions";
+import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import { auth, db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -56,17 +57,13 @@ export default function Admin() {
 
     // Admin/Bidcom promotion state
     const [brothers, setBrothers] = useState([]);
-    const [brotherSearch, setBrotherSearch] = useState("");
-    const [filteredBrothers, setFilteredBrothers] = useState([]);
     const [selectedBrother, setSelectedBrother] = useState(null);
     const [isPromoting, setIsPromoting] = useState(false);
     const [brotherAdminStatus, setBrotherAdminStatus] = useState(null); // true/false/null
     const [brotherBidcomStatus, setBrotherBidcomStatus] = useState(null); // true/false/null
 
     // Reschedule PIS state
-    const [rusheeSearch, setRusheeSearch] = useState("");
     const [rushees, setRushees] = useState([]);
-    const [filteredRushees, setFilteredRushees] = useState([]);
     const [selectedRushee, setSelectedRushee] = useState(null);
     const [availableTimeslots, setAvailableTimeslots] = useState([]);
     const [selectedNewTimeslot, setSelectedNewTimeslot] = useState("");
@@ -141,36 +138,16 @@ export default function Admin() {
         fetchPisQuestions();
     }, []);
 
-    // Filter rushees based on search
-    useEffect(() => {
-        if (rusheeSearch.trim() === "") {
-            setFilteredRushees([]);
-            return;
-        }
-        const search = rusheeSearch.toLowerCase();
-        const filtered = rushees.filter(r => 
-            r.name.toLowerCase().includes(search) ||
-            r.gtid.includes(search)
-        );
-        setFilteredRushees(filtered.slice(0, 10)); // Limit to 10 results
-    }, [rusheeSearch, rushees]);
-
-    // Filter brothers for admin promotion
-    useEffect(() => {
-        if (brotherSearch.trim() === "") {
-            setFilteredBrothers([]);
-            return;
-        }
-        const search = brotherSearch.toLowerCase();
-        const filtered = brothers.filter((b) => {
-            const fullName = `${b.firstname || b.firstName || ""} ${b.lastname || b.lastName || ""}`.trim();
-            return (
-                (b.email || "").toLowerCase().includes(search) ||
-                fullName.toLowerCase().includes(search)
-            );
-        });
-        setFilteredBrothers(filtered.slice(0, 10));
-    }, [brotherSearch, brothers]);
+    const {
+        rusheeSearch,
+        setRusheeSearch,
+        filteredRushees,
+        setFilteredRushees,
+        brotherSearch,
+        setBrotherSearch,
+        filteredBrothers,
+        setFilteredBrothers,
+    } = useAdminSearch({ brothers, rushees });
 
     const {
         handleRequest,
