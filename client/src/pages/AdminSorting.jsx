@@ -2,16 +2,11 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../js/adminAxios";
-import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
-import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
-import SortingZoomControls from "../features/sorting/SortingZoomControls";
-import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
-import SortingGhostCards from "../features/sorting/SortingGhostCards";
-import SortingColumn from "../features/sorting/SortingColumn";
+import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
+import AdminSortingBoardView from "../features/sorting/AdminSortingBoardView";
 import { handleAdminSortingMessage } from "../features/sorting/handleAdminSortingMessage";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 import { applySortingDrop } from "../features/sorting/applySortingDrop";
@@ -254,82 +249,13 @@ export default function AdminSorting() {
         );
     }
 
-    return (
-        <div
-            ref={canvasRef}
-            className="w-screen h-screen overflow-hidden bg-apple-gray-50"
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-            onContextMenu={onContextMenu}
-        >
-            <Navbar />
-            
-            {/* Viewer Count & Live Indicator */}
-            <SortingPresenceIndicator
-                connected={wsConnected}
-                viewerCount={viewerCount}
-                ghostCards={ghostCards}
-                hideWhenAlone={true}
-            />
-
-            {/* Ghost Cards - Shows when other admins are dragging */}
-            <SortingGhostCards ghostCards={ghostCards} wide={true} />
-
-            {/* Fixed Zoom Controls - Bottom Left */}
-            <SortingZoomControls
-                scale={scale}
-                onZoomOut={zoomOut}
-                onZoomIn={zoomIn}
-                onResetView={resetView}
-            />
-
-            <div className="relative w-full h-[calc(100vh-80px)] mt-16 overflow-hidden">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
-                        transformOrigin: "0 0",
-                        transition: dragging ? "none" : "transform 0.05s ease-out",
-                    }}
-                >
-                    <div className="flex gap-4 p-6">
-                        {STATUSES.map((col) => (
-                            <SortingColumn
-                                key={col.key}
-                                col={col}
-                                columns={columns}
-                                hoverIndex={hoverIndex}
-                                dragging={dragging}
-                                draggingRef={draggingRef}
-                                lockedCards={lockedCards}
-                                setHoverIndex={setHoverIndex}
-                                handleDragOver={handleDragOver}
-                                handleDrop={handleDrop}
-                                handleDragStart={handleDragStart}
-                                handleDragEnd={handleDragEnd}
-                                openNotes={openNotes}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Notes Side Panel */}
-            {selectedRushee && (
-                <EditableNotesPanel
-                    selectedRushee={selectedRushee}
-                    audience="admin"
-                    notesStatus={notesStatus}
-                    tags={tags}
-                    notes={notes}
-                    onClose={closeNotes}
-                    onToggleTag={toggleTag}
-                    onNotesChange={onNotesChange}
-                    onViewRushee={() => navigate(`/brother/rushee/${selectedRushee.id}`)}
-                />
-            )}
-        </div>
-    );
+    return <AdminSortingBoardView {...{
+        canvasRef, onMouseDown, onMouseMove, onMouseUp, onContextMenu,
+        wsConnected, viewerCount, ghostCards, scale, zoomOut, zoomIn,
+        resetView, translate, dragging, columns, hoverIndex, draggingRef,
+        lockedCards, setHoverIndex, handleDragOver, handleDrop,
+        handleDragStart, handleDragEnd, openNotes, selectedRushee,
+        notesStatus, tags, notes, closeNotes, toggleTag, onNotesChange,
+        onViewRushee: () => navigate(`/brother/rushee/${selectedRushee.id}`),
+    }} />;
 }

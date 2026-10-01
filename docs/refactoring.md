@@ -1184,6 +1184,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Added rescheduling prop assertions alongside the existing three-state page
     markup fixtures. `Admin.jsx` is now 324 lines; all 331 client tests and
     the production build pass, and the CSS asset hash remains unchanged.
+208. Added admin sorting-page fixtures for loading, ready, dragging, and notes
+    states before extracting its board into a 116-line view. The page retains
+    its WebSocket, drag, notes, viewport, and data state, and falls from 335 to
+    261 lines. Board ref, pointer-handler, and child-prop checks pass alongside
+    all 333 client tests. The production build succeeds with unchanged CSS;
+    authenticated browser parity remains pending.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1231,7 +1237,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 331 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 333 client tests, 43 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
