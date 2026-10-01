@@ -1,14 +1,16 @@
 use crate::controllers::db;
 use crate::models::pis::BrotherPISAvailability;
+use crate::models::rushee::RusheeModel;
 use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
-use std::collections::HashMap;
+
+mod planning;
+use planning::{index_availability, AssignmentPlanner};
 
 /// Auto-assign brothers to PIS slots based on availability
 pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
-    // Get all brother availabilities
     let availability_collection = db::get_brother_pis_availability_client().await;
     let mut availability_cursor = match availability_collection.find(doc! {}).await {
         Ok(cursor) => cursor,
@@ -34,36 +36,9 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         })));
     }
 
-    // Build a map of timeslot -> available brothers (with separate first/last names)
-    let mut timeslot_to_brothers: HashMap<i64, Vec<(String, String)>> = HashMap::new();
-    for avail in &brother_availabilities {
-        // Validate that we have proper first and last names (not empty, not containing the full name)
-        let first_name = avail.brother_first_name.trim().to_string();
-        let last_name = avail.brother_last_name.trim().to_string();
+    let timeslot_to_brothers = index_availability(&brother_availabilities);
+    let mut planner = AssignmentPlanner::default();
 
-        // Skip if names look invalid
-        if first_name.is_empty() || last_name.is_empty() {
-            continue;
-        }
-
-        for ts in &avail.available_timeslots {
-            let ts_millis = ts.timestamp_millis();
-            let entry = timeslot_to_brothers
-                .entry(ts_millis)
-                .or_insert_with(Vec::new);
-            entry.push((first_name.clone(), last_name.clone()));
-        }
-    }
-
-    // Track how many PIS each brother is assigned to TOTAL (for load balancing)
-    let mut brother_total_assignments: HashMap<String, i32> = HashMap::new();
-
-    // Track which brothers are already assigned to each timeslot
-    // Key: timeslot millis, Value: set of brother full names already assigned at this time
-    let mut timeslot_assigned_brothers: HashMap<i64, std::collections::HashSet<String>> =
-        HashMap::new();
-
-    // Get all rushees with PIS signups - collect them first to process in order
     let rushee_collection = db::get_rushee_client().await;
     let mut rushee_cursor = match rushee_collection.find(doc! {}).await {
         Ok(cursor) => cursor,
@@ -75,61 +50,32 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
         }
     };
 
-    // Collect all rushees first
-    let mut rushees: Vec<crate::models::rushee::RusheeModel> = Vec::new();
+    let mut rushees: Vec<RusheeModel> = Vec::new();
     while let Some(item) = rushee_cursor.next().await {
         if let Ok(rushee) = item {
             rushees.push(rushee);
         }
     }
 
-    // First pass: record existing assignments to prevent conflicts
+    // Register every existing assignment before choosing new ones so later rushees cannot conflict.
     for rushee in &rushees {
-        let ts_millis = rushee.pis_timeslot.timestamp_millis();
-        let assigned_set = timeslot_assigned_brothers
-            .entry(ts_millis)
-            .or_insert_with(std::collections::HashSet::new);
-
-        // Record first brother if assigned
-        if rushee.pis_signup.first_brother_first_name != "none" {
-            let key = format!(
-                "{} {}",
-                rushee.pis_signup.first_brother_first_name.trim(),
-                rushee.pis_signup.first_brother_last_name.trim()
-            );
-            assigned_set.insert(key.clone());
-            *brother_total_assignments.entry(key).or_insert(0) += 1;
-        }
-
-        // Record second brother if assigned
-        if rushee.pis_signup.second_brother_first_name != "none" {
-            let key = format!(
-                "{} {}",
-                rushee.pis_signup.second_brother_first_name.trim(),
-                rushee.pis_signup.second_brother_last_name.trim()
-            );
-            assigned_set.insert(key.clone());
-            *brother_total_assignments.entry(key).or_insert(0) += 1;
-        }
+        planner.register_existing(rushee.pis_timeslot.timestamp_millis(), &rushee.pis_signup);
     }
 
     let mut assignments_made = 0;
     let mut assignment_failures = 0;
 
-    // Second pass: make new assignments
     for rushee in &rushees {
         let ts_millis = rushee.pis_timeslot.timestamp_millis();
 
-        // Skip if both brothers are already assigned
         if rushee.pis_signup.first_brother_first_name != "none"
             && rushee.pis_signup.second_brother_first_name != "none"
         {
             continue;
         }
 
-        // Get available brothers for this timeslot
         let available_brothers = match timeslot_to_brothers.get(&ts_millis) {
-            Some(bros) => bros.clone(),
+            Some(bros) => bros,
             None => {
                 assignment_failures += 1;
                 continue;
@@ -141,117 +87,17 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
             continue;
         }
 
-        // Get the set of brothers already assigned to this timeslot
-        let assigned_at_timeslot = timeslot_assigned_brothers
-            .entry(ts_millis)
-            .or_insert_with(std::collections::HashSet::new);
+        let plan = planner.plan(ts_millis, &rushee.pis_signup, available_brothers);
 
-        // Filter out brothers who are already assigned to another PIS at this same timeslot
-        let mut eligible_brothers: Vec<(String, String)> = available_brothers
-            .iter()
-            .filter(|(first, last)| {
-                let key = format!("{} {}", first.trim(), last.trim());
-                !assigned_at_timeslot.contains(&key)
-            })
-            .cloned()
-            .collect();
-
-        // Sort by total assignment count (ascending) for load balancing
-        eligible_brothers.sort_by(|a, b| {
-            let key_a = format!("{} {}", a.0, a.1);
-            let key_b = format!("{} {}", b.0, b.1);
-            let count_a = brother_total_assignments.get(&key_a).unwrap_or(&0);
-            let count_b = brother_total_assignments.get(&key_b).unwrap_or(&0);
-            count_a.cmp(count_b)
-        });
-
-        // Get current assignments for this rushee
-        let mut first_assigned = (
-            rushee.pis_signup.first_brother_first_name.clone(),
-            rushee.pis_signup.first_brother_last_name.clone(),
-        );
-        let mut update_first = false;
-
-        let mut second_assigned = (
-            rushee.pis_signup.second_brother_first_name.clone(),
-            rushee.pis_signup.second_brother_last_name.clone(),
-        );
-        let mut update_second = false;
-
-        // Track if rushee needed assignments
-        let needed_first = first_assigned.0 == "none";
-        let needed_second = second_assigned.0 == "none";
-
-        // Assign first brother if needed
-        if needed_first {
-            if let Some(bro) = eligible_brothers.first() {
-                first_assigned = (bro.0.clone(), bro.1.clone());
-                update_first = true;
-                let key = format!("{} {}", bro.0, bro.1);
-                *brother_total_assignments.entry(key.clone()).or_insert(0) += 1;
-                assigned_at_timeslot.insert(key);
-            }
-        }
-
-        // Assign second brother if needed (must be different from first)
-        if needed_second {
-            let first_key = format!("{} {}", first_assigned.0.trim(), first_assigned.1.trim());
-
-            // Re-filter eligible brothers (excluding the first assigned and already assigned at timeslot)
-            let mut second_eligible: Vec<(String, String)> = available_brothers
-                .iter()
-                .filter(|(first, last)| {
-                    let key = format!("{} {}", first.trim(), last.trim());
-                    // Not already assigned at this timeslot AND not the first brother
-                    !assigned_at_timeslot.contains(&key) && key != first_key
-                })
-                .cloned()
-                .collect();
-
-            // Sort by total assignments
-            second_eligible.sort_by(|a, b| {
-                let key_a = format!("{} {}", a.0, a.1);
-                let key_b = format!("{} {}", b.0, b.1);
-                let count_a = brother_total_assignments.get(&key_a).unwrap_or(&0);
-                let count_b = brother_total_assignments.get(&key_b).unwrap_or(&0);
-                count_a.cmp(count_b)
-            });
-
-            if let Some(bro) = second_eligible.first() {
-                second_assigned = (bro.0.clone(), bro.1.clone());
-                update_second = true;
-                let key = format!("{} {}", bro.0, bro.1);
-                *brother_total_assignments.entry(key.clone()).or_insert(0) += 1;
-                assigned_at_timeslot.insert(key);
-            }
-        }
-
-        // Check if rushee still has unassigned slots after our attempt
-        let still_missing_first = needed_first && !update_first;
-        let still_missing_second = needed_second && !update_second;
-
-        // Update rushee if any assignments were made
-        if update_first || update_second {
+        if plan.first.is_some() || plan.second.is_some() {
             let mut update_doc = doc! {};
-            if update_first {
-                update_doc.insert(
-                    "pis_signup.first_brother_first_name",
-                    first_assigned.0.trim(),
-                );
-                update_doc.insert(
-                    "pis_signup.first_brother_last_name",
-                    first_assigned.1.trim(),
-                );
+            if let Some(first) = &plan.first {
+                update_doc.insert("pis_signup.first_brother_first_name", first.0.trim());
+                update_doc.insert("pis_signup.first_brother_last_name", first.1.trim());
             }
-            if update_second {
-                update_doc.insert(
-                    "pis_signup.second_brother_first_name",
-                    second_assigned.0.trim(),
-                );
-                update_doc.insert(
-                    "pis_signup.second_brother_last_name",
-                    second_assigned.1.trim(),
-                );
+            if let Some(second) = &plan.second {
+                update_doc.insert("pis_signup.second_brother_first_name", second.0.trim());
+                update_doc.insert("pis_signup.second_brother_last_name", second.1.trim());
             }
 
             let filter = doc! { "gtid": &rushee.gtid };
@@ -261,12 +107,11 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
                 assignments_made += 1;
             }
 
-            // If we made some assignments but still missing brothers, count as partial failure
-            if still_missing_first || still_missing_second {
+            // A partial assignment still counts as a failed slot, regardless of write outcome.
+            if plan.still_missing_first || plan.still_missing_second {
                 assignment_failures += 1;
             }
-        } else if needed_first || needed_second {
-            // Rushee needed assignments but we couldn't make any (all brothers at this time are busy)
+        } else if plan.still_missing_first || plan.still_missing_second {
             assignment_failures += 1;
         }
     }

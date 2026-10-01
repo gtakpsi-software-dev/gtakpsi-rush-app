@@ -707,6 +707,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     with the same 30-second threshold and five-second interval. All 218 client
     tests pass, the build succeeds, and CSS has no new difference.
     `BrotherSorting.jsx` is now 309 lines.
+122. Admin PIS auto-assignment: separated availability indexing and the
+    load-balancing/conflict rules from database I/O. Four unit tests cover
+    trimmed availability names and order, existing reservations, first/second
+    slot selection, and partial assignments. The handler retains its response
+    text, per-rushee update order, and assignment reservations after a failed
+    write. All 35 server unit tests pass with macOS system-configuration access.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -752,7 +758,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 218 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 218 client tests, 35 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
