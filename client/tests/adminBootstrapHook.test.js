@@ -48,8 +48,10 @@ test("admin bootstrap keeps its loading gate, inputs, and effect dependencies", 
     assert.equal(calls.length, 0);
     Hook({ ...options, loading: true });
     assert.equal(calls.length, 1);
+    Hook({ ...options, allowlist: ["other@example.edu"], loading: true });
     assert.deepEqual(effects, [
         [false, navigate, "/api/rushee"],
+        [true, navigate, "/api/rushee"],
         [true, navigate, "/api/rushee"],
     ]);
     assert.equal(calls[0].verifyUser, verifyUser);

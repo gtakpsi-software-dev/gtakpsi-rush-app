@@ -60,5 +60,6 @@ export default function useAdminBootstrap({
                 setLoading,
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Additional inputs would rerun authorization outside the original startup lifecycle.
     }, [loading, navigate, rusheeApiBase]);
 }

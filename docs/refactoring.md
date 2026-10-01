@@ -79,7 +79,7 @@ for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
 and TS/TSX lint; the current state has 8 errors and 7 warnings, so it is
 tracked debt, not a passing check.
 `npm --prefix client run lint:ci` gates the rest of the client at no more than
-5 warnings. The regression workflow runs this scoped gate, the passing suites,
+4 warnings. The regression workflow runs this scoped gate, the passing suites,
 and the client build on pushes and pull requests; its first GitHub run remains
 unverified.
 
