@@ -1,6 +1,6 @@
 use super::joined_as_admin;
 use crate::{
-    protocol::OutgoingMessage,
+    protocol::{send_outgoing_message, OutgoingMessage},
     state::{AppState, DragState},
 };
 use std::{sync::Arc, time::Instant};
@@ -33,9 +33,7 @@ pub(super) async fn start(
                     rushee_id,
                     dragger_name: existing.dragger_name,
                 };
-                if let Ok(json) = serde_json::to_string(&msg) {
-                    let _ = client.tx.send(json);
-                }
+                send_outgoing_message(&client.tx, msg);
             }
             return;
         }
@@ -70,9 +68,7 @@ pub(super) async fn start(
         x,
         y,
     };
-    if let Ok(json) = serde_json::to_string(&msg) {
-        let _ = state.broadcast_tx.send(json);
-    }
+    send_outgoing_message(&state.broadcast_tx, msg);
 }
 
 pub(super) async fn move_card(
@@ -96,9 +92,7 @@ pub(super) async fn move_card(
     }
 
     let msg = OutgoingMessage::DragMove { rushee_id, x, y };
-    if let Ok(json) = serde_json::to_string(&msg) {
-        let _ = state.broadcast_tx.send(json);
-    }
+    send_outgoing_message(&state.broadcast_tx, msg);
 }
 
 pub(super) async fn end(state: &Arc<AppState>, client_id: &str, rushee_id: String) {
@@ -112,7 +106,5 @@ pub(super) async fn end(state: &Arc<AppState>, client_id: &str, rushee_id: Strin
     }
 
     let msg = OutgoingMessage::DragEnd { rushee_id };
-    if let Ok(json) = serde_json::to_string(&msg) {
-        let _ = state.broadcast_tx.send(json);
-    }
+    send_outgoing_message(&state.broadcast_tx, msg);
 }

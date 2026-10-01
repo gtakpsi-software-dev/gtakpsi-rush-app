@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use tokio::sync::broadcast;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
@@ -62,4 +63,11 @@ pub(crate) enum OutgoingMessage {
         x: f64,
         y: f64,
     },
+}
+
+pub(crate) fn send_outgoing_message(tx: &broadcast::Sender<String>, message: OutgoingMessage) {
+    // Delivery remains best-effort when a listener has already disconnected.
+    if let Ok(json) = serde_json::to_string(&message) {
+        let _ = tx.send(json);
+    }
 }

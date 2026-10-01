@@ -1,6 +1,6 @@
 use crate::{
     handlers::handle_message,
-    protocol::OutgoingMessage,
+    protocol::{send_outgoing_message, OutgoingMessage},
     state::{AppState, Client},
 };
 use axum::{
@@ -87,7 +87,5 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
 pub(crate) async fn broadcast_viewer_count(state: &Arc<AppState>) {
     let count = state.clients.len();
     let msg = OutgoingMessage::ViewerCount { count };
-    if let Ok(json) = serde_json::to_string(&msg) {
-        let _ = state.broadcast_tx.send(json);
-    }
+    send_outgoing_message(&state.broadcast_tx, msg);
 }

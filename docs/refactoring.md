@@ -2262,6 +2262,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     out-of-range BSON dates. A new boundary test passed before and after the
     change for negative, zero, positive, and extreme timestamps. Targeted
     rustfmt and all 65 isolated integration-feature tests pass.
+394. Consolidated sorting WebSocket event serialization and best-effort send
+    behavior in `protocol::send_outgoing_message`, used by direct denial,
+    drag, save, cleanup, snapshot, and viewer-count paths. Event payloads,
+    channel choice, and send order remain unchanged. Targeted rustfmt and all
+    13 sorting WebSocket tests, including real loopback sessions, pass before
+    and after the change.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

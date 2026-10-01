@@ -1,5 +1,5 @@
 use crate::{
-    protocol::{IncomingMessage, OutgoingMessage},
+    protocol::{send_outgoing_message, IncomingMessage, OutgoingMessage},
     state::AppState,
 };
 use std::sync::Arc;
@@ -57,9 +57,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
                 rushee_id,
                 new_status,
             };
-            if let Ok(json) = serde_json::to_string(&msg) {
-                let _ = state.broadcast_tx.send(json);
-            }
+            send_outgoing_message(&state.broadcast_tx, msg);
         }
 
         Err(e) => {

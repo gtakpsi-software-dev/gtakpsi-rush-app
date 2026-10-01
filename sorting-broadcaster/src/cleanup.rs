@@ -1,4 +1,7 @@
-use crate::{protocol::OutgoingMessage, state::AppState};
+use crate::{
+    protocol::{send_outgoing_message, OutgoingMessage},
+    state::AppState,
+};
 use std::{sync::Arc, time::Duration};
 
 pub(crate) async fn run(cleanup_state: Arc<AppState>) {
@@ -25,9 +28,7 @@ pub(crate) async fn run(cleanup_state: Arc<AppState>) {
 
             for rushee_id in stale_ids {
                 let msg = OutgoingMessage::DragEnd { rushee_id };
-                if let Ok(json) = serde_json::to_string(&msg) {
-                    let _ = cleanup_state.broadcast_tx.send(json);
-                }
+                send_outgoing_message(&cleanup_state.broadcast_tx, msg);
             }
         }
     }
