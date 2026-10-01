@@ -1047,6 +1047,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     refreshed role claims and access request shape, stored voting-compatible
     names, denied-access sign-out and toast, and fail-open token/request errors.
     All 299 client tests pass; the new test file passes ESLint.
+181. Moved Firebase session verification unchanged into `features/auth/verifyUser.js`.
+    `js/verifications.js` now keeps the existing imports stable through two
+    re-exports. A whitespace-normalized comparison confirms the moved function
+    body is identical. All 299 client tests and the production build pass;
+    changed files pass ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

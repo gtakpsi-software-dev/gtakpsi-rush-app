@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/js/verifications.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../src/features/auth/verifyUser.js", import.meta.url));
 
 async function harness({
     user = null,
@@ -57,12 +57,9 @@ async function harness({
             if (specifier === "react-toastify") return {
                 toast: { error: (...args) => events.push(["toast", ...args]) },
             };
-            if (specifier === "../firebase") return {
+            if (specifier === "../../firebase") return {
                 auth,
                 signOut: async (target) => events.push(["signOut", target === auth]),
-            };
-            if (specifier === "../features/registration/registrationVerification") return {
-                verifyGTID() {}, verifyInfo() {},
             };
             throw new Error(`Unexpected import: ${specifier}`);
         },
