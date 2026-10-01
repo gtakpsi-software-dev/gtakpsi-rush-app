@@ -2238,6 +2238,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     branch, and documented the sequential partial-write behavior already
     covered by the integration scenario. Targeted rustfmt and all 64 isolated
     integration tests pass before and after the cleanup.
+390. Characterized GTID validation before cleaning the validator module:
+    short IDs fail, any otherwise-unused nine-byte value passes, and a
+    registered GTID fails. Replaced nested matches and manual allowlist
+    construction with equivalent expressions, named the profile field sets
+    after their actual roles, and accepted a comment slice instead of a vector
+    reference. Existing profile and comment contracts still pass. Targeted
+    rustfmt and all 64 isolated integration tests pass before and after.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
