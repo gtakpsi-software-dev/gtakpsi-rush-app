@@ -1,6 +1,5 @@
 const transformOperation = (op1, op2) => {
-    // Simple operational transformation logic
-    // This handles the case where two operations happen simultaneously
+    // Legacy clients receive shifted positions so near-simultaneous edits do not use stale offsets.
     if (op1.position <= op2.position) {
         if (op1.type === 'insert') {
             return {

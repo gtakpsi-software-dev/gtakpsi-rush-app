@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
-const { transformOperation, applyOperation } = require('../operations');
+const { transformOperation, applyOperation } = require('../legacyTextOperations');
 
-function registerOperationHandlers(socket, rooms, userSockets) {
+function registerLegacyTextOperationHandlers(socket, rooms, userSockets) {
     socket.on('text-operation', (operation) => {
         const userData = userSockets.get(socket.id);
         if (!userData) return;
@@ -18,12 +18,13 @@ function registerOperationHandlers(socket, rooms, userSockets) {
             timestamp: Date.now()
         };
 
-        const recentOps = room.operations.slice(-10); // Only consider last 10 operations for performance
+        // Bound transform work to ten recent edits; older positions are not rebased.
+        const recentOps = room.operations.slice(-10);
         let transformedOp = enhancedOperation;
 
         for (const existingOp of recentOps) {
             if (existingOp.field === transformedOp.field &&
-                Math.abs(existingOp.timestamp - transformedOp.timestamp) < 1000) { // Within 1 second
+                Math.abs(existingOp.timestamp - transformedOp.timestamp) < 1000) {
                 transformedOp = transformOperation(existingOp, transformedOp);
             }
         }
@@ -45,4 +46,4 @@ function registerOperationHandlers(socket, rooms, userSockets) {
     });
 }
 
-module.exports = { registerOperationHandlers };
+module.exports = { registerLegacyTextOperationHandlers };

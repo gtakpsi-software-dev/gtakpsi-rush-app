@@ -1372,6 +1372,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     cleanup tests and added direct insert, delete, replace, missing-value, and
     unknown-type contracts. All 18 collaboration tests pass against the real
     loopback server; no production code changed.
+237. Renamed the Socket.IO pure text-operation module, event handler, and
+    direct test file to `legacyTextOperations` so they no longer share an
+    ambiguous `operations` basename. The `text-operation` wire event, room
+    state changes, service entrypoint, and deployment path are unchanged. All
+    18 collaboration tests pass against the real loopback server.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

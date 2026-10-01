@@ -5,7 +5,7 @@ const cors = require('cors');
 const { registerRoutes } = require('./routes');
 const { scheduleRoomCleanup } = require('./rooms');
 const { registerMembershipHandlers } = require('./handlers/membership');
-const { registerOperationHandlers } = require('./handlers/operations');
+const { registerLegacyTextOperationHandlers } = require('./handlers/legacyTextOperations');
 const { registerUpdateHandlers } = require('./handlers/updates');
 const { registerPresenceHandlers } = require('./handlers/presence');
 
@@ -26,7 +26,7 @@ function createCollaborationServer({ timers = globalThis } = {}) {
     registerRoutes(app, rooms);
     io.on('connection', (socket) => {
         registerMembershipHandlers(io, socket, rooms, userSockets, timers);
-        registerOperationHandlers(socket, rooms, userSockets);
+        registerLegacyTextOperationHandlers(socket, rooms, userSockets);
         registerUpdateHandlers(socket, rooms, userSockets);
         registerPresenceHandlers(socket, rooms, userSockets);
     });
