@@ -18,21 +18,16 @@ pub async fn get_brother_pis(
         .await
         .unwrap_or_default();
 
-    let result = connection
-        .find({
-            doc! {}
-        })
-        .await;
+    let result = connection.find(doc! {}).await;
 
     match result {
         Ok(mut cursor) => {
-            // TODO: extract useful info only
             let mut rushees = Vec::<StrippedRushee>::new();
 
             while let Some(rushee) = cursor.next().await {
                 match rushee {
                     Ok(doc) => {
-                        if ((doc
+                        if (doc
                             .pis_signup
                             .first_brother_first_name
                             .eq(&payload.first_name)
@@ -40,7 +35,10 @@ pub async fn get_brother_pis(
                                 .pis_signup
                                 .first_brother_last_name
                                 .eq(&payload.last_name))
-                            || (doc.pis_signup.second_brother_first_name).eq(&payload.first_name)
+                            || (doc
+                                .pis_signup
+                                .second_brother_first_name
+                                .eq(&payload.first_name)
                                 && doc
                                     .pis_signup
                                     .second_brother_last_name
@@ -82,7 +80,7 @@ pub async fn get_brother_pis(
             })))
         }
 
-        Err(err) => Ok(Json(json!({
+        Err(_) => Ok(Json(json!({
             "stauts": "error",
             "message": "some network error occurred"
         }))),

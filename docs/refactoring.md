@@ -2214,6 +2214,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     checks the parent passes the same user and initial socket. All 524 client
     tests, typecheck, and build pass. CSS is unchanged, and full ESLint remains
     at eight Attendance errors and 22 warnings.
+386. Added isolated database assertions for `get_brother_pis`, covering both
+    signup slots, exact-name matching, and the brother-facing response fields.
+    They pass against the original and cleaned handler. Simplified its
+    equivalent match expression and empty-document query, removed a stale
+    TODO and unused error binding, and kept all response payloads intact.
+    Targeted rustfmt and all 64 isolated integration-feature tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
