@@ -1010,6 +1010,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
 172. Moved the assignment planner's four existing unit tests into its own test
     module without changing their assertions. The production planner is now
     151 lines. All 41 server unit tests pass.
+173. Added an isolated database contract for PIS availability form activation,
+    brother submission and replacement, clearing and resending, and
+    deactivation. The fixture reset now also clears the form-status collection.
+    All 42 server tests with the integration feature pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
