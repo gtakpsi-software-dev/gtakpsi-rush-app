@@ -13,6 +13,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/PIS.jsx", import.meta.url));
 const cardPath = fileURLToPath(new URL("../src/features/pis/PisQuestionsCard.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/pis/PisInterviewView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/pisPageMarkup.json", import.meta.url));
 
 async function loadPage(state = {}, connected = true, captured = new Map()) {
@@ -24,6 +25,11 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "./PisBrotherFields": stub("brother-fields"),
         "./PisQuestionResponses": stub("question-responses"),
         "./PisSaveStatus": stub("save-status"),
+    });
+    const View = await loadTsxComponent(viewPath, {
+        "../../components/Navbar": stub("navbar"),
+        "./PisProfileHeader": stub("profile"),
+        "./PisQuestionsCard": Card,
     });
     let stateIndex = 0;
     const noop = () => {};
@@ -39,7 +45,6 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
             useCallback: (callback) => callback,
         },
         "../components/Loader": stub("loader"),
-        "../components/Navbar": stub("navbar"),
         axios: { get: noop },
         "../features/pis/useCollaboration": {
             useCollaboration: () => {
@@ -58,11 +63,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "react-router-dom": { useNavigate: () => noop, useParams: () => ({ gtid: "123" }) },
         "../firebase": { auth: {} },
         "react-toastify/dist/ReactToastify.css": {},
-        "../features/pis/PisProfileHeader": stub("profile"),
-        "../features/pis/PisBrotherFields": stub("brother-fields"),
-        "../features/pis/PisQuestionResponses": stub("question-responses"),
-        "../features/pis/PisSaveStatus": stub("save-status"),
-        "../features/pis/PisQuestionsCard": Card,
+        "../features/pis/PisInterviewView": View,
         "../features/pis/PisQuestionsPending": stub("pending"),
         "../features/pis/saveStatus": { SAVE_STATUS: { IDLE: "idle" } },
         "../features/pis/collaborationState": {

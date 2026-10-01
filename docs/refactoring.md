@@ -2351,6 +2351,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     warning count fails CI. The full `npm run lint` command remains unchanged and
     still reports 8 errors and 11 warnings. The scoped command passes locally;
     the first GitHub run is still unverified.
+409. Moved the PIS page's ready-state layout into `PisInterviewView`, leaving
+    all state, effects, autosave, and callbacks in the page. Existing fixtures
+    confirm identical loading, pending, online, and offline markup and the same
+    question, brother, collaboration, and save props. All 532 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash. The PIS
+    page is now 152 lines instead of 176.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

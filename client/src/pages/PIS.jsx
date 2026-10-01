@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import Loader from "../components/Loader";
-import Navbar from "../components/Navbar";
 import axios from "axios";
 import { useCollaboration } from "../features/pis/useCollaboration";
 
@@ -10,8 +9,7 @@ import { auth } from "../firebase";
 
 import "react-toastify/dist/ReactToastify.css";
 
-import PisProfileHeader from "../features/pis/PisProfileHeader";
-import PisQuestionsCard from "../features/pis/PisQuestionsCard";
+import PisInterviewView from "../features/pis/PisInterviewView";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
@@ -133,43 +131,21 @@ export default function PIS() {
             ) : !questionsAvailable ? (
                 <PisQuestionsPending questions={questions} revealAt={revealAt} />
             ) : (
-                <div className="min-h-screen w-full bg-white overflow-y-auto">
-                    <Navbar />
-
-                    <div className="pt-24 p-4 pb-20">
-                        <div className="container mx-auto px-4 max-w-4xl">
-                            {/* Collaboration Status */}
-                            {collaboration.isConnected && (
-                                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-apple">
-                                     <div className="flex items-center space-x-2">
-                                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                         <span className="text-sm text-green-800">
-                                             {collaboration.connectedUsers.length} other user{collaboration.connectedUsers.length===1?'':'s'} online
-                                         </span>
-                                     </div>
-                                 </div>
-                             )}
-
-                            <PisProfileHeader rushee={rushee} />
-
-                            <PisQuestionsCard
-                                rushee={rushee}
-                                brotherA={brotherA}
-                                brotherB={brotherB}
-                                collaboration={collaboration}
-                                currentUser={currentUser}
-                                handleBrotherAChange={handleBrotherAChange}
-                                handleBrotherBChange={handleBrotherBChange}
-                                questions={questions}
-                                answers={answers}
-                                handleMCChange={handleMCChange}
-                                handleAnswerChange={handleAnswerChange}
-                                saveStatus={saveStatus}
-                                lastSaved={lastSaved}
-                            />
-                        </div>
-                    </div>
-                </div>
+                <PisInterviewView
+                    rushee={rushee}
+                    brotherA={brotherA}
+                    brotherB={brotherB}
+                    collaboration={collaboration}
+                    currentUser={currentUser}
+                    handleBrotherAChange={handleBrotherAChange}
+                    handleBrotherBChange={handleBrotherBChange}
+                    questions={questions}
+                    answers={answers}
+                    handleMCChange={handleMCChange}
+                    handleAnswerChange={handleAnswerChange}
+                    saveStatus={saveStatus}
+                    lastSaved={lastSaved}
+                />
             )}
         </div>
     );
