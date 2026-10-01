@@ -30,11 +30,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy the binary
-COPY --from=builder /app/target/release/sorting-broadcaster /app/sorting-broadcaster
+COPY --from=builder /app/target/release/rush-sorting-websocket /app/rush-sorting-websocket
 
 # Expose port
 EXPOSE 4001
 
 # Run
-CMD ["./sorting-broadcaster"]
-
+CMD ["./rush-sorting-websocket"]

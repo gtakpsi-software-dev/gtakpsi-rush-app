@@ -36,9 +36,9 @@ Routes, runtime events, and JSON names remain unchanged.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
-PIS editing is `rush-pis-websocket`. The API executable is `rush-api` and the
-voting socket executable is `rush-voting-websocket`. The sorting executable
-still uses `sorting-broadcaster`, matching its current Dockerfile.
+PIS editing is `rush-pis-websocket`. The API executable is `rush-api`; the two
+Rust socket executables use their package names,
+`rush-voting-websocket` and `rush-sorting-websocket`.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
 
