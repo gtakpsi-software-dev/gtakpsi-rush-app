@@ -1644,6 +1644,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     lines. All 429 client tests, typecheck, and the production build pass;
     changed files pass ESLint. The generated CSS asset hash is unchanged, and
     full client lint falls to 127 errors and 26 warnings.
+284. Consolidated admin and voter voting sockets behind one typed feature hook.
+    Their page-facing hooks now supply only role and authorization; the shared
+    lifecycle retains the original event parsing, backoff, error close, and
+    cleanup. A shared test harness exercises both wrappers through the same
+    implementation. All 429 client tests, typecheck, and the production build
+    pass; changed files pass ESLint, the CSS asset hash remains unchanged, and
+    full client lint stays at 127 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -1,56 +1,13 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { runInNewContext } from 'node:vm';
 
-import { transformWithEsbuild } from 'vite';
+import { loadVotingSocketHook } from './helpers/loadVotingSocketHook.js';
 
 const hookPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboardComponents/useAdminVotingSocket.ts', import.meta.url));
 
 async function loadHook() {
-    const effects = [];
-    const sockets = [];
-    const timers = new Map();
-    const errors = [];
-    let nextTimer = 0;
-    class FakeWebSocket {
-        constructor(url) {
-            this.url = url;
-            this.closeCalls = 0;
-            sockets.push(this);
-        }
-        close() { this.closeCalls++; }
-    }
-    const source = await readFile(hookPath, 'utf8');
-    const { code } = await transformWithEsbuild(source, hookPath, {
-        loader: 'ts', format: 'cjs',
-    });
-    const module = { exports: {} };
-    const requireFromHook = createRequire(hookPath);
-    runInNewContext(code, {
-        module,
-        exports: module.exports,
-        WebSocket: FakeWebSocket,
-        setTimeout(callback, delay) {
-            const id = ++nextTimer;
-            timers.set(id, { callback, delay });
-            return id;
-        },
-        clearTimeout: (id) => timers.delete(id),
-        console: { log() {}, error: (...values) => errors.push(values) },
-        require(specifier) {
-            if (specifier === 'react') {
-                return {
-                    useCallback: (callback) => callback,
-                    useEffect: (effect) => effects.push(effect),
-                };
-            }
-            return requireFromHook(specifier);
-        },
-    }, { filename: hookPath });
-    return { useAdminVotingSocket: module.exports.useAdminVotingSocket, effects, sockets, timers, errors };
+    return loadVotingSocketHook(hookPath, 'useAdminVotingSocket');
 }
 
 test('admin voting socket gates connection and preserves event payloads', async () => {
