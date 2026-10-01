@@ -3,6 +3,32 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
 
+// Firebase requires these camelCase JSON keys even though Rust uses snake_case fields.
+#[derive(serde::Serialize)]
+struct LookupBody<'a> {
+    #[serde(rename = "localId")]
+    local_id: Vec<&'a str>,
+}
+
+#[derive(Deserialize)]
+struct LookupResponse {
+    users: Option<Vec<UserRecord>>,
+}
+
+#[derive(Deserialize)]
+struct UserRecord {
+    #[serde(default, rename = "customAttributes")]
+    custom_attributes: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct UpdateBody<'a> {
+    #[serde(rename = "localId")]
+    local_id: &'a str,
+    #[serde(rename = "customAttributes")]
+    custom_attributes: String,
+}
+
 impl FirebaseAuth {
     async fn get_custom_claims(&self, uid: &str) -> Result<HashMap<String, Value>, AuthError> {
         let sa = self
@@ -22,27 +48,13 @@ impl FirebaseAuth {
                 .unwrap_or_else(|| self.project_id.clone())
         );
 
-        #[derive(serde::Serialize)]
-        struct LookupBody<'a> {
-            localId: Vec<&'a str>,
-        }
-
-        #[derive(Deserialize)]
-        struct LookupResponse {
-            users: Option<Vec<UserRecord>>,
-        }
-
-        #[derive(Deserialize)]
-        struct UserRecord {
-            #[serde(default)]
-            customAttributes: Option<String>,
-        }
-
         let resp = self
             .client
             .post(url)
             .bearer_auth(access_token)
-            .json(&LookupBody { localId: vec![uid] })
+            .json(&LookupBody {
+                local_id: vec![uid],
+            })
             .send()
             .await
             .map_err(|_| AuthError::Internal)?;
@@ -55,7 +67,7 @@ impl FirebaseAuth {
         let attrs = data
             .users
             .and_then(|mut users| users.pop())
-            .and_then(|u| u.customAttributes);
+            .and_then(|u| u.custom_attributes);
 
         if let Some(json_str) = attrs {
             if let Ok(map) = serde_json::from_str::<HashMap<String, Value>>(&json_str) {
@@ -94,15 +106,9 @@ impl FirebaseAuth {
                 .unwrap_or_else(|| self.project_id.clone())
         );
 
-        #[derive(serde::Serialize)]
-        struct UpdateBody<'a> {
-            localId: &'a str,
-            customAttributes: String,
-        }
-
         let body = UpdateBody {
-            localId: uid,
-            customAttributes: serde_json::to_string(&claims).map_err(|_| AuthError::Internal)?,
+            local_id: uid,
+            custom_attributes: serde_json::to_string(&claims).map_err(|_| AuthError::Internal)?,
         };
 
         let resp = self
@@ -156,5 +162,40 @@ impl FirebaseAuth {
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
         Ok((is_admin, is_bidcom))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{LookupBody, LookupResponse, UpdateBody};
+    use serde_json::{json, to_value};
+
+    #[test]
+    fn firebase_role_wire_fields_keep_camel_case() {
+        let lookup = LookupBody {
+            local_id: vec!["brother-1"],
+        };
+        assert_eq!(
+            to_value(lookup).unwrap(),
+            json!({ "localId": ["brother-1"] })
+        );
+
+        let response: LookupResponse = serde_json::from_value(json!({
+            "users": [{ "customAttributes": "{\"admin\":true}" }]
+        }))
+        .unwrap();
+        assert_eq!(
+            response.users.unwrap().pop().unwrap().custom_attributes,
+            Some("{\"admin\":true}".to_string())
+        );
+
+        let update = UpdateBody {
+            local_id: "brother-1",
+            custom_attributes: "{\"admin\":true}".to_string(),
+        };
+        assert_eq!(
+            to_value(update).unwrap(),
+            json!({ "localId": "brother-1", "customAttributes": "{\"admin\":true}" })
+        );
     }
 }

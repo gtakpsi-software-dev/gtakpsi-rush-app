@@ -2000,6 +2000,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     all 501 client tests, typecheck, build, and changed-file ESLint pass. Full
     lint remains at 8 errors and 26 warnings. CSS is unchanged; JavaScript
     differs because the adapter is a separate module.
+350. Gave Firebase role lookup and update payloads snake_case Rust fields with
+    explicit Serde names for the existing `localId` and `customAttributes`
+    JSON keys. A new test pins both request shapes and response decoding.
+    Single-file rustfmt, all 58 API unit tests, and all 59 tests in the
+    isolated MongoDB integration run pass. The Firebase wire format and role
+    behavior remain unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2057,9 +2063,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 501 client tests, 57 server unit tests, 22 collaboration
+Current verified totals: 501 client tests, 58 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 58 server tests with the integration feature (including its
+feature, and 59 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
