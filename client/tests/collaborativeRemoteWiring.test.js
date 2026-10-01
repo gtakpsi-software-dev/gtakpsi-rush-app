@@ -9,8 +9,8 @@ import { syncPropValue } from '../src/features/collaboration/syncPropValue.js';
 const fields = [
     {
         name: 'input',
-        path: fileURLToPath(new URL('../src/components/CollaborativeInput.jsx', import.meta.url)),
-        viewImport: '../features/collaboration/CollaborativeInputView',
+        path: fileURLToPath(new URL('../src/features/collaboration/CollaborativeInput.tsx', import.meta.url)),
+        viewImport: './CollaborativeInputView',
         fieldProp: 'fieldKey',
         deferMs: 500,
         expectedChange: ['Remote'],
@@ -45,11 +45,14 @@ for (const field of fields) {
             '../features/collaboration/activeCursorsForField.js': {
                 activeCursorsForField: () => [],
             },
+            './activeCursorsForField.js': { activeCursorsForField: () => [] },
             [field.viewImport]: () => null,
             '../features/collaboration/reconcileRemoteFieldUpdate.js': {
                 reconcileRemoteFieldUpdate: RemoteHelper,
             },
+            './reconcileRemoteFieldUpdate.js': { reconcileRemoteFieldUpdate: RemoteHelper },
             '../features/collaboration/syncPropValue.js': { syncPropValue },
+            './syncPropValue.js': { syncPropValue },
         });
         const remoteUpdates = [{ field: 'notes', value: 'Remote', version: 3 }];
         const collaboration = {

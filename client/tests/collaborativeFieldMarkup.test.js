@@ -11,7 +11,7 @@ import { reconcileRemoteFieldUpdate } from "../src/features/collaboration/reconc
 import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
 
 const components = {
-    input: fileURLToPath(new URL("../src/components/CollaborativeInput.jsx", import.meta.url)),
+    input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInput.tsx", import.meta.url)),
     textarea: fileURLToPath(new URL("../src/components/CollaborativeTextarea.jsx", import.meta.url)),
 };
 const views = {
@@ -35,9 +35,13 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
         const View = await loadTsxComponent(views[kind]);
         const Component = await loadTsxComponent(components[kind], {
             "../features/collaboration/activeCursorsForField.js": { activeCursorsForField },
+            "./activeCursorsForField.js": { activeCursorsForField },
             "../features/collaboration/reconcileRemoteFieldUpdate.js": { reconcileRemoteFieldUpdate },
+            "./reconcileRemoteFieldUpdate.js": { reconcileRemoteFieldUpdate },
             "../features/collaboration/syncPropValue.js": { syncPropValue },
+            "./syncPropValue.js": { syncPropValue },
             "../features/collaboration/CollaborativeInputView": View,
+            "./CollaborativeInputView": View,
             "../features/collaboration/CollaborativeTextareaView": View,
         });
         const collaboration = {

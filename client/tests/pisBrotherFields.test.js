@@ -44,7 +44,7 @@ function collect(node, elements = []) {
 test("brother fields retain assignment display for all original sentinel states", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const PisBrotherFields = await loadTsxComponent(componentPath, {
-        "../../components/CollaborativeInput": CollaborativeInput,
+        "../collaboration/CollaborativeInput": CollaborativeInput,
     });
     const cases = {
         assigned: signup,
@@ -62,7 +62,7 @@ test("brother fields retain assignment display for all original sentinel states"
 
 test("four collaborative fields keep their keys, required flags, and update routes", async () => {
     const PisBrotherFields = await loadTsxComponent(componentPath, {
-        "../../components/CollaborativeInput": CollaborativeInput,
+        "../collaboration/CollaborativeInput": CollaborativeInput,
     });
     const calls = [];
     const tree = PisBrotherFields(props({

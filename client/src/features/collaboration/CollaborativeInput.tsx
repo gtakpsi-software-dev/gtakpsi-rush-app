@@ -1,8 +1,23 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { activeCursorsForField } from '../features/collaboration/activeCursorsForField.js';
-import CollaborativeInputView from '../features/collaboration/CollaborativeInputView';
-import { reconcileRemoteFieldUpdate } from '../features/collaboration/reconcileRemoteFieldUpdate.js';
-import { syncPropValue } from '../features/collaboration/syncPropValue.js';
+import type { ChangeEvent, FocusEvent, MouseEvent } from 'react';
+
+import { activeCursorsForField } from './activeCursorsForField.js';
+import CollaborativeInputView from './CollaborativeInputView';
+import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
+import { syncPropValue } from './syncPropValue.js';
+import type { CollaborationEditorSession } from './CollaborationEditorSession';
+
+type CollaborativeInputProps = {
+    fieldKey: string;
+    value?: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    className?: string;
+    collaboration: CollaborationEditorSession;
+    currentUser?: unknown;
+    disabled?: boolean;
+    required?: boolean;
+};
 
 const CollaborativeInput = ({ 
     fieldKey, 
@@ -11,22 +26,20 @@ const CollaborativeInput = ({
     placeholder, 
     className,
     collaboration,
-    currentUser,
     disabled = false,
     required = false
-}) => {
-    const inputRef = useRef(null);
+}: CollaborativeInputProps) => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const [localValue, setLocalValue] = useState(value || '');
     const lastSentValue = useRef(value || '');
     const processingRemoteOp = useRef(false);
     const pendingLocalChangeRef = useRef(false);
-    const pendingLocalChangeTimeoutRef = useRef(null);
-    const debounceTimerRef = useRef(null);
+    const pendingLocalChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastLocalInputTimeRef = useRef(0);
     const lastProcessedVersionRef = useRef(0);
     
-    // Handle local text changes
-    const handleTextChange = useCallback((e) => {
+    const handleTextChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         if (processingRemoteOp.current) {
             return;
         }
@@ -56,26 +69,22 @@ const CollaborativeInput = ({
         }
     }, [fieldKey, onChange, collaboration]);
 
-    // Handle cursor position changes
     const handleCursorChange = useCallback(() => {
         if (!processingRemoteOp.current && inputRef.current) {
             collaboration.sendCursorPosition(fieldKey, inputRef.current.selectionStart);
         }
     }, [fieldKey, collaboration]);
 
-    // Get cursor information for other users in this field (with staleness filtering)
     const otherUserCursors = activeCursorsForField(collaboration, fieldKey);
     
     // Lock the field if any other user's cursor is in this field
     const isFieldLocked = otherUserCursors.length > 0;
     
-    // Get user name who has the field locked
     const lockedByUser = otherUserCursors.length > 0 
         ? `${otherUserCursors[0].name || otherUserCursors[0].firstName || 'Another user'}` 
         : null;
 
-    // Handle focus events
-    const handleFocus = useCallback((e) => {
+    const handleFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
         // Prevent focus if another user is actively in this field
         if (isFieldLocked) {
             e.target.blur();
@@ -100,13 +109,12 @@ const CollaborativeInput = ({
     }, [collaboration, fieldKey, localValue]);
 
     // Prevent mouse clicks from focusing when field is locked
-    const handleMouseDown = useCallback((e) => {
+    const handleMouseDown = useCallback((e: MouseEvent<HTMLInputElement>) => {
         if (isFieldLocked) {
             e.preventDefault();
         }
     }, [isFieldLocked]);
 
-    // Sync with prop value changes
     useEffect(() => {
         syncPropValue({
             value,
@@ -134,7 +142,6 @@ const CollaborativeInput = ({
         });
     }, [collaboration.remoteUpdates, fieldKey, localValue, onChange]);
 
-    // Cleanup timers on unmount
     useEffect(() => {
         return () => {
             if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);

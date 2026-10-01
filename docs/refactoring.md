@@ -1510,6 +1510,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     pin all five markup states and photo/PIS prop wiring. All 413 client tests
     pass, controlled production CSS is byte-identical, and lint remains at 181
     errors and 20 warnings. `Register.jsx` shrinks from 185 to 174 lines.
+262. Moved the single-line collaborative input controller beside its view and
+    protocol helpers in `features/collaboration`, with a typed session contract
+    for connection state and field messages. Its 300 ms local debounce, 500 ms
+    remote deferral, cursor lock, and PIS field wiring remain under existing
+    regression tests. All 413 client tests pass, controlled CSS is byte-identical,
+    and lint falls to 159 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1537,7 +1543,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 181 errors and 20 warnings, so it is tracked debt,
+the current baseline has 159 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

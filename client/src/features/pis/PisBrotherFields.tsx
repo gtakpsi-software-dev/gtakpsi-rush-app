@@ -1,4 +1,4 @@
-import CollaborativeInput from "../../components/CollaborativeInput";
+import CollaborativeInput from "../collaboration/CollaborativeInput";
 
 type Brother = { firstName: string; lastName: string };
 type Signup = {
