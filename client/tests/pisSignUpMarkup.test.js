@@ -15,8 +15,8 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/components/RegisterComponents/PisSignUp.jsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/features/register/pis/PisSignUpView.tsx', import.meta.url));
-const cardPath = fileURLToPath(new URL('../src/features/register/pis/PisDayCard.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/registration/pis/PisSignUpView.tsx', import.meta.url));
+const cardPath = fileURLToPath(new URL('../src/features/registration/pis/PisDayCard.tsx', import.meta.url));
 
 const Loader = () => React.createElement('span', { 'data-stub': 'loader' });
 const slot = (time, label, num_available) => ({
@@ -68,7 +68,7 @@ async function loadPage(states, get = () => {}) {
                 useEffect: (effect) => effects.push(effect),
             };
             if (specifier === '../Loader') return Loader;
-            if (specifier === '../../features/register/pis/PisSignUpView') return View;
+            if (specifier === '../../features/registration/pis/PisSignUpView') return View;
             if (specifier === 'axios') return { get };
             return requireFromPage(specifier);
         },

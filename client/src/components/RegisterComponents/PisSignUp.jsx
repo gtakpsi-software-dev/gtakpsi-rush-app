@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-import PisSignUpView from "../../features/register/pis/PisSignUpView";
+import PisSignUpView from "../../features/registration/pis/PisSignUpView";
 
 export default function PisSignUp(props) {
     const [error, setError] = useState(false);

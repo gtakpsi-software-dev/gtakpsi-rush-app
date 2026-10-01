@@ -1462,6 +1462,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     six React Three Fiber props forwarded to Three.js. Other unknown DOM props
     remain checked. Client lint falls to 209 errors and 20 warnings; runtime
     code and build output are unchanged.
+255. Moved the PIS signup view and day card from `features/register/pis` into
+    the established `features/registration/pis` area and updated their imports
+    and test loader paths. All 404 client tests pass; controlled production JS
+    and CSS are byte-identical, with lint unchanged at 209 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
