@@ -1422,6 +1422,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     markup states retain their baseline contracts. Eight new tests cover these
     paths. All 402 client tests and the production build pass, generated CSS is
     unchanged, and client lint reports 222 errors and 20 warnings.
+247. Extracted the PIS day card and its slot styling into a 91-line component;
+    the surrounding signup view is now 149 lines. Added selected-Sunday and
+    unselected-Monday markup cases before simplifying the nested class choice.
+    All 404 client tests and the production build pass, generated CSS is
+    unchanged, and lint remains at 222 errors and 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1474,7 +1479,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 402 client tests, 46 server unit tests, 18 collaboration
+Current verified totals: 404 client tests, 46 server unit tests, 18 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

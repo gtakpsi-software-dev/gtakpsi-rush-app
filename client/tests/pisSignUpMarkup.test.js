@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import test from 'node:test';
+import { setImmediate } from 'node:timers';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 
@@ -15,6 +16,7 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/components/RegisterComponents/PisSignUp.jsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/register/pis/PisSignUpView.tsx', import.meta.url));
+const cardPath = fileURLToPath(new URL('../src/features/register/pis/PisDayCard.tsx', import.meta.url));
 
 const Loader = () => React.createElement('span', { 'data-stub': 'loader' });
 const slot = (time, label, num_available) => ({
@@ -33,8 +35,12 @@ const days = new Map([
 ]);
 
 async function loadPage(states, get = () => {}) {
+    const DayCard = existsSync(cardPath) ? await loadTsxComponent(cardPath) : null;
     const View = existsSync(viewPath)
-        ? await loadTsxComponent(viewPath, { '../../../components/Loader': Loader })
+        ? await loadTsxComponent(viewPath, {
+            '../../../components/Loader': Loader,
+            './PisDayCard': DayCard,
+        })
         : null;
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
@@ -104,6 +110,8 @@ const scenarios = [
     ['loading', [false, true, new Map(), false], {}, '542806ab3e89b33c5727f828424b4fbee4cbe2483a1237b14165e8e9908eaa28'],
     ['empty', [false, false, new Map(), false], {}, '01fad8ceb0c51766f27d01e141cb18eceebf3a994bf3469f23c94b4f8125fc58'],
     ['Sunday with Monday hidden', [false, false, days, false], {}, '8040ddedd580a97ed04a9d2b5b41f101bdbd6a8de1a2618c177ef864b7a08e8a'],
+    ['Sunday selected', [false, false, days, false], { selectedSlot: sundayOpen }, '88ddf79ae5c8633af112c5aa3f8f294ac877aabaa9cc320f5797e8f2648c647b'],
+    ['Monday revealed but unselected', [false, false, days, true], {}, '4d9f740c90aaf3715ce79c3282c99704a6766f8e345d6951bd0045f60e1268ee'],
     ['Monday revealed and selected', [false, false, days, true], { selectedSlot: mondayOpen, flexWindow: true }, 'e66e32264af2d90a4677f3821217051457586705fa736a595a575310575c2bd0'],
 ];
 
