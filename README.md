@@ -60,6 +60,11 @@ Set it in the environment or in a root `.env.migrations` file. That file is
 ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 `MONGO_URL` because their original database targets can differ.
 
+`scripts-migrations/add_pis_question_order.py` remains the command for replacing
+PIS questions. Its implementation lives in `scripts-migrations/maintenance_commands/`;
+the command still reads the root `.env` and `pis_questions.json` and performs
+the same delete, insert, and verification sequence.
+
 ## Tests
 
 ```bash

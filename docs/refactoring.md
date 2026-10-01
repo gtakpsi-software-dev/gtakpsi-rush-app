@@ -1654,7 +1654,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
 285. Removed an import-path leak from the maintenance test module and gave the
     data-export and rating-repair tests a scoped script path, matching direct
     Python command execution. The full 50-test maintenance suite passes, and
-    all 14 test files now pass when run independently in fresh processes.
+    all 13 test files now pass when run independently in fresh processes.
+286. Moved the PIS-question replacement implementation into
+    `scripts-migrations/maintenance_commands/` while retaining its original
+    script entrypoint. The entrypoint passes its path and fresh dependencies,
+    so import-only execution remains inert and relative `.env`/JSON paths stay
+    unchanged. A before/after offline comparison matches all 12 database/file
+    events and all 633 output characters. The focused tests and full 50-test
+    maintenance suite pass without contacting MongoDB.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

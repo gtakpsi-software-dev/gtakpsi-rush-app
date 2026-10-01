@@ -78,14 +78,15 @@ def run_script(execute=True, mongo_uri="mongodb://offline-test"):
 
     def fake_open(path, *args, **kwargs):
         if str(path).endswith("pis_questions.json"):
-            events.append(("open", Path(path).name))
+            events.append(("open", str(path)))
             return StringIO(json.dumps(QUESTIONS))
         return actual_open(path, *args, **kwargs)
 
     environment = {"MONGO_URI": mongo_uri} if mongo_uri else {}
     with patch.dict(sys.modules, {"pymongo": pymongo, "dotenv": dotenv}):
         with patch.dict(os.environ, environment, clear=True):
-            with patch("builtins.open", fake_open):
+            with patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]), \
+                 patch("builtins.open", fake_open):
                 output = StringIO()
                 with redirect_stdout(output):
                     if execute:
@@ -112,6 +113,8 @@ class AddPisQuestionOrderTests(unittest.TestCase):
         self.assertEqual(events[1], ("connect", "mongodb://offline-test"))
         self.assertEqual(events[2], ("database", "rush-app"))
         self.assertEqual(events[3], ("collection", "pis-questions"))
+        self.assertEqual(events[0], ("dotenv", os.path.join(str(SCRIPT.parent), "..", ".env")))
+        self.assertEqual(events[4], ("open", os.path.join(str(SCRIPT.parent), "..", "pis_questions.json")))
         self.assertEqual(events[6], ("delete", {}))
         self.assertEqual(collection.inserted, QUESTIONS)
         self.assertIn("Loaded 2 questions from pis_questions.json", output)
