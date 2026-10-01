@@ -7,6 +7,7 @@ import React from "react";
 import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
 const contextPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/AdminVotingContext.tsx", import.meta.url));
+const providerPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/AdminVotingContextProvider.tsx", import.meta.url));
 
 test("admin voting provider retains its initial context and fetch transition", async () => {
     const initialStates = [];
@@ -15,17 +16,20 @@ test("admin voting provider retains its initial context and fetch transition", a
     let effect;
     let currentContext;
 
-    const context = await loadTsxModule(contextPath, {
-        react: {
-            ...React,
-            createContext: () => ({ Provider: function Provider({ children }) { return children; } }),
-            useContext: () => currentContext,
-            useState(initial) {
-                const index = initialStates.push(initial) - 1;
-                return [initial, (value) => updates.push([index, value])];
-            },
-            useEffect: (callback) => { effect = callback; },
+    const react = {
+        ...React,
+        createContext: () => ({ Provider: function Provider({ children }) { return children; } }),
+        useContext: () => currentContext,
+        useState(initial) {
+            const index = initialStates.push(initial) - 1;
+            return [initial, (value) => updates.push([index, value])];
         },
+        useEffect: (callback) => { effect = callback; },
+    };
+    const context = await loadTsxModule(contextPath, { react });
+    const provider = await loadTsxModule(providerPath, {
+        react,
+        "./AdminVotingContext": { AdminVotingContext: context.AdminVotingContext },
         "../../features/brothers/getAllBrothers": {
             getAllBrothers: async () => {
                 requests.push("brothers");
@@ -34,7 +38,7 @@ test("admin voting provider retains its initial context and fetch transition", a
         },
     });
 
-    const element = context.AdminVotingContextProvider({ children: "dashboard" });
+    const element = provider.AdminVotingContextProvider({ children: "dashboard" });
     const value = element.props.value;
 
     assert.equal(element.props.children, "dashboard");

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { AdminVotingContextProvider, useAdminVotingContext } from "./AdminVotingContext";
+import { useAdminVotingContext } from "./AdminVotingContext";
+import { AdminVotingContextProvider } from "./AdminVotingContextProvider";
 import AdminVotingDashboardView from "./AdminVotingDashboardView";
 import type { Brother, ConnectionStatus } from "./types";
 import { auth } from "../../firebase";

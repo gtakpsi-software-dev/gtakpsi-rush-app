@@ -50,11 +50,13 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         'react-router-dom': { useNavigate: () => () => {} },
         '../../components/Navbar': stub('navbar'),
         './AdminVotingContext': {
-            AdminVotingContextProvider: ({ children }) => children,
             useAdminVotingContext: () => ({
                 votes: [], rushee: null, question: null,
                 setVotes() {}, setRushee() {}, setQuestion() {},
             }),
+        },
+        './AdminVotingContextProvider': {
+            AdminVotingContextProvider: ({ children }) => children,
         },
         './QuestionDisplay': stub('question'),
         './RusheePreviewCard': stub('rushee'),
