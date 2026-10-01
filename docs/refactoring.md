@@ -1343,6 +1343,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     remain unchanged. Isolated rustfmt and all 47 disposable-Mongo
     integration-feature tests pass, including the self-service access-code and
     privacy contracts.
+232. Added disposable-Mongo contracts for Rush App access settings: empty
+    defaults, admin override, bid committee and regular-member gates, midterm
+    status, update attribution, and replacement of the single settings document.
+    The isolated fixture reset now clears this collection. All 47
+    integration-feature tests pass; no application behavior changed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

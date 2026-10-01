@@ -1,3 +1,4 @@
+mod access;
 mod assignments;
 mod availability;
 mod brother_pis;
@@ -39,6 +40,7 @@ async fn database_contracts() {
     brother_pis::check_contracts().await;
     sorting::check_contracts().await;
     assignments::check_contracts().await;
+    access::check_contracts().await;
     availability::check_contracts().await;
     timeslots::check_contracts().await;
 }

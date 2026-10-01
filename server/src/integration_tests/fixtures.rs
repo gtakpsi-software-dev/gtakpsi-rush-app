@@ -23,6 +23,7 @@ pub async fn reset() {
         "pis-questions",
         "brother-pis-availability",
         "pis-availability-form-status",
+        "rush-app-status",
     ] {
         client
             .database("rush-app")
