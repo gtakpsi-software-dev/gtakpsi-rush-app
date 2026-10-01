@@ -1281,6 +1281,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     changing its state or rendered text. All 361 client tests and the production
     build pass with unchanged CSS; touched-file lint has no errors and one
     existing effect-dependency warning.
+223. Extracted the brother PIS appointment card into a 93-line typed feature
+    view, reducing `MyPISPage.jsx` from 195 to 124 lines. Pre-extraction markup
+    hashes match in error, loading, empty, and populated states; a second test
+    pins the card's row, time label, attendance badge, and profile navigation.
+    All 363 client tests and the production build pass with unchanged CSS.
+    Touched-file lint has no errors and the page's existing effect-dependency
+    warning remains; the current lint configuration does not cover TSX files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1333,7 +1340,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 361 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 363 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
