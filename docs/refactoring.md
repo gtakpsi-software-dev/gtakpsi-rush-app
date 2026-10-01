@@ -2017,6 +2017,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     place. A new test pins row order, date formatting, skipped signups, and
     blank defaults. All 57 offline maintenance tests and Python compilation
     pass; no database or spreadsheet output was touched during verification.
+353. Extracted the historical rating-repair command's arithmetic mean into
+    `maintenance_commands/rating_repair.py` and removed unused Pandas and
+    Requests imports from the command. A new test pins first-seen rating
+    category order and the existing missing-name behavior. All 58 offline
+    maintenance tests and Python compilation pass; the MongoDB command was
+    verified only with fake collections, without touching a real database.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2077,7 +2083,7 @@ require PyMongo or a database connection.
 Current verified totals: 501 client tests, 58 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 59 server tests with the integration feature (including its
-isolated database contract), plus 57 maintenance-script tests. The last
+isolated database contract), plus 58 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the

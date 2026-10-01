@@ -42,8 +42,6 @@ def run_script(execute=True):
 
     pymongo = types.ModuleType("pymongo")
     pymongo.MongoClient = lambda uri: events.append(("connect",)) or FakeClient()
-    pandas = types.ModuleType("pandas")
-    requests = types.ModuleType("requests")
     tqdm = types.ModuleType("tqdm")
 
     def fake_tqdm(items, desc, total):
@@ -51,7 +49,7 @@ def run_script(execute=True):
         return items
 
     tqdm.tqdm = fake_tqdm
-    modules = {"pymongo": pymongo, "pandas": pandas, "requests": requests, "tqdm": tqdm}
+    modules = {"pymongo": pymongo, "tqdm": tqdm}
 
     with patch.dict(sys.modules, modules), \
          patch.dict(os.environ, {"TEMP_RATINGS_FIX_MONGO_URI": "mongodb://offline-test"}, clear=True), \
@@ -80,6 +78,21 @@ class TempRatingsFixTests(unittest.TestCase):
         }}))
         self.assertEqual(events[6], ("update", {"gtid": "2"}, {"$set": {"ratings": []}}))
         self.assertIn("Loading...", output)
+
+    def test_rating_average_keeps_first_seen_category_order_and_missing_names(self):
+        namespace, events, _ = run_script(execute=False)
+        comments = [
+            {"ratings": [{"name": "energy", "value": 2}, {"value": 4}]},
+            {"ratings": [{"name": "fit", "value": 3}, {"name": "energy", "value": 4}]},
+            {"ratings": [{"value": 2}]},
+        ]
+
+        self.assertEqual(namespace["average_ratings"](comments), [
+            {"name": "energy", "value": 3},
+            {"name": None, "value": 3},
+            {"name": "fit", "value": 3},
+        ])
+        self.assertEqual(events, [])
 
 
 if __name__ == "__main__":

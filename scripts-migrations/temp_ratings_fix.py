@@ -1,9 +1,9 @@
 from pymongo import MongoClient
 from lib.mongo_config import resolve_mongo_uri
-import pandas as pd
 from tqdm import tqdm
 
-import requests
+from maintenance_commands.rating_repair import average_ratings
+
 
 def main():
     mongo_uri = resolve_mongo_uri(__file__)
@@ -17,33 +17,11 @@ def main():
     print("Loading...")
 
     for rushee in tqdm(rushees, desc="Fixing Ratings", total=len(rushees)):
-
-        # Each comment contributes equally to the historical arithmetic mean; no outliers are filtered.
-        comments = rushee.get("comments", [])
-
-        curr_ratings_numerator = {}
-        curr_ratings_n = {}
-
-        for comment in comments:
-            for rating in comment.get("ratings", []):
-            
-                if rating.get("name") in curr_ratings_n:
-                    curr_ratings_n[rating.get("name")] += 1
-                    curr_ratings_numerator[rating.get("name")] += rating.get("value")
-                else:
-                    curr_ratings_n[rating.get("name")] = 1
-                    curr_ratings_numerator[rating.get("name")] = rating.get("value")
-
-        new_ratings = []
-        for key in curr_ratings_n.keys():
-            new_ratings.append({
-                "name": key,
-                "value": curr_ratings_numerator[key] / curr_ratings_n[key]
-            })
+        new_ratings = average_ratings(rushee.get("comments", []))
 
         rushee_collection.update_one(
             {"gtid": rushee["gtid"]},
-            {"$set": {"ratings": new_ratings}}
+            {"$set": {"ratings": new_ratings}},
         )
 
 
