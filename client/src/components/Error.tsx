@@ -1,6 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function MyError(props) {
+/**
+ * Error Page Summary:
+ * - Types the props accepted by existing callers without changing display rules.
+ * - Route params remain the source of the shown title and description.
+ */
+type ErrorPageProps = {
+    wrongpage?: boolean;
+    title?: string;
+    description?: string;
+};
+
+export default function MyError(props: ErrorPageProps) {
 
     const { title, description } = useParams()
 
