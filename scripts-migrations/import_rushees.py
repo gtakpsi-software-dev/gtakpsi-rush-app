@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 from lib.extended_json import convert_dates
+from maintenance_commands.rushee_import import replace_rushees
 
 
 def main():
@@ -37,18 +38,7 @@ def main():
     print(f"Found {len(rushees)} rushees in JSON file")
 
     # INVARIANT: finish loading the input before deleting any existing rushees.
-    print("Clearing existing rushees...")
-    result = collection.delete_many({})
-    print(f"Deleted {result.deleted_count} existing rushees")
-
-    print("Converting and inserting rushees...")
-    converted = [convert_dates(rushee) for rushee in rushees]
-
-    result = collection.insert_many(converted)
-    print(f"Successfully inserted {len(result.inserted_ids)} rushees!")
-
-    count = collection.count_documents({})
-    print(f"Verified: {count} rushees now in database")
+    replace_rushees(collection, rushees, convert_dates)
 
     client.close()
     print("Done!")
