@@ -1377,6 +1377,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     ambiguous `operations` basename. The `text-operation` wire event, room
     state changes, service entrypoint, and deployment path are unchanged. All
     18 collaboration tests pass against the real loopback server.
+238. Extended the voting WebSocket integration contract with admin and voter
+    ping handling. Each connection currently emits two Pong frames per Ping;
+    the test records that existing behavior before any session refactor. All
+    four voting WebSocket tests pass against disposable Redis.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

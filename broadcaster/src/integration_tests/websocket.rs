@@ -1,5 +1,7 @@
 use super::*;
+use futures_util::SinkExt;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio_tungstenite::tungstenite::Message;
 
 #[tokio::test]
 async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
@@ -50,6 +52,24 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     );
     assert!(server.admins.contains_key(&17));
     assert!(server.voters.contains_key(&18));
+
+    for socket in [&mut admin, &mut voter] {
+        let payload = vec![1, 2, 3];
+        socket.send(Message::Ping(payload.clone())).await.unwrap();
+        // Preserve the two Pong frames currently emitted by each session.
+        let response = tokio::time::timeout(Duration::from_secs(5), socket.next())
+            .await
+            .expect("pong timed out")
+            .unwrap()
+            .unwrap();
+        assert_eq!(response, Message::Pong(payload.clone()));
+        let second = tokio::time::timeout(Duration::from_secs(5), socket.next())
+            .await
+            .expect("second pong timed out")
+            .unwrap()
+            .unwrap();
+        assert_eq!(second, Message::Pong(payload));
+    }
 
     admin_socket::spawn_pubsub_listener(server.admins.clone()).await;
     voter_socket::spawn_pubsub_listener(server.voters.clone()).await;
