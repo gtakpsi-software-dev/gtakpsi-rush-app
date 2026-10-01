@@ -197,3 +197,72 @@ async fn malformed_text_does_not_close_the_sorting_socket() {
     );
     socket.close(None).await.unwrap();
 }
+
+#[tokio::test]
+async fn viewer_messages_do_not_claim_cards_or_emit_save_events() {
+    let server = TestServer::start();
+    let (mut viewer, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut viewer).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+
+    // A connected socket remains a viewer until a join message grants admin access.
+    send(&mut viewer, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 1.0, "y": 2.0})).await;
+    send(
+        &mut viewer,
+        json!({"type": "card_saved", "rushee_id": "card", "new_status": "accepted"}),
+    )
+    .await;
+    send(
+        &mut viewer,
+        json!({"type": "join", "is_admin": false, "name": "Viewer"}),
+    )
+    .await;
+    send(&mut viewer, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 3.0, "y": 4.0})).await;
+    send(
+        &mut viewer,
+        json!({"type": "card_saved", "rushee_id": "card", "new_status": "accepted"}),
+    )
+    .await;
+
+    let (mut admin, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut admin).await,
+        json!({"type": "viewer_count", "count": 2})
+    );
+    assert_eq!(
+        receive(&mut viewer).await,
+        json!({"type": "viewer_count", "count": 2})
+    );
+
+    send(
+        &mut admin,
+        json!({"type": "join", "is_admin": true, "name": "Admin"}),
+    )
+    .await;
+    send(&mut admin, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 5.0, "y": 6.0})).await;
+    let started = json!({"type": "drag_start", "dragger_name": "Admin", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 5.0, "y": 6.0});
+    assert_eq!(receive(&mut admin).await, started);
+    assert_eq!(receive(&mut viewer).await, started);
+
+    send(
+        &mut admin,
+        json!({"type": "card_saved", "rushee_id": "card", "new_status": "accepted"}),
+    )
+    .await;
+    let saved = json!({"type": "card_moved", "rushee_id": "card", "new_status": "accepted"});
+    assert_eq!(receive(&mut admin).await, saved);
+    assert_eq!(receive(&mut viewer).await, saved);
+
+    admin.close(None).await.unwrap();
+    assert_eq!(
+        receive(&mut viewer).await,
+        json!({"type": "drag_end", "rushee_id": "card"})
+    );
+    assert_eq!(
+        receive(&mut viewer).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+    viewer.close(None).await.unwrap();
+}
