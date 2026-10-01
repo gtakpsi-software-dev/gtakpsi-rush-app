@@ -15,40 +15,8 @@ import os
 import requests
 import firebase_admin
 from firebase_admin import credentials, storage, auth as firebase_auth
+from scripts.season_setup.authentication import get_admin_id_token
 from scripts.season_setup.seeds import seed_data
-
-
-# Get an ID token for API authentication
-def get_admin_id_token(firebase_api_key, admin_uid):
-    """Generate an ID token for an admin user to authenticate API requests."""
-    if not firebase_api_key:
-        print("Warning: FIREBASE_API_KEY not set in .env - API requests may fail")
-        return None
-    if not admin_uid:
-        print("Warning: ADMIN_UID not set in .env - API requests may fail")
-        return None
-
-    try:
-        # Create a custom token for the admin user
-        custom_token = firebase_auth.create_custom_token(admin_uid)
-
-        # Exchange custom token for an ID token using Firebase Auth REST API
-        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={firebase_api_key}"
-        response = requests.post(url, json={
-            "token": custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token,
-            "returnSecureToken": True
-        })
-
-        if response.status_code == 200:
-            id_token = response.json().get("idToken")
-            print("Successfully obtained admin authentication token")
-            return id_token
-        else:
-            print(f"Failed to get ID token: {response.json()}")
-            return None
-    except Exception as e:
-        print(f"Error getting admin token: {e}")
-        return None
 
 
 def main():
@@ -71,7 +39,8 @@ def main():
     admin_uid = os.getenv("ADMIN_UID")  # UID of an admin user
     api_key = os.getenv("API_KEY")  # Server API key for X-API-Key header
 
-    # Initialize Firebase Admin SDK
+    # Service-account credentials must stay in direct server-side execution.
+    # Never move this initialization to import time or client code.
     if not firebase_admin._apps:
         cred = credentials.Certificate(firebase_credentials_path)
         firebase_admin.initialize_app(cred, {
@@ -79,7 +48,7 @@ def main():
         })
 
     # Get auth headers for API requests
-    id_token = get_admin_id_token(firebase_api_key, admin_uid)
+    id_token = get_admin_id_token(firebase_api_key, admin_uid, firebase_auth, requests.post)
     auth_headers = {}
     if id_token:
         auth_headers["Authorization"] = f"Bearer {id_token}"

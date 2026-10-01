@@ -20,7 +20,7 @@ SEED_DATA = {
 REAL_DATETIME = datetime_module.datetime
 
 
-def run_setup(*, execute=True, month=9, day=30, post_outcomes=None):
+def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_overrides=None):
     events = []
     post_outcomes = {} if post_outcomes is None else post_outcomes
 
@@ -67,8 +67,6 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None):
 
     def fake_post(url, *, json, headers=None):
         events.append(("post", url, json, headers))
-        if "signInWithCustomToken" in url:
-            return FakeResponse({"idToken": "offline-id-token"})
         outcome = post_outcomes.get(url)
         if outcome:
             kind, value = outcome
@@ -78,6 +76,8 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None):
                 return FakeResponse({}, status_code=value)
             if kind == "api":
                 return FakeResponse({"status": "error", "message": value})
+        if "signInWithCustomToken" in url:
+            return FakeResponse({"idToken": "offline-id-token"})
         return FakeResponse({"status": "success"})
 
     pymongo = types.ModuleType("pymongo")
@@ -122,6 +122,7 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None):
         "ADMIN_UID": "offline-admin",
         "API_KEY": "offline-server-key",
     }
+    environment.update({} if env_overrides is None else env_overrides)
     real_open = open
 
     def fake_open(path, *args, **kwargs):
@@ -190,6 +191,22 @@ class SetupTests(unittest.TestCase):
         self.assertIn("invalid night", output)
         self.assertIn("Network error adding PIS Question Question One: offline", output)
         self.assertNotIn("Rush App Set Up Complete!", output)
+
+    def test_missing_firebase_api_key_keeps_seed_requests_without_bearer_header(self):
+        _, events, output = run_setup(env_overrides={"FIREBASE_API_KEY": ""})
+        self.assertIn("Warning: FIREBASE_API_KEY not set in .env - API requests may fail", output)
+        self.assertNotIn("token", [event[0] for event in events])
+        seed_posts = [event for event in events if event[0] == "post"]
+        self.assertEqual(len(seed_posts), 3)
+        self.assertTrue(all(event[3] == {"X-API-Key": "offline-server-key"} for event in seed_posts))
+
+    def test_failed_token_exchange_keeps_seed_requests_without_bearer_header(self):
+        token_url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=offline-api-key"
+        _, events, output = run_setup(post_outcomes={token_url: ("http", 403)})
+        self.assertIn("Failed to get ID token: {}", output)
+        seed_posts = [event for event in events if event[0] == "post"][1:]
+        self.assertEqual(len(seed_posts), 3)
+        self.assertTrue(all(event[3] == {"X-API-Key": "offline-server-key"} for event in seed_posts))
 
     def test_import_does_not_contact_services_or_reset_a_season(self):
         namespace, events, output = run_setup(execute=False)

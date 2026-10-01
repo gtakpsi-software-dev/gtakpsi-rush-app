@@ -879,6 +879,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     failures; both the successful and mixed-failure runs produce the same 23
     fake-service events and stdout as the previous commit. All 45 maintenance
     tests and Python compilation pass; no live setup ran.
+148. Extracted the Firebase custom-token exchange into
+    `scripts/season_setup/authentication.py`, reducing root `setup.py` from 154
+    to 122 lines. Tests pin the missing-key and rejected-token branches, including
+    their warning text and seed request headers. Success, missing-key, and
+    token-rejection runs match the previous command's service events and stdout.
+    All 47 maintenance tests and Python compilation pass; no live setup ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -929,7 +935,7 @@ require PyMongo or a database connection.
 Current verified totals: 257 client tests, 40 server unit tests, 15 collaboration
 tests, 9 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 41 server tests with the integration feature (including its
-isolated database contract), plus 45 maintenance-script tests. The last
+isolated database contract), plus 47 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated
