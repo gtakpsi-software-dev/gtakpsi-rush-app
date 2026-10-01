@@ -2357,6 +2357,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     question, brother, collaboration, and save props. All 532 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash. The PIS
     page is now 152 lines instead of 176.
+410. Moved the shared major list from registration-only options to
+    `client/src/data/majorOptions.js` and removed the duplicate options in the
+    rushee self-profile form. Both forms render the same ordered list from the
+    shared source. Their saved markup fixtures, all 532 client tests, typecheck,
+    scoped lint, and build pass; CSS retains its prior hash. The self-profile
+    form is now 166 lines instead of 195.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

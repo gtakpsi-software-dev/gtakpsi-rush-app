@@ -1,7 +1,8 @@
 import type { Ref } from "react";
 
+import { MAJOR_OPTIONS } from "../../data/majorOptions.js";
 import { formatPhoneInput } from "./formatPhoneInput.js";
-import { MAJOR_OPTIONS, EXPOSURE_OPTIONS } from "./basicInfoOptions.js";
+import { EXPOSURE_OPTIONS } from "./basicInfoOptions.js";
 
 export type BasicInfoFieldsProps = {
     firstname: Ref<HTMLInputElement>;

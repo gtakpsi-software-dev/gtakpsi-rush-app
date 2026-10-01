@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
@@ -15,6 +16,12 @@ const rushee = {
     phone_number: "(404) 555-1234", email: "ada@example.com", gtid: "123456789",
     major: "Computer Science", class: "Third", pronouns: "she/her",
 };
+
+async function loadForm() {
+    return loadTsxComponent(componentPath, {
+        "../../../data/majorOptions.js": { MAJOR_OPTIONS },
+    });
+}
 
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
@@ -28,7 +35,7 @@ function collect(node, elements = []) {
 
 test("self-profile form retains its pre-extraction fields, labels, options, and styling", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
-    const RusheeProfileForm = await loadTsxComponent(componentPath);
+    const RusheeProfileForm = await loadForm();
     const html = renderToStaticMarkup(React.createElement(RusheeProfileForm, {
         rushee, onSubmit() {}, onChange() {},
     }));
@@ -36,7 +43,7 @@ test("self-profile form retains its pre-extraction fields, labels, options, and 
 });
 
 test("form keeps the original submit and regular field handlers", async () => {
-    const RusheeProfileForm = await loadTsxComponent(componentPath);
+    const RusheeProfileForm = await loadForm();
     const calls = [];
     const onSubmit = (event) => calls.push(["submit", event]);
     const onChange = (event) => calls.push(["change", event]);
@@ -53,7 +60,7 @@ test("form keeps the original submit and regular field handlers", async () => {
 });
 
 test("phone input mutates the event with the existing partial and full formats", async () => {
-    const RusheeProfileForm = await loadTsxComponent(componentPath);
+    const RusheeProfileForm = await loadForm();
     const calls = [];
     const nodes = collect(RusheeProfileForm({
         rushee, onSubmit() {}, onChange: (event) => calls.push(event),
