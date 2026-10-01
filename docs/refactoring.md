@@ -2414,6 +2414,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     instead of 206. All 536 client tests, typecheck, scoped lint, and build
     pass; CSS retains its prior hash. The pre-existing wheel-effect lint warning
     remains unchanged.
+418. Consolidated the admin and public sorting-list queries behind one cursor,
+    projection, and ordering path. An explicit audience keeps public rush
+    numbers redacted while preserving the admin fallback and existing card
+    schema. Two new unit tests cover audience fields, legacy defaults, and
+    status/order/id sorting; the isolated MongoDB contract now calls both
+    endpoints. The query file is 98 lines instead of 133. All 67 server tests
+    with the integration feature pass, including the database contract.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2473,9 +2480,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 536 client tests, 64 server unit tests, 24 collaboration
+Current verified totals: 536 client tests, 66 server unit tests, 24 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 65 server tests with the integration feature (including its
+feature, and 67 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

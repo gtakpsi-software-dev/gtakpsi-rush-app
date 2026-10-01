@@ -79,6 +79,12 @@ pub async fn check_contracts() {
     let notes = admin::get_rushee_notes(path()).await.unwrap().0;
     assert_eq!(notes["sortingNotes"], "Committee observation");
     assert_eq!(notes["sortingStatus"], "IN_CLOUD");
+    let admin_list = admin::get_sorting_rushees().await.unwrap().0;
+    let public_list = admin::get_sorting_rushees_public().await.unwrap().0;
+    assert_eq!(admin_list["payload"][0]["sortingStatus"], "IN_CLOUD");
+    assert_eq!(admin_list["payload"][0]["sortingOrder"], 4);
+    assert_eq!(admin_list["payload"][0]["rushNumber"], 1);
+    assert_eq!(public_list["payload"][0]["rushNumber"], 0);
     println!("sorting status, note tags, and attribution contracts passed");
 
     check_move_contracts().await;
