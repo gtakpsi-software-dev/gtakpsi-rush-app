@@ -11,6 +11,7 @@ import SortingZoomControls from "../features/sorting/SortingZoomControls";
 import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
 import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { handleSortingViewerMessage } from "../features/sorting/handleSortingViewerMessage";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -94,79 +95,10 @@ export default function BrotherSorting() {
             ws.onmessage = (event) => {
                 try {
                     const msg = JSON.parse(event.data);
-                    
-                    switch (msg.type) {
-                        case "viewer_count":
-                            setViewerCount(msg.count);
-                            break;
-                        case "drag_start":
-                            ghostTimestampsRef.current[msg.rushee_id] = Date.now();
-                            setGhostCards((prev) => ({
-                                ...prev,
-                                [msg.rushee_id]: {
-                                    rusheeId: msg.rushee_id,
-                                    rusheeName: msg.rushee_name,
-                                    x: msg.x,
-                                    y: msg.y,
-                                    draggerName: msg.dragger_name,
-                                },
-                            }));
-                            break;
-                        case "drag_move":
-                            ghostTimestampsRef.current[msg.rushee_id] = Date.now();
-                            setGhostCards((prev) => {
-                                if (!prev[msg.rushee_id]) return prev;
-                                return {
-                                    ...prev,
-                                    [msg.rushee_id]: {
-                                        ...prev[msg.rushee_id],
-                                        x: msg.x,
-                                        y: msg.y,
-                                    },
-                                };
-                            });
-                            break;
-                        case "drag_end":
-                            delete ghostTimestampsRef.current[msg.rushee_id];
-                            setGhostCards((prev) => {
-                                if (!prev[msg.rushee_id]) return prev;
-                                const next = { ...prev };
-                                delete next[msg.rushee_id];
-                                return next;
-                            });
-                            break;
-                        case "card_moved":
-                            // Clear ghost state for this card (fallback if drag_end was missed)
-                            if (msg.rushee_id) {
-                                delete ghostTimestampsRef.current[msg.rushee_id];
-                                setGhostCards((prev) => {
-                                    if (!prev[msg.rushee_id]) return prev;
-                                    const next = { ...prev };
-                                    delete next[msg.rushee_id];
-                                    return next;
-                                });
-                            }
-                            // Refresh data when a card has been moved
-                            if (fetchDataRef.current) {
-                                fetchDataRef.current();
-                            }
-                            break;
-                        case "current_drag":
-                            if (msg.active) {
-                                ghostTimestampsRef.current[msg.rushee_id] = Date.now();
-                                setGhostCards((prev) => ({
-                                    ...prev,
-                                    [msg.rushee_id]: {
-                                        rusheeId: msg.rushee_id,
-                                        rusheeName: msg.rushee_name,
-                                        x: msg.x,
-                                        y: msg.y,
-                                        draggerName: msg.dragger_name,
-                                    },
-                                }));
-                            }
-                            break;
-                    }
+                    handleSortingViewerMessage(msg, {
+                        ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
+                        showRusheeNames: true,
+                    });
                 } catch (e) {
                     console.error("Failed to parse WS message", e);
                 }
