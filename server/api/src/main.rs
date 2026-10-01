@@ -11,6 +11,9 @@ mod routes;
 #[cfg(all(test, feature = "integration-tests"))]
 mod integration_tests;
 
+#[cfg(all(test, feature = "redis-integration-tests"))]
+mod redis_integration_tests;
+
 #[tokio::main]
 async fn main() {
     // Initialize tracing for logging

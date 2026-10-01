@@ -106,13 +106,18 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
+Run `python3 scripts/testing/voting-integration.py` for voting WebSocket and
+API Redis contracts. It launches a disposable loopback Redis server; the API
+test checks that server's run marker before clearing any voting keys.
+
 Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 581 client tests, 79 server unit tests, 30 collaboration
 tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
-feature, and 80 server tests from the latest integration-feature run, plus 69
+feature, 1 API Redis integration test, and 80 server tests from the latest
+MongoDB integration-feature run, plus 69
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

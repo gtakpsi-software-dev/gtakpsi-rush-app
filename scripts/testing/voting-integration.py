@@ -66,9 +66,17 @@ def main():
                 "RUSH_TEST_REDIS_PORT": str(port),
                 "RUSH_TEST_REDIS_RUN_ID": run_id,
             })
-            return subprocess.call(
+            voting_status = subprocess.call(
                 ["cargo", "test", "--locked", "--manifest-path", str(ROOT / "server/websockets/voting/Cargo.toml"),
                  "--features", "integration-tests", "--", "--nocapture"],
+                cwd=ROOT,
+                env=env,
+            )
+            if voting_status:
+                return voting_status
+            return subprocess.call(
+                ["cargo", "test", "--locked", "--manifest-path", str(ROOT / "server/api/Cargo.toml"),
+                 "--features", "redis-integration-tests", "voting_redis_contracts", "--", "--nocapture"],
                 cwd=ROOT,
                 env=env,
             )

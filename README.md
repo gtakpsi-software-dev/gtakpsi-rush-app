@@ -102,7 +102,7 @@ requirements and remaining coverage.
 
 The voting integration command requires `redis-server` and `redis-cli`. It starts
 a separate local Redis instance, checks its run marker, and stops that instance
-after the WebSocket tests.
+after the voting WebSocket and API voting tests.
 
 [Regression checks](.github/workflows/regression.yml) run these suites, scoped
 client lint, typecheck, and build on pushes and pull requests. Scoped lint checks
