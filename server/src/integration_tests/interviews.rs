@@ -10,7 +10,17 @@ use crate::{
 
 pub async fn check_contracts() {
     reset().await;
+    assert_eq!(
+        rushee::get_signup_timeslots().await.unwrap().0,
+        json!({"status": "success", "payload": []})
+    );
     register().await;
+    let signups = rushee::get_signup_timeslots().await.unwrap().0;
+    assert_eq!(signups["status"], "success");
+    assert_eq!(
+        signups["payload"],
+        json!([stored_rushee().await.pis_signup])
+    );
     for (question, category, order) in [
         ("Fixed", None, 0),
         ("A1", Some("A"), 1),
@@ -118,6 +128,10 @@ pub async fn check_contracts() {
     assert_eq!(stored.pis_signup.first_brother_last_name, "Brother");
     assert_eq!(stored.pis_signup.second_brother_first_name, "none");
     assert_eq!(stored.pis_signup.second_brother_last_name, "none");
+    assert_eq!(
+        rushee::get_signup_timeslots().await.unwrap().0["payload"],
+        json!([stored.pis_signup])
+    );
 
     let replacement = json!([
         {"question": "First", "answer": "One"},

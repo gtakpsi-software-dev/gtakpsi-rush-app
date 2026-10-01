@@ -2220,6 +2220,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     equivalent match expression and empty-document query, removed a stale
     TODO and unused error binding, and kept all response payloads intact.
     Targeted rustfmt and all 64 isolated integration-feature tests pass.
+387. Characterized `get_signup_timeslots` against the isolated database with
+    empty, registered, and updated signup assertions before changing the
+    handler. Simplified its empty-document query, named the collected values
+    `signups`, and removed a stale TODO and unused error binding without
+    changing the response. Targeted rustfmt and all 64 isolated
+    integration-feature tests pass before and after the cleanup.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

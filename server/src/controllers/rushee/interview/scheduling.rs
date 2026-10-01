@@ -9,20 +9,15 @@ use serde_json::{json, Value};
 pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
-    let result = connection
-        .find({
-            doc! {}
-        })
-        .await;
+    let result = connection.find(doc! {}).await;
 
     match result {
         Ok(mut cursor) => {
-            // TODO: extract useful info only
-            let mut rushees = Vec::<PISSignup>::new();
+            let mut signups = Vec::<PISSignup>::new();
 
             while let Some(rushee) = cursor.next().await {
                 match rushee {
-                    Ok(doc) => rushees.push(doc.pis_signup),
+                    Ok(doc) => signups.push(doc.pis_signup),
                     Err(err) => {
                         println!("{}", err.to_string());
                         return Ok(Json(json!({
@@ -35,11 +30,11 @@ pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
 
             Ok(Json(json!({
                 "status": "success",
-                "payload": rushees
+                "payload": signups
             })))
         }
 
-        Err(err) => Ok(Json(json!({
+        Err(_) => Ok(Json(json!({
             "stauts": "error",
             "message": "some network error occurred"
         }))),
