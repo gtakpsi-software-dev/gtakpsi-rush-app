@@ -29,6 +29,8 @@ import os
 import sys
 
 from pymongo import MongoClient
+
+from lib.cleanup_uri import resolve_cleanup_uri
 from maintenance_commands.test_data_cleanup import run_cleanup
 
 APPLY = "--apply" in sys.argv
@@ -36,32 +38,8 @@ APPLY = "--apply" in sys.argv
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def _uri_from_server_env():
-    path = os.path.join(REPO_ROOT, "server", ".env")
-    try:
-        with open(path) as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("MONGO_URL="):
-                    return line.split("=", 1)[1].strip().strip('"').strip("'")
-    except OSError:
-        pass
-    return None
-
-
 def resolve_uri():
-    if "--uri" in sys.argv:
-        i = sys.argv.index("--uri")
-        if i + 1 < len(sys.argv):
-            return sys.argv[i + 1]
-        print("ERROR: --uri given with no value")
-        sys.exit(1)
-    uri = os.getenv("MONGO_URI") or os.getenv("MONGO_URL") or _uri_from_server_env()
-    if not uri:
-        print("ERROR: no connection string. Pass --uri, set MONGO_URL, or "
-              "put MONGO_URL in server/.env")
-        sys.exit(1)
-    return uri
+    return resolve_cleanup_uri(sys.argv, os.environ, REPO_ROOT)
 
 
 # Test rushees to delete (GTID -> label, label is just for the printout)
@@ -72,6 +50,7 @@ TEST_RUSHEE_GTIDS = {
     "904059716": "Hasini Sandra",
     "098761235": "Hasini Sandra (dup)",
 }
+
 
 def main():
     print("Connecting to MongoDB...")

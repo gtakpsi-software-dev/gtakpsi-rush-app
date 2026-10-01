@@ -106,7 +106,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 577 client tests, 79 server unit tests, 30 collaboration
 tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
-feature, and 80 server tests from the latest integration-feature run, plus 65
+feature, and 80 server tests from the latest integration-feature run, plus 69
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
