@@ -1782,6 +1782,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     drops from 255 to 216 lines. Existing loading, ready, and editor markup
     hashes match; all 433 client tests, typecheck, build, and changed-file
     ESLint pass.
+309. Colocated brother-promotion selection and role status with its existing
+    actions. A hook test pins all four state defaults and action dependencies;
+    the original promotion actions and admin markup fixtures pass. `Admin.jsx`
+    drops from 216 to 211 lines; all 434 client tests, typecheck, build, and
+    changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1837,7 +1842,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 433 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 434 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

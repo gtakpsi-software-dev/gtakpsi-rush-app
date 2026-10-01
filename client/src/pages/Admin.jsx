@@ -16,7 +16,7 @@ import {
 import { createRescheduleActions } from "../features/admin/pis/rescheduleActions";
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
 import { downloadCsv } from "../features/admin/data/downloadCsv";
-import { createPromotionActions } from "../features/admin/access/promotionActions";
+import useAdminPromotion from "../features/admin/access/useAdminPromotion";
 import useAdminAccessSettings from "../features/admin/access/useAdminAccessSettings";
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminPageView from "../features/admin/overview/AdminPageView";
@@ -33,12 +33,7 @@ export default function Admin() {
 
     const [loading, setLoading] = useState(true);
 
-    // Admin/Bidcom promotion state
     const [brothers, setBrothers] = useState([]);
-    const [selectedBrother, setSelectedBrother] = useState(null);
-    const [isPromoting, setIsPromoting] = useState(false);
-    const [brotherAdminStatus, setBrotherAdminStatus] = useState(null); // true/false/null
-    const [brotherBidcomStatus, setBrotherBidcomStatus] = useState(null); // true/false/null
 
     // Reschedule PIS state
     const [rushees, setRushees] = useState([]);
@@ -146,18 +141,18 @@ export default function Admin() {
     });
 
     const {
+        selectedBrother,
+        setSelectedBrother,
+        isPromoting,
+        brotherAdminStatus,
+        brotherBidcomStatus,
         handleSelectBrother,
         handleSetAdmin,
         handleSetBidcom,
-    } = createPromotionActions({
+    } = useAdminPromotion({
         apiBase,
-        selectedBrother,
-        setSelectedBrother,
         setBrotherSearch,
         setFilteredBrothers,
-        setBrotherAdminStatus,
-        setBrotherBidcomStatus,
-        setIsPromoting,
         axios,
         toast,
     });
