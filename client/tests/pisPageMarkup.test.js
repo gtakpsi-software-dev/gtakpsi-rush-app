@@ -59,9 +59,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
                 return collaboration;
             },
         },
-        "../features/auth/verifyUser": { verifyUser: noop },
         "react-router-dom": { useNavigate: () => noop, useParams: () => ({ gtid: "123" }) },
-        "../firebase": { auth: {} },
         "react-toastify/dist/ReactToastify.css": {},
         "../features/pis/PisInterviewView": View,
         "../features/pis/PisQuestionsPending": stub("pending"),
@@ -73,7 +71,9 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "../features/pis/usePisAutosave": {
             usePisAutosave: (props) => captured.set("autosave", props),
         },
-        "../features/pis/loadPisPageData": { loadPisPageData: noop },
+        "../features/pis/usePisPageBootstrap": {
+            usePisPageBootstrap: (props) => captured.set("bootstrap", props),
+        },
         "../features/pis/startPisRevealPolling": { startPisRevealPolling: noop },
         "../features/pis/createPisAnswerHandlers": {
             createPisAnswerHandlers: () => ({ handleAnswerChange: noop, handleMCChange: noop }),
@@ -150,4 +150,7 @@ test("PIS questions retain answer, brother, collaboration, and save props", asyn
     assert.equal(captured.get("autosave").brotherB, brotherB);
     assert.equal(captured.get("autosave").gtid, "123");
     assert.equal(captured.get("autosave").loading, false);
+    assert.equal(captured.get("bootstrap").gtid, "123");
+    assert.equal(captured.get("bootstrap").loading, false);
+    assert.equal(captured.get("bootstrap").currentUser, user);
 });

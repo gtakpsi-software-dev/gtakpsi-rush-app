@@ -3,9 +3,7 @@ import Loader from "../components/Loader";
 import axios from "axios";
 import { useCollaboration } from "../features/pis/useCollaboration";
 
-import { verifyUser } from "../features/auth/verifyUser";
 import { useNavigate, useParams } from "react-router-dom";
-import { auth } from "../firebase";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,7 +12,7 @@ import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { usePisAutosave } from "../features/pis/usePisAutosave";
-import { loadPisPageData } from "../features/pis/loadPisPageData";
+import { usePisPageBootstrap } from "../features/pis/usePisPageBootstrap";
 import { startPisRevealPolling } from "../features/pis/startPisRevealPolling";
 import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
 
@@ -55,36 +53,13 @@ export default function PIS() {
         applyRemoteUpdates(collaboration.remoteUpdates, { setBrotherA, setBrotherB, setAnswers });
     }, [collaboration.remoteUpdates]);
 
-    const errorTitle = "Default Error Title";
-    const errorDescription = "Default Error Description";
     const api = import.meta.env.VITE_API_PREFIX;
 
-    useEffect(() => {
-        if (loading) {
-            loadPisPageData({
-                verifyUser,
-                navigate,
-                errorTitle,
-                errorDescription,
-                currentUser,
-                auth,
-                getStoredUser: () => localStorage.getItem('user'),
-                setCurrentUser,
-                get: (...args) => axios.get(...args),
-                api,
-                gtid,
-                setRushee,
-                setAnswers,
-                setBrotherA,
-                setBrotherB,
-                setQuestions,
-                setQuestionsAvailable,
-                setRevealAt,
-                setLoading,
-                logError: (error) => console.log(error),
-            });
-        }
-    }, [loading, api, gtid, navigate]);
+    usePisPageBootstrap({
+        loading, navigate, currentUser, api, gtid, setCurrentUser,
+        setRushee, setAnswers, setBrotherA, setBrotherB, setQuestions,
+        setQuestionsAvailable, setRevealAt, setLoading,
+    });
 
     // While the randomized questions are still hidden, poll and re-fetch from
     // the server once time's up so the assigned questions get drawn.

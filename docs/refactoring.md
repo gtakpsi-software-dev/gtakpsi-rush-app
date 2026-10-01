@@ -76,10 +76,10 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 4 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 3 warnings, so it is
 tracked debt, not a passing check.
 `npm --prefix client run lint:ci` gates the rest of the client at no more than
-3 warnings. The regression workflow runs this scoped gate, the passing suites,
+2 warnings. The regression workflow runs this scoped gate, the passing suites,
 and the client build on pushes and pull requests; its first GitHub run remains
 unverified.
 
@@ -104,7 +104,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 578 client tests, 79 server unit tests, 30 collaboration
+Current verified totals: 579 client tests, 79 server unit tests, 30 collaboration
 tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, and 80 server tests from the latest integration-feature run, plus 69
 maintenance-script tests. The last client build differs from baseline CSS only
