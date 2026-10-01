@@ -2095,6 +2095,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     separate, unexported `base64ToTensor` reference in the unused
     FaceAttendance page was left unchanged. All 512 client tests, typecheck,
     changed-file ESLint, and build pass; JS and CSS hashes match slice 363.
+366. Removed the unreferenced `client/src/js/timezone.js` module and the now
+    empty generic `js` directory after checking every export for repository
+    callers. The production build passes with JS and CSS hashes identical to
+    slice 365; no runtime imports or routes changed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
