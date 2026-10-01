@@ -32,7 +32,6 @@ const CollaborativeTextarea = ({
     const [isComposing, setIsComposing] = useState(false);
     const lastSentValue = useRef(value || '');
     const processingRemoteOp = useRef(false);
-    const processedOperations = useRef(new Set());
     const colorMapRef = useRef<Record<string, string>>({});
     const pendingLocalChangeRef = useRef(false);
     const pendingLocalChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,8 +87,6 @@ const CollaborativeTextarea = ({
         }
     }, [collaboration, questionKey]);
 
-    const typingInThisField = collaboration.typingUsers.filter(user => user.field === questionKey);
-    
     const otherUserCursors = activeCursorsForField(collaboration, questionKey, 3);
     
     // Lock the field if any other user's cursor is in this field (strong lock)
