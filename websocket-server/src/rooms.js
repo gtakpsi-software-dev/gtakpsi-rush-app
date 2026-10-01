@@ -1,3 +1,5 @@
+const { IDLE_ROOM_LIMIT_MS, ROOM_SWEEP_INTERVAL_MS } = require('./roomRetention');
+
 function createRoom() {
     return {
         users: new Map(),
@@ -12,15 +14,15 @@ function createRoom() {
 function scheduleRoomCleanup(rooms, timers) {
     timers.setInterval(() => {
         const now = Date.now();
-        const oneHourAgo = now - (60 * 60 * 1000);
+        const idleBefore = now - IDLE_ROOM_LIMIT_MS;
 
         for (const [roomId, room] of rooms.entries()) {
             const lastActivity = new Date(room.lastActivity).getTime();
-            if (lastActivity < oneHourAgo && room.users.size === 0) {
+            if (lastActivity < idleBefore && room.users.size === 0) {
                 rooms.delete(roomId);
             }
         }
-    }, 10 * 60 * 1000); // Run every 10 minutes
+    }, ROOM_SWEEP_INTERVAL_MS);
 }
 
 function snapshotDocument(room) {

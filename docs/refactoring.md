@@ -2299,6 +2299,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the timeslot handlers without changing messages or status fields. Targeted
     rustfmt and all 65 isolated integration-feature server tests pass before
     and after the refactor.
+400. Centralized the PIS collaboration service's five-minute empty-room grace,
+    one-hour idle limit, and ten-minute sweep interval in `roomRetention`.
+    Membership cleanup and periodic cleanup retain their timer callbacks,
+    values, and strict idle-time comparison. All 23 tests, including real
+    Socket.IO sessions, pass against both the previous and refactored source.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

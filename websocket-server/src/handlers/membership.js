@@ -1,4 +1,5 @@
 const { createRoom, snapshotDocument } = require('../rooms');
+const { EMPTY_ROOM_GRACE_MS } = require('../roomRetention');
 const { joinedRoom } = require('./joinedRoom');
 
 function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
@@ -58,7 +59,7 @@ function registerMembershipHandlers(io, socket, rooms, userSockets, timers) {
                     if (currentRoom && currentRoom.users.size === 0) {
                         rooms.delete(roomId);
                     }
-                }, 5 * 60 * 1000);
+                }, EMPTY_ROOM_GRACE_MS);
             }
         }
 
