@@ -1,13 +1,19 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-import PisSignUpView from "../../features/registration/pis/PisSignUpView";
+import PisSignUpView, { type PisSignUpViewProps } from "./PisSignUpView";
+import type { PisSlot } from "./PisDayCard";
 
-export default function PisSignUp(props) {
+type PisSignUpStepProps =
+    Pick<PisSignUpViewProps, "selectedSlot" | "flexWindow" | "setFlexWindow" | "onContinue"> & {
+        setSelectedSlot: (slot: PisSlot) => void;
+    };
+
+export default function PisSignUpStep(props: PisSignUpStepProps) {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const [days, setDays] = useState(new Map());
+    const [days, setDays] = useState(new Map<string, PisSlot[]>());
     const [showMonday, setShowMonday] = useState(false);
 
     useEffect(() => {
@@ -16,7 +22,7 @@ export default function PisSignUp(props) {
 
             await axios.get(`${api}/admin/get_pis_timeslots`).then((response) => {
                 if (response.data.status && response.data.status == "success") {
-                    const tempDays = new Map();
+                    const tempDays = new Map<string, PisSlot[]>();
 
                     for (const slot in response.data.payload) {
                         const jsDate = new Date(
@@ -26,7 +32,7 @@ export default function PisSignUp(props) {
                         const day = jsDate.toDateString();
 
                         if (tempDays.has(day)) {
-                            tempDays.get(day).push({
+                            tempDays.get(day)!.push({
                                 time: jsDate,
                                 num_available: response.data.payload[slot].num_available,
                             });
@@ -54,7 +60,7 @@ export default function PisSignUp(props) {
         }
     });
 
-    const handleSlotClick = (slot) => {
+    const handleSlotClick = (slot: PisSlot) => {
         props.setSelectedSlot(slot);
     };
 
@@ -69,7 +75,7 @@ export default function PisSignUp(props) {
             flexWindow={props.flexWindow}
             setFlexWindow={props.setFlexWindow}
             handleSlotClick={handleSlotClick}
-            onContinue={props.func}
+            onContinue={props.onContinue}
         />
     );
 }

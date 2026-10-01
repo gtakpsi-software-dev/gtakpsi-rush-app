@@ -3,7 +3,7 @@ import type { MouseEventHandler } from 'react';
 import Loader from '../../../components/Loader';
 import PisDayCard, { type PisSlot } from './PisDayCard';
 
-type PisSignUpViewProps = {
+export type PisSignUpViewProps = {
     error: boolean;
     loading: boolean;
     days: Map<string, PisSlot[]>;

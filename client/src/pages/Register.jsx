@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import PhotoCaptureStep from "../features/registration/photo/PhotoCaptureStep";
-import PisSignUp from "../components/RegisterComponents/PisSignUp"
+import PisSignUpStep from "../features/registration/pis/PisSignUpStep";
 import RegistrationSuccessView from "../features/registration/RegistrationSuccessView";
 import Loader from "../components/Loader";
 
@@ -166,12 +166,12 @@ export default function Register() {
                         setImage={setImage}
                         onContinue={image_submit}
                     /> : <div>
-                        {page == 2 ? <PisSignUp
+                        {page == 2 ? <PisSignUpStep
                             selectedSlot={selectedSlot}
                             setSelectedSlot={setSelectedSlot}
                             flexWindow={flexWindow}
                             setFlexWindow={setFlexWindow}
-                            func={pisSubmit}
+                            onContinue={pisSubmit}
                         /> : <div>
 
                             {currLoading ? <Loader /> : null}

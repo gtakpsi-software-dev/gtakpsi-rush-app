@@ -1494,6 +1494,15 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and the two-second copied-state reset. All 411 client tests pass.
     Controlled CSS is byte-identical; production JS differs only in the two
     `link` to `accessCode` prop names. Lint falls to 186 errors and 20 warnings.
+260. Moved the PIS signup controller beside its view and day card as
+    `features/registration/pis/PisSignUpStep.tsx`, typed its slot and callback
+    contract, and named the final action `onContinue`. Removed the unreferenced,
+    empty `InfoVerification` component, leaving the legacy `RegisterComponents`
+    directory empty. Existing PIS tests still verify seven markup states,
+    selection callbacks, the endpoint, day grouping, and state-update order.
+    All 411 client tests pass; controlled CSS is byte-identical and production
+    JS differs only in the two renamed prop uses. Lint falls to 181 errors and
+    20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1521,7 +1530,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 186 errors and 20 warnings, so it is tracked debt,
+the current baseline has 181 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

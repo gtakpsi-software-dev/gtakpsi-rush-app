@@ -14,7 +14,7 @@ import { transformWithEsbuild } from 'vite';
 
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const pagePath = fileURLToPath(new URL('../src/components/RegisterComponents/PisSignUp.jsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/features/registration/pis/PisSignUpStep.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/registration/pis/PisSignUpView.tsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../src/features/registration/pis/PisDayCard.tsx', import.meta.url));
 
@@ -45,7 +45,7 @@ async function loadPage(states, get = () => {}) {
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
-        loader: 'jsx',
+        loader: 'tsx',
         format: 'cjs',
         jsx: 'automatic',
     });
@@ -68,7 +68,7 @@ async function loadPage(states, get = () => {}) {
                 useEffect: (effect) => effects.push(effect),
             };
             if (specifier === '../Loader') return Loader;
-            if (specifier === '../../features/registration/pis/PisSignUpView') return View;
+            if (specifier === './PisSignUpView') return View;
             if (specifier === 'axios') return { get };
             return requireFromPage(specifier);
         },
@@ -102,7 +102,7 @@ const props = {
     flexWindow: false,
     setSelectedSlot: () => {},
     setFlexWindow: () => {},
-    func: () => {},
+    onContinue: () => {},
 };
 
 const scenarios = [
@@ -133,7 +133,7 @@ test('PIS signup keeps slot, Monday, flexibility, and continue callbacks', async
         ...props,
         setSelectedSlot: (value) => selected.push(value),
         setFlexWindow: (value) => flexibility.push(value),
-        func: () => { continued += 1; },
+        onContinue: () => { continued += 1; },
     }));
     const buttons = elements.filter((element) => element.type === 'button');
 
@@ -153,7 +153,7 @@ test('PIS signup keeps slot, Monday, flexibility, and continue callbacks', async
     const selectedElements = walk(SelectedPage({
         ...props,
         selectedSlot: mondayOpen,
-        func: () => { continued += 1; },
+        onContinue: () => { continued += 1; },
         setFlexWindow: (value) => flexibility.push(value),
     }));
     const checkbox = selectedElements.find((element) => element.type === 'input' && element.props.type === 'checkbox');
