@@ -6,6 +6,10 @@ import { createCommentCreateActions } from "../features/rushee/zoom/commentCreat
 import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";
 import useRusheeZoomAccess from "../features/rushee/zoom/useRusheeZoomAccess";
 import RusheeZoomView from "../features/rushee/zoom/RusheeZoomView";
+import {
+    getRusheeNumber as getRusheeNumberFromSearch,
+    isBidCommitteeMode as matchesBidCommitteeMode,
+} from "../features/rushee/zoom/routeContext";
 import Loader from "../components/Loader";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
 
@@ -57,16 +61,8 @@ export default function RusheeZoom() {
 
     const api = import.meta.env.VITE_API_PREFIX;
 
-    const getRusheeNumber = () => {
-        const params = new URLSearchParams(location.search);
-        return params.get('rushee_num') || '---';
-    };
-
-    const isBidCommitteeMode = () => {
-        return location.pathname.includes('/bid-committee') || 
-               location.search.includes('bid_committee=true') ||
-               document.referrer.includes('/bid-committee');
-    };
+    const getRusheeNumber = () => getRusheeNumberFromSearch(location.search);
+    const isBidCommitteeMode = () => matchesBidCommitteeMode(location, () => document.referrer);
 
     const ratingFields = RATING_FIELDS;
 

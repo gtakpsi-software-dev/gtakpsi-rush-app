@@ -2028,6 +2028,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     query, exit codes, messages, and database write. New tests pin missing
     night and missing time behavior. All 59 offline maintenance tests and
     Python compilation pass without touching a real database.
+355. Extracted Rushee Zoom's route and query rules into
+    `features/rushee/zoom/routeContext.js`, retaining the query fallback and
+    lazy referrer lookup used by bid-committee presentation. New tests pin
+    decoding, empty values, route precedence, and referrer timing. All 503
+    client tests, typecheck, build, and changed-file ESLint pass. Full lint
+    remains at 8 errors and 26 warnings. CSS is unchanged; JavaScript differs
+    because the route rules now live in a separate module.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2085,7 +2092,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 501 client tests, 58 server unit tests, 22 collaboration
+Current verified totals: 503 client tests, 58 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 59 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

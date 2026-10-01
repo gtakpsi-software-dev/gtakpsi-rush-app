@@ -13,6 +13,9 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import {
     getVisibleComments, hasOwnComment, shouldShowAllComments,
 } from "../src/features/comments/commentVisibility.js";
+import {
+    getRusheeNumber, isBidCommitteeMode,
+} from "../src/features/rushee/zoom/routeContext.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
@@ -84,6 +87,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../features/rushee/zoom/existingCommentActions": { createExistingCommentActions: actions },
         "../features/rushee/zoom/useRusheeZoomAccess": useRusheeZoomAccess,
         "../features/rushee/zoom/RusheeZoomView": Layout,
+        "../features/rushee/zoom/routeContext": { getRusheeNumber, isBidCommitteeMode },
         "../components/Loader": stub("loader"),
         "../js/speculativeWordBank": { validateComment: noop, generateWarnings: noop },
         "react-toastify": { toast: {} },
