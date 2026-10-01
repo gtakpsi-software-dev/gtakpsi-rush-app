@@ -78,6 +78,13 @@ test("assignment actions retain confirmation, endpoints, and response messages",
     assert.deepEqual(cleared.calls.at(-1), ["loading", false]);
 });
 
+test("clearing assignments stops before state or network work when cancelled", async () => {
+    const cancelled = setup(undefined, false);
+    await cancelled.actions.handleClearAssignments();
+    assert.deepEqual(cancelled.calls.map(([kind]) => kind), ["confirm"]);
+    assert.match(cancelled.calls[0][1], /clear all brother assignments from PIS slots/);
+});
+
 test("request failures keep each action's fallback and clear loading", async () => {
     const sent = setup(new Error("offline"));
     await sent.actions.handleSendPISForm();

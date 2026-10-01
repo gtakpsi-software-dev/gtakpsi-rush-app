@@ -1316,6 +1316,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     request/export characterization tests retain endpoint, payload, CSV,
     success, and failure contracts. All 375 client tests and the production
     build pass with unchanged CSS; touched-file ESLint passes cleanly.
+228. Separated PIS brother-assignment actions from availability form lifecycle
+    handling, reducing `availabilityFormActions.js` from 166 to 109 lines and
+    placing the two assignment flows in a 71-line module. An added test pins
+    cancellation before any network or loading change; the existing tests still
+    cover request order, messages, failures, and state updates. All 376 client
+    tests and the production build pass with unchanged CSS; touched-file ESLint
+    passes cleanly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1368,7 +1375,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 375 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 376 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
