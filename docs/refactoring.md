@@ -1443,6 +1443,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and deleted rooms still stop each handler before emitting or mutating room
     state; disconnect keeps its separate cleanup path. A new test pins these
     guards, and all 19 Socket.IO tests pass against the real loopback server.
+251. Compared the current client with baseline `5250f4b` in the in-app browser
+    using separate local preview builds and placeholder environment settings.
+    At 1280×720, settled initial views of `/`, `/login`, `/forgot-password`,
+    `/register`, `/create-account`, and `/error/Test/Message` had matching
+    accessibility content and byte-identical PNG captures. These checks did
+    not submit forms, authenticate, or use a live backend.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1500,7 +1506,6 @@ tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
-rule from removed commented-out JSX. Full browser flow/visual testing
-and end-to-end authenticated
-database flows are still pending; these checks do not yet establish full
-application parity.
+rule from removed commented-out JSX. Authenticated browser flows, later
+registration steps, and end-to-end database flows are still pending; the
+public-entry comparison does not establish full application parity.
