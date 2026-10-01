@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function SuccessPage({ title, description, link, gtid }) {
     const [copied, setCopied] = useState(false);

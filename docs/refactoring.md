@@ -1407,6 +1407,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     remain unchanged. Three new tests pin those rules; existing markup and
     remote-wiring contracts pass. All 387 client tests and the production build
     pass, and generated CSS remains byte-identical.
+244. Removed unused default `React` imports from 27 JSX modules under the
+    automatic JSX runtime, preserving every named hook import. The production
+    JS and CSS are both byte-identical to the preceding build, all 387 client
+    tests pass, and client lint errors fall from 262 to 235 with 20 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1434,7 +1438,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 262 errors and 20 warnings, so it is tracked debt,
+the current baseline has 235 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

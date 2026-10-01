@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaExclamationTriangle, FaUser, FaComment } from 'react-icons/fa';
 
 const CommentWarning = ({ warnings, onDismiss }) => {

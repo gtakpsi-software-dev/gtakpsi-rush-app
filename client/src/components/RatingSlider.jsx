@@ -1,4 +1,3 @@
-import React from "react";
 
 export default function RatingSlider({ label, value, notSeen, onValueChange, onNotSeenChange }) {
     return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useVoiceRecording } from '../js/voiceRecording';
 
 const VoiceRecorder = ({ onTranscription, disabled = false }) => {

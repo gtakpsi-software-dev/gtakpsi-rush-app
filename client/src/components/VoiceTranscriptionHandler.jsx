@@ -1,4 +1,3 @@
-import React from 'react';
 import VoiceRecorder from './VoiceRecorder';
 
 const VoiceTranscriptionHandler = ({ 
