@@ -16,6 +16,8 @@ import {
     orderBy
 } from "../firebase";
 import { isEmailAllowed } from "../data/allowedEmails";
+import { createdStoredUser, loginStoredUser } from "../features/auth/userSession";
+import { accountErrorMessage, loginErrorMessage, resetErrorMessage } from "../features/auth/errorMessages";
 
 /**
  * Sign in with email and password
@@ -93,22 +95,7 @@ export async function login(credentials) {
             console.warn("Could not check Rush App access status:", accessError);
         }
         
-        const nameParts = user.displayName?.split(' ') || ['', ''];
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-        
-        // Store user info in localStorage for easy access
-        // Using both old field names (for voting compatibility) and new ones
-        localStorage.setItem('user', JSON.stringify({
-            _id: user.uid,           // For voting system compatibility
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            firstname: firstName,     // lowercase for voting system
-            lastname: lastName,       // lowercase for voting system
-            firstName: firstName,     // camelCase for other uses
-            lastName: lastName,       // camelCase for other uses
-        }));
+        localStorage.setItem('user', JSON.stringify(loginStoredUser(user)));
         
         toast.success('Signed in successfully!', {
             position: "top-center",
@@ -121,30 +108,7 @@ export async function login(credentials) {
     } catch (error) {
         console.error("Login error:", error);
         
-        let errorMessage = 'Some error occurred. Try again later';
-        
-        switch (error.code) {
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
-                break;
-            case 'auth/user-disabled':
-                errorMessage = 'This account has been disabled';
-                break;
-            case 'auth/user-not-found':
-                errorMessage = 'No account found with this email';
-                break;
-            case 'auth/wrong-password':
-                errorMessage = 'Incorrect password';
-                break;
-            case 'auth/invalid-credential':
-                errorMessage = 'Invalid email or password';
-                break;
-            case 'auth/too-many-requests':
-                errorMessage = 'Too many failed attempts. Please try again later';
-                break;
-        }
-        
-        toast.error(errorMessage, {
+        toast.error(loginErrorMessage(error.code), {
                     position: "top-center",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -205,18 +169,7 @@ export async function createAccount(credentials) {
         
         await setDoc(doc(db, "brothers", user.uid), userDoc);
         
-        // Store user info in localStorage
-        // Using both old field names (for voting compatibility) and new ones
-        localStorage.setItem('user', JSON.stringify({
-            _id: user.uid,           // For voting system compatibility
-            uid: user.uid,
-            email: user.email,
-            displayName: displayName,
-            firstname: credentials.firstName || '',   // lowercase for voting system
-            lastname: credentials.lastName || '',     // lowercase for voting system
-            firstName: credentials.firstName || '',   // camelCase for other uses
-            lastName: credentials.lastName || '',     // camelCase for other uses
-        }));
+        localStorage.setItem('user', JSON.stringify(createdStoredUser(user, credentials, displayName)));
         
         toast.success('Account created successfully!', {
             position: "top-center",
@@ -229,24 +182,7 @@ export async function createAccount(credentials) {
     } catch (error) {
         console.error("Create account error:", error);
         
-        let errorMessage = 'Some error occurred. Try again later';
-        
-        switch (error.code) {
-            case 'auth/email-already-in-use':
-                errorMessage = 'An account with this email already exists';
-                break;
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
-                break;
-            case 'auth/operation-not-allowed':
-                errorMessage = 'Email/password accounts are not enabled';
-                break;
-            case 'auth/weak-password':
-                errorMessage = 'Password is too weak. Use at least 6 characters';
-                break;
-        }
-        
-        toast.error(errorMessage, {
+        toast.error(accountErrorMessage(error.code), {
                     position: "top-center",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -308,18 +244,7 @@ export async function resetPassword(email) {
     } catch (error) {
         console.error("Password reset error:", error);
         
-        let errorMessage = 'Some error occurred. Try again later';
-        
-        switch (error.code) {
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
-                break;
-            case 'auth/user-not-found':
-                errorMessage = 'No account found with this email';
-                break;
-        }
-        
-        toast.error(errorMessage, {
+        toast.error(resetErrorMessage(error.code), {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
