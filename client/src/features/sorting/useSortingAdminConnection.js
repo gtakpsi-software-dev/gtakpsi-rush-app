@@ -15,7 +15,6 @@ export function useSortingAdminConnection({
     setLockedCards,
     getCancelDragState,
 }) {
-    // Keep the mount-scoped session; cleanup closes the latest socket after reconnects.
     useEffect(() => {
         connectSortingAdmin({
             url: `${realtimeBaseUrls.sorting}/ws`,
@@ -38,9 +37,11 @@ export function useSortingAdminConnection({
 
         return () => {
             if (wsRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps -- Reconnects replace the ref; cleanup must close the latest socket.
                 wsRef.current.close();
             }
             clearInterval(staleCleanupInterval);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- One connection per mount preserves the current session lifecycle.
     }, []);
 }

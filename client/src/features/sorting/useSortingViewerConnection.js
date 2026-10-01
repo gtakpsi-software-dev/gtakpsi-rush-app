@@ -13,7 +13,6 @@ export function useSortingViewerConnection({
     setGhostCards,
     showRusheeNames,
 }) {
-    // Keep one session per page mount; cleanup follows the ref after reconnects.
     useEffect(() => {
         connectSortingViewer({
             url: `${realtimeBaseUrls.sorting}/ws`,
@@ -33,9 +32,11 @@ export function useSortingViewerConnection({
 
         return () => {
             if (wsRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps -- Reconnects replace the ref; cleanup must close the latest socket.
                 wsRef.current.close();
             }
             clearInterval(staleCleanupInterval);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- One connection per mount preserves the current session lifecycle.
     }, []);
 }

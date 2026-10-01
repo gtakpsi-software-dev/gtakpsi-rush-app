@@ -2316,6 +2316,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     before and after the change. All 530 client tests, typecheck, targeted lint,
     and build pass; CSS retains its prior hash. Full lint now reports 8 errors
     and 15 warnings.
+403. Documented the intentional hook-dependency exceptions in both sorting
+    connection hooks at their exact lint sites. The mount-only effects retain
+    one connection per page session; cleanup closes the latest socket ref after
+    reconnects. Four existing hook tests pin both behaviors and pass. Targeted
+    lint is clean; full lint now reports 8 errors and 11 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2347,7 +2352,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 15 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 11 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
