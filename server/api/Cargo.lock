@@ -2176,7 +2176,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "server"
+name = "rush-api"
 version = "0.1.0"
 dependencies = [
  "anyhow",

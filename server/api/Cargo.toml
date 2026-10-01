@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "rush-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -39,5 +39,5 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 chrono-tz = "0.10.4"
 
 [[bin]]
-name = "server"
+name = "rush-api"
 path = "src/main.rs"

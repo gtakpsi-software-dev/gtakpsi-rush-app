@@ -36,11 +36,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the binary from builder
-COPY --from=builder /app/target/release/server /app/server
+COPY --from=builder /app/target/release/rush-api /app/rush-api
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 3000
 
 # Run the server
-CMD ["./server"]
-
+CMD ["./rush-api"]

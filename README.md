@@ -129,7 +129,8 @@ npm run build
 The backend is deployed automatically via Railway when you push to the main branch.
 
 Set the API service's Railway root directory to `server/api`. Its Dockerfile and
-`railway.toml` live there; the binary name and HTTP routes are unchanged.
+`railway.toml` live there; the Rust executable is `rush-api` and HTTP routes
+are unchanged.
 
 ### PIS collaboration service
 

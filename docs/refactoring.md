@@ -32,12 +32,13 @@ Services currently deployed independently:
 
 The API and all three socket sources now live under `server/`; their deployment
 roots must point to the listed directories before this branch is deployed.
-Executable names, routes, runtime events, and JSON names remain unchanged.
+Routes, runtime events, and JSON names remain unchanged.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
-PIS editing is `rush-pis-websocket`. The Rust binaries remain `broadcaster` and
-`sorting-broadcaster`, matching the current Dockerfiles.
+PIS editing is `rush-pis-websocket`. The API executable is `rush-api`. The Rust
+socket executables still use `broadcaster` and `sorting-broadcaster`, matching
+their current Dockerfiles.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
 
