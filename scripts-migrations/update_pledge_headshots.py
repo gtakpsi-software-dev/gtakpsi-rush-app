@@ -3,53 +3,14 @@ Upload pledge headshots to Firebase Storage and update image_url in MongoDB.
 """
 
 import os
-import time
 
 import firebase_admin
 from dotenv import load_dotenv
 from firebase_admin import credentials, storage
-from PIL import Image, ImageOps
 from pymongo import MongoClient
 
-from lib.headshot_image import prepare_headshot
 from lib.headshot_mapping import FILENAME_TO_GTID
-
-
-def process_headshot(filename, headshots_dir, collection, bucket):
-    stem = os.path.splitext(filename)[0]
-    gtid = FILENAME_TO_GTID.get(stem)
-
-    if not gtid:
-        return f"  No GTID mapping for: {filename}"
-
-    rushee = collection.find_one({"gtid": gtid})
-    if not rushee:
-        return f"  Rushee not found in DB for GTID {gtid} ({stem})"
-
-    file_path = os.path.join(headshots_dir, filename)
-    timestamp = int(time.time() * 1000)
-    # Keep each public profile image under its GTID and upload timestamp.
-    blob_name = f"profile-pictures/{gtid}_{timestamp}.jpg"
-
-    try:
-        buffer, compressed_size = prepare_headshot(file_path, Image, ImageOps)
-
-        original_size = os.path.getsize(file_path)
-        print(f"  {stem}: {original_size//1024}KB → {compressed_size//1024}KB", end=" | ")
-
-        blob = bucket.blob(blob_name)
-        blob.upload_from_file(buffer, content_type="image/jpeg")
-        # Existing image_url values use public links; access must remain public for profiles to load.
-        blob.make_public()
-        url = blob.public_url
-
-        collection.update_one({"gtid": gtid}, {"$set": {"image_url": url}})
-
-        name = f"{rushee.get('first_name')} {rushee.get('last_name')}"
-        print(f"✓ {name}")
-        return None
-    except Exception as e:
-        return f"  ✗ {stem} ({gtid}): {e}"
+from maintenance_commands.headshot_upload import process_headshot
 
 
 def main():

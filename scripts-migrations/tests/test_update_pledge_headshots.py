@@ -157,6 +157,12 @@ class UpdatePledgeHeadshotsTests(unittest.TestCase):
         self.assertIn("Updated: 1 rushees", output)
         self.assertIn("No GTID mapping for: unknown.jpeg", output)
 
+    def test_upload_path_uses_mapped_gtid_and_millisecond_timestamp(self):
+        _, events, _ = run_script()
+        self.assertIn(
+            ("blob", "profile-pictures/904093762_1000000.jpg"), events,
+        )
+
     def test_existing_firebase_app_is_reused(self):
         _, events, _ = run_script(firebase_initialized=True)
         names = [event[0] for event in events]

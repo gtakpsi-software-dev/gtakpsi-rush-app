@@ -2476,6 +2476,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     MongoDB container, including the list route contract. The touched Rust
     files pass rustfmt; the repository-wide format check still reports
     pre-existing differences outside this slice.
+427. Moved per-image preparation, upload, and URL update into
+    `maintenance_commands/headshot_upload.py`, leaving the existing pledge
+    headshot command responsible for service setup, iteration, reporting, and
+    cleanup. The command is now 64 lines instead of 103. A new offline test
+    pins the GTID-scoped Storage path and millisecond timestamp; the existing
+    tests still pin public URL storage, upload order, and error handling. All
+    62 maintenance tests and Python compilation pass. No live database,
+    Storage bucket, or headshot file was accessed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2538,7 +2546,7 @@ require PyMongo or a database connection.
 Current verified totals: 541 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests with the integration feature (including its
-isolated database contract), plus 61 maintenance-script tests. The last
+isolated database contract), plus 62 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
