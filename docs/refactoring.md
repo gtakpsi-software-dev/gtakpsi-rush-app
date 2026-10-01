@@ -1771,6 +1771,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the whole test process. All 56 offline tests pass together, and all 14 test
     files also pass in independent Python processes, confirming they do not
     depend on collection order or another file's import-path changes.
+307. Moved admin question and scheduling inputs into a management hook, keeping
+    its one-time question fetch after bootstrap. `Admin.jsx` drops from 282 to
+    255 lines. A hook test pins initial values and fetch registration; the
+    existing admin markup and question-action tests pass. All 433 client tests,
+    typecheck, build, and changed-file ESLint pass, with the preexisting fetch
+    dependency warning now located in the hook.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1826,7 +1832,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 432 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 433 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last

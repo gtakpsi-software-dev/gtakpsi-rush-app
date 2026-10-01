@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -11,7 +11,6 @@ import AvailabilityEditorModal from "../features/admin/availability/Availability
 import useAdminAvailabilityEditor from "../features/admin/availability/useAdminAvailabilityEditor";
 import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
-import { createQuestionActions } from "../features/admin/pis/questionActions";
 import {
     formatCurrentPISTime,
     formatSlotTime,
@@ -25,6 +24,7 @@ import useAdminAccessSettings from "../features/admin/access/useAdminAccessSetti
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
 import AdminManagementSection from "../features/admin/overview/AdminManagementSection";
+import useAdminManagementInputs from "../features/admin/overview/useAdminManagementInputs";
 import { auth } from "../firebase";
 
 export default function Admin() {
@@ -35,17 +35,6 @@ export default function Admin() {
         .map((e) => e.trim().toLowerCase())
         .filter((e) => e.length > 0);
 
-    const [question, setQuestion] = useState("");
-    const [questionType, setQuestionType] = useState("");
-    const [questionOrder, setQuestionOrder] = useState("");
-    const [questionCategory, setQuestionCategory] = useState("");
-    const [pisQuestions, setPisQuestions] = useState([]);
-    const [pisQuestionsLoading, setPisQuestionsLoading] = useState(false);
-    const [categoryEdits, setCategoryEdits] = useState({}); // question -> in-progress category text
-    const [timeslotTime, setTimeslotTime] = useState("");
-    const [timeslotChange, setTimeslotChange] = useState(1);
-    const [rushNightName, setRushNightName] = useState("");
-    const [rushNightTime, setRushNightTime] = useState("");
     const [loading, setLoading] = useState(true);
 
     // Admin/Bidcom promotion state
@@ -119,18 +108,7 @@ export default function Admin() {
         setLoading,
     });
 
-    const { fetchPisQuestions, saveQuestionCategory } = createQuestionActions({
-        apiBase,
-        categoryEdits,
-        setPisQuestions,
-        setPisQuestionsLoading,
-        axios,
-        toast,
-    });
-
-    useEffect(() => {
-        fetchPisQuestions();
-    }, []);
+    const managementInputs = useAdminManagementInputs({ apiBase, axios, toast });
 
     const {
         rusheeSearch,
@@ -250,12 +228,7 @@ export default function Admin() {
                     <div className="border-t border-apple-gray-200 my-10"></div>
 
                     <AdminManagementSection {...{
-                        question, setQuestion, questionType, setQuestionType, questionOrder,
-                        setQuestionOrder, questionCategory, setQuestionCategory, handleRequest,
-                        fetchPisQuestions, pisQuestions, pisQuestionsLoading, categoryEdits,
-                        setCategoryEdits, saveQuestionCategory, timeslotTime, setTimeslotTime,
-                        timeslotChange, setTimeslotChange, rushNightName, setRushNightName,
-                        rushNightTime, setRushNightTime, rusheeSearch, setRusheeSearch,
+                        ...managementInputs, handleRequest, rusheeSearch, setRusheeSearch,
                         selectedRushee, setSelectedRushee, filteredRushees, handleSelectRushee,
                         formatCurrentPISTime, selectedNewTimeslot, setSelectedNewTimeslot,
                         availableTimeslots, formatTimeslot, handleReschedulePIS,

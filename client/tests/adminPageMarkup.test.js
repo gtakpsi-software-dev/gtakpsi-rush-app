@@ -15,6 +15,7 @@ const pagePath = fileURLToPath(new URL('../src/pages/Admin.jsx', import.meta.url
 const editorHookPath = fileURLToPath(new URL('../src/features/admin/availability/useAdminAvailabilityEditor.js', import.meta.url));
 const accessHookPath = fileURLToPath(new URL('../src/features/admin/access/useAdminAccessSettings.js', import.meta.url));
 const bootstrapHookPath = fileURLToPath(new URL('../src/features/admin/bootstrap/useAdminBootstrap.js', import.meta.url));
+const managementHookPath = fileURLToPath(new URL('../src/features/admin/overview/useAdminManagementInputs.js', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
 const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminPageMarkup.json', import.meta.url));
@@ -121,6 +122,13 @@ async function loadAdmin(state = {}, captured = new Map()) {
             './loadAdminData': dependencies['../features/admin/bootstrap/loadAdminData'],
         },
     );
+    dependencies['../features/admin/overview/useAdminManagementInputs'] = await loadTsxComponent(
+        managementHookPath,
+        {
+            react: dependencies.react,
+            '../pis/questionActions': { createQuestionActions: actions },
+        },
+    );
 
     runInNewContext(code, {
         module,
@@ -138,8 +146,8 @@ test('admin page keeps loading, ready, and availability-editor layout', async ()
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: {},
-        ready: { 11: false },
-        editing: { 11: false, 24: { brother_first_name: 'Ada', brother_last_name: 'Example' } }
+        ready: { 0: false },
+        editing: { 0: false, 13: { brother_first_name: 'Ada', brother_last_name: 'Example' } }
     };
 
     for (const [scenario, state] of Object.entries(scenarios)) {
@@ -156,14 +164,14 @@ test('admin page passes loaded and edited state to the right sections', async ()
     const selectedRushee = { first_name: 'Grace', last_name: 'Example' };
     const availableTimeslots = [{ timeslot_id: 12 }];
     const Admin = await loadAdmin({
-        0: 'Interview prompt',
-        8: 2,
-        11: false,
-        18: selectedRushee,
-        19: availableTimeslots,
-        20: '12',
-        21: { is_active: true, sent_at: null },
-        24: editingBrotherAvailability
+        22: 'Interview prompt',
+        30: 2,
+        0: false,
+        7: selectedRushee,
+        8: availableTimeslots,
+        9: '12',
+        10: { is_active: true, sent_at: null },
+        13: editingBrotherAvailability
     }, captured);
     renderToStaticMarkup(React.createElement(Admin));
 
