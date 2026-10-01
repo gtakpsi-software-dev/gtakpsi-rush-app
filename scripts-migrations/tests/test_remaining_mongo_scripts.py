@@ -112,6 +112,26 @@ class RemainingMongoScriptTests(unittest.TestCase):
         self.assertIn("Matched rushees: 3", output.getvalue())
         self.assertIn("Modified rushees: 2", output.getvalue())
 
+    def test_night_one_lookup_rejects_missing_night_and_time_without_writing(self):
+        pymongo = types.ModuleType("pymongo")
+        pymongo.MongoClient = MagicMock()
+        with patch.dict(sys.modules, {"pymongo": pymongo}):
+            namespace = runpy.run_path(str(SCRIPTS / "migrate_attendance_night1.py"))
+
+        for night, expected_message in [
+            [None, "Night 1 not found in rush-nights collection."],
+            [{"name": "Night 1"}, "Night 1 entry missing time field."],
+        ]:
+            collection = MagicMock()
+            collection.find_one.return_value = night
+            output = StringIO()
+            with redirect_stdout(output), self.assertRaises(SystemExit) as raised:
+                namespace["get_night_one"](collection)
+
+            self.assertEqual(raised.exception.code, 1)
+            self.assertIn(expected_message, output.getvalue())
+            collection.find_one.assert_called_once_with({"name": "Night 1"})
+
 
 if __name__ == "__main__":
     unittest.main()
