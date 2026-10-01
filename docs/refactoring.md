@@ -2369,6 +2369,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     pins the stale-write rejection's silence on peer sockets after a peer
     document-state round trip. All 24 collaboration tests pass on loopback;
     runtime handlers, event names, and payloads are unchanged.
+412. Moved rush-night interaction counting and rushee summary enrichment into
+    `server/src/middlewares/rush_nights/interactions.rs`, leaving schedule
+    selection and merging in the original public module. The exported function
+    paths and branch behavior remain unchanged. All five focused rush-night
+    tests and 64 API unit tests pass; the edited modules pass targeted rustfmt.
+    The original module is now 87 lines instead of 141. Repository-wide rustfmt
+    still reports formatting differences in unrelated files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

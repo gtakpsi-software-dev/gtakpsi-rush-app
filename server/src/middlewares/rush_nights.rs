@@ -2,7 +2,10 @@ use bson::DateTime;
 
 use crate::middlewares::time_helpers::same_day;
 use crate::models::misc::RushNight;
-use crate::models::rushee::{Comment, NightInteractionSummary, RusheeModel};
+use crate::models::rushee::Comment;
+
+mod interactions;
+pub use interactions::{enrich_interactions_by_night, interactions_by_night};
 
 /// Default rush nights for interaction display (merged with Mongo when missing).
 /// Times are used for ordering and same-day matching when not overridden by DB.
@@ -30,10 +33,6 @@ fn names_match(a: &str, b: &str) -> bool {
 
 pub fn night_matches(a: &RushNight, b: &RushNight) -> bool {
     names_match(&a.name, &b.name) || same_day(&a.time, &b.time)
-}
-
-fn is_dev_night(name: &str) -> bool {
-    name.to_lowercase().contains("dev")
 }
 
 /// The rush night that a comment or check-in happening at `now` should be
@@ -82,59 +81,6 @@ pub fn merge_rush_nights(db_nights: &[RushNight], comments: &[Comment]) -> Vec<R
 
     merged.sort_by_key(|n| n.time.timestamp_millis());
     merged
-}
-
-fn rushee_attended_night(attendance: &[RushNight], night: &RushNight) -> bool {
-    attendance
-        .iter()
-        .any(|a| night_matches(a, night))
-}
-
-fn unique_brothers_for_night(comments: &[Comment], night: &RushNight) -> i32 {
-    use std::collections::HashSet;
-    let mut names = HashSet::new();
-    for comment in comments {
-        if night_matches(&comment.night, night) {
-            names.insert(comment.brother_name.as_str());
-        }
-    }
-    names.len() as i32
-}
-
-pub fn interactions_by_night(
-    db_rush_nights: &[RushNight],
-    attendance: &[RushNight],
-    comments: &[Comment],
-) -> Vec<NightInteractionSummary> {
-    let nights = merge_rush_nights(db_rush_nights, comments);
-
-    nights
-        .iter()
-        .enumerate()
-        .map(|(i, night)| {
-            let count = unique_brothers_for_night(comments, night);
-            let attended = rushee_attended_night(attendance, night);
-
-            let interactions = if is_dev_night(&night.name) {
-                Some(count)
-            } else if !attended {
-                None
-            } else {
-                Some(count)
-            };
-
-            NightInteractionSummary {
-                night_index: (i + 1) as i32,
-                name: night.name.clone(),
-                interactions,
-            }
-        })
-        .collect()
-}
-
-pub fn enrich_interactions_by_night(rushee: &mut RusheeModel, db_rush_nights: &[RushNight]) {
-    rushee.interactions_by_night =
-        interactions_by_night(db_rush_nights, &rushee.attendance, &rushee.comments);
 }
 
 #[cfg(test)]
