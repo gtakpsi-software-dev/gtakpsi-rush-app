@@ -122,3 +122,25 @@ fn deletion_removes_a_category_when_no_valid_rating_remains() {
     let values = deletion_plan::rating_recalculations_after_deletion(vec![legacy], &deleted);
     assert_eq!(values, vec![("fit".to_string(), None)]);
 }
+
+#[test]
+fn deletion_updates_existing_rating_with_the_original_positional_filter() {
+    let (filter, update, error) =
+        deletion_plan::rating_update_for_deletion("123", "fit", Some(3.5));
+
+    assert_eq!(filter, doc! { "gtid": "123", "ratings.name": "fit" });
+    assert_eq!(update, doc! { "$set": { "ratings.$.value": 3.5 } });
+    assert_eq!(error, "error updating ratings after comment deletion");
+}
+
+#[test]
+fn deletion_removes_empty_rating_category_with_the_original_pull() {
+    let (filter, update, error) = deletion_plan::rating_update_for_deletion("123", "fit", None);
+
+    assert_eq!(filter, doc! { "gtid": "123" });
+    assert_eq!(update, doc! { "$pull": { "ratings": { "name": "fit" } } });
+    assert_eq!(
+        error,
+        "error removing rating category after comment deletion"
+    );
+}

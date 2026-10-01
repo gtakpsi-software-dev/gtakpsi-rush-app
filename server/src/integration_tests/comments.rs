@@ -93,6 +93,29 @@ pub async fn check_contracts() {
     assert_eq!(stored.comments[1].ratings[0].value, 4.0);
     assert_eq!(stored.ratings[0].value, 4.0);
     assert_eq!(
+        rushee::delete_comment(
+            axum::extract::Path("missing-rushee".to_string()),
+            Json(stored.comments[1].clone()),
+        )
+        .await
+        .unwrap()
+        .0["message"],
+        "rushee not found"
+    );
+
+    let mut unmatched_delete = stored.comments[1].clone();
+    unmatched_delete.brother_name = "Nobody".to_string();
+    assert_eq!(
+        rushee::delete_comment(path(), Json(unmatched_delete))
+            .await
+            .unwrap()
+            .0["status"],
+        "success"
+    );
+    assert_eq!(stored_rushee().await.comments.len(), 2);
+    assert_eq!(stored_rushee().await.ratings[0].value, 4.0);
+
+    assert_eq!(
         rushee::delete_comment(path(), Json(stored.comments[1].clone()))
             .await
             .unwrap()

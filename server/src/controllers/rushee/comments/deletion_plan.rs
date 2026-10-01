@@ -1,6 +1,7 @@
 use super::average_rating_value;
 use crate::middlewares::time_helpers::same_day;
 use crate::models::rushee::Comment;
+use mongodb::bson::{doc, Document};
 use std::collections::HashSet;
 
 pub(super) fn rating_recalculations_after_deletion(
@@ -30,4 +31,23 @@ pub(super) fn rating_recalculations_after_deletion(
             (category, value)
         })
         .collect()
+}
+
+pub(super) fn rating_update_for_deletion(
+    id: &str,
+    category: &str,
+    value: Option<f32>,
+) -> (Document, Document, &'static str) {
+    match value {
+        Some(value) => (
+            doc! { "gtid": id, "ratings.name": category },
+            doc! { "$set": { "ratings.$.value": value } },
+            "error updating ratings after comment deletion",
+        ),
+        None => (
+            doc! { "gtid": id },
+            doc! { "$pull": { "ratings": { "name": category } } },
+            "error removing rating category after comment deletion",
+        ),
+    }
 }

@@ -1673,6 +1673,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     sample data. Offline before/after comparisons match database events, output,
     and exits for normal, missing-URI, and missing-rushee cases. All 51
     maintenance tests pass without contacting MongoDB.
+289. Simplified the comment-deletion handler from 134 to 66 lines. Its pure
+    deletion plan now also builds the original positional `$set` and category
+    `$pull` documents, each pinned by a unit test. The isolated database case
+    checks missing-rushee and acknowledged no-match deletion responses before
+    the normal delete. All 57 server tests with the integration feature pass;
+    changed Rust files pass rustfmt. The comment pull still precedes every
+    rating write, retaining the prior partial-write order.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1728,9 +1735,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 429 client tests, 54 server unit tests, 19 collaboration
+Current verified totals: 429 client tests, 56 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 55 server tests with the integration feature (including its
+feature, and 57 server tests with the integration feature (including its
 isolated database contract), plus 51 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
