@@ -26,19 +26,17 @@ Services currently deployed independently:
 | --- | --- | --- |
 | `client` | Rush application UI | React / HTTP / real-time clients |
 | `server/api` | API, authentication, persistence | Axum / MongoDB / Redis |
-| `broadcaster` | Voting updates | Axum WebSocket / Redis |
+| `server/websockets/voting` | Voting updates | Axum WebSocket / Redis |
 | `server/websockets/sorting` | Shared sorting sessions | Axum WebSocket |
 | `server/websockets/pis` | Collaborative PIS editing | Socket.IO |
 
-The API, PIS, and sorting sources now live under `server/`; their deployment
+The API and all three socket sources now live under `server/`; their deployment
 roots must point to the listed directories before this branch is deployed.
 Executable names, routes, runtime events, and JSON names remain unchanged.
-Move the voting service under `server/websockets/` in the next verified slice.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
-PIS editing is `rush-pis-websocket`. The voting service retains its original
-deployment root until moved. The Rust binaries remain `broadcaster` and
+PIS editing is `rush-pis-websocket`. The Rust binaries remain `broadcaster` and
 `sorting-broadcaster`, matching the current Dockerfiles.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
@@ -55,9 +53,9 @@ The verified atomic slices are archived by range:
 
 ## Remaining work
 
-- Move and rename the remaining voting service under
-  `server/websockets/{pis,sorting,voting}`. Update CI, test runners, local
-  commands, and Railway roots without changing socket URLs or event payloads.
+- Update the four deployed service roots to the paths in the table, then verify
+  their health endpoints and the socket URL wiring without changing event
+  payloads.
 - Finish dense client page and feature boundaries, including Admin, Rushee Zoom,
   sorting, Attendance presentation, and collaboration code. Pin JSX, effect
   timing, request order, and state ownership before each move.

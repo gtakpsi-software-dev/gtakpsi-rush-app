@@ -67,7 +67,7 @@ def main():
                 "RUSH_TEST_REDIS_RUN_ID": run_id,
             })
             return subprocess.call(
-                ["cargo", "test", "--locked", "--manifest-path", str(ROOT / "broadcaster/Cargo.toml"),
+                ["cargo", "test", "--locked", "--manifest-path", str(ROOT / "server/websockets/voting/Cargo.toml"),
                  "--features", "integration-tests", "--", "--nocapture"],
                 cwd=ROOT,
                 env=env,

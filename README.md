@@ -140,6 +140,12 @@ Set this service's Railway root directory to `server/websockets/sorting`. Its
 Dockerfile and `railway.toml` live there; the executable name, port default,
 and WebSocket messages are unchanged.
 
+### Voting WebSocket service
+
+Set this service's Railway root directory to `server/websockets/voting`. Its
+Dockerfile and `railway.toml` live there; the executable name, port default,
+and WebSocket messages are unchanged.
+
 ## Setup Script
 
 Before each rush season, run the setup script to clear old data:
