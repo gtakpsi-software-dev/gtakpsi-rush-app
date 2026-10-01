@@ -1551,6 +1551,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     The existing component test confirms that the string prop is preserved.
     All 415 client tests pass, the TypeScript 5.8 audit passes, and controlled
     production JS and CSS are byte-identical to the preceding build.
+268. Added pinned TypeScript 5.8.2, a client `typecheck` command, and a CI step
+    using the same TSX settings as the passing audit. All 415 client tests and
+    the checked-in typecheck pass after a clean `npm ci`. Against the prior
+    commit built with the same clean dependencies, controlled production JS
+    and CSS are byte-identical. The workflow's first GitHub run is still
+    unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1570,19 +1576,18 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Organize maintenance scripts and seed data without running destructive scripts.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
-- Add TSX lint and typechecking, then resolve findings in verified slices and add
-  a complete lint gate; document setup,
+- Add TSX lint, resolve findings in verified slices, and add a complete lint
+  gate; document setup,
   service naming, and remaining integration limits.
 
 ## Verification
 
-Run `npm --prefix client test` for dependency-free client domain tests and
+Run `npm --prefix client test` for dependency-free client domain tests,
+`npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX lint;
 the current baseline has 131 errors and 19 warnings, so it is tracked debt,
-not a passing check. The ESLint config excludes TSX and the project has no
-TypeScript typecheck gate yet. A read-only external compiler audit now passes
-for TSX files, but it is not a reproducible project or CI check.
+not a passing check. The ESLint config still excludes TSX.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

@@ -18,6 +18,7 @@ jobs:
           cache-dependency-path: client/package-lock.json
       - run: npm --prefix client ci
       - run: npm --prefix client test
+      - run: npm --prefix client run typecheck
       - run: npm --prefix client run build
 
   collaboration:

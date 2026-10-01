@@ -64,6 +64,7 @@ ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 
 ```bash
 npm --prefix client test
+npm --prefix client run typecheck
 npm --prefix websocket-server test
 cargo test --locked --manifest-path server/Cargo.toml
 cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
@@ -82,9 +83,9 @@ The voting integration command requires `redis-server` and `redis-cli`. It start
 a separate local Redis instance, checks its run marker, and stops that instance
 after the WebSocket tests.
 
-[Regression checks](.github/workflows/regression.yml) run these suites and the
-client build on pushes and pull requests. The workflow has not run on GitHub
-yet. Repository-wide client lint is tracked separately in
+[Regression checks](.github/workflows/regression.yml) run these suites, the
+client typecheck, and the client build on pushes and pull requests. The workflow
+has not run on GitHub yet. Repository-wide client lint is tracked separately in
 [the refactoring ledger](docs/refactoring.md) because the current baseline fails.
 
 ## Deploy
