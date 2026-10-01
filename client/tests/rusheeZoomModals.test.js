@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { formatRatingValue } from "../src/js/ratingDisplay.js";
+import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/ZoomModals.tsx", import.meta.url));
@@ -31,7 +31,7 @@ function collect(node, elements = []) {
 test("comment and PIS overlays retain their original rendered markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const ZoomModals = await loadTsxComponent(componentPath, {
-        "../../../js/ratingDisplay": { formatRatingValue },
+        "../../comments/ratingDisplay": { formatRatingValue },
     });
     const scenarios = {
         comment: { selectedComment: comment },
@@ -47,7 +47,7 @@ test("comment and PIS overlays retain their original rendered markup", async () 
 
 test("both overlays retain backdrop, close, and propagation handlers", async () => {
     const ZoomModals = await loadTsxComponent(componentPath, {
-        "../../../js/ratingDisplay": { formatRatingValue },
+        "../../comments/ratingDisplay": { formatRatingValue },
     });
     const calls = [];
     const elements = collect(ZoomModals(props({

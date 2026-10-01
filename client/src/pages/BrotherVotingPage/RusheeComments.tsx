@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
 import Badges from "../../components/Badge";
 import gsap from "gsap";
-import { formatRatingValue, ratingBadgeClass } from "../../js/ratingDisplay";
+import { formatRatingValue, ratingBadgeClass } from "../../features/comments/ratingDisplay";
 import { getVisibleComments, shouldShowAllComments } from "../../js/commentVisibility";
 import axios from "axios";
 import { auth } from "../../firebase";

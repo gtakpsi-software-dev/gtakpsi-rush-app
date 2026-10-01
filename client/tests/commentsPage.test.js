@@ -10,7 +10,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { formatRatingValue } from "../src/js/ratingDisplay.js";
+import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Comments.jsx", import.meta.url));
@@ -28,7 +28,7 @@ const entry = {
 async function loadPage({ state = {}, storedUser = null, response } = {}) {
     const View = await loadTsxComponent(viewPath, {
         "../../components/Navbar": () => React.createElement("span", { "data-stub": "navbar" }),
-        "../../js/ratingDisplay": { formatRatingValue },
+        "./ratingDisplay": { formatRatingValue },
     });
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"')

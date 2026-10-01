@@ -1,5 +1,5 @@
 import Navbar from "../../components/Navbar";
-import { formatRatingValue } from "../../js/ratingDisplay";
+import { formatRatingValue } from "./ratingDisplay";
 
 /**
  * Brother Comments Layout Summary:

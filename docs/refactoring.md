@@ -1984,6 +1984,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `hooks/useVoiceRecording.js`, updating its component and test imports.
     All 501 client tests, typecheck, changed-file ESLint, and build pass.
     Production JavaScript and CSS asset hashes match slice 345 exactly.
+347. Moved the shared comment-rating formatter from generic `js/` to
+    `features/comments/ratingDisplay.js`, updating five production imports and
+    their test loaders. All 501 client tests, typecheck, changed-file ESLint,
+    and build pass. Production JavaScript and CSS hashes match slice 346;
+    the two pre-existing comment-effect dependency warnings remain.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

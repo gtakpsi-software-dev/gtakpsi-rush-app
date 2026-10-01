@@ -1,4 +1,4 @@
-import { formatRatingValue } from "../../../js/ratingDisplay";
+import { formatRatingValue } from "../../comments/ratingDisplay";
 
 type ZoomComment = {
     brother_name: string;

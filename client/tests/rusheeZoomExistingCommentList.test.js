@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { formatRatingValue } from "../src/js/ratingDisplay.js";
+import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/ExistingCommentList.tsx", import.meta.url));
@@ -28,7 +28,7 @@ async function loadList() {
     return loadTsxComponent(componentPath, {
         "../../../components/Badge": Badges,
         "../../../components/CommentWarning": CommentWarning,
-        "../../../js/ratingDisplay": { formatRatingValue },
+        "../../comments/ratingDisplay": { formatRatingValue },
         "react-icons/fa": { FaEdit, FaTrash },
     });
 }

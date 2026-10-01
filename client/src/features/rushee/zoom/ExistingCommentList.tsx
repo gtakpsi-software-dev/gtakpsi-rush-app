@@ -3,7 +3,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import Badges from "../../../components/Badge";
 import CommentWarning from "../../../components/CommentWarning";
 import type { CommentWarningItem } from "../../../components/CommentWarning";
-import { formatRatingValue } from "../../../js/ratingDisplay";
+import { formatRatingValue } from "../../comments/ratingDisplay";
 
 type Comment = {
     brother_name: string;

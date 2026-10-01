@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { formatRatingValue, ratingBadgeClass } from '../src/js/ratingDisplay.js';
+import { formatRatingValue, ratingBadgeClass } from '../src/features/comments/ratingDisplay.js';
 
 test('ratings preserve legacy zero labels, rounding, coercion, and fallback text', () => {
     for (const [value, expected] of [
