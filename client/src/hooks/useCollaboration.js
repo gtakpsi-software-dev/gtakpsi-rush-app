@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { realtimeBaseUrls } from '../config/realtimeBaseUrls.js';
-import {
-    acceptRemoteTextUpdate,
-    acknowledgeTextUpdate,
-    rejectTextUpdate,
-    normalizeDocumentState,
-} from '../features/pis/collaborationProtocol.js';
+import { normalizeDocumentState } from '../features/pis/collaborationProtocol.js';
+import { registerCollaborationTextEvents } from '../features/pis/registerCollaborationTextEvents.js';
 import {
     applyCursorPosition,
     applyTypingIndicator,
@@ -97,31 +93,14 @@ export const useCollaboration = (roomId, currentUser) => {
                 });
             });
 
-            socketRef.current.on('text-update', (data) => {
-                const update = acceptRemoteTextUpdate(
-                    data, currentUser.id, knownVersionsRef.current, resendingFieldsRef.current
-                );
-                if (update) {
-                    setRemoteUpdates(prev => [...prev, update].slice(-100));
-                }
-            });
-
-            socketRef.current.on('text-ack', (ack) => {
-                acknowledgeTextUpdate(
-                    ack, knownVersionsRef.current, pendingUpdatesRef.current, resendingFieldsRef.current
-                );
-            });
-
-            socketRef.current.on('text-reject', (rejection) => {
-                const result = rejectTextUpdate(
-                    rejection, currentUser, knownVersionsRef.current,
-                    pendingUpdatesRef.current, resendingFieldsRef.current
-                );
-                if (result.resend) {
-                    socketRef.current.emit('text-update', result.resend);
-                } else {
-                    setRemoteUpdates(prev => [...prev, result.remoteUpdate].slice(-100));
-                }
+            registerCollaborationTextEvents({
+                socket: socketRef.current,
+                socketRef,
+                currentUser,
+                knownVersionsRef,
+                pendingUpdatesRef,
+                resendingFieldsRef,
+                setRemoteUpdates,
             });
 
             socketRef.current.on('cursor-position', (data) => {
