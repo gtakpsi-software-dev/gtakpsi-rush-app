@@ -2376,6 +2376,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests and 64 API unit tests pass; the edited modules pass targeted rustfmt.
     The original module is now 87 lines instead of 141. Repository-wide rustfmt
     still reports formatting differences in unrelated files.
+413. Moved face-attendance image inference, lookup, warnings, and error
+    navigation into `features/faceAttendance/createFaceImageSubmit.js`. The
+    routed page retains its five state slots and camera markup, now formatted
+    consistently and reduced from 169 to 109 lines. Existing tests pin
+    rendering and submission order; expanded assertions pin both warning
+    option sets. All 532 client tests, typecheck, scoped lint, targeted lint,
+    and build pass. The generated JS asset name and CSS hash are unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

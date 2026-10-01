@@ -9,6 +9,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
+import { createFaceImageSubmit } from "../src/features/faceAttendance/createFaceImageSubmit.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/FaceAttendance.jsx", import.meta.url));
 
@@ -16,6 +17,7 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
     const updates = [];
     const requests = [];
     const warnings = [];
+    const warningOptions = [];
     const navigations = [];
     const modelCalls = [];
     const logs = [];
@@ -79,7 +81,11 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
                         return "tensor";
                     },
                 },
-                "react-toastify": { toast: { warn: (message) => warnings.push(message) } },
+                "../features/faceAttendance/createFaceImageSubmit": { createFaceImageSubmit },
+                "react-toastify": { toast: { warn(message, options) {
+                    warnings.push(message);
+                    warningOptions.push(options);
+                } } },
                 "react-toastify/dist/ReactToastify.css": {},
             };
             return Object.hasOwn(dependencies, specifier)
@@ -88,7 +94,7 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
         },
     }, { filename: pagePath });
 
-    return { Page: module.exports.default, updates, requests, warnings, navigations, modelCalls, logs };
+    return { Page: module.exports.default, updates, requests, warnings, warningOptions, navigations, modelCalls, logs };
 }
 
 function collect(node, elements = []) {
@@ -158,6 +164,16 @@ test("lookup status and network failures retain their warning messages", async (
         const submit = collect(page.Page()).find((node) => node.type === "button" && node.props.children === "Submit Photo");
         await submit.props.onClick();
         assert.deepEqual(page.warnings, [expected]);
+        assert.deepEqual(page.warningOptions, [{
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        }]);
         assert.deepEqual(page.updates, [[3, true], [3, false]]);
     }
 });
