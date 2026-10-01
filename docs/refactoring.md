@@ -983,6 +983,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and three-cursor textarea cap. Two focused tests and all four baseline
     markup hashes pass; all 289 client tests and the build pass. The lint
     baseline falls from 309 to 301 errors with 19 warnings.
+167. Pinned the registration basic-information form's full rendered markup,
+    including labels, fields, and option order, before extracting its phone
+    formatting and static option lists. All 290 client tests pass on the
+    original form.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1030,7 +1034,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 289 client tests, 41 server unit tests, 15 collaboration
+Current verified totals: 290 client tests, 41 server unit tests, 15 collaboration
 tests, 10 sorting WebSocket tests, 2 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
