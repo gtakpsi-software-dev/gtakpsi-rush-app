@@ -1603,6 +1603,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     admin socket URL, authorization gate, vote/rushee/question payloads,
     malformed JSON, reconnect delays, the 30-second cap, and cleanup. All
     423 client tests and typecheck pass; controlled CSS is byte-identical.
+277. Removed unused admin voting dashboard imports, context values, and logging
+    closures after the view and socket extractions. The page is 96 lines and
+    passes TSX lint. Its authorization/status markup hashes, all 423 client
+    tests, and typecheck pass; controlled CSS is byte-identical. Client lint
+    falls to 133 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1632,8 +1637,8 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TSX lint; the current baseline has 140 errors and 26 warnings (including
-18 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
+and TSX lint; the current baseline has 133 errors and 26 warnings (including
+11 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

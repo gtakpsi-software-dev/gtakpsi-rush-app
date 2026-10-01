@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { AdminVotingContextProvider, useAdminVotingContext } from "./AdminVotingContext";
 import AdminVotingDashboardView from "./AdminVotingDashboardView";
 import type { Brother, ConnectionStatus } from "./types";
-import NotFound from "../NotFound";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
 import { useAdminVotingSocket } from "./useAdminVotingSocket";
@@ -16,7 +15,7 @@ const ALLOWLIST = ((import.meta.env as any).VITE_ADMIN_ALLOWLIST || "")
 
 function Content() {
 
-    const { votes, rushee, question, setVotes, setRushee, setQuestion } = useAdminVotingContext();
+    const { setVotes, setRushee, setQuestion } = useAdminVotingContext();
 
     const votingWebSocketUrl: string = realtimeBaseUrls.voting;
     const socketRef = useRef<WebSocket | null>(null);
@@ -59,7 +58,7 @@ function Content() {
                 }
                 setAuthorized(true);
                 setAuthChecked(true);
-            } catch (_err) {
+            } catch {
                 setAuthChecked(true);
                 navigate("/login");
             } finally {
@@ -74,15 +73,6 @@ function Content() {
         reconnectTimeoutRef, reconnectAttemptsRef, setConnectionStatus,
         setVotes, setRushee, setQuestion,
     });
-
-    const handleSetQuestion = (value: string) => {
-        console.log("Set question to:", value);
-    };
-
-    const handleSetRushee = (gtid: string) => {
-        console.log("Set rushee to GTID:", gtid);
-    };
-
 
     if (!storedUser || authLoading) {
         return null;
