@@ -71,6 +71,11 @@ The voting integration command requires `redis-server` and `redis-cli`. It start
 a separate local Redis instance, checks its run marker, and stops that instance
 after the WebSocket tests.
 
+[Regression checks](.github/workflows/regression.yml) run these suites and the
+client build on pushes and pull requests. The workflow has not run on GitHub
+yet. Repository-wide client lint is tracked separately in
+[the refactoring ledger](docs/refactoring.md) because the current baseline fails.
+
 ## Deploy
 
 ### Frontend (Vercel)

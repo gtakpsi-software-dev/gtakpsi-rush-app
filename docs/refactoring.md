@@ -836,6 +836,15 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     preserving partial-write order and the handler's error response. `create.rs`
     is now 182 lines. All 40 server unit tests and 41 tests with the integration
     feature pass against a disposable MongoDB container.
+141. Added a push and pull-request regression workflow for the passing client,
+    collaboration, API, sorting, voting, and offline maintenance checks. The API
+    and voting jobs use the existing isolated MongoDB and Redis harnesses. This
+    only adds verification; it does not change application code or deployment.
+    Its YAML structure and triggers parse locally. The same commands pass here:
+    253 client, 15 collaboration, 9 sorting, 2 voting, 41 API, and 41 offline
+    maintenance tests, plus the client build. The workflow has not yet run on
+    GitHub. Client lint remains outside the workflow while its 330-error
+    baseline is resolved in verified slices.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -855,15 +864,17 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Organize maintenance scripts and seed data without running destructive scripts.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
-- Consolidate verification commands and CI; resolve lint findings in verified
-  slices; document setup, service naming, and remaining integration limits.
+- Resolve lint findings in verified slices and add a lint gate; document setup,
+  service naming, and remaining integration limits.
 
 ## Verification
 
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the starting failures above are tracked debt, not a passing check.
+the current baseline has 330 errors and 19 warnings, so it is tracked debt,
+not a passing check. The regression workflow runs the passing suites and client
+build on pushes and pull requests; its first GitHub run remains unverified.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
 Collaboration tests use `npm --prefix websocket-server test` and require permission
