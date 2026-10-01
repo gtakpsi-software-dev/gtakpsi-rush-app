@@ -1,3 +1,5 @@
+import AccessToggleRow from './AccessToggleRow';
+
 type AccessSettingsCardsProps = {
     rushAppStatus: {
         disable_bidcom: boolean;
@@ -33,41 +35,21 @@ export default function AccessSettingsCards({
 
                 <div className="space-y-4">
 
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <div className="text-apple-body font-normal text-black">Bid Committee</div>
-                            <div className="text-apple-caption2 text-apple-gray-500">Members with bid committee access</div>
-                        </div>
-                        <button
-                            onClick={() => handleToggleRushAppAccess('disable_bidcom', !rushAppStatus.disable_bidcom)}
-                            disabled={rushAppLoading}
-                            className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
-                                rushAppStatus.disable_bidcom ? 'bg-black' : 'bg-apple-gray-300'
-                            } ${rushAppLoading ? 'opacity-50' : ''}`}
-                        >
-                            <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                                rushAppStatus.disable_bidcom ? 'translate-x-5' : 'translate-x-0.5'
-                            }`} />
-                        </button>
-                    </div>
+                    <AccessToggleRow
+                        label="Bid Committee"
+                        description="Members with bid committee access"
+                        enabled={rushAppStatus.disable_bidcom}
+                        disabled={rushAppLoading}
+                        onClick={() => handleToggleRushAppAccess('disable_bidcom', !rushAppStatus.disable_bidcom)}
+                    />
 
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <div className="text-apple-body font-normal text-black">Regular Brothers</div>
-                            <div className="text-apple-caption2 text-apple-gray-500">Brothers without admin or bid committee</div>
-                        </div>
-                        <button
-                            onClick={() => handleToggleRushAppAccess('disable_regular', !rushAppStatus.disable_regular)}
-                            disabled={rushAppLoading}
-                            className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
-                                rushAppStatus.disable_regular ? 'bg-black' : 'bg-apple-gray-300'
-                            } ${rushAppLoading ? 'opacity-50' : ''}`}
-                        >
-                            <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                                rushAppStatus.disable_regular ? 'translate-x-5' : 'translate-x-0.5'
-                            }`} />
-                        </button>
-                    </div>
+                    <AccessToggleRow
+                        label="Regular Brothers"
+                        description="Brothers without admin or bid committee"
+                        enabled={rushAppStatus.disable_regular}
+                        disabled={rushAppLoading}
+                        onClick={() => handleToggleRushAppAccess('disable_regular', !rushAppStatus.disable_regular)}
+                    />
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-apple-gray-100">
@@ -90,28 +72,15 @@ export default function AccessSettingsCards({
                     Turn this on before voting so brothers can read all comments even if they did not post one.
                 </p>
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className="text-apple-body font-normal text-black">Show All Comments to Brothers</div>
-                        <div className="text-apple-caption2 text-apple-gray-500">
-                            {commentVisibilityStatus.require_comment_to_view
-                                ? 'Off — brothers only see their own comments (rush mode)'
-                                : 'On — every brother can read all comments (voting mode)'
-                            }
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
-                        disabled={commentVisibilityLoading}
-                        className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
-                            !commentVisibilityStatus.require_comment_to_view ? 'bg-black' : 'bg-apple-gray-300'
-                        } ${commentVisibilityLoading ? 'opacity-50' : ''}`}
-                    >
-                        <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                            !commentVisibilityStatus.require_comment_to_view ? 'translate-x-5' : 'translate-x-0.5'
-                        }`} />
-                    </button>
-                </div>
+                <AccessToggleRow
+                    label="Show All Comments to Brothers"
+                    description={commentVisibilityStatus.require_comment_to_view
+                        ? 'Off — brothers only see their own comments (rush mode)'
+                        : 'On — every brother can read all comments (voting mode)'}
+                    enabled={!commentVisibilityStatus.require_comment_to_view}
+                    disabled={commentVisibilityLoading}
+                    onClick={() => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
+                />
 
                 <div className="mt-4 pt-3 border-t border-apple-gray-100">
                     <div className="text-apple-caption2 text-apple-gray-400">
@@ -129,23 +98,13 @@ export default function AccessSettingsCards({
                     Strips the app to voting-only for all brothers. Admins retain full access. The navbar title changes to &quot;AKPsi Midterm&quot; and the contact bar is hidden.
                 </p>
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className="text-apple-body font-normal text-black">Midterm Mode</div>
-                        <div className="text-apple-caption2 text-apple-gray-500">Brothers see only the voting page</div>
-                    </div>
-                    <button
-                        onClick={() => handleToggleMidtermMode(!rushAppStatus.midterm_mode)}
-                        disabled={midtermLoading}
-                        className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
-                            rushAppStatus.midterm_mode ? 'bg-black' : 'bg-apple-gray-300'
-                        } ${midtermLoading ? 'opacity-50' : ''}`}
-                    >
-                        <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ${
-                            rushAppStatus.midterm_mode ? 'translate-x-5' : 'translate-x-0.5'
-                        }`} />
-                    </button>
-                </div>
+                <AccessToggleRow
+                    label="Midterm Mode"
+                    description="Brothers see only the voting page"
+                    enabled={rushAppStatus.midterm_mode}
+                    disabled={midtermLoading}
+                    onClick={() => handleToggleMidtermMode(!rushAppStatus.midterm_mode)}
+                />
 
                 <div className="mt-4 pt-3 border-t border-apple-gray-100">
                     <div className="text-apple-caption2 text-apple-gray-400">

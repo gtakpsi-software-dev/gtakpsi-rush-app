@@ -10,6 +10,12 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/accessSettingsCards.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/admin/access/AccessSettingsCards.tsx", import.meta.url));
+const togglePath = fileURLToPath(new URL("../src/features/admin/access/AccessToggleRow.tsx", import.meta.url));
+
+async function loadCards() {
+    const AccessToggleRow = await loadTsxComponent(togglePath);
+    return loadTsxComponent(componentPath, { './AccessToggleRow': AccessToggleRow });
+}
 
 function props(overrides = {}) {
     return {
@@ -27,7 +33,7 @@ function props(overrides = {}) {
 
 test("access settings retain normal, restricted, busy, and partial-disable markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
-    const AccessSettingsCards = await loadTsxComponent(componentPath);
+    const AccessSettingsCards = await loadCards();
     const scenarios = {
         normal: {},
         restricted: {
@@ -46,7 +52,7 @@ test("access settings retain normal, restricted, busy, and partial-disable marku
 });
 
 test("each access toggle keeps its original request field and value", async () => {
-    const AccessSettingsCards = await loadTsxComponent(componentPath);
+    const AccessSettingsCards = await loadCards();
     const calls = [];
     const tree = AccessSettingsCards(props({
         handleToggleRushAppAccess: (field, value) => calls.push([field, value]),
@@ -59,7 +65,11 @@ test("each access toggle keeps its original request field and value", async () =
             node.forEach(collect);
         } else if (React.isValidElement(node)) {
             if (node.type === "button") buttons.push(node);
-            collect(node.props.children);
+            if (typeof node.type === 'function') {
+                collect(node.type(node.props));
+            } else {
+                collect(node.props.children);
+            }
         }
     }
     collect(tree);

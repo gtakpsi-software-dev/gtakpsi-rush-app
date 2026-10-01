@@ -2589,6 +2589,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     cases; existing component interaction and markup checks still pass. All
     566 client tests, typecheck, scoped lint, and build pass; CSS retains its
     prior hash.
+444. Replaced four repeated access-setting switch rows with
+    `features/admin/access/AccessToggleRow.tsx`, reducing
+    `AccessSettingsCards.tsx` from 165 to 120 lines. Existing normal,
+    restricted, busy, and partial-disable markup hashes and all four toggle
+    callback checks pass. All 566 client tests, typecheck, scoped lint, and
+    build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
