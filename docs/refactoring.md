@@ -1094,6 +1094,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     from 178 to 134 lines. All 307 client tests pass; the production JS and CSS
     asset hashes match the preceding build. The page's ESLint errors fall from
     four to two, with its existing effect-dependency warning unchanged.
+193. Removed two unused brother PIS page bindings and made its build-time API
+    prefix module-scoped. The page now passes ESLint without changing its effect
+    dependencies or rendered JSX. All 307 client tests pass; production JS and
+    CSS asset hashes match the preceding build. A fresh repository-wide ESLint
+    scan reports 294 errors and 18 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1121,7 +1126,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 298 errors and 19 warnings, so it is tracked debt,
+the current baseline has 294 errors and 18 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

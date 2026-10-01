@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios'
 
 import { verifyUser } from "../features/auth/verifyUser";
@@ -11,9 +11,9 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 
-export default function BrotherPIS() {
+const api = import.meta.env.VITE_API_PREFIX;
 
-    const api = import.meta.env.VITE_API_PREFIX;
+export default function BrotherPIS() {
     const user = JSON.parse(localStorage.getItem('user'))
 
     const [days, setDays] = useState(new Map());
@@ -75,7 +75,6 @@ export default function BrotherPIS() {
                                 </h2>
                                 <div className="flex flex-wrap gap-2 justify-center">
                                     {timeslots.map((slot, index) => {
-                                        const rusheeName = `${slot.rushee_first_name} ${slot.rushee_last_name}`;
                                         const slotKey = `${day}zz${slot.time.toISOString()}zz${slot.rushee_gtid}`;
                                         const isSelected = selectedSlot === slotKey;
 
