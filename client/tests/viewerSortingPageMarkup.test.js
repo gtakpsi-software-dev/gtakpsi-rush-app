@@ -75,7 +75,6 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "react-toastify/dist/ReactToastify.css": {},
         "../components/Navbar": stub("navbar"),
         "../firebase": { auth: {} },
-        "../config/realtimeBaseUrls": { realtimeBaseUrls: { sorting: "ws://localhost" } },
         axios: { get: noop },
         "../features/admin/api": { adminGet: noop, adminPut: noop },
         "../features/auth/parseAdminAllowlist": { parseAdminAllowlist },
@@ -93,8 +92,9 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/createSortingNotesHandlers": {
             createSortingNotesHandlers: () => new Proxy({}, { get: () => noop }),
         },
-        "../features/sorting/connectSortingViewer": { connectSortingViewer: noop },
-        "../features/sorting/cleanupStaleSortingGhosts": { cleanupStaleSortingGhosts: noop },
+        "../features/sorting/useSortingViewerConnection": {
+            useSortingViewerConnection: (options) => captured.set("viewer-connection", options),
+        },
         "../features/sorting/loadBidComSortingData": { loadBidComSortingData: noop },
         "../features/sorting/loadBrotherSortingData": { loadBrotherSortingData: noop },
     };
@@ -163,6 +163,7 @@ test("viewer pages pass the original board state and audience to their controls"
 
         assert.equal(captured.get("column").columns, columns);
         assert.equal(captured.get("column").showRusheeNames, showRusheeNames);
+        assert.equal(captured.get("viewer-connection").showRusheeNames, showRusheeNames);
         assert.equal(captured.get("zoom").scale, 1.5);
         assert.equal(captured.get("presence").connected, true);
         assert.equal(captured.get("presence").viewerCount, 3);

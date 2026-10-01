@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
-import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import axios from "axios";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
-import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
-import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
 
 export default function BrotherSorting() {
@@ -64,31 +62,11 @@ export default function BrotherSorting() {
         return () => unsubscribe();
     }, [fetchData, navigate]);
 
-    // Connect to sorting broadcaster WebSocket for real-time updates
-    useEffect(() => {
-        connectSortingViewer({
-            url: `${realtimeBaseUrls.sorting}/ws`,
-            wsRef,
-            getCurrentUser: () => auth.currentUser,
-            ghostTimestampsRef,
-            fetchDataRef,
-            setWsConnected,
-            setViewerCount,
-            setGhostCards,
-            showRusheeNames: true,
-        });
-
-        const staleCleanupInterval = setInterval(() => {
-            cleanupStaleSortingGhosts({ ghostTimestampsRef, setGhostCards });
-        }, 5000);
-
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close();
-            }
-            clearInterval(staleCleanupInterval);
-        };
-    }, []);
+    useSortingViewerConnection({
+        auth, wsRef, ghostTimestampsRef, fetchDataRef,
+        setWsConnected, setViewerCount, setGhostCards,
+        showRusheeNames: true,
+    });
 
     const openDetails = async (rushee) => {
         setSelectedRushee(rushee);

@@ -2193,6 +2193,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     offline multi-record test covering HTTP, API, and network failures. All 60
     maintenance tests and Python compilation pass; no setup or reset command
     was run.
+383. Moved the identical sorting viewer WebSocket mount and cleanup effects
+    from the brother and bid-committee pages into one sorting hook. Kept each
+    page's effect order, audience flag, five-second ghost cleanup, and closure
+    of the latest reconnected socket. Three new hook tests and the existing
+    page fixtures pass; all 523 client tests, typecheck, and build pass. CSS
+    is unchanged, and full ESLint remains at eight Attendance errors and 22
+    warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2250,7 +2257,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 520 client tests, 63 server unit tests, 23 collaboration
+Current verified totals: 523 client tests, 63 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 64 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

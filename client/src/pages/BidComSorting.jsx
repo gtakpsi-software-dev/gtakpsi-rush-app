@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
-import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../features/admin/api";
 import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
-import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
-import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
@@ -76,31 +74,11 @@ export default function BidComSorting() {
         return () => unsubscribe();
     }, [fetchData, authChecked, navigate]);
 
-    // Connect to sorting broadcaster WebSocket for real-time updates
-    useEffect(() => {
-        connectSortingViewer({
-            url: `${realtimeBaseUrls.sorting}/ws`,
-            wsRef,
-            getCurrentUser: () => auth.currentUser,
-            ghostTimestampsRef,
-            fetchDataRef,
-            setWsConnected,
-            setViewerCount,
-            setGhostCards,
-            showRusheeNames: false,
-        });
-
-        const staleCleanupInterval = setInterval(() => {
-            cleanupStaleSortingGhosts({ ghostTimestampsRef, setGhostCards });
-        }, 5000);
-
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close();
-            }
-            clearInterval(staleCleanupInterval);
-        };
-    }, []);
+    useSortingViewerConnection({
+        auth, wsRef, ghostTimestampsRef, fetchDataRef,
+        setWsConnected, setViewerCount, setGhostCards,
+        showRusheeNames: false,
+    });
 
     const {
         openNotes,
