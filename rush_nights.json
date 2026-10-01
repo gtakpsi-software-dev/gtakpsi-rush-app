@@ -1,18 +1,1 @@
-[
-    {
-        "name": "Night 1",
-        "time": "2026-01-28T22:00:00.000Z"
-    },
-    {
-        "name": "Night 2",
-        "time": "2026-01-29T22:00:00.000Z"
-    },
-    {
-        "name": "Closed Night",
-        "time": "2026-02-03T22:00:00.000Z"
-    },
-    {
-        "name": "Dev Night",
-        "time": "2099-12-31T22:00:00.000Z"
-    }
-]
+data/season_seed/rush_nights.json

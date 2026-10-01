@@ -121,6 +121,10 @@ fake MongoDB, Firebase, and HTTP clients. Authentication, reset, Storage cleanup
 and seed uploads live under `scripts/season_setup/`; the command and input JSON
 paths are unchanged.
 
+Season seed files live in `data/season_seed/`. The three original JSON paths at
+the repository root are links to those files, so existing setup and migration
+commands read the same data.
+
 This will:
 - Clear all rushees from MongoDB
 - Clear all rush nights and PIS timeslots

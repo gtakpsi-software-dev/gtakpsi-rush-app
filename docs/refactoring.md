@@ -1387,6 +1387,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     original session modules. All four voting WebSocket tests pass with
     disposable Redis, including both roles' existing two-Pong behavior;
     isolated rustfmt passes.
+240. Moved the three season seed JSON files into `data/season_seed/` and kept
+    their original root paths as links, preserving setup and migration inputs.
+    SHA-256 hashes and parsed JSON match before and after the move; all 49
+    offline maintenance tests pass. No reset or migration command was run.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
