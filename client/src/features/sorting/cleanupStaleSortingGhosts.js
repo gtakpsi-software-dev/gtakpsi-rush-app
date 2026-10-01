@@ -20,10 +20,13 @@ export function cleanupStaleSortingGhosts({
             staleIds.forEach((id) => delete next[id]);
             return next;
         });
-        setLockedCards((prev) => {
-            const next = { ...prev };
-            staleIds.forEach((id) => delete next[id]);
-            return next;
-        });
+        // Viewer boards have ghosts but no lock state; admin boards clear both.
+        if (setLockedCards) {
+            setLockedCards((prev) => {
+                const next = { ...prev };
+                staleIds.forEach((id) => delete next[id]);
+                return next;
+            });
+        }
     }
 }

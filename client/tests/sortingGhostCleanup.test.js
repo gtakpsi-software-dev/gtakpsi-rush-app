@@ -50,3 +50,14 @@ test("cleanup prunes multiple stale IDs from both maps in enumeration order", ()
     assert.deepEqual(state.locks, { boundary: "B", fresh: "C" });
     assert.deepEqual(calls[1], ["log", "Cleaning up stale ghosts:", ["stale", "extra"]]);
 });
+
+test("viewer cleanup removes stale ghosts without requiring a lock map", () => {
+    const { calls, state, dependencies } = harness({ stale: 29999, boundary: 30000 });
+    delete dependencies.setLockedCards;
+    cleanupStaleSortingGhosts(dependencies);
+    assert.deepEqual(dependencies.ghostTimestampsRef.current, { boundary: 30000 });
+    assert.deepEqual(state.ghosts, { boundary: { x: 2 }, fresh: { x: 3 } });
+    assert.deepEqual(calls, [
+        "now", ["log", "Cleaning up stale ghosts:", ["stale"]], "ghosts",
+    ]);
+});

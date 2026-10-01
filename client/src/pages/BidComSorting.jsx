@@ -13,6 +13,7 @@ import SortingGhostCards from "../features/sorting/SortingGhostCards";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { handleBidComSortingMessage } from "../features/sorting/handleBidComSortingMessage";
+import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -145,26 +146,9 @@ export default function BidComSorting() {
 
         connectWs();
 
-        // Stale ghost cleanup interval - clear ghosts older than 30 seconds
         const staleCleanupInterval = setInterval(() => {
-            const now = Date.now();
-            const STALE_THRESHOLD = 30000; // 30 seconds
-            const staleIds = Object.entries(ghostTimestampsRef.current)
-                .filter(([_, timestamp]) => now - timestamp > STALE_THRESHOLD)
-                .map(([id]) => id);
-            
-            if (staleIds.length > 0) {
-                console.log("Cleaning up stale ghosts:", staleIds);
-                staleIds.forEach((id) => {
-                    delete ghostTimestampsRef.current[id];
-                });
-                setGhostCards((prev) => {
-                    const next = { ...prev };
-                    staleIds.forEach((id) => delete next[id]);
-                    return next;
-                });
-            }
-        }, 5000); // Check every 5 seconds
+            cleanupStaleSortingGhosts({ ghostTimestampsRef, setGhostCards });
+        }, 5000);
 
         return () => {
             if (wsRef.current) {
