@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useVoiceRecording } from '../js/voiceRecording';
+import { useVoiceRecording } from '../hooks/useVoiceRecording';
 
 type Props = {
   onTranscription?: (value: string) => void;

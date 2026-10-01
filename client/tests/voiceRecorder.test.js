@@ -19,7 +19,7 @@ async function loadRecorder({ isRecording = false, isProcessing = false, disable
             ...React,
             useState: () => [error, (value) => updates.push(value)],
         },
-        "../js/voiceRecording": {
+        "../hooks/useVoiceRecording": {
             useVoiceRecording: () => ({
                 isRecording,
                 isProcessing,

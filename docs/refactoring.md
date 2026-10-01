@@ -1980,6 +1980,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     The remaining errors are calls to four undefined setters in Attendance's
     existing fetch effect. They remain intact because defining them would
     change that path's current failure behavior.
+346. Moved the voice recording React hook from generic `js/` to
+    `hooks/useVoiceRecording.js`, updating its component and test imports.
+    All 501 client tests, typecheck, changed-file ESLint, and build pass.
+    Production JavaScript and CSS asset hashes match slice 345 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
