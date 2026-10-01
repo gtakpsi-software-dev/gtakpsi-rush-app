@@ -2124,6 +2124,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests without changing hook call order or exports. All 514 client tests,
     typecheck, and build pass; changed-file ESLint has zero errors and two
     existing PIS-page warnings. Production JS and CSS hashes are unchanged.
+371. Added two hook-level tests for comment visibility's server request,
+    forced role-claim refresh, and restrictive failure defaults, then moved
+    the hook beside its policy in `features/comments`. Updated three callers
+    and their page mocks without changing effects or rendered output. All 516
+    client tests, typecheck, and build pass; changed-file ESLint has zero errors
+    and three existing caller warnings. Production JS and CSS hashes match
+    slice 370 exactly.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2181,7 +2188,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 514 client tests, 61 server unit tests, 22 collaboration
+Current verified totals: 516 client tests, 61 server unit tests, 22 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 62 server tests with the integration feature (including its
 isolated database contract), plus 59 maintenance-script tests. The last

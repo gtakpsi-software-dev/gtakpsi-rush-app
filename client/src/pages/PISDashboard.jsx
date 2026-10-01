@@ -6,7 +6,7 @@ import PisDashboardView from "../features/pis/dashboard/PisDashboardView";
 import { loadPisDashboardData } from "../features/pis/dashboard/loadPisDashboardData";
 
 import { verifyUser } from "../features/auth/verifyUser";
-import { useCommentVisibility } from "../hooks/useCommentVisibility";
+import { useCommentVisibility } from "../features/comments/useCommentVisibility";
 
 export default function PISDashboard() {
 

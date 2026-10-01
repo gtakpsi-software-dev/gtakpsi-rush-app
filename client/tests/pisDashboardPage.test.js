@@ -70,7 +70,7 @@ async function loadPage(state = {}, showRatings = false, navigations = [], runti
                 "../features/auth/verifyUser": {
                     verifyUser: () => runtime.verify?.() ?? Promise.resolve(true),
                 },
-                "../hooks/useCommentVisibility": { useCommentVisibility: () => ({ showAll: showRatings }) },
+                "../features/comments/useCommentVisibility": { useCommentVisibility: () => ({ showAll: showRatings }) },
             };
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]

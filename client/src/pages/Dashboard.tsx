@@ -11,7 +11,7 @@ import Fuse from "fuse.js";
 import { verifyUser } from "../features/auth/verifyUser";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useCommentVisibility } from "../hooks/useCommentVisibility";
+import { useCommentVisibility } from "../features/comments/useCommentVisibility";
 import { filterDashboardRushees, shuffleArray } from "../features/dashboard/list";
 import { loadDashboardData } from "../features/dashboard/loadDashboardData";
 import DashboardView from "../features/dashboard/DashboardView";
