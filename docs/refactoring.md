@@ -1431,6 +1431,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     parsing failure leaves the socket open for a subsequent admin `card_saved`
     message. All 11 sorting tests pass against an isolated loopback server, and
     rustfmt passes. No production protocol code changed in this slice.
+249. Moved rushee PIS rescheduling out of the timeslot-read module into
+    `interview/reschedule.rs`, reducing `scheduling.rs` from 181 to 96 lines.
+    Its executable statements are unchanged, while comments now explain the
+    rollback and paired database fields; the public export and route remain the
+    same. The isolated-database API suite passed all 47 tests both before and
+    after the move, including failed-claim rollback and successful rescheduling.
+    All touched Rust files pass isolated rustfmt checks.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

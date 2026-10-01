@@ -1,95 +1,10 @@
 use super::timeslot_sort::sort_available_timeslots;
 use crate::controllers::db;
-use crate::middlewares::{pis, time_helpers};
 use crate::models::pis::PISSignup;
-use axum::{extract::Path, http::StatusCode, response::Json};
+use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
-
-/**
- * Reschedule Rushee PIS
- * Accepts GTID as path param and new timeslot as body (ISO string)
- * Vacates old slot, takes new slot, updates rushee
- */
-pub async fn reschedule_pis(
-    Path(id): Path<String>,
-    Json(payload): Json<String>,
-) -> Result<Json<Value>, StatusCode> {
-    let new_time = time_helpers::string_to_bson_datetime(&payload);
-    let connection = db::get_rushee_client().await;
-
-    // First, fetch the rushee to get their current timeslot
-    let fetch_result = connection.find_one(doc! {"gtid": id.clone()}).await;
-
-    let old_time = match fetch_result {
-        Ok(Some(rushee)) => rushee.pis_timeslot,
-        Ok(None) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "Rushee not found"
-            })))
-        }
-        Err(_) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "Database error fetching rushee"
-            })))
-        }
-    };
-
-    // Vacate the OLD timeslot (free it up)
-    let vacate_result = pis::vacate_pis_timeslot(old_time).await;
-    match vacate_result {
-        Ok(_) => {}
-        Err(err) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": format!("Failed to vacate old timeslot: {}", err)
-            })))
-        }
-    }
-
-    // Take the NEW timeslot
-    let take_result = pis::take_pis_timeslot(new_time).await;
-    match take_result {
-        Ok(_) => {}
-        Err(err) => {
-            // Try to restore the old timeslot since we failed
-            let _ = pis::take_pis_timeslot(old_time).await;
-            return Ok(Json(json!({
-                "status": "error",
-                "message": format!("Failed to take new timeslot: {}", err)
-            })));
-        }
-    }
-
-    // Update the rushee's pis_timeslot and pis_signup.time
-    let query = doc! {"gtid": id.clone()};
-    let update = doc! {
-        "$set": {
-            "pis_timeslot": new_time,
-            "pis_signup.time": new_time
-        }
-    };
-
-    let update_result = connection.update_one(query, update).await;
-
-    match update_result {
-        Ok(_) => {
-            return Ok(Json(json!({
-                "status": "success",
-                "message": "Successfully rescheduled PIS"
-            })))
-        }
-        Err(_) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "Failed to update rushee record"
-            })))
-        }
-    }
-}
 
 pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
