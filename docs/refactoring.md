@@ -1348,6 +1348,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     status, update attribution, and replacement of the single settings document.
     The isolated fixture reset now clears this collection. All 47
     integration-feature tests pass; no application behavior changed.
+233. Split the admin access controller into policy and settings modules while
+    retaining its four public exports, status payloads, and database operation
+    order. Replaced redundant branch comments with the admin-override invariant
+    and the delete-before-insert tradeoff. The preceding access contracts and
+    all 47 disposable-Mongo integration-feature tests pass; isolated rustfmt
+    passes.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
