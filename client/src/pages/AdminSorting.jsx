@@ -16,6 +16,7 @@ import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSorti
 import { applySortingDrop } from "../features/sorting/applySortingDrop";
 import { applySavedSortingTags } from "../features/sorting/applySavedSortingTags";
 import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
+import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -175,76 +176,21 @@ export default function AdminSorting() {
         return () => unsubscribe();
     }, [fetchData, authChecked, navigate]);
 
-    const handleDragStart = (rushee, fromColumn, index, e) => {
-        const lockedBy = lockedCards[rushee.id];
-        if (lockedBy && draggingRef.current?.id !== rushee.id) {
-            e.preventDefault();
-            return;
-        }
-
-        draggingRef.current = { id: rushee.id, fromColumn, index, rushee };
-        setDragging({ id: rushee.id, fromColumn, index, rushee });
-        
-        // Send drag_start to WebSocket
-        const rect = e?.currentTarget?.getBoundingClientRect();
-        const x = rect ? rect.left : 0;
-        const y = rect ? rect.top : 0;
-        dragPositionRef.current = { x, y };
-        
-        wsSend({
-            type: "drag_start",
-            rushee_id: rushee.id,
-            rushee_name: rushee.fullName,
-            x,
-            y,
-        });
-    };
-
-    const handleDragOver = (e, columnKey, index) => {
-        e.preventDefault();
-        setHoverIndex({ column: columnKey, index });
-        
-        // Throttle drag_move messages to ~30fps
-        const now = Date.now();
-        if (!throttleRef.current || now - throttleRef.current > 33) {
-            throttleRef.current = now;
-            const x = e.clientX;
-            const y = e.clientY;
-            dragPositionRef.current = { x, y };
-            if (draggingRef.current?.id) {
-                wsSend({ type: "drag_move", rushee_id: draggingRef.current.id, x, y });
-            }
-        }
-    };
-
-    const clearDragState = () => {
-        // Send drag_end to WebSocket
-        if (draggingRef.current?.id) {
-            wsSend({ type: "drag_end", rushee_id: draggingRef.current.id });
-        }
-        
-        setDragging(null);
-        setHoverIndex({ column: null, index: null });
-        draggingRef.current = null;
-    };
-
-    const cancelDragState = () => {
-        setDragging(null);
-        setHoverIndex({ column: null, index: null });
-        draggingRef.current = null;
-    };
-
-    // Handle dragend event - fires when ANY drag operation ends (success or cancel)
-    const handleDragEnd = (e) => {
-        // If we still have a dragging state, it means handleDrop wasn't called
-        // (e.g., user cancelled the drag or dropped outside a valid target)
-        if (draggingRef.current?.id) {
-            wsSend({ type: "drag_end", rushee_id: draggingRef.current.id });
-        }
-        setDragging(null);
-        setHoverIndex({ column: null, index: null });
-        draggingRef.current = null;
-    };
+    const {
+        handleDragStart,
+        handleDragOver,
+        clearDragState,
+        cancelDragState,
+        handleDragEnd,
+    } = createSortingDragHandlers({
+        lockedCards,
+        draggingRef,
+        dragPositionRef,
+        throttleRef,
+        setDragging,
+        setHoverIndex,
+        wsSend,
+    });
 
     const processMoveQueue = () => processSortingMoveQueue({
         moveInFlightRef,
