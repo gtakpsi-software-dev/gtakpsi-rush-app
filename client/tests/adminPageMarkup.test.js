@@ -13,6 +13,7 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/Admin.jsx', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
+const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminPageMarkup.json', import.meta.url));
 
 async function loadAdmin(state = {}, captured = new Map()) {
@@ -24,6 +25,11 @@ async function loadAdmin(state = {}, captured = new Map()) {
         '../data/AdminDataActions': stub('data-actions'),
         '../access/AdminAccessCard': stub('admin-access'),
         '../access/AccessSettingsCards': stub('access-settings')
+    });
+    const Management = await loadTsxComponent(managementPath, {
+        '../pis/PisQuestionsCard': stub('questions'),
+        '../scheduling/AdminSchedulingCards': stub('scheduling'),
+        '../pis/ReschedulePisCard': stub('reschedule')
     });
     const source = (await readFile(pagePath, 'utf8'))
         .replaceAll('import.meta.env.VITE_API_PREFIX', '"/api"')
@@ -81,6 +87,7 @@ async function loadAdmin(state = {}, captured = new Map()) {
         '../features/admin/access/accessSettingsActions': { createAccessSettingsActions: actions },
         '../features/admin/search/useAdminSearch': { useAdminSearch: () => search },
         '../features/admin/overview/AdminExportsAccessSection': Section,
+        '../features/admin/overview/AdminManagementSection': Management,
         '../firebase': { auth: {}, db: {} },
         'firebase/firestore': { collection: noop, getDocs: noop }
     };
@@ -116,10 +123,15 @@ test('admin page keeps loading, ready, and availability-editor layout', async ()
 test('admin page passes loaded and edited state to the right sections', async () => {
     const captured = new Map();
     const editingBrotherAvailability = { brother_first_name: 'Ada', brother_last_name: 'Example' };
+    const selectedRushee = { first_name: 'Grace', last_name: 'Example' };
+    const availableTimeslots = [{ timeslot_id: 12 }];
     const Admin = await loadAdmin({
         0: 'Interview prompt',
         8: 2,
         11: false,
+        18: selectedRushee,
+        19: availableTimeslots,
+        20: '12',
         21: { is_active: true, sent_at: null },
         24: editingBrotherAvailability
     }, captured);
@@ -127,6 +139,10 @@ test('admin page passes loaded and edited state to the right sections', async ()
 
     assert.equal(captured.get('questions').question, 'Interview prompt');
     assert.equal(captured.get('scheduling').timeslotChange, 2);
+    assert.equal(captured.get('reschedule').selectedRushee, selectedRushee);
+    assert.equal(captured.get('reschedule').availableTimeslots, availableTimeslots);
+    assert.equal(captured.get('reschedule').selectedNewTimeslot, '12');
+    assert.equal(typeof captured.get('reschedule').handleReschedulePIS, 'function');
     assert.equal(captured.get('availability-section').pisFormStatus.is_active, true);
     assert.equal(captured.get('availability-editor').editingBrotherAvailability, editingBrotherAvailability);
     assert.equal(typeof captured.get('data-actions').handleRequest, 'function');

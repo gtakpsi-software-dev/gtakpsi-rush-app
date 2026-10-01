@@ -12,7 +12,6 @@ import AvailabilityEditorModal from "../features/admin/availability/Availability
 import { createAvailabilityEditorActions } from "../features/admin/availability/availabilityEditorActions";
 import PisAvailabilitySection from "../features/admin/availability/PisAvailabilitySection";
 import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
-import PisQuestionsCard from "../features/admin/pis/PisQuestionsCard";
 import { createQuestionActions } from "../features/admin/pis/questionActions";
 import {
     formatCurrentPISTime,
@@ -20,15 +19,14 @@ import {
     formatTimeslot,
     groupEditSlots,
 } from "../features/admin/pis/pisTime";
-import ReschedulePisCard from "../features/admin/pis/ReschedulePisCard";
 import { createRescheduleActions } from "../features/admin/pis/rescheduleActions";
-import AdminSchedulingCards from "../features/admin/scheduling/AdminSchedulingCards";
 import { createAdminDataActions } from "../features/admin/data/dataActionHandlers";
 import { downloadCsv } from "../features/admin/data/downloadCsv";
 import { createPromotionActions } from "../features/admin/access/promotionActions";
 import { createAccessSettingsActions } from "../features/admin/access/accessSettingsActions";
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
+import AdminManagementSection from "../features/admin/overview/AdminManagementSection";
 import { auth, db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
 
@@ -293,56 +291,17 @@ export default function Admin() {
 
                     <div className="border-t border-apple-gray-200 my-10"></div>
 
-                    <div>
-                        <h2 className="text-apple-title2 font-normal text-black mb-4">Manage Data</h2>
-
-                        <div className="space-y-6">
-                            <PisQuestionsCard
-                                question={question}
-                                setQuestion={setQuestion}
-                                questionType={questionType}
-                                setQuestionType={setQuestionType}
-                                questionOrder={questionOrder}
-                                setQuestionOrder={setQuestionOrder}
-                                questionCategory={questionCategory}
-                                setQuestionCategory={setQuestionCategory}
-                                handleRequest={handleRequest}
-                                fetchPisQuestions={fetchPisQuestions}
-                                pisQuestions={pisQuestions}
-                                pisQuestionsLoading={pisQuestionsLoading}
-                                categoryEdits={categoryEdits}
-                                setCategoryEdits={setCategoryEdits}
-                                saveQuestionCategory={saveQuestionCategory}
-                            />
-
-                            <AdminSchedulingCards
-                                timeslotTime={timeslotTime}
-                                setTimeslotTime={setTimeslotTime}
-                                timeslotChange={timeslotChange}
-                                setTimeslotChange={setTimeslotChange}
-                                rushNightName={rushNightName}
-                                setRushNightName={setRushNightName}
-                                rushNightTime={rushNightTime}
-                                setRushNightTime={setRushNightTime}
-                                handleRequest={handleRequest}
-                            />
-
-                            <ReschedulePisCard
-                                rusheeSearch={rusheeSearch}
-                                setRusheeSearch={setRusheeSearch}
-                                selectedRushee={selectedRushee}
-                                setSelectedRushee={setSelectedRushee}
-                                filteredRushees={filteredRushees}
-                                handleSelectRushee={handleSelectRushee}
-                                formatCurrentPISTime={formatCurrentPISTime}
-                                selectedNewTimeslot={selectedNewTimeslot}
-                                setSelectedNewTimeslot={setSelectedNewTimeslot}
-                                availableTimeslots={availableTimeslots}
-                                formatTimeslot={formatTimeslot}
-                                handleReschedulePIS={handleReschedulePIS}
-                            />
-                        </div>
-                    </div>
+                    <AdminManagementSection {...{
+                        question, setQuestion, questionType, setQuestionType, questionOrder,
+                        setQuestionOrder, questionCategory, setQuestionCategory, handleRequest,
+                        fetchPisQuestions, pisQuestions, pisQuestionsLoading, categoryEdits,
+                        setCategoryEdits, saveQuestionCategory, timeslotTime, setTimeslotTime,
+                        timeslotChange, setTimeslotChange, rushNightName, setRushNightName,
+                        rushNightTime, setRushNightTime, rusheeSearch, setRusheeSearch,
+                        selectedRushee, setSelectedRushee, filteredRushees, handleSelectRushee,
+                        formatCurrentPISTime, selectedNewTimeslot, setSelectedNewTimeslot,
+                        availableTimeslots, formatTimeslot, handleReschedulePIS,
+                    }} />
 
                     <div className="border-t border-apple-gray-200 my-10"></div>
 

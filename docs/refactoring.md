@@ -1179,6 +1179,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     changing effect dependencies. All 331 client tests pass, the production
     build succeeds, and the CSS asset hash remains unchanged. Live browser
     parity is still pending.
+207. Moved the admin question, scheduling, and PIS rescheduling cards into a
+    77-line management view while keeping their state and actions in the page.
+    Added rescheduling prop assertions alongside the existing three-state page
+    markup fixtures. `Admin.jsx` is now 324 lines; all 331 client tests and
+    the production build pass, and the CSS asset hash remains unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
