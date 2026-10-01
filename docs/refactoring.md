@@ -104,7 +104,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 577 client tests, 79 server unit tests, 30 collaboration
+Current verified totals: 578 client tests, 79 server unit tests, 30 collaboration
 tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, and 80 server tests from the latest integration-feature run, plus 69
 maintenance-script tests. The last client build differs from baseline CSS only

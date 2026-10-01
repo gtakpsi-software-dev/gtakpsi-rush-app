@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
+import { startSortingConnectionLifecycle } from "../src/features/sorting/startSortingConnectionLifecycle.js";
 
 const hookPath = fileURLToPath(new URL(
     "../src/features/sorting/useSortingAdminConnection.js", import.meta.url,
@@ -41,6 +42,7 @@ async function setup() {
                 "./cleanupStaleSortingGhosts": {
                     cleanupStaleSortingGhosts: (options) => sweeps.push(options),
                 },
+                "./startSortingConnectionLifecycle": { startSortingConnectionLifecycle },
             };
             assert.ok(Object.hasOwn(dependencies, specifier), specifier);
             return dependencies[specifier];
