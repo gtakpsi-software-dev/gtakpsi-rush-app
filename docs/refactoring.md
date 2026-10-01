@@ -1584,6 +1584,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     filter. Existing local-input, composition, cursor-lock, and remote-update
     tests pass with the full 417-test client suite. Typecheck passes, controlled
     CSS is byte-identical, and lint falls to 142 errors and 26 warnings.
+274. Added direct admin vote-summary tests for rendered counts, abstain
+    treatment, empty state, and the existing clear-votes API request. Removed
+    its two unused bindings without changing the pie-chart prop contract.
+    All 419 client tests and typecheck pass; the edited component and test are
+    lint-clean, the summary markup hash matches the pre-edit output, and
+    controlled CSS is byte-identical. Client lint falls to 140 errors and
+    26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1613,8 +1620,8 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TSX lint; the current baseline has 142 errors and 26 warnings (including
-20 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
+and TSX lint; the current baseline has 140 errors and 26 warnings (including
+18 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
@@ -1639,7 +1646,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 417 client tests, 52 server unit tests, 19 collaboration
+Current verified totals: 419 client tests, 52 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 53 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

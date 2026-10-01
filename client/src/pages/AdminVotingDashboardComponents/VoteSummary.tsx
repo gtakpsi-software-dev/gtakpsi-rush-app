@@ -9,7 +9,7 @@ interface VoteSummaryProps {
 }
 
 // Simple CSS-based Pie Chart Component (Yes/No only)
-const PieChart = ({ yes, no, abstain, total }: { yes: number; no: number; abstain: number; total: number }) => {
+const PieChart = ({ yes, no, abstain }: { yes: number; no: number; abstain: number; total: number }) => {
   const yesNoTotal = yes + no;
   
   if (yesNoTotal === 0) {
@@ -80,7 +80,7 @@ const PieChart = ({ yes, no, abstain, total }: { yes: number; no: number; abstai
 };
 
 export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) {
-  const { votes, setVotes } = useAdminVotingContext();
+  const { votes } = useAdminVotingContext();
 
   const total = votes.length;
   const yes = votes.filter((v) => v.vote === "Yes").length;
