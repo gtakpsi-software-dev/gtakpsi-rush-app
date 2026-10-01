@@ -18,7 +18,7 @@ import PisSaveStatus from "../features/pis/PisSaveStatus";
 import PisQuestionsPending from "../features/pis/PisQuestionsPending";
 import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { createPisCollaborator } from "../features/pis/createPisCollaborator";
-import { parseServerDate } from "../features/pis/parseServerDate";
+import { applyPisQuestionsResponse } from "../features/pis/applyPisQuestionsResponse";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { performPisAutosave } from "../features/pis/performPisAutosave";
 import { applyPisRusheeResponse } from "../features/pis/applyPisRusheeResponse";
@@ -88,15 +88,10 @@ export default function PIS() {
                     // randomized category questions only once within 5 min of their PIS time).
                     await axios.get(`${api}/rushee/get-pis-questions/${gtid}`)
                         .then((response) => {
-                            if (response.data.status === "success") {
-                                const { available, reveal_at, questions: fetchedQuestions } = response.data.payload;
-                                // Questions already come back sorted by `order` from the server.
-                                setQuestions(fetchedQuestions);
-                                setQuestionsAvailable(available);
-                                setRevealAt(parseServerDate(reveal_at));
-                            } else {
-                                navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`);
-                            }
+                            applyPisQuestionsResponse(response, {
+                                setQuestions, setQuestionsAvailable, setRevealAt,
+                                onFailure: () => navigate(`/error/${errorTitle}/${"Failed to fetch PIS questions"}`),
+                            });
                         });
                 })
                 .catch((error) => {
@@ -122,12 +117,9 @@ export default function PIS() {
 
             if (secondsLeft <= 0) {
                 axios.get(`${api}/rushee/get-pis-questions/${gtid}`).then((response) => {
-                    if (response.data.status === "success") {
-                        const { available, reveal_at, questions: fetchedQuestions } = response.data.payload;
-                        setQuestions(fetchedQuestions);
-                        setQuestionsAvailable(available);
-                        setRevealAt(parseServerDate(reveal_at));
-                    }
+                    applyPisQuestionsResponse(response, {
+                        setQuestions, setQuestionsAvailable, setRevealAt,
+                    });
                 });
             }
         };
