@@ -1,5 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 
+/**
+ * Voice Recording Summary:
+ * - Removes a catch that only rethrew the same error from recordAndTranscribe.
+ * - Keeps microphone failure mapping, recording cleanup, and upload behavior.
+ */
 export const useVoiceRecording = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,23 +66,23 @@ export const useVoiceRecording = () => {
     setIsProcessing(true);
     
     try {
+      // Vite exposes this key to browsers; it must not be treated as a secret credential.
       const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
       if (!apiKey) {
         throw new Error('OpenAI API key not found. Please add VITE_OPENAI_API_KEY to your .env file.');
       }
 
-      // Convert webm to wav for better compatibility with Whisper
+      // Keep the recorded WebM bytes when packaging the transcription upload.
       const audioBuffer = await audioBlob.arrayBuffer();
       const formData = new FormData();
-      
-      // Create a File object from the blob
+
       const audioFile = new File([audioBuffer], 'recording.webm', { 
         type: 'audio/webm;codecs=opus' 
       });
       
       formData.append('file', audioFile);
       formData.append('model', 'whisper-1');
-      formData.append('language', 'en'); // Optional: specify language
+      formData.append('language', 'en');
 
       const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
@@ -103,31 +108,26 @@ export const useVoiceRecording = () => {
   }, []);
 
   const recordAndTranscribe = useCallback(async () => {
-    try {
-      await startRecording();
-      
-      // Return a promise that resolves when recording is stopped and transcribed
-      return new Promise((resolve, reject) => {
-        const handleStop = async () => {
-          try {
-            const audioBlob = await stopRecording();
-            if (audioBlob) {
-              const transcription = await transcribeAudio(audioBlob);
-              resolve(transcription);
-            } else {
-              resolve('');
-            }
-          } catch (error) {
-            reject(error);
-          }
-        };
+    await startRecording();
 
-        // Store the stop handler so it can be called externally
-        window._stopRecordingHandler = handleStop;
-      });
-    } catch (error) {
-      throw error;
-    }
+    return new Promise((resolve, reject) => {
+      const handleStop = async () => {
+        try {
+          const audioBlob = await stopRecording();
+          if (audioBlob) {
+            const transcription = await transcribeAudio(audioBlob);
+            resolve(transcription);
+          } else {
+            resolve('');
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      // External recorder controls call this handler to settle the pending promise.
+      window._stopRecordingHandler = handleStop;
+    });
   }, [startRecording, stopRecording, transcribeAudio]);
 
   return {
@@ -138,4 +138,4 @@ export const useVoiceRecording = () => {
     transcribeAudio,
     recordAndTranscribe,
   };
-}; 
+};
