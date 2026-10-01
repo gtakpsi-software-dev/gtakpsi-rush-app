@@ -119,6 +119,31 @@ class BasicMaintenanceTests(unittest.TestCase):
             namespace["add_tag"]("1", "unknown", rushees)
         self.assertEqual(exit_context.exception.code, 1)
 
+    def test_add_tag_keeps_missing_rushee_and_failed_update_responses(self):
+        namespace, _, _ = load_script("add_sorting_tag.py", collections={})
+        rushees = MagicMock()
+        rushees.find_one.return_value = None
+
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as missing_rushee:
+            namespace["add_tag"]("1", "pis", rushees)
+        self.assertEqual(missing_rushee.exception.code, 1)
+        self.assertIn("No rushee found with GTID 1", output.getvalue())
+        rushees.update_one.assert_not_called()
+
+        rushees.find_one.return_value = {
+            "first_name": "Ada", "last_name": "Example", "sorting_tags": [],
+        }
+        rushees.update_one.return_value.modified_count = 0
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as failed_update:
+            namespace["add_tag"]("1", "pis", rushees)
+        self.assertEqual(failed_update.exception.code, 1)
+        self.assertIn("Error: Failed to update rushee", output.getvalue())
+        rushees.update_one.assert_called_once_with(
+            {"gtid": "1"}, {"$set": {"sorting_tags": ["pis"]}}
+        )
+
     def test_closed_night_report_keeps_first_matching_night_and_status_grouping(self):
         namespace, _, _ = load_script("closed_night_attendance.py", collections={})
         rushees = MagicMock()

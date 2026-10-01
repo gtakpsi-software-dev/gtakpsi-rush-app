@@ -11,64 +11,41 @@ Examples:
 """
 
 import sys
+
 from pymongo import MongoClient
+
 from lib.mongo_config import resolve_mongo_uri
+from maintenance_commands.sorting_tags import apply_sorting_tag
 
 VALID_TAGS = ["night_1", "night_2", "closed_night", "closed_night_invite", "pis", "hard_no"]
 
+
 def add_tag(gtid: str, tag: str, rushee_collection=None):
     """Add a sorting tag to a rushee by GTID."""
-    
+
+    # INVARIANT: unknown tags must not enter the stored sorting-tag set.
     if tag not in VALID_TAGS:
         print(f"Error: Invalid tag '{tag}'")
         print(f"Valid tags: {', '.join(VALID_TAGS)}")
         sys.exit(1)
-    
+
     if rushee_collection is None:
         client = MongoClient(resolve_mongo_uri(__file__))
         rushee_collection = client["rush-app"]["rushees"]
 
-    rushee = rushee_collection.find_one({"gtid": gtid})
-    
-    if not rushee:
-        print(f"Error: No rushee found with GTID {gtid}")
-        sys.exit(1)
-    
-    print(f"Found rushee: {rushee.get('first_name')} {rushee.get('last_name')} (GTID: {gtid})")
-    
-    # Get existing tags
-    existing_tags = rushee.get('sorting_tags', [])
-    print(f"Existing tags: {existing_tags}")
-    
-    # Add new tag if not already present
-    if tag in existing_tags:
-        print(f"Tag '{tag}' already exists for this rushee.")
-        return
-    
-    new_tags = existing_tags + [tag]
-    
-    # Update the rushee
-    result = rushee_collection.update_one(
-        {"gtid": gtid},
-        {"$set": {"sorting_tags": new_tags}}
-    )
-    
-    if result.modified_count > 0:
-        print(f"Successfully added tag '{tag}' to {rushee.get('first_name')} {rushee.get('last_name')}")
-        print(f"New tags: {new_tags}")
-    else:
-        print("Error: Failed to update rushee")
-        sys.exit(1)
+    return apply_sorting_tag(gtid, tag, rushee_collection)
+
 
 def main():
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit(1)
-    
+
     gtid = sys.argv[1]
     tag = sys.argv[2]
-    
+
     add_tag(gtid, tag)
+
 
 if __name__ == "__main__":
     main()
