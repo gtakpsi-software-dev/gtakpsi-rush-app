@@ -2310,6 +2310,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     markup tests pass before and after; all 528 client tests, typecheck, and
     production build pass. CSS retains its prior hash. Full lint improves from
     8 errors and 22 warnings to 8 errors and 17 warnings.
+402. Made the admin and brother voting comment animation effects read the same
+    comments-array references already present in their dependency lists.
+    New tests pin the animation call, timing values, and empty-selection guard
+    before and after the change. All 530 client tests, typecheck, targeted lint,
+    and build pass; CSS retains its prior hash. Full lint now reports 8 errors
+    and 15 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2341,7 +2347,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current state has 8 errors and 17 warnings, so it is
+and TS/TSX lint; the current state has 8 errors and 15 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
@@ -2367,7 +2373,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 528 client tests, 64 server unit tests, 23 collaboration
+Current verified totals: 530 client tests, 64 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

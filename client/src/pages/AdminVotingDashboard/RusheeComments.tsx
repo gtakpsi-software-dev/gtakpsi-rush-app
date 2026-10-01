@@ -7,9 +7,10 @@ import { formatRatingValue } from "../../features/comments/ratingDisplay";
 export default function RusheeComments() {
   const { rushee } = useAdminVotingContext();
   const commentsRef = useRef<HTMLDivElement[]>([]);
+  const comments = rushee?.comments;
 
   useEffect(() => {
-    if (rushee && rushee?.comments?.length > 0) {
+    if (comments && comments.length > 0) {
       gsap.fromTo(
         commentsRef.current,
         { y: -20, opacity: 0 },
@@ -22,7 +23,7 @@ export default function RusheeComments() {
         }
       );
     }
-  }, [rushee?.comments]);
+  }, [comments]);
 
   if (!rushee || rushee.comments.length === 0) return null;
 

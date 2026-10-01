@@ -44,12 +44,13 @@ export default function RusheeComments() {
     }, []);
 
     const visibilityOptions = { requireCommentToView, isAdmin, isBidcom };
+    const comments = rushee?.comments;
     const visibleComments = rushee
         ? getVisibleComments(rushee.comments, user, visibilityOptions)
         : [];
 
     useEffect(() => {
-        if (rushee && visibleComments.length > 0) {
+        if (comments && visibleComments.length > 0) {
             gsap.fromTo(
                 commentsRef.current,
                 { y: -20, opacity: 0 },
@@ -62,7 +63,7 @@ export default function RusheeComments() {
                 }
             );
         }
-    }, [rushee?.comments, visibleComments.length]);
+    }, [comments, visibleComments.length]);
 
     if (!rushee) {
         return (
