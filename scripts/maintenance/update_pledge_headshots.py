@@ -14,7 +14,7 @@ from maintenance_commands.headshot_upload import process_headshot
 
 
 def main():
-    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
     mongo_uri = os.getenv("MONGO_URI")
     firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json")
@@ -32,7 +32,7 @@ def main():
     collection = db["rushees"]
     print("Connected!")
 
-    headshots_dir = os.path.join(os.path.dirname(__file__), '..', 'Pledge Headshots')
+    headshots_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'Pledge Headshots')
     bucket = storage.bucket()
 
     success = 0

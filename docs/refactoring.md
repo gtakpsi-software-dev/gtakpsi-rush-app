@@ -105,7 +105,7 @@ On this Mac, prefix the command with
 `DEVELOPER_DIR=/Library/Developer/CommandLineTools`. The test client refuses
 fixture resets unless the newly created container's marker is present.
 
-Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
+Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 

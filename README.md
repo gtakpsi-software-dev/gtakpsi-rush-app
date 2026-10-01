@@ -61,22 +61,22 @@ Set it in the environment or in a root `.env.migrations` file. That file is
 ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
 `MONGO_URL` because their original database targets can differ.
 
-`scripts-migrations/add_pis_question_order.py` remains the command for replacing
-PIS questions. Its implementation lives in `scripts-migrations/maintenance_commands/`;
+`scripts/maintenance/add_pis_question_order.py` is the command for replacing
+PIS questions. Its implementation lives in `scripts/maintenance/maintenance_commands/`;
 the command still reads the root `.env` and
 `data/season_seed/pis_questions.json`, then performs the same delete, insert,
 and verification sequence.
-`scripts-migrations/delete_test_data.py` also retains its path, dry-run default,
+`scripts/maintenance/delete_test_data.py` retains its dry-run default,
 and `--apply` gate; its preview and deletion sequence lives in that same package.
-`scripts-migrations/reset_rushees_for_new_rush.py` keeps its season-specific GTID
-list and command path; the delete, reset, and report sequence lives in the same
+`scripts/maintenance/reset_rushees_for_new_rush.py` keeps its season-specific GTID
+list; the delete, reset, and report sequence lives in the same
 package.
-`scripts-migrations/data_pull.py` keeps its command path and `rushees.xlsx`
+`scripts/maintenance/data_pull.py` keeps its `rushees.xlsx`
 output; the export columns and row mapping live in
-`scripts-migrations/maintenance_commands/rushee_export.py`.
-`scripts-migrations/set_admin_claim.py` keeps its CLI flags and Firebase
+`scripts/maintenance/maintenance_commands/rushee_export.py`.
+`scripts/maintenance/set_admin_claim.py` keeps its CLI flags and Firebase
 initialization; its role-claim lookup, update, and reporting live in
-`scripts-migrations/maintenance_commands/firebase_claims.py`.
+`scripts/maintenance/maintenance_commands/firebase_claims.py`.
 
 ## Tests
 
@@ -89,7 +89,7 @@ cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 scripts/testing/api-integration.sh
 python3 scripts/testing/voting-integration.py
-python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'
+python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 ```
 
 The API integration command requires Docker. It creates a fresh MongoDB container,

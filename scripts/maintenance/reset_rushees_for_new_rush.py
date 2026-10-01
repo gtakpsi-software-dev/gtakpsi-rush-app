@@ -48,7 +48,7 @@ KEEP_GTIDS = {
 
 def main():
     # INVARIANT: importing this module must never reach the season reset.
-    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
     mongo_uri = os.getenv("MONGO_URI")
     if not mongo_uri:

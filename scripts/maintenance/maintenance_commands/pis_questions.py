@@ -9,7 +9,7 @@ import os
 
 
 def replace_questions(script_path, load_dotenv, mongo_client):
-    env_path = os.path.join(os.path.dirname(script_path), '..', '.env')
+    env_path = os.path.join(os.path.dirname(script_path), '..', '..', '.env')
     print(f"Loading .env from: {os.path.abspath(env_path)}")
     load_dotenv(dotenv_path=env_path)
 
@@ -26,7 +26,7 @@ def replace_questions(script_path, load_dotenv, mongo_client):
     collection = db['pis-questions']
 
     json_path = os.path.join(
-        os.path.dirname(script_path), '..', 'data', 'season_seed', 'pis_questions.json'
+        os.path.dirname(script_path), '..', '..', 'data', 'season_seed', 'pis_questions.json'
     )
     with open(json_path, 'r') as f:
         questions_from_json = json.load(f)

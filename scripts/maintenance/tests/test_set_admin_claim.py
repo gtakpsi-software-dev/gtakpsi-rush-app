@@ -78,6 +78,10 @@ class SetAdminClaimTests(unittest.TestCase):
             [event[0] for event in events],
             ["certificate", "initialize", "lookup", "set"],
         )
+        self.assertEqual(
+            (SCRIPT.parent / events[0][1]).resolve(),
+            SCRIPT.resolve().parents[2] / "firebase-service-account.json",
+        )
         self.assertEqual(events[2], ("lookup", "person@example.com"))
         self.assertEqual(events[3], ("set", "user-1", {
             "existing": True, "admin": True, "bidcom": True,

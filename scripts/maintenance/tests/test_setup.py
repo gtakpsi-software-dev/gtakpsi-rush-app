@@ -11,8 +11,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "scripts/season_setup/__main__.py"
-SEED_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "season_seed"
+SCRIPT = Path(__file__).resolve().parents[3] / "scripts/season_setup/__main__.py"
+SEED_DIRECTORY = Path(__file__).resolve().parents[3] / "data" / "season_seed"
 SEED_DATA = {
     "pis_timeslots.json": [{"time": "slot-one"}],
     "rush_nights.json": [{"name": "Night One"}],

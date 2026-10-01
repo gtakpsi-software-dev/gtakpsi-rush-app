@@ -81,6 +81,7 @@ class DeleteTestDataTests(unittest.TestCase):
         namespace, events, output, exit_code = run_cleanup(apply=True, execute=False)
 
         self.assertIn("main", namespace)
+        self.assertEqual(Path(namespace["REPO_ROOT"]), SCRIPT.resolve().parents[2])
         self.assertEqual(events, [])
         self.assertEqual(output, "")
         self.assertIsNone(exit_code)

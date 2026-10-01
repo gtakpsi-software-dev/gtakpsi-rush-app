@@ -142,6 +142,10 @@ class UpdatePledgeHeadshotsTests(unittest.TestCase):
     def test_direct_command_preserves_upload_and_database_update_order(self):
         _, events, output = run_script()
         names = [event[0] for event in events]
+        self.assertEqual(
+            Path(next(event[1] for event in events if event[0] == "dotenv")).resolve(),
+            SCRIPT.resolve().parents[2] / ".env",
+        )
         self.assertLess(names.index("dotenv"), names.index("certificate"))
         self.assertLess(names.index("firebase"), names.index("connect"))
         self.assertLess(names.index("ping"), names.index("listdir"))

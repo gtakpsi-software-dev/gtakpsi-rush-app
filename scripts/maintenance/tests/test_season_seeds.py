@@ -7,7 +7,7 @@ from unittest.mock import patch
 from scripts.season_setup.seeds import seed_data
 
 
-SEED_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "season_seed"
+SEED_DIRECTORY = Path(__file__).resolve().parents[3] / "data" / "season_seed"
 
 
 class SeedReplayTests(unittest.TestCase):

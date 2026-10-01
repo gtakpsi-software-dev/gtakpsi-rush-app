@@ -16,8 +16,8 @@ Setup (once):
     python3 -m pip install pymongo dnspython
 
 Usage (from anywhere):
-    python3 scripts-migrations/delete_test_data.py            # dry run
-    python3 scripts-migrations/delete_test_data.py --apply    # perform deletes
+    python3 scripts/maintenance/delete_test_data.py            # dry run
+    python3 scripts/maintenance/delete_test_data.py --apply    # perform deletes
 
 Connection string resolution order:
     1. --uri "<mongodb://...>"  CLI arg
@@ -35,7 +35,7 @@ from maintenance_commands.test_data_cleanup import run_cleanup
 
 APPLY = "--apply" in sys.argv
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def resolve_uri():

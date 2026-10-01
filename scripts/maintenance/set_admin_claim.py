@@ -17,7 +17,7 @@ from maintenance_commands.firebase_claims import apply_role_claims
 
 def initialize_firebase():
     # Service-account credentials must be loaded only on the server-side command path.
-    cred = credentials.Certificate("../firebase-service-account.json")
+    cred = credentials.Certificate("../../firebase-service-account.json")
     firebase_admin.initialize_app(cred)
 
 

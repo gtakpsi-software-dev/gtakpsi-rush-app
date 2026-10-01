@@ -106,6 +106,7 @@ class ImportRusheesTests(unittest.TestCase):
         self.assertEqual([event[0] for event in events], [
             "dotenv", "command", "database", "open", "delete", "insert", "count", "close",
         ])
+        self.assertEqual(Path(events[0][1]).resolve(), SCRIPT.resolve().parents[2] / ".env")
         self.assertEqual(events[4], ("delete", {}))
         self.assertEqual(events[6], ("count", {}))
         self.assertEqual(collection.inserted[0]["_id"], FakeObjectId("alpha"))

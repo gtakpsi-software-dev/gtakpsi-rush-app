@@ -109,6 +109,7 @@ class ResetRusheesForNewRushTests(unittest.TestCase):
             "dotenv", "connect", "ping", "database", "collection", "count",
             "delete", "count", "find", "update", "find_one", "close",
         ])
+        self.assertEqual(Path(events[0][1]).resolve(), SCRIPT.resolve().parents[2] / ".env")
         self.assertEqual(events[1], ("connect", "mongodb://offline-test", 10000))
         self.assertEqual(events[6][1]["gtid"].keys(), {"$nin"})
         self.assertEqual(set(events[6][1]["gtid"]["$nin"]), kept)

@@ -15,7 +15,7 @@ from maintenance_commands.rushee_import import replace_rushees
 
 
 def main():
-    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
     mongo_uri = os.getenv("MONGO_URI")
     if not mongo_uri:
@@ -30,7 +30,7 @@ def main():
     db = client["rush-app"]
     collection = db["rushees"]
 
-    json_path = os.path.join(os.path.dirname(__file__), '..', 'rush-app.rushees.json')
+    json_path = os.path.join(os.path.dirname(__file__), '..', '..', 'rush-app.rushees.json')
     print(f"Loading {json_path}...")
     with open(json_path, 'r') as file:
         rushees = json.load(file)

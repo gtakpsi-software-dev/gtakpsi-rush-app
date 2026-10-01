@@ -25,7 +25,7 @@ def resolve_mongo_uri(script_path, environ=None, repo_root=None):
     if environment.get(key):
         return environment[key]
 
-    root = Path(__file__).resolve().parents[2] if repo_root is None else Path(repo_root)
+    root = Path(__file__).resolve().parents[3] if repo_root is None else Path(repo_root)
     value = _read_env_value(root / ".env.migrations", key)
     if value:
         return value
