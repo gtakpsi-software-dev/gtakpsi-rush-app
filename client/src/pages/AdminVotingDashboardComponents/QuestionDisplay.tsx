@@ -3,11 +3,16 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import { adminPost } from "../../js/adminAxios";
 import { toast } from "react-toastify";
 
+/**
+ * Question Display Summary:
+ * - Removes unused context state and redundant comments without changing the UI.
+ * - Preserves the question-post then vote-clear request order.
+ */
 export default function QuestionDisplay() {
 
-    const { question, setQuestion } = useAdminVotingContext();
+    const { question } = useAdminVotingContext();
     const [editing, setEditing] = useState(false);
-    const [inputValue, setInputValue] = useState(question || ""); // fix this bug because question hasn't resolved yet, ashwin is too lazy
+    const [inputValue, setInputValue] = useState(question || "");
     const inputRef = useRef<HTMLInputElement>(null);
 
     const lambdaURL = import.meta.env.VITE_API_PREFIX;
@@ -16,13 +21,11 @@ export default function QuestionDisplay() {
         if (inputValue.trim() !== question) {
             const payload = { question: inputValue };
 
-            // Show loader → then success or error toast
             await toast.promise(
                 (async () => {
-                    // First, set the new question
                     await adminPost(`${lambdaURL}/admin/voting/post-question`, payload);
                     
-                    // Then, clear all existing votes since they're for the old question
+                    // Existing votes refer to the prior question and must be cleared after the update.
                     await adminPost(`${lambdaURL}/admin/voting/clear-votes`, {});
                     
                     return { success: true };
