@@ -1114,6 +1114,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and the production JS and CSS asset hashes match the preceding build after
     the container rename. Repository-wide ESLint now reports 281 errors and 17
     warnings. Live authenticated flow testing remains pending.
+196. Extracted the dashboard rushee card into an 84-line view, reducing the page
+    from 274 to 221 lines. Six dashboard markup fixtures pin loading, error,
+    empty, normal-card, midterm, and blocking-availability states; a callback
+    test pins the profile URL and midterm click gate. All 322 client tests pass,
+    the production build succeeds, and the CSS asset hash is unchanged. The
+    JavaScript bundle changes because the card is now a separate module.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1161,7 +1167,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 320 client tests, 41 server unit tests, 16 collaboration
+Current verified totals: 322 client tests, 41 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
