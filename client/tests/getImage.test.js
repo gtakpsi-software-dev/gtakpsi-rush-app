@@ -30,7 +30,9 @@ async function loadComponent({ showPreview = false, document = {}, setPreview = 
                 return { ...React, useState: () => [showPreview, setPreview] };
             }
             if (specifier === "react-webcam") {
-                return () => React.createElement("span", { "data-webcam": "" });
+                return function WebcamStub() {
+                    return React.createElement("span", { "data-webcam": "" });
+                };
             }
             return requireFromComponent(specifier);
         },

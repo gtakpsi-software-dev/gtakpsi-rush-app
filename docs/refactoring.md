@@ -1969,6 +1969,9 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     use outside the provider. All 497 client tests, typecheck, build, and
     changed-file ESLint pass; full lint falls to 10 errors and 26 warnings.
     The production CSS hash is unchanged; the JavaScript bundle changed.
+344. Named the registration camera's existing test stub so React lint can
+    identify it. All 497 client tests pass and full lint falls to 9 errors
+    and 26 warnings; production source and assets are unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1998,7 +2001,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 10 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 9 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
