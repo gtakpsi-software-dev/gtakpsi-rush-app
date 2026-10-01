@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import useAdminBootstrap from "../features/admin/bootstrap/useAdminBootstrap";
 import Loader from "../components/Loader";
 import useAdminAvailabilityEditor from "../features/admin/availability/useAdminAvailabilityEditor";
-import { createAvailabilityFormActions } from "../features/admin/availability/availabilityFormActions";
+import useAdminAvailabilityForm from "../features/admin/availability/useAdminAvailabilityForm";
 import {
     formatCurrentPISTime,
     formatSlotTime,
@@ -41,10 +41,9 @@ export default function Admin() {
     const [availableTimeslots, setAvailableTimeslots] = useState([]);
     const [selectedNewTimeslot, setSelectedNewTimeslot] = useState("");
 
-    // PIS Availability Form state
-    const [pisFormStatus, setPisFormStatus] = useState({ is_active: false, sent_at: null });
-    const [pisFormLoading, setPisFormLoading] = useState(false);
-    const [brotherAvailabilities, setBrotherAvailabilities] = useState([]);
+    const availabilityForm = useAdminAvailabilityForm({
+        apiBase, axios, toast, confirm: (message) => window.confirm(message),
+    });
     
     const {
         editingBrotherAvailability,
@@ -62,7 +61,7 @@ export default function Admin() {
     } = useAdminAvailabilityEditor({
         apiBase,
         getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
-        setBrotherAvailabilities,
+        setBrotherAvailabilities: availabilityForm.setBrotherAvailabilities,
         axios,
         toast,
     });
@@ -91,8 +90,8 @@ export default function Admin() {
         setBrothers,
         setRushees,
         setAvailableTimeslots,
-        setPisFormStatus,
-        setBrotherAvailabilities,
+        setPisFormStatus: availabilityForm.setPisFormStatus,
+        setBrotherAvailabilities: availabilityForm.setBrotherAvailabilities,
         setAllPisTimeslots,
         setRushAppStatus,
         setCommentVisibilityStatus,
@@ -157,23 +156,6 @@ export default function Admin() {
         toast,
     });
 
-    const {
-        handleSendPISForm,
-        handleClearAndResendPISForm,
-        handleDeactivatePISForm,
-        handleAutoAssignBrothers,
-        handleClearAssignments,
-    } = createAvailabilityFormActions({
-        apiBase,
-        pisFormStatus,
-        setPisFormStatus,
-        setPisFormLoading,
-        setBrotherAvailabilities,
-        axios,
-        toast,
-        confirm: (message) => window.confirm(message),
-    });
-
     if (loading) {
         return <Loader />;
     }
@@ -202,10 +184,7 @@ export default function Admin() {
             availableTimeslots, formatTimeslot, handleReschedulePIS,
         }}
         availability={{
-            pisFormStatus, pisFormLoading, brotherAvailabilities, handleSendPISForm,
-            handleDeactivatePISForm, handleClearAndResendPISForm,
-            openEditAvailability, handleAutoAssignBrothers, handleClearAssignments,
-            exportPISWithBrothers,
+            ...availabilityForm.view, openEditAvailability, exportPISWithBrothers,
         }}
     />;
 }

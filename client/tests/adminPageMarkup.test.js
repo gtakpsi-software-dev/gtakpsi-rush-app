@@ -17,6 +17,7 @@ const accessHookPath = fileURLToPath(new URL('../src/features/admin/access/useAd
 const bootstrapHookPath = fileURLToPath(new URL('../src/features/admin/bootstrap/useAdminBootstrap.js', import.meta.url));
 const managementHookPath = fileURLToPath(new URL('../src/features/admin/overview/useAdminManagementInputs.js', import.meta.url));
 const promotionHookPath = fileURLToPath(new URL('../src/features/admin/access/useAdminPromotion.js', import.meta.url));
+const formHookPath = fileURLToPath(new URL('../src/features/admin/availability/useAdminAvailabilityForm.js', import.meta.url));
 const sectionPath = fileURLToPath(new URL('../src/features/admin/overview/AdminExportsAccessSection.tsx', import.meta.url));
 const managementPath = fileURLToPath(new URL('../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/admin/overview/AdminPageView.tsx', import.meta.url));
@@ -144,6 +145,13 @@ async function loadAdmin(state = {}, captured = new Map()) {
         {
             react: dependencies.react,
             './promotionActions': { createPromotionActions: actions },
+        },
+    );
+    dependencies['../features/admin/availability/useAdminAvailabilityForm'] = await loadTsxComponent(
+        formHookPath,
+        {
+            react: dependencies.react,
+            './availabilityFormActions': { createAvailabilityFormActions: actions },
         },
     );
 
