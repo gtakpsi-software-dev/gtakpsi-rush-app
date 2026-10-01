@@ -9,6 +9,7 @@ pub use interview::{
 
 mod registration;
 pub use registration::signup;
+mod registration_record;
 
 mod queries;
 pub use queries::{does_rushee_exist, get_rushee, get_rushees};

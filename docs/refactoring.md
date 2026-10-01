@@ -1685,6 +1685,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     and legacy error-field spelling. The isolated profile contract now checks
     private fields stay absent and both missing-ID responses. All 57 server
     tests with the integration feature pass; changed Rust files pass rustfmt.
+291. Moved registration's stored rushee/PIS signup construction into a pure
+    mapper, reducing the handler from 136 to 65 lines. GTID validation, slot
+    reservation, code generation, insertion, and their response contracts keep
+    their original order. A unit test pins the shared PIS fields and defaults;
+    the isolated database contract checks the persisted code, signup, and
+    initial values. All 58 server tests with the integration feature pass;
+    changed Rust files pass rustfmt.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1740,9 +1747,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 429 client tests, 56 server unit tests, 19 collaboration
+Current verified totals: 429 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 57 server tests with the integration feature (including its
+feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 51 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

@@ -24,6 +24,16 @@ pub async fn check_contracts() {
     let code = register().await;
     assert_eq!(code.len(), 15);
     assert!(code.chars().all(|c| c.is_ascii_alphanumeric()));
+    let registered = stored_rushee().await;
+    assert_eq!(registered.access_code, code);
+    assert_eq!(registered.pis_signup.rushee_gtid, GTID);
+    assert_eq!(registered.pis_signup.rushee_first_name, "Test");
+    assert_eq!(registered.pis_signup.time, registered.pis_timeslot);
+    assert_eq!(registered.cloud, "none");
+    assert_eq!(registered.sorting_status, "UNSORTED");
+    assert!(registered.pis.is_empty());
+    assert!(registered.comments.is_empty());
+    assert!(registered.ratings.is_empty());
     assert_eq!(capacity(SLOT).await, 1);
     let duplicate = rushee::signup(Json(serde_json::from_value(signup_payload()).unwrap()))
         .await
