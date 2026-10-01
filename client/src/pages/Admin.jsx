@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { verifyUser } from "../features/auth/verifyUser";
 import Navbar from "../components/Navbar";
-import { loadAdminData } from "../features/admin/bootstrap/loadAdminData";
+import useAdminBootstrap from "../features/admin/bootstrap/useAdminBootstrap";
 import Loader from "../components/Loader";
 import AvailabilityEditorModal from "../features/admin/availability/AvailabilityEditorModal";
 import useAdminAvailabilityEditor from "../features/admin/availability/useAdminAvailabilityEditor";
@@ -26,8 +25,7 @@ import useAdminAccessSettings from "../features/admin/access/useAdminAccessSetti
 import { useAdminSearch } from "../features/admin/search/useAdminSearch";
 import AdminExportsAccessSection from "../features/admin/overview/AdminExportsAccessSection";
 import AdminManagementSection from "../features/admin/overview/AdminManagementSection";
-import { auth, db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { auth } from "../firebase";
 
 export default function Admin() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
@@ -104,38 +102,22 @@ export default function Admin() {
 
     const navigate = useNavigate();
 
-    const errorTitle = "Invalid User Credentials";
-    const errorDescription = "If this is a mistake, try logging back in";
-
-    useEffect(() => {
-        if (loading === true) {
-            loadAdminData({
-                verifyUser,
-                navigate,
-                errorTitle,
-                errorDescription,
-                auth,
-                allowlist,
-                axios,
-                db,
-                collection,
-                getDocs,
-                apiBase,
-                rusheeApiBase,
-                toast,
-                logError: (message, error) => console.error(message, error),
-                setBrothers,
-                setRushees,
-                setAvailableTimeslots,
-                setPisFormStatus,
-                setBrotherAvailabilities,
-                setAllPisTimeslots,
-                setRushAppStatus,
-                setCommentVisibilityStatus,
-                setLoading,
-            });
-        }
-    }, [loading, navigate, rusheeApiBase]);
+    useAdminBootstrap({
+        loading,
+        navigate,
+        allowlist,
+        apiBase,
+        rusheeApiBase,
+        setBrothers,
+        setRushees,
+        setAvailableTimeslots,
+        setPisFormStatus,
+        setBrotherAvailabilities,
+        setAllPisTimeslots,
+        setRushAppStatus,
+        setCommentVisibilityStatus,
+        setLoading,
+    });
 
     const { fetchPisQuestions, saveQuestionCategory } = createQuestionActions({
         apiBase,

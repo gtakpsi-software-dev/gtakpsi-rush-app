@@ -1744,6 +1744,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     JSX section byte-identical. Existing toggle-action and markup tests, all
     431 client tests, typecheck, build, and changed-file ESLint pass with the
     same two page warnings.
+302. Moved the admin bootstrap effect beside its existing loader service,
+    preserving its loading gate, dependency list, authorization inputs, and
+    setter order. `Admin.jsx` drops from 300 to 282 lines with byte-identical
+    JSX. A focused effect-wiring test and existing page fixtures pass; all 432
+    client tests, typecheck, build, and changed-file ESLint pass with the same
+    two dependency warnings across the page and hook.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1799,7 +1805,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 431 client tests, 57 server unit tests, 19 collaboration
+Current verified totals: 432 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 51 maintenance-script tests. The last
