@@ -64,6 +64,38 @@ class BasicMaintenanceTests(unittest.TestCase):
             namespace["add_attendance"]("1", "Night 1", rushees, nights)
         rushees.update_one.assert_not_called()
 
+    def test_add_attendance_keeps_missing_record_and_failed_update_responses(self):
+        namespace, _, _ = load_script("add_attendance.py", collections={})
+        rushees = MagicMock()
+        nights = MagicMock()
+        nights.find_one.return_value = None
+        nights.find.return_value = [{"name": "Night 2"}]
+
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as missing_night:
+            namespace["add_attendance"]("1", "Night 1", rushees, nights)
+        self.assertEqual(missing_night.exception.code, 1)
+        self.assertIn("No rush night found with name 'Night 1'", output.getvalue())
+        self.assertIn("  - Night 2", output.getvalue())
+        rushees.find_one.assert_not_called()
+
+        nights.find_one.return_value = {"name": "Night 1", "time": "tomorrow"}
+        rushees.find_one.return_value = None
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as missing_rushee:
+            namespace["add_attendance"]("1", "Night 1", rushees, nights)
+        self.assertEqual(missing_rushee.exception.code, 1)
+        self.assertIn("No rushee found with GTID 1", output.getvalue())
+        rushees.update_one.assert_not_called()
+
+        rushees.find_one.return_value = {"first_name": "Ada", "last_name": "Example", "attendance": []}
+        rushees.update_one.return_value.modified_count = 0
+        output = StringIO()
+        with redirect_stdout(output), self.assertRaises(SystemExit) as failed_update:
+            namespace["add_attendance"]("1", "Night 1", rushees, nights)
+        self.assertEqual(failed_update.exception.code, 1)
+        self.assertIn("Error: Failed to update rushee", output.getvalue())
+
     def test_add_tag_keeps_valid_tags_and_idempotent_updates(self):
         namespace, _, _ = load_script("add_sorting_tag.py", collections={})
         rushees = MagicMock()

@@ -1750,6 +1750,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     JSX. A focused effect-wiring test and existing page fixtures pass; all 432
     client tests, typecheck, build, and changed-file ESLint pass with the same
     two dependency warnings across the page and hook.
+303. Moved the attendance CLI's lookup, duplicate gate, and full-array update
+    into the maintenance command package while keeping its path, arguments,
+    importable function, connection setup, messages, and exit codes. The core
+    statement AST matches the original; new offline tests cover missing night,
+    missing rushee, and failed update. All 52 maintenance tests pass without a
+    database connection.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1808,7 +1814,7 @@ require PyMongo or a database connection.
 Current verified totals: 432 client tests, 57 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
-isolated database contract), plus 51 maintenance-script tests. The last
+isolated database contract), plus 52 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
