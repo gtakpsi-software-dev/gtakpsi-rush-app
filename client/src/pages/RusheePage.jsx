@@ -18,6 +18,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { base64ToBlob } from "../js/image_processing";
 import { verifyInfo } from "../js/verifications";
 import { submitProfileChanges } from "../features/rushee/self/submitProfileChanges";
+import { submitRusheePhoto } from "../features/rushee/self/submitRusheePhoto";
 
 export default function RusheePage() {
 
@@ -70,78 +71,22 @@ export default function RusheePage() {
     }, [loading, api, gtid, link, navigate]);
 
 
-    const handlePhotoSubmit = async () => {
-
-        setLoading(true)
-
-        try {
-            // Create a unique filename with timestamp
-            const fileName = `profile-pictures/${gtid}_${Date.now()}.jpg`;
-            const storageRef = ref(storage, fileName);
-
-            // Convert base64 to blob and upload to Firebase Storage
-            const blob = base64ToBlob(image);
-            await uploadBytes(storageRef, blob);
-            
-            // Get the download URL
-            const imageUrl = await getDownloadURL(storageRef);
-
-            const payload = [
-                {
-                    "field": "image_url",
-                    "new_value": imageUrl,
-                }
-            ]
-
-            await axios.post(`${api}/rushee/update-rushee/${gtid}`, payload)
-                .then((response) => {
-
-                    if (response.data.status == "success") {
-
-                        window.location.reload()
-
-                    } else {
-
-                        toast.error(`${response.data.message}`, {
-                            position: "top-center",
-                            autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "dark",
-                        });
-
-                    }
-
-                })
-                .catch((error) => {
-
-                    toast.error(`Some internal network error occurred`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
-
-                })
-
-        } catch (error) {
-
-            console.error("Error uploading image:", error);
-            navigate(`/error/${"Uh Oh! Something Unexpected Occurred.."}/${"There was an error uploading your image to the cloud."}`)
-            return;
-
-        }
-
-        setLoading(false)
-
-    }
+    const handlePhotoSubmit = () => submitRusheePhoto({
+        image,
+        gtid,
+        api,
+        storage,
+        setLoading,
+        makeStorageRef: ref,
+        toBlob: base64ToBlob,
+        upload: uploadBytes,
+        getDownloadUrl: getDownloadURL,
+        post: (...args) => axios.post(...args),
+        toast,
+        reload: () => window.location.reload(),
+        navigate,
+        logger: console,
+    });
 
     const handleSubmit = (e) => submitProfileChanges(e, {
         rushee,
