@@ -1,4 +1,5 @@
 .env
+.env.migrations
 firebase-service-account.json
 *.json.bak
 

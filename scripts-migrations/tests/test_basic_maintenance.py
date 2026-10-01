@@ -22,7 +22,8 @@ def load_script(name, execute=False, argv=None, collections=None):
     pymongo.MongoClient = lambda uri: events.append(("connect", uri)) or client
 
     with patch.dict(sys.modules, {"pymongo": pymongo}):
-        with patch.dict(os.environ, {"MONGO_URI": "mongodb://offline-test"}, clear=True):
+        key = f"{Path(name).stem.upper()}_MONGO_URI"
+        with patch.dict(os.environ, {key: "mongodb://offline-test"}, clear=True):
             with patch.object(sys, "argv", argv or [name]):
                 output = StringIO()
                 with redirect_stdout(output):

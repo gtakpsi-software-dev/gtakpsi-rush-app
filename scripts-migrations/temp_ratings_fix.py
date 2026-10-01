@@ -1,11 +1,12 @@
 from pymongo import MongoClient
+from lib.mongo_config import resolve_mongo_uri
 import pandas as pd
 from tqdm import tqdm
 
 import requests
 
 def main():
-    mongo_uri = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/"
+    mongo_uri = resolve_mongo_uri(__file__)
     client = MongoClient(mongo_uri)
 
     db = client["rush-app"]

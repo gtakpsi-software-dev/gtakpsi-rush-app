@@ -16,7 +16,7 @@ from lib.mongo_config import resolve_mongo_uri
 def add_attendance(gtid: str, night_name: str, rushee_collection=None, rush_nights_collection=None):
     """Add attendance for a rush night to a rushee by GTID."""
     if rushee_collection is None or rush_nights_collection is None:
-        client = MongoClient(resolve_mongo_uri())
+        client = MongoClient(resolve_mongo_uri(__file__))
         db = client["rush-app"]
         rushee_collection = db["rushees"]
         rush_nights_collection = db["rush-nights"]

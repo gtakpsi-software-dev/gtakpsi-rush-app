@@ -8,7 +8,7 @@ from lib.mongo_config import resolve_mongo_uri
 
 def check_closed_night(rushee_collection=None):
     if rushee_collection is None:
-        client = MongoClient(resolve_mongo_uri())
+        client = MongoClient(resolve_mongo_uri(__file__))
         rushee_collection = client["rush-app"]["rushees"]
 
     print("=" * 60)

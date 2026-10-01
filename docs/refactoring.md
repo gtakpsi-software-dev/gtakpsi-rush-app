@@ -781,6 +781,18 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     import safety, and fake-collection behavior. All 36 maintenance tests and
     Python compilation pass; no live database command ran. Five other scripts
     still contain the credential and remain in the next slice.
+133. Remaining maintenance credentials: replaced the embedded URI in the
+    malformed-comment scan, rushee export, ratings repair, PIS spreadsheet,
+    and Night 1 migration scripts with the shared resolver. The spreadsheet
+    script now waits until its direct command to connect. A compatibility check
+    found two distinct old targets, both different from the app's local MongoDB
+    settings. Each affected script now resolves only its own URI key from the
+    environment or ignored root `.env.migrations`; the local file retains the
+    script-to-target mapping for this checkout. Tests cover refusal to use a
+    generic app URI, the spreadsheet projection/export, and Night 1 updates.
+    All 38 maintenance tests and Python compilation pass; no live database
+    command ran. No migration Python file retains the embedded URI. The exposed
+    credentials in Git history still require rotation outside this repository.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -798,8 +810,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Decompose large client pages into feature components and hooks while preserving
   JSX, classes, effect dependencies, request order, and state ownership.
 - Organize maintenance scripts and seed data without running destructive scripts.
-- Replace embedded database credentials in migration scripts with verified local
-  configuration, then rotate the exposed credential outside this repository.
+- Rotate the formerly embedded MongoDB credential outside this repository and
+  verify the new URI in local/deployment configuration.
 - Consolidate verification commands and CI; resolve lint findings in verified
   slices; document setup, service naming, and remaining integration limits.
 
@@ -828,7 +840,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 246 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 36 maintenance-script tests. The last
+tests with the integration feature, plus 38 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated

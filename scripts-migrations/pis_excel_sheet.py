@@ -1,22 +1,22 @@
-from pymongo import MongoClient
 from datetime import datetime
+
 import pandas as pd
+from pymongo import MongoClient
 
-# MongoDB connection
-mongo_uri = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/"
-client = MongoClient(mongo_uri)
+from lib.mongo_config import resolve_mongo_uri
 
-# Access database and collection
-db = client["rush-app"]
-rushee_collection = db["rushees"]
 
 def format_datetime(dt):
     if isinstance(dt, datetime):
-        return dt.strftime("%Y-%m-%d %H:%M:%S")  # Adjust the format as needed
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
     return dt
 
-# Fetch PIS signup information
-def fetch_pis_signups():
+
+def fetch_pis_signups(rushee_collection=None):
+    if rushee_collection is None:
+        client = MongoClient(resolve_mongo_uri(__file__))
+        rushee_collection = client["rush-app"]["rushees"]
+
     pipeline = [
         {"$project": {
             "_id": 0,
@@ -36,9 +36,8 @@ def fetch_pis_signups():
     ]
     return list(rushee_collection.aggregate(pipeline))
 
-# Create Excel sheet
+
 def create_excel(data):
-    # Normalize the nested PISSignup data into a flat structure
     flattened_data = []
     for item in data:
         if "pis_signup" in item and item["pis_signup"]:
@@ -53,15 +52,13 @@ def create_excel(data):
                 "Second Brother Last Name": item["pis_signup"].get("second_brother_last_name", ""),
             })
 
-    # Create a DataFrame
     df = pd.DataFrame(flattened_data)
 
-    # Save to Excel
     output_file = "PIS_Signups.xlsx"
     df.to_excel(output_file, index=False)
     print(f"Excel sheet created: {output_file}")
 
-# Main function
+
 if __name__ == "__main__":
     pis_signups = fetch_pis_signups()
     create_excel(pis_signups)

@@ -19,21 +19,16 @@ def _read_env_value(path, key):
     return None
 
 
-def resolve_mongo_uri(environ=None, repo_root=None):
+def resolve_mongo_uri(script_path, environ=None, repo_root=None):
+    key = f"{Path(script_path).stem.upper()}_MONGO_URI"
     environment = os.environ if environ is None else environ
-    for key in ("MONGO_URI", "MONGO_URL"):
-        if environment.get(key):
-            return environment[key]
+    if environment.get(key):
+        return environment[key]
 
     root = Path(__file__).resolve().parents[2] if repo_root is None else Path(repo_root)
-    for path, key in (
-        (root / ".env", "MONGO_URI"),
-        (root / ".env", "MONGO_URL"),
-        (root / "server" / ".env", "MONGO_URL"),
-    ):
-        value = _read_env_value(path, key)
-        if value:
-            return value
+    value = _read_env_value(root / ".env.migrations", key)
+    if value:
+        return value
 
-    # INVARIANT: never fall back to a source-controlled URI for maintenance commands.
-    raise SystemExit("ERROR: Set MONGO_URI or MONGO_URL, or provide it in .env")
+    # INVARIANT: each script needs its own target; generic app URIs can point elsewhere.
+    raise SystemExit(f"ERROR: Set {key} or provide it in .env.migrations")

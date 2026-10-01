@@ -25,7 +25,7 @@ def add_tag(gtid: str, tag: str, rushee_collection=None):
         sys.exit(1)
     
     if rushee_collection is None:
-        client = MongoClient(resolve_mongo_uri())
+        client = MongoClient(resolve_mongo_uri(__file__))
         rushee_collection = client["rush-app"]["rushees"]
 
     rushee = rushee_collection.find_one({"gtid": gtid})

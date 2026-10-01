@@ -1,3 +1,4 @@
+import os
 import runpy
 import sys
 import types
@@ -41,7 +42,8 @@ class CommentValidationTests(unittest.TestCase):
         pymongo.MongoClient = lambda _uri: client
         script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
 
-        with patch.dict(sys.modules, {"pymongo": pymongo}):
+        with patch.dict(sys.modules, {"pymongo": pymongo}), \
+             patch.dict(os.environ, {"FIND_MALFORMED_COMMENTS_MONGO_URI": "mongodb://offline-test"}, clear=True):
             script = runpy.run_path(str(script_path))
             output = StringIO()
             with redirect_stdout(output):

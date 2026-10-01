@@ -8,9 +8,9 @@ Behavior:
 """
 
 from pymongo import MongoClient
+from lib.mongo_config import resolve_mongo_uri
 import sys
 
-MONGO_URL = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/?connectTimeoutMS=3000&socketTimeoutMS=300000"
 DB_NAME = "rush-app"
 RUSHEE_COLLECTION = "rushees"
 RUSH_NIGHTS_COLLECTION = "rush-nights"
@@ -32,7 +32,7 @@ def get_night_one(rush_nights):
 
 def main():
     try:
-        client = MongoClient(MONGO_URL)
+        client = MongoClient(resolve_mongo_uri(__file__))
         db = client[DB_NAME]
         rush_nights = db[RUSH_NIGHTS_COLLECTION]
         rushees = db[RUSHEE_COLLECTION]

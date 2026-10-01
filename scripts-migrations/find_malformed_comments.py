@@ -5,17 +5,15 @@ that could be causing dashboard loading errors.
 """
 
 from pymongo import MongoClient
+from lib.mongo_config import resolve_mongo_uri
 import sys
 
 from lib.comment_validation import check_comment_structure
 
-# MongoDB connection string from your codebase
-MONGO_URL = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/?connectTimeoutMS=3000&socketTimeoutMS=300000"
-
 def connect_to_database():
     """Connect to MongoDB database"""
     try:
-        client = MongoClient(MONGO_URL)
+        client = MongoClient(resolve_mongo_uri(__file__))
         db = client["rush-app"]
         collection = db["rushees"]
         

@@ -37,10 +37,17 @@ REDIS_URL=rediss://...
 ### Setup Script (.env in root)
 
 ```env
+MONGO_URI=mongodb+srv://...
 API=https://your-railway-backend-url.railway.app
 FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
+
+The eight maintenance scripts that previously embedded a MongoDB URI now require
+a script-specific setting, such as `DATA_PULL_MONGO_URI` for `data_pull.py`.
+Set it in the environment or in a root `.env.migrations` file. That file is
+ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
+`MONGO_URL` because their original database targets can differ.
 
 ## Tests
 
