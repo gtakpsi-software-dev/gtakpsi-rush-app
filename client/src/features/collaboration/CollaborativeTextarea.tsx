@@ -105,6 +105,7 @@ const CollaborativeTextarea = ({
             setLocalValue,
             lastSentValueRef: lastSentValue,
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Local typing must not replay a stale parent value.
     }, [value, collaboration, questionKey]);
 
     useEffect(() => {

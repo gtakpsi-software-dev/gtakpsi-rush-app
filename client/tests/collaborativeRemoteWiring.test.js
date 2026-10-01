@@ -29,6 +29,7 @@ const fields = [
 for (const field of fields) {
     test(`${field.name} retains its remote delay and change callback contract`, async () => {
         const effects = [];
+        const effectDependencies = [];
         const helperCalls = [];
         const changes = [];
         const noOp = () => {};
@@ -40,7 +41,10 @@ for (const field of fields) {
                 ...React,
                 useRef: (initial) => ({ current: initial }),
                 useState: (initial) => [initial, noOp],
-                useEffect: (effect) => effects.push(effect),
+                useEffect: (effect, dependencies) => {
+                    effects.push(effect);
+                    effectDependencies.push(Array.from(dependencies));
+                },
                 useCallback: (callback) => callback,
             },
             '../features/collaboration/activeCursorsForField.js': {
@@ -74,6 +78,9 @@ for (const field of fields) {
             collaboration,
         });
 
+        assert.deepEqual(effectDependencies[0], field.name === 'textarea'
+            ? ['Old', collaboration, 'notes']
+            : ['Old', 'Old']);
         effects[1]();
         assert.equal(helperCalls.length, 1);
         assert.equal(helperCalls[0].remoteUpdates, remoteUpdates);

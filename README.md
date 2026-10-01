@@ -103,8 +103,8 @@ after the WebSocket tests.
 
 [Regression checks](.github/workflows/regression.yml) run these suites, scoped
 client lint, typecheck, and build on pushes and pull requests. Scoped lint checks
-all client files except `Attendance.jsx` and rejects new warnings above the
-current baseline of 1. Repository-wide lint remains tracked separately in
+all client files except `Attendance.jsx` and rejects any warnings.
+Repository-wide lint remains tracked separately in
 [the refactoring ledger](docs/refactoring.md#slice-ledger) because Attendance has eight
 existing undefined-setter errors. The workflow has not run on GitHub yet.
 
