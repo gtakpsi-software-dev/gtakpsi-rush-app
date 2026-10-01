@@ -1337,6 +1337,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     are unchanged. Isolated rustfmt passes; all 46 API unit tests and 47
     disposable-Mongo integration-feature tests pass, including same-column and
     cross-column moves.
+231. Separated the public rushee self-view endpoint and its query-param test
+    from general rushee queries, reducing `queries.rs` from 185 to 133 lines.
+    The route export, access-code check, response body, and privacy projection
+    remain unchanged. Isolated rustfmt and all 47 disposable-Mongo
+    integration-feature tests pass, including the self-service access-code and
+    privacy contracts.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

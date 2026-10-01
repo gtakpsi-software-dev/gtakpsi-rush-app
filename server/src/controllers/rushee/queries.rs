@@ -3,13 +3,11 @@ use crate::middlewares::{
     attendance,
     rush_nights::{enrich_interactions_by_night, interactions_by_night},
 };
-use crate::models::rushee::{RusheeModel, RusheeSelfView, StrippedRushee};
-use axum::extract::Query;
+use crate::models::rushee::{RusheeModel, StrippedRushee};
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use mongodb::Collection;
-use serde::Deserialize;
 use serde_json::{json, Value};
 
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
@@ -107,53 +105,6 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct SelfViewParams {
-    code: Option<String>,
-}
-
-/// Public self-service view for a rushee's own record (used by the
-/// `/rushee/:gtid/:link` page). Requires the rushee's access code as a
-/// `?code=` query param, validated server-side, and returns only a safe
-/// subset of fields — never comments, sorting notes/status, ratings, or the
-/// access code itself, since those are internal to bid committee/brothers.
-pub async fn get_rushee_self(
-    Path(id): Path<String>,
-    Query(params): Query<SelfViewParams>,
-) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
-
-    let result = connection.find_one(doc! {"gtid": id.clone()}).await;
-
-    match result {
-        Ok(Some(rushee)) => {
-            let provided_code = params.code.unwrap_or_default();
-            if provided_code.is_empty() || provided_code != rushee.access_code {
-                return Ok(Json(json!({
-                    "status": "error",
-                    "message": "Invalid access code"
-                })));
-            }
-
-            let view: RusheeSelfView = rushee.into();
-            Ok(Json(json!({
-                "status": "success",
-                "payload": view
-            })))
-        }
-
-        Ok(None) => Ok(Json(json!({
-            "status": "error",
-            "message": format!("Rushee with GTID {} does not exist", id)
-        }))),
-
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "some network error occurred when fetching the rushee"
-        }))),
-    }
-}
-
 pub async fn does_rushee_exist(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
@@ -180,6 +131,3 @@ pub async fn does_rushee_exist(Path(id): Path<String>) -> Result<Json<Value>, St
         }))),
     }
 }
-
-#[cfg(test)]
-mod tests;

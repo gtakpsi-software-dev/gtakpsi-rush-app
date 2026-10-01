@@ -11,7 +11,10 @@ mod registration;
 pub use registration::signup;
 
 mod queries;
-pub use queries::{does_rushee_exist, get_rushee, get_rushee_self, get_rushees};
+pub use queries::{does_rushee_exist, get_rushee, get_rushees};
+
+mod self_view;
+pub use self_view::get_rushee_self;
 
 mod attendance;
 pub use attendance::{get_rush_nights, update_attendance};
