@@ -2006,6 +2006,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Single-file rustfmt, all 58 API unit tests, and all 59 tests in the
     isolated MongoDB integration run pass. The Firebase wire format and role
     behavior remain unchanged.
+351. Moved the PIS WebSocket service's pure legacy text transforms into
+    `src/operations/legacyText.js`, distinct from its event handler with the
+    similar name. The implementation is byte-for-byte unchanged; the handler
+    and tests now import the new location. All 22 service tests, including
+    loopback protocol coverage, pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

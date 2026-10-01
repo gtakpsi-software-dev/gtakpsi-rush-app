@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { transformOperation, applyOperation } = require('../legacyTextOperations');
+const { transformOperation, applyOperation } = require('../operations/legacyText');
 const { joinedRoom } = require('./joinedRoom');
 
 function registerLegacyTextOperationHandlers(socket, rooms, userSockets) {

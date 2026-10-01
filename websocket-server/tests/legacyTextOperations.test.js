@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { transformOperation, applyOperation } = require('../src/legacyTextOperations');
+const { transformOperation, applyOperation } = require('../src/operations/legacyText');
 
 test('transforms preserve insertion ties, deletion clamping, and untouched operations', () => {
     const operation = { type: 'insert', position: 4, content: 'B' };
