@@ -1149,6 +1149,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     live vote updates. A unit test pins valid JSON values, malformed-entry
     filtering, empty tallies, and exact event text. All four voting tests pass
     with disposable Redis and real admin/voter WebSockets; rustfmt is clean.
+202. Moved bid committee dashboard filtering into a tested feature helper,
+    reducing the page from 334 to 299 lines without changing its effect or
+    render markup. Three tests pin exact nine-digit GTID matching, major/class
+    selection, input identity, and first/last/registration sorting. All 326
+    client tests pass, the production build succeeds, and the CSS asset hash
+    remains unchanged. Full browser parity remains unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1196,7 +1202,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 323 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 326 client tests, 43 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last

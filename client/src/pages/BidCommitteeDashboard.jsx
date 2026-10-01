@@ -8,6 +8,7 @@ import Loader from "../components/Loader";
 import Badges from "../components/Badge";
 import RusheeInteractionsByNight from "../components/RusheeInteractionsByNight";
 import { verifyUser } from "../features/auth/verifyUser";
+import { filterBidCommitteeRushees } from "../features/dashboard/bidCommitteeList";
 import Button from "../components/Button";
 
 export default function BidCommitteeDashboard(props) {
@@ -122,47 +123,10 @@ export default function BidCommitteeDashboard(props) {
     };
 
     const handleFilters = () => {
-        let filtered = rushees;
-
-        // Filter by major
-        if (selectedMajor !== "All") {
-            filtered = filtered.filter((rushee) => rushee.major === selectedMajor);
-        }
-
-        // Filter by class
-        if (selectedClass !== "All") {
-            filtered = filtered.filter((rushee) => rushee.class === selectedClass);
-        }
-
-        // Filter by query (search by GTID only)
-        if (query.trim() !== "") {
-            // Only allow 9-digit GTID for exact matching
-            if (query.trim().length === 9 && /^[0-9]+$/.test(query.trim())) {
-                const exactMatch = filtered.find(rushee => rushee.gtid === query.trim());
-                if (exactMatch) {
-                    filtered = [exactMatch];
-                } else {
-                    filtered = []; // No results for exact GTID match
-                }
-            } else {
-                // Invalid GTID format - show no results
-                filtered = [];
-            }
-        }
-
-        // Sort by selected criterion
-        if (selectedSort === "firstName") {
-            filtered = [...filtered].sort((a, b) => a.name.split(" ")[0].localeCompare(b.name.split(" ")[0]));
-        } else if (selectedSort === "lastName") {
-            filtered = [...filtered].sort((a, b) => {
-                const aLastName = a.name.split(" ").slice(-1)[0];
-                const bLastName = b.name.split(" ").slice(-1)[0];
-                return aLastName.localeCompare(bLastName);
-            });
-        } else if (selectedSort === "rusheeId") {
-            // Sort by registration order (sequential number)
-            filtered = [...filtered].sort((a, b) => a.registration_order - b.registration_order);
-        }
+        const filtered = filterBidCommitteeRushees(
+            rushees,
+            { selectedMajor, selectedClass, query, selectedSort }
+        );
 
         console.log(filtered);
         setFilteredRushees(filtered);
@@ -332,4 +296,4 @@ export default function BidCommitteeDashboard(props) {
             )}
         </div>
     );
-} 
+}
