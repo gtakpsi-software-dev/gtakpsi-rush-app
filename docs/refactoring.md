@@ -753,6 +753,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the build succeeds, and CSS is unchanged. `Dashboard.jsx` is now 327 lines.
     ESLint has the same 10 errors and two warnings on this page as at the start
     of the slice; the new helper and tests pass lint.
+129. Dashboard loading: moved the existing verification, Firestore availability
+    check, rushee fetch, and error transitions into an injected helper. Five
+    tests preserve success ordering, the missing-profile fallback, navigation
+    after failed verification, and distinct response/network errors. All 240
+    client tests pass, the build succeeds, and CSS is unchanged. `Dashboard.jsx`
+    is now 274 lines; its 10 ESLint errors and two warnings are unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -798,7 +804,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 235 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
+Current verified totals: 240 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`

@@ -20,6 +20,7 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useCommentVisibility } from "../hooks/useCommentVisibility";
 import { filterDashboardRushees, shuffleArray } from "../features/dashboard/list";
+import { loadDashboardData } from "../features/dashboard/loadDashboardData";
 
 export default function Dashboard(props) {
     const { isMidtermMode } = useMidtermMode();
@@ -47,79 +48,25 @@ export default function Dashboard(props) {
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
-        async function fetch() {
-            setLoading(true);
-            await verifyUser()
-                .then(async (response) => {
-                    if (response === false) {
-                        navigate("/");
-                    }
-
-                    // Check if brother needs to fill out PIS availability form
-                    const currentUser = auth.currentUser;
-                    if (currentUser) {
-                        try {
-                            // Get brother data from Firestore
-                            const brotherDoc = await getDoc(doc(db, "brothers", currentUser.uid));
-                            if (brotherDoc.exists()) {
-                                setBrotherData({
-                                    uid: currentUser.uid,
-                                    email: currentUser.email,
-                                    ...brotherDoc.data()
-                                });
-                            } else {
-                                setBrotherData({
-                                    uid: currentUser.uid,
-                                    email: currentUser.email,
-                                    firstName: '',
-                                    lastName: ''
-                                });
-                            }
-
-                            // Check if form is active and brother hasn't submitted
-                            const checkResponse = await axios.post(`${api}/brother/pis-availability/check`, {
-                                brother_uid: currentUser.uid
-                            });
-                            
-                            if (checkResponse.data.status === "success" && checkResponse.data.needs_form) {
-                                setShowAvailabilityModal(true);
-                            }
-                        } catch (err) {
-                            console.log("Error checking PIS availability:", err);
-                        }
-                    }
-
-                    await axios
-                        .get(`${api}/rushee/get-rushees`)
-                        .then((response) => {
-                            if (response.data.status === "success") {
-
-                                console.log(response.data.payload.length)
-
-                                const shuffledRushees = shuffleArray(response.data.payload); // Shuffle the array
-                                setRushees(shuffledRushees);
-                                setFilteredRushees(shuffledRushees);
-
-                            } else {
-                                setErrorDescription("There was some issue fetching the rushees");
-                                setError(true);
-                            }
-                        })
-                        .catch(() => {
-                            setErrorDescription("There was some network error while fetching the rushees.");
-                            setError(true);
-                        });
-                })
-                .catch(() => {
-                    setErrorDescription("There was an error verifying your credentials.");
-                    setError(true);
-                });
-
-            setLoading(false);
-        }
-
         if (loading === true) {
-            fetch();
+            loadDashboardData({
+                verifyUser,
+                navigate,
+                auth,
+                db,
+                doc,
+                getDoc,
+                axios,
+                api,
+                shuffleArray,
+                setLoading,
+                setBrotherData,
+                setShowAvailabilityModal,
+                setRushees,
+                setFilteredRushees,
+                setErrorDescription,
+                setError,
+            });
         }
     }, [loading, navigate]);
 
