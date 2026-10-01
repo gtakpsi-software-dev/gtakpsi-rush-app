@@ -1571,6 +1571,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     417 client tests pass. Typecheck passes, the new hook is lint-clean, and
     controlled CSS is byte-identical. The JS bundle changes with the module
     extraction; the workflow's first GitHub run remains unverified.
+271. Added a pinned TypeScript-aware ESLint parser and scoped React/unused-name
+    rules to all 69 TSX components. The previously invisible typed-code baseline
+    is 31 errors and 7 warnings; JS/JSX remains at 122 errors and 19 warnings.
+    Lint is still tracked debt and is not a CI gate until findings are resolved.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1590,8 +1594,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Organize maintenance scripts and seed data without running destructive scripts.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
-- Add TSX lint, resolve findings in verified slices, and add a complete lint
-  gate; document setup,
+- Resolve JS/JSX and TSX lint findings in verified slices, then add a complete
+  lint gate; document setup,
   service naming, and remaining integration limits.
 
 ## Verification
@@ -1599,9 +1603,9 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
-for the test runner. Run `npm --prefix client run lint` for configured JS/JSX lint;
-the current baseline has 122 errors and 19 warnings, so it is tracked debt,
-not a passing check. The ESLint config still excludes TSX.
+for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
+and TSX lint; the current baseline has 153 errors and 26 warnings (including
+31 errors and 7 warnings in TSX), so it is tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 
