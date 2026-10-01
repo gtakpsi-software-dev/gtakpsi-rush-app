@@ -11,6 +11,7 @@ import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
+const contactPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileContactFields.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeProfileForm.json", import.meta.url));
 const rushee = {
     first_name: "Ada", last_name: "One", housing: "Hall",
@@ -19,9 +20,11 @@ const rushee = {
 };
 
 async function loadForm() {
+    const RusheeProfileContactFields = await loadTsxComponent(contactPath);
     return loadTsxComponent(componentPath, {
         "../../../data/majorOptions.js": { MAJOR_OPTIONS },
         "../../../data/profileOptions.js": { PRONOUN_OPTIONS, YEAR_OPTIONS },
+        "./RusheeProfileContactFields": RusheeProfileContactFields,
     });
 }
 
@@ -30,7 +33,8 @@ function collect(node, elements = []) {
         node.forEach((child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
-        collect(node.props.children, elements);
+        if (typeof node.type === "function") collect(node.type(node.props), elements);
+        else collect(node.props.children, elements);
     }
     return elements;
 }
@@ -77,5 +81,20 @@ test("phone input mutates the event with the existing partial and full formats",
         phone.props.onChange(event);
         assert.equal(event.target.value, expected);
         assert.equal(calls.at(-1), event);
+    }
+});
+
+test("profile contact values and regular changes still reach their inputs", async () => {
+    const RusheeProfileForm = await loadForm();
+    const onChange = () => {};
+    const nodes = collect(RusheeProfileForm({ rushee, onSubmit() {}, onChange }));
+    for (const [name, value] of [
+        ["housing", "Hall"],
+        ["email", "ada@example.com"],
+        ["gtid", "123456789"],
+    ]) {
+        const input = nodes.find((node) => node.type === "input" && node.props.name === name);
+        assert.equal(input.props.value, value);
+        assert.equal(input.props.onChange, onChange);
     }
 });
