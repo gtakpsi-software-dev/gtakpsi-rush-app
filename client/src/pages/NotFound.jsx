@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -95,7 +95,12 @@ const LiquidShader = () => {
     );
 };
 
-export default function NotFound(props) {
+/**
+ * Not Found Summary:
+ * - Removes unused inputs while keeping the shader and overlay structure.
+ * - Keeps the visible message and Go Back navigation unchanged.
+ */
+export default function NotFound() {
 
     const navigate = useNavigate()
 
@@ -135,7 +140,7 @@ export default function NotFound(props) {
                 <h1 className="text-3xl font-bold text-white mt-6 text-center">404</h1>
 
                 {/* Description */}
-                <p className="text-lg text-white mt-3 text-center max-w-xl">Sorry, we couldn't find this page!</p>
+                <p className="text-lg text-white mt-3 text-center max-w-xl">Sorry, we {"couldn't"} find this page!</p>
 
                 <button onClick={() => {
                     navigate("/")
