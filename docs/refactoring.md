@@ -1082,6 +1082,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the page. Four tests pin verification/fetch ordering, per-slot Map updates,
     chronological grouping, empty data, and error routing. All 303 client tests
     pass; the new helper and tests pass ESLint.
+190. Wired the brother PIS page to the tested loader, reducing the page from
+    239 to 178 lines without changing its JSX or effect dependencies. All 303
+    client tests pass; the production JS and CSS asset hashes match the previous
+    build. The page's existing ESLint count remains four errors and one warning.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
