@@ -2293,6 +2293,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     default values, and independent state objects. The zoom page markup and
     comment-action tests pass before and after; all 528 client tests, typecheck,
     targeted lint, and production build pass. Built CSS retains its prior hash.
+399. Named the incoming-string filter used by PIS timeslot update and delete
+    lookup, with an invariant comment explaining why its BSON type cannot be
+    changed under this parity contract. Shared response construction across
+    the timeslot handlers without changing messages or status fields. Targeted
+    rustfmt and all 65 isolated integration-feature server tests pass before
+    and after the refactor.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
