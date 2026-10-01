@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import axios from "axios";
-import { STATUSES, TAGS, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
+import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
+import ViewerSortingColumn from "../features/sorting/ViewerSortingColumn";
 import SortingZoomControls from "../features/sorting/SortingZoomControls";
 import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
 import SortingGhostCards from "../features/sorting/SortingGhostCards";
@@ -57,7 +58,7 @@ export default function BrotherSorting() {
             } else {
                 toast.error("Failed to load rushees");
             }
-        } catch (err) {
+        } catch {
             toast.error("Failed to load rushees");
         } finally {
             setLoading(false);
@@ -185,59 +186,6 @@ export default function BrotherSorting() {
         return () => canvas.removeEventListener("wheel", handleWheel);
     }, [loading]);
 
-    const renderColumn = (col) => {
-        const items = columns[col.key] || [];
-        
-        return (
-            <div
-                key={col.key}
-                className="bg-white/90 backdrop-blur-sm border-2 rounded-apple-xl shadow-sm p-4 w-64 border-apple-gray-200"
-            >
-                <div className="flex justify-between items-center mb-3">
-                    <div className="text-apple-headline text-black font-medium">{col.label}</div>
-                    <div className="text-apple-caption2 text-apple-gray-600 bg-apple-gray-100 px-2 py-0.5 rounded-full">{items.length}</div>
-                </div>
-                <div className="space-y-1 min-h-[60px]">
-                    {items.map((r) => (
-                        <div
-                            key={r.id}
-                            data-card
-                            onClick={() => openDetails(r)}
-                            className="p-3 rounded-apple-lg border-2 bg-white hover:shadow-md cursor-pointer select-none transition-all border-apple-gray-200 hover:border-apple-gray-300"
-                        >
-                            {/* Show name for brothers */}
-                            <div className="text-apple-body text-black font-medium">
-                                {r.fullName}
-                            </div>
-                            {/* Tags */}
-                            {r.sortingTags && r.sortingTags.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                    {r.sortingTags.map((tagKey) => {
-                                        const tagInfo = TAGS.find((t) => t.key === tagKey);
-                                        if (!tagInfo) return null;
-                                        return (
-                                            <span
-                                                key={tagKey}
-                                                className={`text-xs px-2 py-0.5 rounded-full border ${tagInfo.color}`}
-                                            >
-                                                {tagInfo.label}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                    {items.length === 0 && (
-                        <div className="text-apple-caption2 text-center py-6 border-2 border-dashed rounded-apple-lg border-apple-gray-200 text-apple-gray-500">
-                            Empty
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
@@ -287,7 +235,15 @@ export default function BrotherSorting() {
                     }}
                 >
                     <div className="flex gap-4 p-6">
-                        {STATUSES.map((col) => renderColumn(col))}
+                        {STATUSES.map((col) => (
+                            <ViewerSortingColumn
+                                key={col.key}
+                                col={col}
+                                columns={columns}
+                                showRusheeNames={true}
+                                onOpen={openDetails}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
@@ -306,4 +262,3 @@ export default function BrotherSorting() {
         </div>
     );
 }
-
