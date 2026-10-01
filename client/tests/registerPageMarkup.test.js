@@ -13,6 +13,7 @@ import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Register.jsx", import.meta.url));
+const hookPath = fileURLToPath(new URL("../src/features/registration/useRegistrationFormState.js", import.meta.url));
 const stagePath = fileURLToPath(new URL("../src/features/registration/RegistrationStageView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/registerPageMarkup.json", import.meta.url));
 const noop = () => {};
@@ -42,21 +43,24 @@ async function loadPage(state = {}, captured = new Map()) {
     const module = { exports: {} };
     const requireFromPage = createRequire(pagePath);
     let stateIndex = 0;
-    const dependencies = {
-        react: {
-            ...React,
-            useState(initial) {
-                const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, noop];
-            },
-            useRef: () => ({ current: undefined }),
+    const react = {
+        ...React,
+        useState(initial) {
+            const index = stateIndex++;
+            return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        useRef: () => ({ current: undefined }),
+    };
+    const formState = await loadTsxComponent(hookPath, { react });
+    const dependencies = {
+        react,
         axios: { post: noop },
         "../features/registration/BasicInfoForm": basicInfo,
         "../features/registration/photo/PhotoCaptureStep": photo,
         "../features/registration/pis/PisSignUpStep": pis,
         "../features/registration/RegistrationStageView": stage,
         "../features/registration/RegistrationSuccessView": stub("success"),
+        "../features/registration/useRegistrationFormState": formState,
         "../components/Navbar": stub("navbar"),
         "../components/Loader": loader,
         "react-toastify": { toast: {} },

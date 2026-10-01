@@ -2454,6 +2454,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     markup hashes remain unchanged, and a new test pins modal close and retake
     state updates. All 538 client tests, typecheck, build, and scoped lint pass;
     CSS retains its prior hash.
+424. Moved registration's 19 state hooks and 11 refs into
+    `features/registration/useRegistrationFormState.js`, leaving submit actions
+    and stage selection in the route. The hook keeps the original call order,
+    field-to-setter pairs, and PIS form keys; the route is now 110 lines instead
+    of 174. A new test pins initial state, ref order, and every payload field;
+    existing stage markup and submit fixtures pass. All 539 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2513,7 +2520,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 538 client tests, 66 server unit tests, 25 collaboration
+Current verified totals: 539 client tests, 66 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 67 server tests with the integration feature (including its
 isolated database contract), plus 61 maintenance-script tests. The last

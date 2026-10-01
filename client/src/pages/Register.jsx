@@ -1,4 +1,3 @@
-import { useState, useRef } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
@@ -6,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import RegistrationStageView from "../features/registration/RegistrationStageView";
 import RegistrationSuccessView from "../features/registration/RegistrationSuccessView";
+import useRegistrationFormState from "../features/registration/useRegistrationFormState";
 
 import { useNavigate } from "react-router-dom";
 import { verifyInfo } from "../features/registration/registrationVerification";
@@ -19,61 +19,23 @@ import { createPisSubmit } from "../features/registration/createPisSubmit";
 export default function Register() {
     const api = import.meta.env.VITE_API_PREFIX;
 
-    const [firstnameVal, setFirstnameVal] = useState();
-    const [lastnameVal, setLastnameVal] = useState();
-    const [emailVal, setEmailVal] = useState();
-    const [housingVal, setHousingVal] = useState();
-    const [phoneVal, setPhoneVal] = useState();
-    const [gtidVal, setGtidVal] = useState();
-    const [majorVal, setMajorVal] = useState();
-    const [pronounsVal, setPronounsVal] = useState();
-    const [yearVal, setYearVal] = useState();
-    const [exposureVal, setExposureVal] = useState();
-
-    const [page, setPage] = useState(0);
-    const [currLoading, setCurrLoading] = useState(false);
-
-    const [error, setError] = useState(null);
-    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something Unexpected Occurred..");
-    const [errorDescription, setErrorDescription] = useState("Default Error Message...");
-
-    const [image, setImage] = useState();
-    const [selectedSlot, setSelectedSlot] = useState(null);
-    const [flexWindow, setFlexWindow] = useState(false);
-
-    const [accessCode, setAccessCode] = useState();
-
-    const firstname = useRef();
-    const lastname = useRef();
-    const email = useRef();
-    const housing = useRef();
-    const phone = useRef();
-    const gtid = useRef();
-    const major = useRef();
-    const pronouns = useRef();
-    const year = useRef();
-    const exposure = useRef();
-
-    const webcamRef = useRef();
+    const {
+        inputs, basicInfoFields, pisForm,
+        page, setPage, currLoading, setCurrLoading,
+        error, setError, errorTitle, setErrorTitle,
+        errorDescription, setErrorDescription,
+        image, setImage, selectedSlot, setSelectedSlot,
+        flexWindow, setFlexWindow, accessCode, setAccessCode,
+        gtidVal, webcamRef,
+    } = useRegistrationFormState();
 
     const navigate = useNavigate();
 
     const basicInfoSubmit = createBasicInfoSubmit({
-        fields: [
-            [firstname, setFirstnameVal],
-            [lastname, setLastnameVal],
-            [email, setEmailVal],
-            [housing, setHousingVal],
-            [phone, setPhoneVal],
-            [gtid, setGtidVal],
-            [major, setMajorVal],
-            [pronouns, setPronounsVal],
-            [year, setYearVal],
-            [exposure, setExposureVal],
-        ],
-        gtid,
-        email,
-        phone,
+        fields: basicInfoFields,
+        gtid: inputs.gtid,
+        email: inputs.email,
+        phone: inputs.phone,
         verifyInfo,
         setCurrLoading,
         setPage,
@@ -87,21 +49,7 @@ export default function Register() {
 
     const pisSubmit = createPisSubmit({
         api,
-        form: {
-            firstName: firstnameVal,
-            lastName: lastnameVal,
-            housing: housingVal,
-            phone: phoneVal,
-            email: emailVal,
-            gtid: gtidVal,
-            major: majorVal,
-            year: yearVal,
-            pronouns: pronounsVal,
-            exposure: exposureVal,
-            selectedSlot,
-            flexWindow,
-            image,
-        },
+        form: pisForm,
         pageError: error,
         errorTitle,
         errorDescription,
@@ -141,19 +89,7 @@ export default function Register() {
                 <RegistrationStageView
                     page={page}
                     loading={currLoading}
-                    basicInfoProps={{
-                        firstname,
-                        lastname,
-                        email,
-                        housing,
-                        phone,
-                        gtid,
-                        major,
-                        pronouns,
-                        year,
-                        exposure,
-                        onContinue: basicInfoSubmit,
-                    }}
+                    basicInfoProps={{ ...inputs, onContinue: basicInfoSubmit }}
                     photoProps={{
                         webcamRef,
                         image,
