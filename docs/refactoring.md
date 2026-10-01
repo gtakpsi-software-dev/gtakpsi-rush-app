@@ -1524,6 +1524,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests pass and controlled CSS is byte-identical. The configured JS/JSX lint
     count falls to 131 errors and 19 warnings, but TSX is not yet linted or
     typechecked; this count does not prove the moved controller is lint-clean.
+264. Moved interview-question category grouping and one-per-bucket random draw
+    into `controllers/rushee/interview/selection.rs`. The handler still draws
+    only inside the reveal window, persists the same assigned-question field,
+    and sorts the same response. Injected-RNG tests cover bucket insertion
+    order, fixed-question exclusion, empty buckets, and one selection per
+    category. All 48 API unit tests and 49 guarded database integration tests
+    pass. The changed Rust files pass rustfmt; repository-wide formatting still
+    reports pre-existing differences in unrelated files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1579,9 +1587,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 415 client tests, 46 server unit tests, 19 collaboration
+Current verified totals: 415 client tests, 48 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 47 server tests with the integration feature (including its
+feature, and 49 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

@@ -3,9 +3,9 @@ use crate::models::pis::PISQuestion;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, to_bson};
-use rand::Rng;
 use serde_json::{json, Value};
-use std::collections::HashMap;
+
+use super::selection::{category_buckets, draw_one_per_bucket};
 
 /// How long before a rushee's PIS timeslot their randomized bucket
 /// questions become visible/get assigned.
@@ -109,28 +109,12 @@ pub async fn get_pis_interview_questions(
     }
 
     // First time within the reveal window: randomly draw one question per category.
-    let mut by_category: HashMap<String, Vec<PISQuestion>> = HashMap::new();
-    for question in all_questions.into_iter() {
-        if let Some(category) = &question.category {
-            by_category
-                .entry(category.clone())
-                .or_default()
-                .push(question);
-        }
-    }
+    let by_category = category_buckets(all_questions);
 
     // Scoped so the (non-Send) ThreadRng is dropped before any `.await` below.
     let assigned_questions: Vec<PISQuestion> = {
         let mut rng = rand::thread_rng();
-        let mut assigned_questions: Vec<PISQuestion> = Vec::new();
-        for (_category, bucket) in by_category.into_iter() {
-            if bucket.is_empty() {
-                continue;
-            }
-            let idx = rng.gen_range(0..bucket.len());
-            assigned_questions.push(bucket[idx].clone());
-        }
-        assigned_questions
+        draw_one_per_bucket(by_category, &mut rng)
     };
 
     let assigned_bson = match to_bson(&assigned_questions) {
