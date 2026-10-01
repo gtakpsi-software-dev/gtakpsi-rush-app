@@ -2,6 +2,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 
 import Badges from "../../../components/Badge";
 import CommentWarning from "../../../components/CommentWarning";
+import type { CommentWarningItem } from "../../../components/CommentWarning";
 import { formatRatingValue } from "../../../js/ratingDisplay";
 
 type Comment = {
@@ -10,8 +11,6 @@ type Comment = {
     night: { name: string };
     ratings: { name: string; value: number | string }[];
 };
-
-type Warning = { type: string; message: string };
 
 type ExistingCommentListProps = {
     visibleComments: Comment[];
@@ -23,8 +22,8 @@ type ExistingCommentListProps = {
     handleDeleteComment: (comment: Comment) => void;
     setEditedCommentText: (text: string) => void;
     validateEditComment: (text: string) => void;
-    editCommentWarnings: Warning[];
-    setEditCommentWarnings: (warnings: Warning[]) => void;
+    editCommentWarnings: CommentWarningItem[];
+    setEditCommentWarnings: (warnings: CommentWarningItem[]) => void;
     handleSubmitEdit: (comment: Comment) => void;
 };
 

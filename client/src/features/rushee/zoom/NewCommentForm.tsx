@@ -1,7 +1,6 @@
 import CommentWarning from "../../../components/CommentWarning";
+import type { CommentWarningItem } from "../../../components/CommentWarning";
 import RatingSlider from "../../../components/RatingSlider";
-
-type Warning = { type: string; message: string };
 
 type NewCommentFormProps = {
     isAddingComment: boolean;
@@ -9,8 +8,8 @@ type NewCommentFormProps = {
     newComment: string;
     setNewComment: (text: string) => void;
     validateNewComment: (text: string) => void;
-    commentWarnings: Warning[];
-    setCommentWarnings: (warnings: Warning[]) => void;
+    commentWarnings: CommentWarningItem[];
+    setCommentWarnings: (warnings: CommentWarningItem[]) => void;
     ratingFields: string[];
     ratings: Record<string, number>;
     ratingNotSeen: Record<string, boolean>;

@@ -1,11 +1,23 @@
 import { FaExclamationTriangle, FaUser, FaComment } from 'react-icons/fa';
 
-const CommentWarning = ({ warnings, onDismiss }) => {
+/**
+ * Comment Warning Summary:
+ * - Shares the warning shape with both comment forms so their contracts stay aligned.
+ * - Keeps warning order, icon selection, and dismissal indices unchanged.
+ */
+export type CommentWarningItem = { type: string; message: string };
+
+type Props = {
+    warnings?: CommentWarningItem[] | null;
+    onDismiss?: (index: number) => void;
+};
+
+const CommentWarning = ({ warnings, onDismiss }: Props) => {
     if (!warnings || warnings.length === 0) {
         return null;
     }
 
-    const getIcon = (type) => {
+    const getIcon = (type: string) => {
         switch (type) {
             case 'speculative':
                 return <FaComment className="text-yellow-600" />;
@@ -16,7 +28,7 @@ const CommentWarning = ({ warnings, onDismiss }) => {
         }
     };
 
-    const getWarningClass = (type) => {
+    const getWarningClass = (type: string) => {
         switch (type) {
             case 'speculative':
                 return 'border-yellow-200 bg-yellow-50';
@@ -56,4 +68,4 @@ const CommentWarning = ({ warnings, onDismiss }) => {
     );
 };
 
-export default CommentWarning; 
+export default CommentWarning;
