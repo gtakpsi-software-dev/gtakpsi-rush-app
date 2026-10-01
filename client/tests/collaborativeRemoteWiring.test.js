@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import React from 'react';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 import { syncPropValue } from '../src/features/collaboration/syncPropValue.js';
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from '../src/features/collaboration/scheduleLocalChangeTimers.js';
 
 const fields = [
     {
@@ -53,6 +54,7 @@ for (const field of fields) {
             './reconcileRemoteFieldUpdate.js': { reconcileRemoteFieldUpdate: RemoteHelper },
             '../features/collaboration/syncPropValue.js': { syncPropValue },
             './syncPropValue.js': { syncPropValue },
+            './scheduleLocalChangeTimers.js': { clearLocalChangeTimers, scheduleLocalChangeTimers },
         });
         const remoteUpdates = [{ field: 'notes', value: 'Remote', version: 3 }];
         const collaboration = {

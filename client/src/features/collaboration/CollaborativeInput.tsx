@@ -4,6 +4,7 @@ import type { ChangeEvent, FocusEvent, MouseEvent } from 'react';
 import { activeCursorsForField } from './activeCursorsForField.js';
 import CollaborativeInputView from './CollaborativeInputView';
 import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from './scheduleLocalChangeTimers.js';
 import { syncPropValue } from './syncPropValue.js';
 import type { CollaborationEditorSession } from './CollaborationEditorSession';
 
@@ -51,22 +52,19 @@ const CollaborativeInput = ({
         lastLocalInputTimeRef.current = Date.now();
         onChange(newValue);
         
-        // Clear any existing pending timeout and set a new one
-        // This ensures pendingLocalChangeRef doesn't stay stuck forever
-        if (pendingLocalChangeTimeoutRef.current) {
-            clearTimeout(pendingLocalChangeTimeoutRef.current);
-        }
-        pendingLocalChangeTimeoutRef.current = setTimeout(() => {
-            pendingLocalChangeRef.current = false;
-        }, 2000); // Force clear after 2 seconds max
-        
-        if (collaboration.isConnected) {
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-            debounceTimerRef.current = setTimeout(() => {
-                collaboration.sendTextUpdate(fieldKey, newValue);
-                lastSentValue.current = newValue;
-            }, 300);
-        }
+        scheduleLocalChangeTimers({
+            pendingLocalChangeRef,
+            pendingLocalChangeTimeoutRef,
+            debounceTimerRef,
+            collaboration,
+            fieldKey,
+            value: newValue,
+            lastSentValueRef: lastSentValue,
+            debounceMs: 300,
+            allowSend: true,
+            schedule: setTimeout,
+            cancel: clearTimeout,
+        });
     }, [fieldKey, onChange, collaboration]);
 
     const handleCursorChange = useCallback(() => {
@@ -144,8 +142,9 @@ const CollaborativeInput = ({
 
     useEffect(() => {
         return () => {
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-            if (pendingLocalChangeTimeoutRef.current) clearTimeout(pendingLocalChangeTimeoutRef.current);
+            clearLocalChangeTimers({
+                debounceTimerRef, pendingLocalChangeTimeoutRef, cancel: clearTimeout,
+            });
         };
     }, []);
 

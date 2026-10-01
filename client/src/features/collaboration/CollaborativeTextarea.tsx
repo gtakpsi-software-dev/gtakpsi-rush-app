@@ -4,6 +4,7 @@ import type { ChangeEvent, CompositionEvent, FocusEvent, MouseEvent, SyntheticEv
 import { activeCursorsForField } from './activeCursorsForField.js';
 import CollaborativeTextareaView from './CollaborativeTextareaView';
 import { reconcileRemoteFieldUpdate } from './reconcileRemoteFieldUpdate.js';
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from './scheduleLocalChangeTimers.js';
 import { syncPropValue } from './syncPropValue.js';
 import type { CollaborationEditorSession } from './CollaborationEditorSession';
 
@@ -51,22 +52,19 @@ const CollaborativeTextarea = ({
         lastLocalInputTimeRef.current = Date.now();
         onChange(questionKey, newValue, { source: 'typing' });
         
-        // Clear any existing pending timeout and set a new one
-        // This ensures pendingLocalChangeRef doesn't stay stuck forever
-        if (pendingLocalChangeTimeoutRef.current) {
-            clearTimeout(pendingLocalChangeTimeoutRef.current);
-        }
-        pendingLocalChangeTimeoutRef.current = setTimeout(() => {
-            pendingLocalChangeRef.current = false;
-        }, 2000); // Force clear after 2 seconds max
-        
-        if (!isComposing && collaboration.isConnected) {
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-            debounceTimerRef.current = setTimeout(() => {
-                collaboration.sendTextUpdate(questionKey, newValue);
-                lastSentValue.current = newValue;
-            }, 450);
-        }
+        scheduleLocalChangeTimers({
+            pendingLocalChangeRef,
+            pendingLocalChangeTimeoutRef,
+            debounceTimerRef,
+            collaboration,
+            fieldKey: questionKey,
+            value: newValue,
+            lastSentValueRef: lastSentValue,
+            debounceMs: 450,
+            allowSend: !isComposing,
+            schedule: setTimeout,
+            cancel: clearTimeout,
+        });
     }, [questionKey, onChange, collaboration, isComposing]);
 
     const handleCursorChange = useCallback((e: SyntheticEvent<HTMLTextAreaElement>) => {
@@ -155,8 +153,9 @@ const CollaborativeTextarea = ({
 
     useEffect(() => {
         return () => {
-            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-            if (pendingLocalChangeTimeoutRef.current) clearTimeout(pendingLocalChangeTimeoutRef.current);
+            clearLocalChangeTimers({
+                debounceTimerRef, pendingLocalChangeTimeoutRef, cancel: clearTimeout,
+            });
         };
     }, []);
 

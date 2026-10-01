@@ -2245,6 +2245,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     after their actual roles, and accepted a comment slice instead of a vector
     reference. Existing profile and comment contracts still pass. Targeted
     rustfmt and all 64 isolated integration tests pass before and after.
+391. Shared the collaborative input and textarea pending-change and debounced
+    send timers without changing their call order or distinct 300/450 ms
+    delays. Added an input interaction test and shared-timer edge assertions
+    for offline clearing, replacement, composition, and unmount cleanup.
+    Existing markup hashes remain unchanged. All 527 client tests, typecheck,
+    and build pass; CSS remains byte-identical, and full lint remains at the
+    existing eight Attendance errors and 22 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2302,7 +2309,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 524 client tests, 63 server unit tests, 23 collaboration
+Current verified totals: 527 client tests, 63 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 64 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last

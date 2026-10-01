@@ -9,6 +9,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
 import { reconcileRemoteFieldUpdate } from "../src/features/collaboration/reconcileRemoteFieldUpdate.js";
 import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../src/features/collaboration/scheduleLocalChangeTimers.js";
 
 const components = {
     input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInput.tsx", import.meta.url)),
@@ -40,6 +41,7 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
             "./reconcileRemoteFieldUpdate.js": { reconcileRemoteFieldUpdate },
             "../features/collaboration/syncPropValue.js": { syncPropValue },
             "./syncPropValue.js": { syncPropValue },
+            "./scheduleLocalChangeTimers.js": { clearLocalChangeTimers, scheduleLocalChangeTimers },
             "../features/collaboration/CollaborativeInputView": View,
             "./CollaborativeInputView": View,
             "../features/collaboration/CollaborativeTextareaView": View,
