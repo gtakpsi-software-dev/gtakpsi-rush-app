@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import {
+    acceptRemoteTextUpdate,
+    acknowledgeTextUpdate,
+    rejectTextUpdate,
+    normalizeDocumentState,
+} from '../features/pis/collaborationProtocol.js';
 
 export const useCollaboration = (roomId, currentUser) => {
     const [socket, setSocket] = useState(null);
@@ -83,67 +89,30 @@ export const useCollaboration = (roomId, currentUser) => {
                 });
             });
 
-            // handle full-text updates
             socketRef.current.on('text-update', (data) => {
-                // ignore own updates
-                if (data.userId === currentUser.id) return;
-
-                const field = data.field;
-                const incomingVersion = typeof data.version === 'number'
-                    ? data.version
-                    : (knownVersionsRef.current[field] || 0) + 1; // backward compat
-
-                // Ignore stale or duplicate updates
-                if ((knownVersionsRef.current[field] || 0) >= incomingVersion) {
-                    return;
-                }
-
-                knownVersionsRef.current[field] = incomingVersion;
-                
-                // Skip pushing to remoteUpdates if we're currently resending for this field
-                // Our pending value takes priority
-                if (resendingFieldsRef.current.has(field)) {
-                    return;
-                }
-                
-                setRemoteUpdates(prev => [...prev, { ...data, version: incomingVersion }].slice(-100));
-            });
-
-            // Ack from server that our update committed
-            socketRef.current.on('text-ack', ({ field, version, clientUpdateId }) => {
-                const pending = pendingUpdatesRef.current[field];
-                if (pending && pending.clientUpdateId === clientUpdateId) {
-                    knownVersionsRef.current[field] = version;
-                    delete pendingUpdatesRef.current[field];
-                    // Clear resending flag if it was set
-                    resendingFieldsRef.current.delete(field);
+                const update = acceptRemoteTextUpdate(
+                    data, currentUser.id, knownVersionsRef.current, resendingFieldsRef.current
+                );
+                if (update) {
+                    setRemoteUpdates(prev => [...prev, update].slice(-100));
                 }
             });
 
-            // Reject from server due to version mismatch. Replace with serverValue and rebase pending
-            socketRef.current.on('text-reject', ({ field, serverValue, serverVersion, clientUpdateId }) => {
-                knownVersionsRef.current[field] = serverVersion;
+            socketRef.current.on('text-ack', (ack) => {
+                acknowledgeTextUpdate(
+                    ack, knownVersionsRef.current, pendingUpdatesRef.current, resendingFieldsRef.current
+                );
+            });
 
-                const pending = pendingUpdatesRef.current[field];
-                if (pending && pending.clientUpdateId === clientUpdateId) {
-                    // Mark field as resending to prevent remote update from overwriting local value
-                    resendingFieldsRef.current.add(field);
-                    
-                    // Re-send pending value atop the latest server version
-                    const newId = Math.random().toString(36).substr(2, 9);
-                    pendingUpdatesRef.current[field] = { clientUpdateId: newId, value: pending.value };
-
-                    socketRef.current.emit('text-update', {
-                        field,
-                        value: pending.value,
-                        baseVersion: serverVersion,
-                        clientUpdateId: newId,
-                        userId: currentUser.id,
-                        userName: `${currentUser.firstName} ${currentUser.lastName}`
-                    });
+            socketRef.current.on('text-reject', (rejection) => {
+                const result = rejectTextUpdate(
+                    rejection, currentUser, knownVersionsRef.current,
+                    pendingUpdatesRef.current, resendingFieldsRef.current
+                );
+                if (result.resend) {
+                    socketRef.current.emit('text-update', result.resend);
                 } else {
-                    // No pending update to resend, accept server value
-                    setRemoteUpdates(prev => [...prev, { field, value: serverValue, version: serverVersion, userId: 'server' }].slice(-100));
+                    setRemoteUpdates(prev => [...prev, result.remoteUpdate].slice(-100));
                 }
             });
 
@@ -186,21 +155,7 @@ export const useCollaboration = (roomId, currentUser) => {
             });
 
             socketRef.current.on('document-state', (state) => {
-                // Normalize shape to { field: value } and capture versions separately
-                const values = {};
-                const versions = {};
-
-                for (const [field, payload] of Object.entries(state || {})) {
-                    if (payload && typeof payload === 'object' && 'value' in payload) {
-                        values[field] = payload.value ?? '';
-                        versions[field] = typeof payload.version === 'number' ? payload.version : 0;
-                    } else {
-                        // Backward compatibility for older server
-                        values[field] = payload ?? '';
-                        versions[field] = 0;
-                    }
-                }
-
+                const { values, versions } = normalizeDocumentState(state);
                 setDocumentState(values);
                 setDocumentVersions(versions);
                 knownVersionsRef.current = versions;
