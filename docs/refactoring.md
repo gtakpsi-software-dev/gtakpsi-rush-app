@@ -28,17 +28,18 @@ Services currently deployed independently:
 | `server/api` | API, authentication, persistence | Axum / MongoDB / Redis |
 | `broadcaster` | Voting updates | Axum WebSocket / Redis |
 | `sorting-broadcaster` | Shared sorting sessions | Axum WebSocket |
-| `websocket-server` | Collaborative PIS editing | Socket.IO |
+| `server/websockets/pis` | Collaborative PIS editing | Socket.IO |
 
-The API source now lives at `server/api`; its Railway service root must point
-there before this branch is deployed. Executable names, routes, runtime events,
-and JSON names remain unchanged. Move the three socket services into
-`server/websockets/{pis,sorting,voting}` in subsequent verified slices.
+The API and PIS socket sources now live at `server/api` and
+`server/websockets/pis`; their deployment roots must point there before this
+branch is deployed. Executable names, routes, runtime events, and JSON names
+remain unchanged. Move the sorting and voting services under
+`server/websockets/` in subsequent verified slices.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
-PIS editing is `rush-pis-websocket`. Their existing service directories remain
-the deployment roots. The Rust binaries remain `broadcaster` and
+PIS editing is `rush-pis-websocket`. The Rust services retain their original
+deployment roots until moved. The Rust binaries remain `broadcaster` and
 `sorting-broadcaster`, matching the current Dockerfiles.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
@@ -55,7 +56,7 @@ The verified atomic slices are archived by range:
 
 ## Remaining work
 
-- Move and rename the three real-time services under
+- Move and rename the remaining two real-time services under
   `server/websockets/{pis,sorting,voting}`. Update CI, test runners, local
   commands, and Railway roots without changing socket URLs or event payloads.
 - Finish dense client page and feature boundaries, including Admin, Rushee Zoom,
@@ -94,7 +95,7 @@ Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
 On this Mac, auth and route tests need normal system access: inside the
 filesystem sandbox, macOS Dynamic Store initialization panics before those
 tests run. The full suite passes with normal system access.
-Collaboration tests use `npm --prefix websocket-server test` and require permission
+Collaboration tests use `npm --prefix server/websockets/pis test` and require permission
 to bind local ports; their pinned Socket.IO client is a development dependency.
 The two sorting WebSocket loopback tests also require local port access; the
 remaining eight sorting tests pass inside the filesystem sandbox.

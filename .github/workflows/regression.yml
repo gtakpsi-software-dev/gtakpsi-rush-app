@@ -32,9 +32,9 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: websocket-server/package-lock.json
-      - run: npm --prefix websocket-server ci
-      - run: npm --prefix websocket-server test
+          cache-dependency-path: server/websockets/pis/package-lock.json
+      - run: npm --prefix server/websockets/pis ci
+      - run: npm --prefix server/websockets/pis test
 
   api:
     runs-on: ubuntu-24.04

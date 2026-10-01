@@ -83,7 +83,7 @@ initialization; its role-claim lookup, update, and reporting live in
 npm --prefix client run lint:ci
 npm --prefix client test
 npm --prefix client run typecheck
-npm --prefix websocket-server test
+npm --prefix server/websockets/pis test
 cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
 scripts/testing/api-integration.sh
@@ -127,6 +127,12 @@ The backend is deployed automatically via Railway when you push to the main bran
 
 Set the API service's Railway root directory to `server/api`. Its Dockerfile and
 `railway.toml` live there; the binary name and HTTP routes are unchanged.
+
+### PIS collaboration service
+
+Set this Socket.IO service's deployment root to `server/websockets/pis`. Run it
+there with `npm start`; its package name, port default, and event protocol are
+unchanged.
 
 ## Setup Script
 
