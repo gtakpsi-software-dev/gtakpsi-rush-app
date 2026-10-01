@@ -679,6 +679,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     state and timer refs. A new test covers bidcom fetch and save paths with
     tag updates. All 211 client tests pass, the build succeeds, and CSS has
     no new difference. `BidComSorting.jsx` is now 418 lines.
+116. Bid Committee Sorting WebSocket messages: moved the viewer event switch
+    into a focused protocol module. Tests cover counts, drag ghosts and
+    timestamps, card refreshes, unknown messages, and the redacted viewer
+    label. All 216 client tests pass, the build succeeds, and CSS has no new
+    difference. `BidComSorting.jsx` is now 348 lines; new files pass lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -724,7 +729,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 211 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 216 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
