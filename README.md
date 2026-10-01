@@ -73,6 +73,9 @@ package.
 `scripts-migrations/data_pull.py` keeps its command path and `rushees.xlsx`
 output; the export columns and row mapping live in
 `scripts-migrations/maintenance_commands/rushee_export.py`.
+`scripts-migrations/set_admin_claim.py` keeps its CLI flags and Firebase
+initialization; its role-claim lookup, update, and reporting live in
+`scripts-migrations/maintenance_commands/firebase_claims.py`.
 
 ## Tests
 

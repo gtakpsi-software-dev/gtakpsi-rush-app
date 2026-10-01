@@ -11,7 +11,10 @@ from unittest.mock import patch
 SCRIPT = Path(__file__).resolve().parents[1] / "set_admin_claim.py"
 
 
-def run_script(arguments=(), execute=True, user_exists=True):
+def run_script(
+    arguments=(), execute=True, user_exists=True, existing_claims=None,
+    set_failure=None,
+):
     events = []
     firebase_admin = types.ModuleType("firebase_admin")
     firebase_admin._apps = []
@@ -27,11 +30,17 @@ def run_script(arguments=(), execute=True, user_exists=True):
         events.append(("lookup", email))
         if not user_exists:
             raise UserNotFoundError()
-        return types.SimpleNamespace(uid="user-1", email=email, custom_claims={"existing": True})
+        claims = {"existing": True} if existing_claims is None else existing_claims
+        return types.SimpleNamespace(uid="user-1", email=email, custom_claims=claims)
 
     auth.UserNotFoundError = UserNotFoundError
     auth.get_user_by_email = get_user_by_email
-    auth.set_custom_user_claims = lambda uid, claims: events.append(("set", uid, claims))
+    def set_custom_user_claims(uid, claims):
+        events.append(("set", uid, claims))
+        if set_failure is not None:
+            raise set_failure
+
+    auth.set_custom_user_claims = set_custom_user_claims
     firebase_admin.credentials = credentials
     firebase_admin.auth = auth
     modules = {
@@ -40,7 +49,8 @@ def run_script(arguments=(), execute=True, user_exists=True):
         "firebase_admin.auth": auth,
     }
 
-    with patch.dict(sys.modules, modules):
+    with patch.dict(sys.modules, modules), \
+         patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
         with patch.object(sys, "argv", [str(SCRIPT), *arguments]):
             output = StringIO()
             with redirect_stdout(output):
@@ -64,7 +74,10 @@ class SetAdminClaimTests(unittest.TestCase):
     def test_direct_command_keeps_initialization_and_claim_update_order(self):
         _, events, output, exit_code = run_script(("person@example.com", "--admin", "--bidcom"))
         self.assertIsNone(exit_code)
-        self.assertEqual([event[0] for event in events], ["certificate", "initialize", "lookup", "set"])
+        self.assertEqual(
+            [event[0] for event in events],
+            ["certificate", "initialize", "lookup", "set"],
+        )
         self.assertEqual(events[2], ("lookup", "person@example.com"))
         self.assertEqual(events[3], ("set", "user-1", {
             "existing": True, "admin": True, "bidcom": True,
@@ -82,6 +95,26 @@ class SetAdminClaimTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual([event[0] for event in events], ["certificate", "initialize", "lookup"])
         self.assertIn("No user found with email missing@example.com", output)
+
+    def test_bidcom_only_preserves_existing_admin_and_other_claims(self):
+        _, events, output, exit_code = run_script(
+            ("person@example.com", "--bidcom"),
+            existing_claims={"admin": False, "other": "keep"},
+        )
+        self.assertIsNone(exit_code)
+        self.assertEqual(events[-1], ("set", "user-1", {
+            "admin": False, "other": "keep", "bidcom": True,
+        }))
+        self.assertIn("admin: False", output)
+        self.assertIn("bidcom: True", output)
+
+    def test_claim_write_failure_keeps_error_and_exit_status(self):
+        _, events, output, exit_code = run_script(
+            ("person@example.com", "--admin"), set_failure=RuntimeError("offline"),
+        )
+        self.assertEqual(exit_code, 1)
+        self.assertEqual([event[0] for event in events], ["certificate", "initialize", "lookup", "set"])
+        self.assertIn("Error: offline", output)
 
 
 if __name__ == "__main__":

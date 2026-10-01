@@ -2542,6 +2542,13 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     and load balancing across successive plans. The full 68-test server suite
     and changed-file Rust formatting check pass. Repository-wide formatting
     still reports unrelated existing differences.
+436. Moved the Firebase user lookup, role-claim merge/write, and result messages
+    from `scripts-migrations/set_admin_claim.py` into
+    `maintenance_commands/firebase_claims.py`. The entrypoint retains its
+    command path, credential initialization, CLI argument gate, and public
+    `set_custom_claims` function. Two new fake-SDK tests pin bidcom-only claim
+    preservation and write-failure output. All 64 offline maintenance tests
+    and Python compilation pass; no live Firebase request ran.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2604,7 +2611,7 @@ require PyMongo or a database connection.
 Current verified totals: 558 client tests, 68 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests from the last integration-feature run (before
-the latest planner test, including its isolated database contract), plus 62
+the latest planner test, including its isolated database contract), plus 64
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
