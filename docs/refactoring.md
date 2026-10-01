@@ -1792,6 +1792,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     `Admin.jsx` drops from 211 to 190 lines. A new hook test, the existing
     action tests, and exact admin markup fixtures pass; all 435 client tests,
     typecheck, build, and changed-file ESLint pass.
+311. Separated the loaded Rushee Zoom layout from its fetch and comment actions
+    in a typed feature view. `RusheeZoom.jsx` drops from 257 to 225 lines;
+    loading, admin, copied-link, and restricted markup hashes match the prior
+    page. All 435 client tests, typecheck, build, and changed-file ESLint pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

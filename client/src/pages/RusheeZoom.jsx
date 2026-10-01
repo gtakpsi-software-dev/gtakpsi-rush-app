@@ -2,17 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
 import { verifyUser } from "../features/auth/verifyUser";
 import { loadRusheeZoom } from "../features/rushee/zoom/loadRusheeZoom";
 import { createCommentCreateActions } from "../features/rushee/zoom/commentCreateActions";
 import { createExistingCommentActions } from "../features/rushee/zoom/existingCommentActions";
-import ZoomModals from "../features/rushee/zoom/ZoomModals";
-import RusheeProfileHeader from "../features/rushee/zoom/RusheeProfileHeader";
-import RusheeRatings from "../features/rushee/zoom/RusheeRatings";
-import RusheePisDetails from "../features/rushee/zoom/RusheePisDetails";
-import RusheeCommentsView from "../features/rushee/zoom/RusheeCommentsView";
-import RusheeActions from "../features/rushee/zoom/RusheeActions";
+import RusheeZoomView from "../features/rushee/zoom/RusheeZoomView";
 import Loader from "../components/Loader";
 import { auth } from "../firebase";
 import { validateComment, generateWarnings } from "../js/speculativeWordBank";
@@ -191,64 +185,38 @@ export default function RusheeZoom() {
             {loading ? (
                 <Loader />
             ) : (
-                <div>
-                    <div className="min-h-screen w-full bg-white">
-
-                        <ZoomModals
-                            selectedComment={selectedComment}
-                            selectedPis={selectedPis}
-                            onCloseComment={() => setSelectedComment(null)}
-                            onClosePis={() => setSelectedPis(null)}
-                        />
-
-                        <Navbar />
-                        
-                        <div className="pt-24 p-4 pb-20">
-                            <div className="container mx-auto px-4 max-w-4xl">
-                                <RusheeProfileHeader
-                                    rushee={rushee}
-                                    isBidCommitteeMode={isBidCommitteeMode}
-                                    getRusheeNumber={getRusheeNumber}
-                                />
-
-                                {!isBidCommitteeMode() && (
-                                    <RusheeActions
-                                        gtid={gtid}
-                                        copied={copied}
-                                        onSubmitPis={navigate}
-                                        onCopyLink={handleCopy}
-                                    />
-                                )}
-
-                                <RusheeRatings rushee={rushee} showAllComments={showAllComments} />
-
-                                <RusheePisDetails rushee={rushee} setSelectedPis={setSelectedPis} />
-
-                                <RusheeCommentsView
-                                    rusheeComments={rushee.comments}
-                                    showAllComments={showAllComments}
-                                    newCommentFormProps={{
-                                        isAddingComment, handleAddComment, newComment,
-                                        setNewComment, validateNewComment, commentWarnings,
-                                        setCommentWarnings, ratingFields, ratings, ratingNotSeen,
-                                        handleRatingChange, handleRatingNotSeenChange,
-                                        handleSubmitComment,
-                                    }}
-                                    existingCommentListProps={{
-                                        visibleComments, user, editingCommentId, editedCommentText,
-                                        setSelectedComment, handleEditComment, handleDeleteComment,
-                                        setEditedCommentText, validateEditComment, editCommentWarnings,
-                                        setEditCommentWarnings, handleSubmitEdit,
-                                    }}
-                                    showVisibilityNotice={
-                                        requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment
-                                    }
-                                />
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <RusheeZoomView
+                    modals={{
+                        selectedComment,
+                        selectedPis,
+                        onCloseComment: () => setSelectedComment(null),
+                        onClosePis: () => setSelectedPis(null),
+                    }}
+                    profile={{ rushee, isBidCommitteeMode, getRusheeNumber }}
+                    actions={{ gtid, copied, onSubmitPis: navigate, onCopyLink: handleCopy }}
+                    ratings={{ rushee, showAllComments }}
+                    pisDetails={{ rushee, setSelectedPis }}
+                    comments={{
+                        rusheeComments: rushee.comments,
+                        showAllComments,
+                        newCommentFormProps: {
+                            isAddingComment, handleAddComment, newComment,
+                            setNewComment, validateNewComment, commentWarnings,
+                            setCommentWarnings, ratingFields, ratings, ratingNotSeen,
+                            handleRatingChange, handleRatingNotSeenChange,
+                            handleSubmitComment,
+                        },
+                        existingCommentListProps: {
+                            visibleComments, user, editingCommentId, editedCommentText,
+                            setSelectedComment, handleEditComment, handleDeleteComment,
+                            setEditedCommentText, validateEditComment, editCommentWarnings,
+                            setEditCommentWarnings, handleSubmitEdit,
+                        },
+                        showVisibilityNotice:
+                            requireCommentToView && !isAdmin && !isBidcom && !userHasOwnComment,
+                    }}
+                    isBidCommitteeMode={isBidCommitteeMode}
+                />
             )}
         </div>
 

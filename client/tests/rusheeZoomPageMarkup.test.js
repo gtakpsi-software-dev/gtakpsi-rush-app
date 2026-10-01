@@ -17,6 +17,7 @@ import {
 const pagePath = fileURLToPath(new URL("../src/pages/RusheeZoom.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeCommentsView.tsx", import.meta.url));
 const actionsPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeActions.tsx", import.meta.url));
+const layoutPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeZoomView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomPageMarkup.json", import.meta.url));
 
 const rushee = {
@@ -37,6 +38,15 @@ async function loadPage(state = {}, captured = new Map()) {
         captured.set("comments-view", props);
         return React.createElement(View, props);
     };
+    const Layout = await loadTsxComponent(layoutPath, {
+        "../../../components/Navbar": stub("navbar"),
+        "./ZoomModals": stub("modals"),
+        "./RusheeProfileHeader": stub("header"),
+        "./RusheeRatings": stub("ratings"),
+        "./RusheePisDetails": stub("pis-details"),
+        "./RusheeCommentsView": ViewWithCapture,
+        "./RusheeActions": Actions,
+    });
     const noop = () => {};
     let stateIndex = 0;
     const actions = () => new Proxy({}, { get: () => noop });
@@ -58,17 +68,11 @@ async function loadPage(state = {}, captured = new Map()) {
             useParams: () => ({ gtid: "123" }),
             useLocation: () => ({ pathname: "/brother/rushee/123", search: "" }),
         },
-        "../components/Navbar": stub("navbar"),
         "../features/auth/verifyUser": { verifyUser: noop },
         "../features/rushee/zoom/loadRusheeZoom": { loadRusheeZoom: noop },
         "../features/rushee/zoom/commentCreateActions": { createCommentCreateActions: actions },
         "../features/rushee/zoom/existingCommentActions": { createExistingCommentActions: actions },
-        "../features/rushee/zoom/ZoomModals": stub("modals"),
-        "../features/rushee/zoom/RusheeProfileHeader": stub("header"),
-        "../features/rushee/zoom/RusheeRatings": stub("ratings"),
-        "../features/rushee/zoom/RusheePisDetails": stub("pis-details"),
-        "../features/rushee/zoom/RusheeCommentsView": ViewWithCapture,
-        "../features/rushee/zoom/RusheeActions": Actions,
+        "../features/rushee/zoom/RusheeZoomView": Layout,
         "../components/Loader": stub("loader"),
         "../firebase": { auth: {} },
         "../js/speculativeWordBank": { validateComment: noop, generateWarnings: noop },
