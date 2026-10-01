@@ -24,6 +24,32 @@ class CommentValidationTests(unittest.TestCase):
         }
         self.assertEqual(check_comment_structure(comment, "unused"), [])
 
+    def test_single_rushee_inspection_keeps_issue_counts_and_diagnostic_lines(self):
+        pymongo = types.ModuleType("pymongo")
+        pymongo.MongoClient = lambda _uri: None
+        script_path = Path(__file__).resolve().parents[1] / "find_malformed_comments.py"
+        with patch.dict(sys.modules, {"pymongo": pymongo}):
+            script = runpy.run_path(str(script_path))
+
+        output = StringIO()
+        with redirect_stdout(output):
+            result = script["inspect_rushee_comments"]({
+                "first_name": "Ada", "last_name": "Example", "gtid": "1",
+                "comments": [7, {"comment": "hello"}],
+            })
+
+        self.assertEqual(result, (5, True))
+        self.assertEqual(output.getvalue(), (
+            "❌ Ada Example (GTID: 1)\n"
+            "   Comment 0: Should be object, got <class 'int'>\n"
+            "   Comment 1 issues:\n"
+            "     - Missing field: brother_id\n"
+            "     - Missing field: brother_name\n"
+            "     - Missing field: ratings\n"
+            "     - Missing field: night\n"
+            "\n"
+        ))
+
     def test_report_uses_validator_without_contacting_mongodb(self):
         valid = {
             "brother_id": "1",
