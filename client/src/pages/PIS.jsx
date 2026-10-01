@@ -21,6 +21,7 @@ import { createPisCollaborator } from "../features/pis/createPisCollaborator";
 import { parseServerDate } from "../features/pis/parseServerDate";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
 import { performPisAutosave } from "../features/pis/performPisAutosave";
+import { applyPisRusheeResponse } from "../features/pis/applyPisRusheeResponse";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -75,45 +76,12 @@ export default function PIS() {
                         setCurrentUser(createPisCollaborator(auth.currentUser, localStorage.getItem('user')));
                     }
 
-                    // Fetch rushee data
                     await axios.get(`${api}/rushee/${gtid}`)
                         .then((response) => {
-                            if (response.data.status === "success") {
-                                const rusheeData = response.data.payload;
-                                setRushee(rusheeData);
-
-                                // Prepopulate answers with existing PIS answers
-                                const existingAnswers = {};
-                                rusheeData.pis?.forEach((pis) => {
-                                    existingAnswers[pis.question] = pis.answer;
-                                });
-                                // Merge with any answers already present (e.g., from real-time doc state)
-                                setAnswers((prev) => ({ ...prev, ...existingAnswers }));
-                                
-                                // Initialize brother names from existing pis_signup data
-                                if (rusheeData.pis_signup) {
-                                    const signup = rusheeData.pis_signup;
-                                    
-                                    // Helper to check if a value is a valid name (not "none", null, undefined, or empty)
-                                    const isValidName = (val) => val && val.trim() && val.trim().toLowerCase() !== "none";
-                                    
-                                    const brotherAFirst = isValidName(signup.first_brother_first_name) ? signup.first_brother_first_name.trim() : '';
-                                    const brotherALast = isValidName(signup.first_brother_last_name) ? signup.first_brother_last_name.trim() : '';
-                                    const brotherBFirst = isValidName(signup.second_brother_first_name) ? signup.second_brother_first_name.trim() : '';
-                                    const brotherBLast = isValidName(signup.second_brother_last_name) ? signup.second_brother_last_name.trim() : '';
-                                    
-                                    console.log('Initializing brother names:', {
-                                        brotherA: { firstName: brotherAFirst, lastName: brotherALast },
-                                        brotherB: { firstName: brotherBFirst, lastName: brotherBLast },
-                                        rawSignup: signup
-                                    });
-                                    
-                                    setBrotherA({ firstName: brotherAFirst, lastName: brotherALast });
-                                    setBrotherB({ firstName: brotherBFirst, lastName: brotherBLast });
-                                }
-                            } else {
-                                navigate(`/error/${errorTitle}/${"Rushee with this GTID does not exist"}`);
-                            }
+                            applyPisRusheeResponse(response, {
+                                setRushee, setAnswers, setBrotherA, setBrotherB,
+                                navigate, errorTitle,
+                            });
                         });
 
                     // Fetch this rushee's PIS questions (fixed questions always included;
