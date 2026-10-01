@@ -19,6 +19,7 @@ Refactoring progress, compatibility rules, and test commands are tracked in
 
 ```env
 VITE_API_PREFIX=https://your-railway-backend-url.railway.app
+VITE_API_KEY=your-client-api-key
 VITE_FIREBASE_API_KEY=your-api-key
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id

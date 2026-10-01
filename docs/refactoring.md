@@ -2142,6 +2142,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     all 516 client tests, typecheck, changed-file ESLint, and build pass.
     Full ESLint drops from 26 to 25 warnings with its eight Attendance errors
     unchanged. CSS is unchanged; the JS hash changed with the effect code.
+374. Replaced the client Vite starter README with current run, configuration,
+    source-layout, and verification guidance. Added the client API-key variable
+    to the root environment example and corrected the maintenance cleanup
+    script's stale interaction-helper path and default-night description.
+    Checked each referenced path and variable against the current source; this
+    slice changes documentation only.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
