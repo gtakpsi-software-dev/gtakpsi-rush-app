@@ -1167,6 +1167,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     deduplicated major/class options, sort choices, and all five callbacks. All
     329 client tests pass, the production build succeeds, and the CSS asset
     hash remains unchanged.
+205. Removed the bid committee page's never-called canvas placeholder builder,
+    unused imports, and unused error-title setter binding. The page is now 175
+    lines; its four markup fixtures and all 329 client tests still pass, and
+    the production build succeeds. CSS is unchanged; the JavaScript hash moves
+    with the removed dead code. Repository-wide ESLint is now 276 errors and
+    17 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1194,7 +1200,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 281 errors and 17 warnings, so it is tracked debt,
+the current baseline has 276 errors and 17 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

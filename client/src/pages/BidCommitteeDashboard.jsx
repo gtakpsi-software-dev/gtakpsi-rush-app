@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery } from "react-responsive";
 import Error from "../components/Error";
 import Loader from "../components/Loader";
 import { verifyUser } from "../features/auth/verifyUser";
 import { filterBidCommitteeRushees } from "../features/dashboard/bidCommitteeList";
 import BidCommitteeRusheeCard from "../features/dashboard/BidCommitteeRusheeCard";
 import BidCommitteeFilters from "../features/dashboard/BidCommitteeFilters";
-import Button from "../components/Button";
 
 export default function BidCommitteeDashboard(props) {
     const [user, setUser] = useState(
         props.user ? props.user : JSON.parse(localStorage.getItem("user"))
     );
     const [loading, setLoading] = useState(true);
-    const [errorTitle, setErrorTitle] = useState("Uh Oh! Something unexpected happened.");
+    const [errorTitle] = useState("Uh Oh! Something unexpected happened.");
     const [errorDescription, setErrorDescription] = useState("");
     const [error, setError] = useState(false);
     const [rushees, setRushees] = useState([]);
@@ -30,31 +28,8 @@ export default function BidCommitteeDashboard(props) {
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // Function to get rushee number from the map (formatted as 001, 002, etc.)
     const getRusheeId = (gtid) => {
         return rusheeNumberMap[gtid] || "---";
-    };
-
-    // Function to generate a placeholder image with number (Apple-themed)
-    const getPlaceholderImage = (rusheeId) => {
-        // Create a canvas-based placeholder image with the number
-        const canvas = document.createElement('canvas');
-        canvas.width = 300;
-        canvas.height = 300;
-        const ctx = canvas.getContext('2d');
-        
-        // Light gray background (Apple-themed)
-        ctx.fillStyle = '#f9fafb'; // apple-gray-50
-        ctx.fillRect(0, 0, 300, 300);
-        
-        // Add number
-        ctx.fillStyle = '#000000'; // Black text
-        ctx.font = '300 72px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'; // Light weight system font
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(rusheeId.toString(), 150, 150);
-        
-        return canvas.toDataURL();
     };
 
     function shuffleArray(array) {
