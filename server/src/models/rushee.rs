@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use super::{misc::RushNight, pis::{PISQuestion, PISSignup}};
 
+pub use super::voting::{IncomingRusheeVote, RusheeVote, VoteOption};
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RusheeEdit {
     pub field: String,
@@ -178,30 +180,6 @@ fn default_sorting_status() -> String {
 
 fn default_sorting_order() -> i32 {
     0
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum VoteOption {
-    NotVoted,
-    Yes,
-    No,
-    Abstain
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct IncomingRusheeVote {
-    pub brother_id: String, // gtid
-    pub first_name: String,
-    pub last_name: String,
-    pub vote: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RusheeVote {
-    pub brother_id: String, // gtid
-    pub first_name: String,
-    pub last_name: String,
-    pub vote: VoteOption,
 }
 
 #[cfg(test)]

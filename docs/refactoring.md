@@ -1126,6 +1126,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     pins option order, deduplication, all filter callbacks, and shuffle. All
     323 client tests pass, the production build succeeds, and the CSS asset
     hash remains unchanged.
+198. Moved rushee vote payloads and vote choices from the 209-line rushee model
+    into the previously empty voting model module, keeping the existing
+    `models::rushee` exports for callers. A new JSON contract pins incoming and
+    stored vote keys and values. All 42 API unit tests pass, and all 43 tests
+    with the integration feature pass against disposable MongoDB. The new
+    module passes rustfmt checks.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1173,9 +1179,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 323 client tests, 41 server unit tests, 16 collaboration
+Current verified totals: 323 client tests, 42 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
-feature, and 42 server tests with the integration feature (including its
+feature, and 43 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing

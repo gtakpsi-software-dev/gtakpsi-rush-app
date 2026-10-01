@@ -76,3 +76,23 @@ fn vote_option_wire_names_remain_case_sensitive() {
     );
     assert!(serde_json::from_value::<VoteOption>(json!("yes")).is_err());
 }
+
+#[test]
+fn incoming_and_stored_votes_keep_their_wire_fields() {
+    let incoming = json!({
+        "brother_id": "900000001",
+        "first_name": "Ada",
+        "last_name": "Example",
+        "vote": "Yes"
+    });
+    let parsed: IncomingRusheeVote = serde_json::from_value(incoming.clone()).unwrap();
+    assert_eq!(serde_json::to_value(parsed).unwrap(), incoming);
+
+    let stored = RusheeVote {
+        brother_id: "900000001".to_string(),
+        first_name: "Ada".to_string(),
+        last_name: "Example".to_string(),
+        vote: VoteOption::Yes,
+    };
+    assert_eq!(serde_json::to_value(stored).unwrap(), incoming);
+}
