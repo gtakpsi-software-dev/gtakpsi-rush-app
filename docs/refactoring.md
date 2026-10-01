@@ -1466,6 +1466,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     the established `features/registration/pis` area and updated their imports
     and test loader paths. All 404 client tests pass; controlled production JS
     and CSS are byte-identical, with lint unchanged at 209 errors and 20 warnings.
+256. Extracted the identical board canvas, presence indicator, ghost cards,
+    zoom controls, and columns from the brother and bid-committee sorting pages
+    into `ViewerSortingBoardView`. Each page retains its own authorization,
+    requests, notes panel, and WebSocket lifecycle. New tests compare loading,
+    ready, and details markup against pre-extraction hashes for both pages and
+    check board control props and pointer handlers. All 406 client tests pass,
+    controlled production CSS is byte-identical, and lint remains at 209
+    errors and 20 warnings. The pages shrink from 234/259 to 194/219 lines.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1518,7 +1526,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 404 client tests, 46 server unit tests, 19 collaboration
+Current verified totals: 406 client tests, 46 server unit tests, 19 collaboration
 tests, 11 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 50 maintenance-script tests. The last

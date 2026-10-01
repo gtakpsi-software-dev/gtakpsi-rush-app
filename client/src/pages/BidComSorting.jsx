@@ -2,16 +2,12 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Navbar from "../components/Navbar";
 import { auth } from "../firebase";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { adminGet, adminPut } from "../js/adminAxios";
-import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
+import { MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
 import EditableNotesPanel from "../features/sorting/EditableNotesPanel";
-import ViewerSortingColumn from "../features/sorting/ViewerSortingColumn";
-import SortingZoomControls from "../features/sorting/SortingZoomControls";
-import SortingPresenceIndicator from "../features/sorting/SortingPresenceIndicator";
-import SortingGhostCards from "../features/sorting/SortingGhostCards";
+import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
@@ -187,60 +183,24 @@ export default function BidComSorting() {
     }
 
     return (
-        <div
-            ref={canvasRef}
-            className="w-screen h-screen overflow-hidden bg-apple-gray-50"
+        <ViewerSortingBoardView
+            canvasRef={canvasRef}
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
             onContextMenu={onContextMenu}
+            connected={wsConnected}
+            viewerCount={viewerCount}
+            ghostCards={ghostCards}
+            scale={scale}
+            onZoomOut={zoomOut}
+            onZoomIn={zoomIn}
+            onResetView={resetView}
+            translate={translate}
+            columns={columns}
+            showRusheeNames={false}
+            onOpen={openNotes}
         >
-            <Navbar />
-            
-            {/* Viewer Count & Live Indicator */}
-            <SortingPresenceIndicator
-                connected={wsConnected}
-                viewerCount={viewerCount}
-                ghostCards={ghostCards}
-                hideWhenAlone={false}
-            />
-
-            {/* Ghost Cards - Shows when admin is dragging */}
-            <SortingGhostCards ghostCards={ghostCards} wide={false} />
-
-            {/* Fixed Zoom Controls - Bottom Left */}
-            <SortingZoomControls
-                scale={scale}
-                onZoomOut={zoomOut}
-                onZoomIn={zoomIn}
-                onResetView={resetView}
-            />
-
-            <div className="relative w-full h-[calc(100vh-80px)] mt-16 overflow-hidden">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
-                        transformOrigin: "0 0",
-                        transition: "transform 0.05s ease-out",
-                    }}
-                >
-                    <div className="flex gap-4 p-6">
-                        {STATUSES.map((col) => (
-                            <ViewerSortingColumn
-                                key={col.key}
-                                col={col}
-                                columns={columns}
-                                showRusheeNames={false}
-                                onOpen={openNotes}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Notes Side Panel */}
             {selectedRushee && (
                 <EditableNotesPanel
                     selectedRushee={selectedRushee}
@@ -254,6 +214,6 @@ export default function BidComSorting() {
                     onViewRushee={() => navigate(`/brother/rushee/${selectedRushee.id}?bid_committee=true&rushee_num=${selectedRushee.rushNumber}`)}
                 />
             )}
-        </div>
+        </ViewerSortingBoardView>
     );
 }
