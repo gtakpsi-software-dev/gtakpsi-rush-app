@@ -577,6 +577,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     error navigation, and silent poll failures. All 143 client tests pass, the
     build succeeds, and CSS matches the baseline. `PIS.jsx` is now 297 lines;
     new files pass lint.
+99. Admin Sorting columns: extracted card rendering, tags, lock states, and
+    drop indicators into a focused component. Original rendered HTML hashes
+    match empty, hovered, tagged, locked, and trailing-drop states. Tests also
+    cover drag and drop handler arguments, propagation, midpoint insertion,
+    and draggability. All 146 client tests pass, the build succeeds, and CSS
+    matches the baseline. `AdminSorting.jsx` is now 701 lines; the new test
+    passes lint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -622,7 +629,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 143 client tests, 14 collaboration tests, 9 sorting
+Current verified totals: 146 client tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
 tests with the integration feature, plus 28 maintenance-script tests. The last
 client build passes with baseline CSS unchanged. Full browser flow/visual testing
