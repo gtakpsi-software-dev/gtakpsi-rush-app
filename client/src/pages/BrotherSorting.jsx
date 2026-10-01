@@ -5,12 +5,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import axios from "axios";
-import { MIN_SCALE, MAX_SCALE, createEmptyColumns, groupSortingRows } from "../features/sorting/board";
+import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
 import { connectSortingViewer } from "../features/sorting/connectSortingViewer";
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
+import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
 
 export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
@@ -39,26 +40,15 @@ export default function BrotherSorting() {
     
     const fetchDataRef = useRef(null);
 
-    const fetchData = useCallback(async () => {
-        try {
-            const current = auth.currentUser;
-            if (!current) {
-                navigate("/login");
-                return;
-            }
-
-            const response = await axios.get(`${apiBase}/sorting`);
-            if (response.data.status === "success") {
-                setColumns(groupSortingRows(response.data.payload));
-            } else {
-                toast.error("Failed to load rushees");
-            }
-        } catch {
-            toast.error("Failed to load rushees");
-        } finally {
-            setLoading(false);
-        }
-    }, [apiBase, navigate]);
+    const fetchData = useCallback(() => loadBrotherSortingData({
+        auth,
+        navigate,
+        apiBase,
+        getSorting: (path) => axios.get(path),
+        setColumns,
+        setLoading,
+        showError: (message) => toast.error(message),
+    }), [apiBase, navigate]);
 
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;

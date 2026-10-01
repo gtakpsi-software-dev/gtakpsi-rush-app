@@ -94,6 +94,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/connectSortingViewer": { connectSortingViewer: noop },
         "../features/sorting/cleanupStaleSortingGhosts": { cleanupStaleSortingGhosts: noop },
         "../features/sorting/loadBidComSortingData": { loadBidComSortingData: noop },
+        "../features/sorting/loadBrotherSortingData": { loadBrotherSortingData: noop },
     };
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"')
