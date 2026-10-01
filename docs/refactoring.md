@@ -2636,6 +2636,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     147 lines without changing card order or markup. The existing absent-user,
     midterm, and socket-state markup hashes pass. All 567 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash.
+453. Moved identical viewport state and control wiring from all three sorting
+    pages into `features/sorting/useSortingViewport.js`, preserving hook order,
+    scale bounds, and wheel/pan handlers. Admin, bid-committee, and brother
+    pages fell from 189/168/143 to 173/152/127 lines. Existing page markup
+    hashes and viewport behavior tests pass; all 567 client tests, typecheck,
+    scoped lint, and build pass with unchanged CSS.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

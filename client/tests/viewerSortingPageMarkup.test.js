@@ -11,10 +11,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
 import { createEmptyColumns, MAX_SCALE, MIN_SCALE, STATUSES } from "../src/features/sorting/board.js";
+import { createSortingViewportHandlers } from "../src/features/sorting/createSortingViewportHandlers.js";
 import { parseAdminAllowlist } from "../src/features/auth/parseAdminAllowlist.js";
+import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/viewerSortingPageMarkup.json", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/sorting/ViewerSortingBoardView.tsx", import.meta.url));
+const viewportPath = fileURLToPath(new URL("../src/features/sorting/useSortingViewport.js", import.meta.url));
 const noop = () => {};
 
 async function loadBoardView(dependencies) {
@@ -59,17 +62,23 @@ async function loadPage(name, state = {}, captured = new Map()) {
         return tree;
     };
     let stateIndex = 0;
-    const dependencies = {
-        react: {
-            ...React,
-            useState(initial) {
-                const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, noop];
-            },
-            useEffect: noop,
-            useRef: (initial) => ({ current: initial }),
-            useCallback: (callback) => callback,
+    const reactMock = {
+        ...React,
+        useState(initial) {
+            const index = stateIndex++;
+            return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        useEffect: noop,
+        useRef: (initial) => ({ current: initial }),
+        useCallback: (callback) => callback,
+    };
+    const { useSortingViewport } = await loadTsxModule(viewportPath, {
+        react: reactMock,
+        './board': { MIN_SCALE, MAX_SCALE },
+        './createSortingViewportHandlers': { createSortingViewportHandlers },
+    });
+    const dependencies = {
+        react: reactMock,
         "react-router-dom": { useNavigate: () => noop },
         "react-toastify": { toast: { error: noop } },
         "react-toastify/dist/ReactToastify.css": {},
@@ -86,9 +95,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/SortingZoomControls": stub("zoom"),
         "../features/sorting/SortingPresenceIndicator": stub("presence"),
         "../features/sorting/SortingGhostCards": stub("ghosts"),
-        "../features/sorting/createSortingViewportHandlers": {
-            createSortingViewportHandlers: () => new Proxy({}, { get: () => noop }),
-        },
+        "../features/sorting/useSortingViewport": { useSortingViewport },
         "../features/sorting/useSortingWheelListener": {
             useSortingWheelListener: (canvasRef, handleWheel, loading) => {
                 captured.set("wheel-listener", { canvasRef, handleWheel, loading });

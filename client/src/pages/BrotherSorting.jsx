@@ -4,11 +4,11 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
 import axios from "axios";
-import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
+import { createEmptyColumns } from "../features/sorting/board";
 import ReadOnlyDetailsPanel from "../features/sorting/ReadOnlyDetailsPanel";
 import ViewerSortingBoardView from "../features/sorting/ViewerSortingBoardView";
 import { createBrotherSortingDetailsHandlers } from "../features/sorting/createBrotherSortingDetailsHandlers";
-import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { useSortingViewport } from "../features/sorting/useSortingViewport";
 import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
@@ -25,9 +25,10 @@ export default function BrotherSorting() {
     const [notesLoading, setNotesLoading] = useState(false);
     const [notesTags, setNotesTags] = useState([]);
 
-    const [scale, setScale] = useState(1);
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const panState = useRef({ panning: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+    const {
+        scale, translate, zoomIn, zoomOut, resetView, handleWheel,
+        onMouseDown, onContextMenu, onMouseMove, onMouseUp,
+    } = useSortingViewport();
 
     // WebSocket for real-time collaboration
     const wsRef = useRef(null);
@@ -78,23 +79,6 @@ export default function BrotherSorting() {
         setNotesTags,
         setNotesLoading,
         logger: console,
-    });
-
-    const {
-        zoomIn,
-        zoomOut,
-        resetView,
-        handleWheel,
-        onMouseDown,
-        onContextMenu,
-        onMouseMove,
-        onMouseUp,
-    } = createSortingViewportHandlers({
-        scaleLimits: { min: MIN_SCALE, max: MAX_SCALE },
-        panState,
-        translate,
-        setScale,
-        setTranslate,
     });
 
     const canvasRef = useRef(null);

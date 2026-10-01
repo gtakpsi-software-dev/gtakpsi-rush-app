@@ -4,12 +4,12 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "../firebase";
 import { adminGet, adminPut } from "../features/admin/api";
-import { MIN_SCALE, MAX_SCALE, createEmptyColumns } from "../features/sorting/board";
+import { createEmptyColumns } from "../features/sorting/board";
 import AdminSortingBoardView from "../features/sorting/AdminSortingBoardView";
 import { useSortingAdminConnection } from "../features/sorting/useSortingAdminConnection";
 import { createAdminSortingMoveActions } from "../features/sorting/createAdminSortingMoveActions";
 import { createSortingDragHandlers } from "../features/sorting/createSortingDragHandlers";
-import { createSortingViewportHandlers } from "../features/sorting/createSortingViewportHandlers";
+import { useSortingViewport } from "../features/sorting/useSortingViewport";
 import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
@@ -34,9 +34,10 @@ export default function AdminSorting() {
     const notesTimer = useRef(null);
     const tagsTimer = useRef(null);
 
-    const [scale, setScale] = useState(1);
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const panState = useRef({ panning: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+    const {
+        scale, translate, zoomIn, zoomOut, resetView, handleWheel,
+        onMouseDown, onContextMenu, onMouseMove, onMouseUp,
+    } = useSortingViewport();
 
     // WebSocket for real-time collaboration
     const wsRef = useRef(null);
@@ -146,23 +147,6 @@ export default function AdminSorting() {
         setTags,
         setNotesStatus,
         setColumns,
-    });
-
-    const {
-        zoomIn,
-        zoomOut,
-        resetView,
-        handleWheel,
-        onMouseDown,
-        onContextMenu,
-        onMouseMove,
-        onMouseUp,
-    } = createSortingViewportHandlers({
-        scaleLimits: { min: MIN_SCALE, max: MAX_SCALE },
-        panState,
-        translate,
-        setScale,
-        setTranslate,
     });
 
     const canvasRef = useRef(null);

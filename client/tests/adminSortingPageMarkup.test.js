@@ -10,12 +10,14 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from '../src/features/sorting/board.js';
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent, loadTsxModule } from './helpers/loadTsxComponent.js';
 import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 import { createAdminSortingMoveActions } from '../src/features/sorting/createAdminSortingMoveActions.js';
+import { createSortingViewportHandlers } from '../src/features/sorting/createSortingViewportHandlers.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AdminSorting.jsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/sorting/AdminSortingBoardView.tsx', import.meta.url));
+const viewportPath = fileURLToPath(new URL('../src/features/sorting/useSortingViewport.js', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/adminSortingPageMarkup.json', import.meta.url));
 
 async function loadPage(state = {}, captured = new Map()) {
@@ -50,17 +52,23 @@ async function loadPage(state = {}, captured = new Map()) {
     const noop = () => {};
     const actions = () => new Proxy({}, { get: () => noop });
     let stateIndex = 0;
-    const dependencies = {
-        react: {
-            ...React,
-            useState(initial) {
-                const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, noop];
-            },
-            useEffect: noop,
-            useRef: (initial) => ({ current: initial }),
-            useCallback: (callback) => callback,
+    const reactMock = {
+        ...React,
+        useState(initial) {
+            const index = stateIndex++;
+            return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        useEffect: noop,
+        useRef: (initial) => ({ current: initial }),
+        useCallback: (callback) => callback,
+    };
+    const { useSortingViewport } = await loadTsxModule(viewportPath, {
+        react: reactMock,
+        './board': { MIN_SCALE, MAX_SCALE },
+        './createSortingViewportHandlers': { createSortingViewportHandlers },
+    });
+    const dependencies = {
+        react: reactMock,
         'react-router-dom': { useNavigate: () => noop },
         'react-toastify': { toast: { error: noop } },
         'react-toastify/dist/ReactToastify.css': {},
@@ -80,7 +88,7 @@ async function loadPage(state = {}, captured = new Map()) {
         },
         '../features/sorting/createAdminSortingMoveActions': { createAdminSortingMoveActions },
         '../features/sorting/createSortingDragHandlers': { createSortingDragHandlers: actions },
-        '../features/sorting/createSortingViewportHandlers': { createSortingViewportHandlers: actions },
+        '../features/sorting/useSortingViewport': { useSortingViewport },
         '../features/sorting/useSortingWheelListener': {
             useSortingWheelListener: (canvasRef, handleWheel, loading) => {
                 captured.set('wheel-listener', { canvasRef, handleWheel, loading });
