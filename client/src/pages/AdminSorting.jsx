@@ -15,6 +15,7 @@ import { handleAdminSortingMessage } from "../features/sorting/handleAdminSortin
 import { cleanupStaleSortingGhosts } from "../features/sorting/cleanupStaleSortingGhosts";
 import { applySortingDrop } from "../features/sorting/applySortingDrop";
 import { applySavedSortingTags } from "../features/sorting/applySavedSortingTags";
+import { processSortingMoveQueue } from "../features/sorting/processSortingMoveQueue";
 
 const SORTING_WS_URL = import.meta.env.VITE_SORTING_BROADCASTER_URL || "ws://localhost:4001";
 
@@ -245,28 +246,14 @@ export default function AdminSorting() {
         draggingRef.current = null;
     };
 
-    const processMoveQueue = async () => {
-        if (moveInFlightRef.current) return;
-        const next = pendingMovesRef.current.shift();
-        if (!next) return;
-
-        moveInFlightRef.current = true;
-        try {
-            await adminPut(`${apiBase}/rushees/move`, next);
-            if (next.movedRusheeId && next.toColumn) {
-                wsSend({ type: "card_saved", rushee_id: next.movedRusheeId, new_status: next.toColumn });
-            }
-        } catch (err) {
-            toast.error("Failed to save order; reverting");
-            pendingMovesRef.current = [];
-            if (fetchDataRef.current) {
-                await fetchDataRef.current();
-            }
-        } finally {
-            moveInFlightRef.current = false;
-            processMoveQueue();
-        }
-    };
+    const processMoveQueue = () => processSortingMoveQueue({
+        moveInFlightRef,
+        pendingMovesRef,
+        fetchDataRef,
+        persistMove: (next) => adminPut(`${apiBase}/rushees/move`, next),
+        wsSend,
+        showError: (message) => toast.error(message),
+    });
 
     const enqueueMove = (payload) => {
         pendingMovesRef.current.push(payload);
