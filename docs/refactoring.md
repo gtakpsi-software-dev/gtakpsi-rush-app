@@ -1539,6 +1539,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     behavior, duplicate rejection, and full-slot text. All 52 API unit tests
     and 53 guarded database integration tests pass; changed Rust files pass
     rustfmt.
+266. Replaced `unknown` collaboration props in the PIS brother fields and
+    question responses with their existing editor session contract. This is a
+    type-only change: all 415 client tests pass and controlled production JS
+    and CSS are byte-identical. A read-only TypeScript 5.8 audit with Vite
+    client types now reports four TSX errors, down from nine; the project still
+    lacks a checked-in typecheck command.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

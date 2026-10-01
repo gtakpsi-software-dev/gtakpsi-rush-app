@@ -1,4 +1,5 @@
 import CollaborativeInput from "../collaboration/CollaborativeInput";
+import type { CollaborationEditorSession } from "../collaboration/CollaborationEditorSession";
 
 type Brother = { firstName: string; lastName: string };
 type Signup = {
@@ -12,7 +13,7 @@ type Props = {
     rushee: { pis_signup: Signup | null };
     brotherA: Brother;
     brotherB: Brother;
-    collaboration: unknown;
+    collaboration: CollaborationEditorSession;
     currentUser: unknown;
     handleBrotherAChange: (field: string, value: string) => void;
     handleBrotherBChange: (field: string, value: string) => void;

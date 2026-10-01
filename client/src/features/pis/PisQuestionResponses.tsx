@@ -1,4 +1,5 @@
 import CollaborativeTextarea from "../collaboration/CollaborativeTextarea";
+import type { CollaborationEditorSession } from "../collaboration/CollaborationEditorSession";
 
 type Question = { question: string; question_type: string };
 type Props = {
@@ -6,7 +7,7 @@ type Props = {
     answers: Record<string, string>;
     handleMCChange: (question: string, answer: string) => void;
     handleAnswerChange: (question: string, answer: string, meta?: unknown) => void;
-    collaboration: unknown;
+    collaboration: CollaborationEditorSession;
     currentUser: unknown;
 };
 
