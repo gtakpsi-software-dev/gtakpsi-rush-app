@@ -2600,6 +2600,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     BSON shape and JSON response shape. All 70 server unit tests pass with
     normal system access; the isolated MongoDB integration run passes all 71
     tests, including question category updates and deletion.
+446. Moved PIS timeslot date, count, and selected-time preview controls into
+    `features/admin/pis/TimeslotInputs.tsx`, reducing `AddTimeslotForm.tsx`
+    from 165 to 107 lines. Existing empty, selected, and submitting markup
+    hashes and input/submit interaction checks pass. All 566 client tests,
+    typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

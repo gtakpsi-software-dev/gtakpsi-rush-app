@@ -10,6 +10,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/addTimeslotForm.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/admin/pis/AddTimeslotForm.tsx", import.meta.url));
+const inputsPath = fileURLToPath(new URL("../src/features/admin/pis/TimeslotInputs.tsx", import.meta.url));
 
 const dependencies = {
     "react-router-dom": {
@@ -23,6 +24,11 @@ const dependencies = {
         format: (_date, pattern) => pattern === "MMMM d, yyyy" ? "January 1, 2030" : "6:00 PM",
     },
 };
+
+async function loadForm() {
+    const TimeslotInputs = await loadTsxComponent(inputsPath, dependencies);
+    return loadTsxComponent(componentPath, { ...dependencies, './TimeslotInputs': TimeslotInputs });
+}
 
 function props(overrides = {}) {
     return {
@@ -43,7 +49,11 @@ function collect(node, elements = []) {
         node.forEach((child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
-        collect(node.props.children, elements);
+        if (typeof node.type === 'function') {
+            collect(node.type(node.props), elements);
+        } else {
+            collect(node.props.children, elements);
+        }
     }
     return elements;
 }
@@ -56,7 +66,7 @@ function normalizeClassWhitespace(html) {
 
 test("timeslot form retains empty, selected, and submitting markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
-    const AddTimeslotForm = await loadTsxComponent(componentPath, dependencies);
+    const AddTimeslotForm = await loadForm();
     const scenarios = {
         empty: {},
         selected: { timeslotTime: "2030-01-01T18:00", timeslotChange: 3 },
@@ -77,7 +87,7 @@ test("timeslot form retains empty, selected, and submitting markup", async () =>
 });
 
 test("timeslot form keeps input conversion, submit action, and disabled state", async () => {
-    const AddTimeslotForm = await loadTsxComponent(componentPath, dependencies);
+    const AddTimeslotForm = await loadForm();
     const calls = [];
     const elements = collect(AddTimeslotForm(props({
         timeslotTime: "2030-01-01T18:00",
