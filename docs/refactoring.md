@@ -1086,6 +1086,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     239 to 178 lines without changing its JSX or effect dependencies. All 303
     client tests pass; the production JS and CSS asset hashes match the previous
     build. The page's existing ESLint count remains four errors and one warning.
+191. Added a tested brother PIS submission helper before wiring it into the
+    page. Four tests pin no-selection behavior, the GTID URL and lowercase-name
+    payload, success alert/reload order, server-error toast options, and network
+    failure logging. All 307 client tests pass; the new files pass ESLint.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1133,7 +1137,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 303 client tests, 41 server unit tests, 16 collaboration
+Current verified totals: 307 client tests, 41 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 3 voting WebSocket tests with the Redis
 feature, and 42 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
