@@ -1,5 +1,5 @@
 use bson::DateTime as BsonDateTime;
-use chrono::{DateTime as ChronoDateTime, NaiveDateTime, Utc};
+use chrono::{DateTime as ChronoDateTime, Utc};
 use chrono_tz::Tz;
 use once_cell::sync::Lazy;
 use std::env;
@@ -12,16 +12,14 @@ static RUSH_TZ: Lazy<Tz> = Lazy::new(|| {
 });
 
 fn bson_to_utc_datetime(date: &BsonDateTime) -> ChronoDateTime<Utc> {
-    let millis = date.timestamp_millis();
-    let naive = NaiveDateTime::from_timestamp_millis(millis)
-        .unwrap_or_else(|| NaiveDateTime::from_timestamp_opt(0, 0).unwrap());
-    ChronoDateTime::<Utc>::from_utc(naive, Utc)
+    // Keep the epoch fallback for BSON values outside Chrono's date range.
+    ChronoDateTime::<Utc>::from_timestamp_millis(date.timestamp_millis())
+        .unwrap_or_else(|| ChronoDateTime::<Utc>::from_timestamp(0, 0).unwrap())
 }
 
 pub fn string_to_bson_datetime(date_string: &str) -> BsonDateTime {
-    BsonDateTime::parse_rfc3339_str(date_string).unwrap_or_else(|_| {
-        BsonDateTime::parse_rfc3339_str("1970-01-01T00:00:00Z").unwrap()
-    })
+    BsonDateTime::parse_rfc3339_str(date_string)
+        .unwrap_or_else(|_| BsonDateTime::parse_rfc3339_str("1970-01-01T00:00:00Z").unwrap())
 }
 
 pub fn same_day(date1: &BsonDateTime, date2: &BsonDateTime) -> bool {
@@ -32,4 +30,22 @@ pub fn same_day(date1: &BsonDateTime, date2: &BsonDateTime) -> bool {
         .with_timezone(&*RUSH_TZ)
         .date_naive();
     date1_local == date2_local
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bson_conversion_preserves_signed_millis_and_epoch_fallback() {
+        for millis in [-1, 0, 1, 1_780_000_000_123] {
+            let converted = bson_to_utc_datetime(&BsonDateTime::from_millis(millis));
+            assert_eq!(converted.timestamp_millis(), millis);
+        }
+
+        for millis in [i64::MIN, i64::MAX] {
+            let converted = bson_to_utc_datetime(&BsonDateTime::from_millis(millis));
+            assert_eq!(converted.timestamp_millis(), 0);
+        }
+    }
 }

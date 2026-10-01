@@ -2256,6 +2256,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     lockfile; neither is a source dependency. Ignored future client Firebase
     caches while retaining the client and PIS WebSocket lockfiles. The client
     production build still emits the same JS and CSS asset names.
+393. Replaced deprecated Chrono conversion calls with their direct UTC
+    equivalents. The installed Chrono 0.4.39 source shows the old millisecond
+    constructor delegates to the new one; the epoch fallback remains for
+    out-of-range BSON dates. A new boundary test passed before and after the
+    change for negative, zero, positive, and extreme timestamps. Targeted
+    rustfmt and all 65 isolated integration-feature tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2313,9 +2319,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 527 client tests, 63 server unit tests, 23 collaboration
+Current verified totals: 527 client tests, 64 server unit tests, 23 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 64 server tests with the integration feature (including its
+feature, and 65 server tests with the integration feature (including its
 isolated database contract), plus 60 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
