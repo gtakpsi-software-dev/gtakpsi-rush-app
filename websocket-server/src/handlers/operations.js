@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { transformOperation } = require('../operations');
+const { transformOperation, applyOperation } = require('../operations');
 
 function registerOperationHandlers(socket, rooms, userSockets) {
     socket.on('text-operation', (operation) => {
@@ -39,26 +39,7 @@ function registerOperationHandlers(socket, rooms, userSockets) {
         // Legacy clients receive transformed positions, but stored text uses the
         // original operation. Keep these paths distinct for protocol compatibility.
         const currentDoc = room.document.get(operation.field) || '';
-        let newDoc = currentDoc;
-
-        switch (operation.type) {
-            case 'insert':
-                newDoc = currentDoc.slice(0, operation.position) +
-                        (operation.content || '') +
-                        currentDoc.slice(operation.position);
-                break;
-            case 'delete':
-                newDoc = currentDoc.slice(0, operation.position) +
-                        currentDoc.slice(operation.position + (operation.length || 0));
-                break;
-            case 'replace':
-                newDoc = currentDoc.slice(0, operation.position) +
-                        (operation.content || '') +
-                        currentDoc.slice(operation.position + (operation.length || 0));
-                break;
-        }
-
-        room.document.set(operation.field, newDoc);
+        room.document.set(operation.field, applyOperation(currentDoc, operation));
 
         socket.to(roomId).emit('text-operation', transformedOp);
     });

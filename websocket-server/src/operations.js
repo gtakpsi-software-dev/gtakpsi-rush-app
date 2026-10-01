@@ -17,4 +17,27 @@ const transformOperation = (op1, op2) => {
     return op2;
 };
 
-module.exports = { transformOperation };
+function applyOperation(currentDoc, operation) {
+    let newDoc = currentDoc;
+
+    switch (operation.type) {
+        case 'insert':
+            newDoc = currentDoc.slice(0, operation.position) +
+                    (operation.content || '') +
+                    currentDoc.slice(operation.position);
+            break;
+        case 'delete':
+            newDoc = currentDoc.slice(0, operation.position) +
+                    currentDoc.slice(operation.position + (operation.length || 0));
+            break;
+        case 'replace':
+            newDoc = currentDoc.slice(0, operation.position) +
+                    (operation.content || '') +
+                    currentDoc.slice(operation.position + (operation.length || 0));
+            break;
+    }
+
+    return newDoc;
+}
+
+module.exports = { transformOperation, applyOperation };

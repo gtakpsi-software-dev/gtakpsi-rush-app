@@ -1070,6 +1070,10 @@ the deployment roots. The Rust binaries remain `broadcaster` and
 186. Added a real Socket.IO contract for legacy text replacement, deletion,
     unknown operation types, retained operation history, and version-zero
     snapshots. All 16 collaborative WebSocket tests pass with loopback access.
+187. Moved the collaborative server's legacy text-application switch into
+    `src/operations.js`, leaving the event handler to manage room state and
+    broadcasts. The original submitted operation still determines stored text;
+    all 16 collaborative WebSocket tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
