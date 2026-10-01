@@ -13,7 +13,8 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 import { filterBidCommitteeRushees } from '../src/features/dashboard/bidCommitteeList.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/BidCommitteeDashboard.jsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/BidCommitteeDashboard.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeDashboardView.tsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeRusheeCard.tsx', import.meta.url));
 const filtersPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeFilters.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/bidCommitteeDashboardMarkup.json', import.meta.url));
@@ -41,10 +42,17 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
         '../../components/RusheeInteractionsByNight': stub('interactions')
     });
     const Filters = await loadTsxComponent(filtersPath);
+    const View = await loadTsxComponent(viewPath, {
+        '../../components/Navbar': stub('navbar'),
+        '../../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
+        '../../components/Loader': stub('loader'),
+        './BidCommitteeRusheeCard': Card,
+        './BidCommitteeFilters': Filters
+    });
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_API_PREFIX', '"/api"');
     const { code } = await transformWithEsbuild(source, pagePath, {
-        loader: 'jsx',
+        loader: 'tsx',
         format: 'cjs',
         jsx: 'automatic'
     });
@@ -62,17 +70,9 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
         },
         axios: {},
         'react-router-dom': { useNavigate: () => () => {} },
-        'react-responsive': { useMediaQuery: () => false },
-        '../components/Navbar': stub('navbar'),
-        '../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
-        '../components/Loader': stub('loader'),
-        '../components/Badge': Badges,
-        '../components/RusheeInteractionsByNight': stub('interactions'),
-        '../components/Button': stub('button'),
         '../features/auth/verifyUser': { verifyUser() {} },
         '../features/dashboard/bidCommitteeList': { filterBidCommitteeRushees },
-        '../features/dashboard/BidCommitteeRusheeCard': Card,
-        '../features/dashboard/BidCommitteeFilters': Filters
+        '../features/dashboard/BidCommitteeDashboardView': View
     };
 
     runInNewContext(code, {
@@ -111,6 +111,7 @@ test('numbered cards keep the profile URL and missing-number fallback', async ()
         if (Array.isArray(node)) return node.map(findCard).find(Boolean);
         if (!React.isValidElement(node)) return undefined;
         if (node.props.rushee?.gtid === rushee.gtid) return node;
+        if (typeof node.type === 'function') return findCard(node.type(node.props));
         return findCard(node.props.children);
     }
 
