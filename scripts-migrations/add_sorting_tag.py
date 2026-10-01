@@ -12,18 +12,11 @@ Examples:
 
 import sys
 from pymongo import MongoClient
-
-# MongoDB connection
-mongo_uri = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/"
-client = MongoClient(mongo_uri)
-
-# Access database and collection
-db = client["rush-app"]
-rushee_collection = db["rushees"]
+from lib.mongo_config import resolve_mongo_uri
 
 VALID_TAGS = ["night_1", "night_2", "closed_night", "closed_night_invite", "pis", "hard_no"]
 
-def add_tag(gtid: str, tag: str):
+def add_tag(gtid: str, tag: str, rushee_collection=None):
     """Add a sorting tag to a rushee by GTID."""
     
     if tag not in VALID_TAGS:
@@ -31,7 +24,10 @@ def add_tag(gtid: str, tag: str):
         print(f"Valid tags: {', '.join(VALID_TAGS)}")
         sys.exit(1)
     
-    # Find the rushee
+    if rushee_collection is None:
+        client = MongoClient(resolve_mongo_uri())
+        rushee_collection = client["rush-app"]["rushees"]
+
     rushee = rushee_collection.find_one({"gtid": gtid})
     
     if not rushee:

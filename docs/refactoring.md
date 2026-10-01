@@ -773,6 +773,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     All 246 client tests pass, changed files pass ESLint, the build succeeds,
     and CSS is unchanged. `user.js` is now 254 lines; live login remains
     unverified.
+132. Maintenance Mongo configuration: added an offline-tested resolver for
+    `MONGO_URI`/`MONGO_URL` and ignored local `.env` files. Removed the embedded
+    URI and import-time connection from attendance, sorting-tag, and Closed
+    Night report scripts while retaining their direct-command queries and
+    output. Eight new tests cover configuration precedence, missing settings,
+    import safety, and fake-collection behavior. All 36 maintenance tests and
+    Python compilation pass; no live database command ran. Five other scripts
+    still contain the credential and remain in the next slice.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -820,7 +828,7 @@ require PyMongo or a database connection.
 
 Current verified totals: 246 client tests, 37 server unit tests, 14 collaboration tests, 9 sorting
 WebSocket tests, 2 voting WebSocket tests with the Redis feature, and 32 API
-tests with the integration feature, plus 28 maintenance-script tests. The last
+tests with the integration feature, plus 36 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Full browser flow/visual testing
 and end-to-end authenticated

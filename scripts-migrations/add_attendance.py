@@ -10,20 +10,16 @@ Examples:
 """
 
 import sys
-from datetime import datetime
 from pymongo import MongoClient
+from lib.mongo_config import resolve_mongo_uri
 
-# MongoDB connection
-mongo_uri = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/"
-client = MongoClient(mongo_uri)
-
-# Access database and collection
-db = client["rush-app"]
-rushee_collection = db["rushees"]
-rush_nights_collection = db["rush-nights"]
-
-def add_attendance(gtid: str, night_name: str):
+def add_attendance(gtid: str, night_name: str, rushee_collection=None, rush_nights_collection=None):
     """Add attendance for a rush night to a rushee by GTID."""
+    if rushee_collection is None or rush_nights_collection is None:
+        client = MongoClient(resolve_mongo_uri())
+        db = client["rush-app"]
+        rushee_collection = db["rushees"]
+        rush_nights_collection = db["rush-nights"]
     
     # Find the rush night
     rush_night = rush_nights_collection.find_one({"name": night_name})

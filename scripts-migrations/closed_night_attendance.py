@@ -4,15 +4,13 @@ Script to see how many rushees attended Closed Night.
 """
 
 from pymongo import MongoClient
+from lib.mongo_config import resolve_mongo_uri
 
-# MongoDB connection
-mongo_uri = "mongodb+srv://gtakpsisoftware:brznOWH0oPA9fT5N@gtakpsi.bf6r1.mongodb.net/"
-client = MongoClient(mongo_uri)
+def check_closed_night(rushee_collection=None):
+    if rushee_collection is None:
+        client = MongoClient(resolve_mongo_uri())
+        rushee_collection = client["rush-app"]["rushees"]
 
-db = client["rush-app"]
-rushee_collection = db["rushees"]
-
-def check_closed_night():
     print("=" * 60)
     print("Closed Night Attendance")
     print("=" * 60)
