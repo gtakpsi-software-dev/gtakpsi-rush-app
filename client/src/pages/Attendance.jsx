@@ -5,12 +5,24 @@ import SplashPage from "../components/AttendanceComponents/SplashPage";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { verifyGTID } from "../features/registration/registrationVerification";
 import { verifyUser } from "../features/auth/verifyUser";
 import axios from "axios";
 import DisplayInfo from "../components/AttendanceComponents/DisplayInfo";
 import SuccessPage from "../components/AttendanceComponents/SuccessPage";
 import { useNavigate } from "react-router-dom";
+
+function showAttendanceError(message) {
+    toast.error(message, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+    });
+}
 
 export default function Attendance() {
 
@@ -81,16 +93,7 @@ export default function Attendance() {
 
                 } else {
 
-                    toast.error(`${response.data.message}`, {
-                        position: "top-center",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
+                    showAttendanceError(`${response.data.message}`);
 
                 }
 
@@ -99,16 +102,7 @@ export default function Attendance() {
 
                 console.log(error)
 
-                toast.error(`Some internal network error occurred`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
+                showAttendanceError("Some internal network error occurred");
 
             })
 
@@ -137,16 +131,7 @@ export default function Attendance() {
 
             } else {
 
-                toast.error(`${response.data.message}`, {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
+                showAttendanceError(`${response.data.message}`);
 
             }
 
@@ -154,16 +139,7 @@ export default function Attendance() {
         .catch((error) => {
 
             console.log(error)
-            toast.error(`Some internal network error occurred`, {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
+            showAttendanceError("Some internal network error occurred");
 
         })
 

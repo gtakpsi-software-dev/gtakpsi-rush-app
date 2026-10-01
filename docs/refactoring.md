@@ -1972,6 +1972,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
 344. Named the registration camera's existing test stub so React lint can
     identify it. All 497 client tests pass and full lint falls to 9 errors
     and 26 warnings; production source and assets are unchanged.
+345. Characterized the routed Attendance page's four display branches,
+    lookup and check-in state transitions, request paths, and error toasts.
+    Consolidated four identical toast configurations and removed an unused
+    registration-verification import. All 501 client tests, typecheck, and
+    build pass; full lint falls to 8 errors and 26 warnings. CSS is unchanged.
+    The remaining errors are calls to four undefined setters in Attendance's
+    existing fetch effect. They remain intact because defining them would
+    change that path's current failure behavior.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1994,6 +2002,8 @@ unaccepted license. No machine-wide toolchain settings were changed.
 - Resolve JS/JSX and TSX lint findings in verified slices, then add a complete
   lint gate; document setup,
   service naming, and remaining integration limits.
+- Decide separately whether Attendance's undefined fetch-effect setters may
+  be repaired; that would be a functional change outside this parity contract.
 
 ## Verification
 
@@ -2001,7 +2011,7 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 `npm --prefix client run typecheck` for typed components, and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
-and TS/TSX lint; the current baseline has 9 errors and 26 warnings, so it is
+and TS/TSX lint; the current baseline has 8 errors and 26 warnings, so it is
 tracked debt, not a passing check.
 The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
@@ -2027,7 +2037,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 497 client tests, 57 server unit tests, 22 collaboration
+Current verified totals: 501 client tests, 57 server unit tests, 22 collaboration
 tests, 12 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 58 server tests with the integration feature (including its
 isolated database contract), plus 56 maintenance-script tests. The last
