@@ -20,6 +20,7 @@ import { SAVE_STATUS } from "../features/pis/saveStatus";
 import { getStableUserId } from "../features/pis/stableUserId";
 import { parseServerDate } from "../features/pis/parseServerDate";
 import { applyDocumentState, applyRemoteUpdates } from "../features/pis/collaborationState";
+import { performPisAutosave } from "../features/pis/performPisAutosave";
 
 export default function PIS() {
     const { gtid } = useParams();
@@ -233,46 +234,10 @@ export default function PIS() {
         setBrotherB(prev => ({ ...prev, [field]: value }));
     };
 
-    // Autosave function
-    const performAutosave = useCallback(async () => {
-        if (!questions.length || !gtid) return;
-        
-        setSaveStatus(SAVE_STATUS.SAVING);
-        
-        try {
-            // Prepare PIS responses
-            const pis_responses = questions.map((question) => ({
-                question: question.question,
-                answer: answers[question.question] || "",
-            }));
-
-            const payload = {
-                pis_responses,
-                brother_a_first_name: brotherA.firstName,
-                brother_a_last_name: brotherA.lastName,
-                brother_b_first_name: brotherB.firstName,
-                brother_b_last_name: brotherB.lastName,
-            };
-
-            await axios.post(`${api}/rushee/autosave-pis/${gtid}`, payload);
-            
-            setSaveStatus(SAVE_STATUS.SAVED);
-            setLastSaved(new Date());
-            
-            // Reset to idle after 2 seconds
-            setTimeout(() => {
-                setSaveStatus(SAVE_STATUS.IDLE);
-            }, 2000);
-        } catch (error) {
-            console.error("Autosave error:", error);
-            setSaveStatus(SAVE_STATUS.ERROR);
-            
-            // Reset to idle after 3 seconds
-            setTimeout(() => {
-                setSaveStatus(SAVE_STATUS.IDLE);
-            }, 3000);
-        }
-    }, [questions, answers, brotherA, brotherB, gtid, api]);
+    const performAutosave = useCallback(() => performPisAutosave({
+        questions, answers, brotherA, brotherB, gtid, api, axios,
+        setSaveStatus, setLastSaved,
+    }), [questions, answers, brotherA, brotherB, gtid, api]);
 
     // Debounced autosave effect - triggers 2 seconds after last change
     useEffect(() => {
