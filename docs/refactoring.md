@@ -1331,6 +1331,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     unused-binding lint errors in the touched page without changing its state
     calls or rendered text. All 378 client tests and the production build pass
     with unchanged CSS; configured touched-file ESLint passes cleanly.
+230. Moved sorting-column reads and per-rushee order writes into a focused
+    module, reducing the move handler from 170 to 127 lines. Lock acquisition,
+    read/write sequence, timestamps, partial-write behavior, and error responses
+    are unchanged. Isolated rustfmt passes; all 46 API unit tests and 47
+    disposable-Mongo integration-feature tests pass, including same-column and
+    cross-column moves.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1358,7 +1364,7 @@ unaccepted license. No machine-wide toolchain settings were changed.
 Run `npm --prefix client test` for dependency-free client domain tests and
 `npm --prefix client run build` for the production bundle. Use Node 20 or newer
 for the test runner. Run `npm --prefix client run lint` for repository-wide lint;
-the current baseline has 273 errors and 17 warnings, so it is tracked debt,
+the current baseline has 263 errors and 20 warnings, so it is tracked debt,
 not a passing check. The regression workflow runs the passing suites and client
 build on pushes and pull requests; its first GitHub run remains unverified.
 

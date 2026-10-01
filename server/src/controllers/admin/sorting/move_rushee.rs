@@ -1,36 +1,11 @@
-use super::{validate_status, MoveRusheePayload, SORTING_COLUMN_LOCKS};
+use super::{
+    column_order::{fetch_ids, write_column_order},
+    validate_status, MoveRusheePayload, SORTING_COLUMN_LOCKS,
+};
 use crate::controllers::db;
 use axum::extract::Extension;
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
-use mongodb::bson::{doc, DateTime};
-use mongodb::Collection;
 use serde_json::{json, Value};
-
-use crate::middlewares::auth::FirebaseUser;
-use crate::models::rushee::RusheeModel;
-
-async fn write_column_order(
-    collection: &Collection<RusheeModel>,
-    ids: &[String],
-    column: &str,
-    user: &FirebaseUser,
-) -> mongodb::error::Result<()> {
-    // Keep one write and timestamp per rushee; a failed update leaves earlier writes in place.
-    for (idx, id_str) in ids.iter().enumerate() {
-        let filter = doc! { "gtid": id_str };
-        let update = doc! {
-            "$set": {
-                "sorting_status": column,
-                "sorting_order": (idx as i32) + 1,
-                "status_updated_at": DateTime::now(),
-                "status_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
-            }
-        };
-        collection.update_one(filter, update).await?;
-    }
-    Ok(())
-}
 
 /// Move a single rushee within or across columns using current DB order
 pub async fn move_rushee(
@@ -77,26 +52,6 @@ pub async fn move_rushee(
 
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
         db::get_rushee_client().await;
-
-    async fn fetch_ids(
-        collection: &mongodb::Collection<crate::models::rushee::RusheeModel>,
-        column: &str,
-    ) -> Result<Vec<String>, StatusCode> {
-        let cursor = collection.find(doc! { "sorting_status": column }).await;
-        match cursor {
-            Ok(mut cursor) => {
-                let mut items: Vec<(i32, String)> = Vec::new();
-                while let Some(item) = cursor.next().await {
-                    if let Ok(doc) = item {
-                        items.push((doc.sorting_order, doc.gtid));
-                    }
-                }
-                items.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
-                Ok(items.into_iter().map(|(_, id)| id).collect())
-            }
-            Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
-        }
-    }
 
     let target_index = if payload.target_index < 0 {
         0

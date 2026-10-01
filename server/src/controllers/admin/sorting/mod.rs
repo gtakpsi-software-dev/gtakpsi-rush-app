@@ -9,6 +9,7 @@ mod notes;
 pub use notes::{get_rushee_notes, update_rushee_notes};
 mod mutations;
 pub use mutations::{bulk_reorder, update_rushee_sorting};
+mod column_order;
 mod move_rushee;
 pub use move_rushee::move_rushee;
 
