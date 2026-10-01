@@ -1901,6 +1901,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     loading completion; existing viewer-page markup tests still pass. All 472
     client tests, typecheck, build, and changed-file ESLint pass; full lint
     remains 29 errors and 26 warnings. Generated CSS is unchanged.
+332. Added an isolated MongoDB contract for admin PIS-question add, list,
+    category update/clear, missing-match response, and deletion. It verifies
+    the question type in the update selector and distinguishes a stored BSON
+    null from a cleared field. The disposable-container integration run passes
+    all 58 server tests; rustfmt passes for the changed files.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

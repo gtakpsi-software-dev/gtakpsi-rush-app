@@ -7,6 +7,7 @@ mod exports;
 mod fixtures;
 mod interviews;
 mod profile;
+mod questions;
 mod registration;
 mod sorting;
 mod timeslots;
@@ -36,6 +37,7 @@ async fn database_contracts() {
     // The MongoDB client's background tasks share this runtime across scenarios.
     registration::check_contracts().await;
     profile::check_contracts().await;
+    questions::check_contracts().await;
     interviews::check_contracts().await;
     comments::check_contracts().await;
     brother_pis::check_contracts().await;
