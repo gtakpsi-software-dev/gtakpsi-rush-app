@@ -2344,6 +2344,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     command that reads MongoDB and writes `rushees.xlsx`. The direct-command
     test pins query order, projected values, columns, filename, and output.
     All 60 offline maintenance tests pass before and after; both files compile.
+408. Added a scoped client lint gate to the regression workflow. It checks
+    every client file except Attendance, where eight pre-existing undefined
+    setters require a behavior-changing repair outside this parity contract.
+    The gate allows at most the current 10 warnings elsewhere, so a higher
+    warning count fails CI. The full `npm run lint` command remains unchanged and
+    still reports 8 errors and 11 warnings. The scoped command passes locally;
+    the first GitHub run is still unverified.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2377,8 +2384,10 @@ Run `npm --prefix client test` for dependency-free client domain tests,
 for the test runner. Run `npm --prefix client run lint` for configured JS/JSX
 and TS/TSX lint; the current state has 8 errors and 11 warnings, so it is
 tracked debt, not a passing check.
-The regression workflow runs the passing suites and client
-build on pushes and pull requests; its first GitHub run remains unverified.
+`npm --prefix client run lint:ci` gates the rest of the client at no more than
+10 warnings. The regression workflow runs this scoped gate, the passing suites,
+and the client build on pushes and pull requests; its first GitHub run remains
+unverified.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
 On this Mac, auth and route tests need normal system access: inside the

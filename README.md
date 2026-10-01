@@ -77,6 +77,7 @@ output; the export columns and row mapping live in
 ## Tests
 
 ```bash
+npm --prefix client run lint:ci
 npm --prefix client test
 npm --prefix client run typecheck
 npm --prefix websocket-server test
@@ -97,10 +98,12 @@ The voting integration command requires `redis-server` and `redis-cli`. It start
 a separate local Redis instance, checks its run marker, and stops that instance
 after the WebSocket tests.
 
-[Regression checks](.github/workflows/regression.yml) run these suites, the
-client typecheck, and the client build on pushes and pull requests. The workflow
-has not run on GitHub yet. Repository-wide client lint is tracked separately in
-[the refactoring ledger](docs/refactoring.md) because the current baseline fails.
+[Regression checks](.github/workflows/regression.yml) run these suites, scoped
+client lint, typecheck, and build on pushes and pull requests. Scoped lint checks
+all client files except `Attendance.jsx` and rejects new warnings above the
+current baseline of 10. Repository-wide lint remains tracked separately in
+[the refactoring ledger](docs/refactoring.md) because Attendance has eight
+existing undefined-setter errors. The workflow has not run on GitHub yet.
 
 ## Deploy
 

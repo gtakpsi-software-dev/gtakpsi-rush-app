@@ -17,6 +17,8 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
       - run: npm --prefix client ci
+      # Attendance has pre-existing undefined setters; gate every other client file under the parity contract.
+      - run: npm --prefix client run lint:ci
       - run: npm --prefix client test
       - run: npm --prefix client run typecheck
       - run: npm --prefix client run build
