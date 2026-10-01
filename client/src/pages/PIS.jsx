@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import axios from "axios";
-import { useCollaboration } from "../hooks/useCollaboration";
+import { useCollaboration } from "../features/pis/useCollaboration";
 
 import { verifyUser } from "../features/auth/verifyUser";
 import { useNavigate, useParams } from "react-router-dom";

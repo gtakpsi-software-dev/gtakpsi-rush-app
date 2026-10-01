@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { realtimeBaseUrls } from '../config/realtimeBaseUrls.js';
-import { registerCollaborationConnectionEvents } from '../features/pis/registerCollaborationConnectionEvents.js';
-import { registerCollaborationFieldEvents } from '../features/pis/registerCollaborationFieldEvents.js';
-import { registerCollaborationTextEvents } from '../features/pis/registerCollaborationTextEvents.js';
+import { realtimeBaseUrls } from '../../config/realtimeBaseUrls.js';
+import { registerCollaborationConnectionEvents } from './registerCollaborationConnectionEvents.js';
+import { registerCollaborationFieldEvents } from './registerCollaborationFieldEvents.js';
+import { registerCollaborationTextEvents } from './registerCollaborationTextEvents.js';
 import {
     pruneTypingUsers,
     clearStaleCursors,
     getActiveCursors,
-} from '../features/pis/collaborationPresence.js';
+} from './collaborationPresence.js';
 
 export const useCollaboration = (roomId, currentUser) => {
     const [socket, setSocket] = useState(null);
@@ -191,4 +191,4 @@ export const useCollaboration = (roomId, currentUser) => {
     };
 };
 
-export { applyOperation, createOperation, createOperationsFromDiff } from "../features/pis/operations.js";
+export { applyOperation, createOperation, createOperationsFromDiff } from "./operations.js";

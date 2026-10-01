@@ -41,7 +41,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "../components/Loader": stub("loader"),
         "../components/Navbar": stub("navbar"),
         axios: { get: noop },
-        "../hooks/useCollaboration": {
+        "../features/pis/useCollaboration": {
             useCollaboration: () => {
                 const collaboration = {
                     isConnected: connected,

@@ -10,7 +10,7 @@ import { registerCollaborationConnectionEvents } from '../src/features/pis/regis
 import { registerCollaborationFieldEvents } from '../src/features/pis/registerCollaborationFieldEvents.js';
 import { registerCollaborationTextEvents } from '../src/features/pis/registerCollaborationTextEvents.js';
 
-const hookPath = fileURLToPath(new URL('../src/hooks/useCollaboration.js', import.meta.url));
+const hookPath = fileURLToPath(new URL('../src/features/pis/useCollaboration.js', import.meta.url));
 
 test('collaboration hook keeps socket listener order and cleanup', async () => {
     const source = await readFile(hookPath, 'utf8');
@@ -41,18 +41,18 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
                 return socket;
             },
         },
-        '../config/realtimeBaseUrls.js': {
+        '../../config/realtimeBaseUrls.js': {
             realtimeBaseUrls: { pisCollaboration: 'ws://collaboration.test' },
         },
-        '../features/pis/registerCollaborationConnectionEvents.js': { registerCollaborationConnectionEvents },
-        '../features/pis/registerCollaborationFieldEvents.js': { registerCollaborationFieldEvents },
-        '../features/pis/registerCollaborationTextEvents.js': { registerCollaborationTextEvents },
-        '../features/pis/collaborationPresence.js': {
+        './registerCollaborationConnectionEvents.js': { registerCollaborationConnectionEvents },
+        './registerCollaborationFieldEvents.js': { registerCollaborationFieldEvents },
+        './registerCollaborationTextEvents.js': { registerCollaborationTextEvents },
+        './collaborationPresence.js': {
             pruneTypingUsers: noop,
             clearStaleCursors: noop,
             getActiveCursors: noop,
         },
-        '../features/pis/operations.js': {
+        './operations.js': {
             applyOperation: noop,
             createOperation: noop,
             createOperationsFromDiff: noop,

@@ -5,12 +5,12 @@ import {
     createOperation,
     createOperationsFromDiff,
 } from "../src/features/pis/operations.js";
-import * as legacyExports from "../src/hooks/useCollaboration.js";
+import * as hookExports from "../src/features/pis/useCollaboration.js";
 
 test("the collaboration hook keeps its existing operation exports", () => {
-    assert.equal(legacyExports.applyOperation, applyOperation);
-    assert.equal(legacyExports.createOperation, createOperation);
-    assert.equal(legacyExports.createOperationsFromDiff, createOperationsFromDiff);
+    assert.equal(hookExports.applyOperation, applyOperation);
+    assert.equal(hookExports.createOperation, createOperation);
+    assert.equal(hookExports.createOperationsFromDiff, createOperationsFromDiff);
 });
 
 test("text operations retain insert, delete, replace, and unknown-type behavior", () => {
