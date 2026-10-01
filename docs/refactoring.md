@@ -2232,6 +2232,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     temporary binding, and made the intentional matched-count behavior clear
     at the write result. Targeted rustfmt and all 64 isolated integration
     tests pass before and after the cleanup.
+389. Characterized the cloud update's existing success response for a missing
+    rushee and the empty profile-edit response before simplifying profile
+    writes. Removed no-op success arms, scoped each update document to its
+    branch, and documented the sequential partial-write behavior already
+    covered by the integration scenario. Targeted rustfmt and all 64 isolated
+    integration tests pass before and after the cleanup.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

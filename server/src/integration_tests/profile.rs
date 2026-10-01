@@ -38,6 +38,21 @@ pub async fn check_contracts() {
         json!({"status": "success", "message": "updated rushee attendance"})
     );
 
+    assert_eq!(
+        rushee::update_cloud(
+            Path("missing-rushee".to_string()),
+            Json("unused-cloud".to_string()),
+        )
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "success", "message": "sucessfully updated rushee cloud"})
+    );
+    assert_eq!(
+        rushee::update_rushee(path(), Json(vec![])).await.unwrap().0,
+        json!({"status": "success", "message": "Successfully updated all fields"})
+    );
+
     let edits = json!([{"field": "first_name", "new_value": "Updated"}]);
     assert_eq!(
         rushee::update_rushee(path(), Json(serde_json::from_value(edits).unwrap()))
