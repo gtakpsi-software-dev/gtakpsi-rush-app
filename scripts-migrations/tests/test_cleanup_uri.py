@@ -13,11 +13,11 @@ with patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
 
 
 class CleanupUriTests(unittest.TestCase):
-    def test_first_cli_uri_precedes_environment_and_server_file(self):
+    def test_first_cli_uri_precedes_environment_and_api_file(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "server").mkdir()
-            (root / "server" / ".env").write_text("MONGO_URL=mongodb://server\n")
+            (root / "server" / "api").mkdir(parents=True)
+            (root / "server" / "api" / ".env").write_text("MONGO_URL=mongodb://server\n")
 
             self.assertEqual(
                 resolve_cleanup_uri(
@@ -31,11 +31,11 @@ class CleanupUriTests(unittest.TestCase):
                 "mongodb://first",
             )
 
-    def test_environment_order_and_quoted_server_fallback_are_preserved(self):
+    def test_environment_order_and_quoted_api_fallback_are_preserved(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "server").mkdir()
-            (root / "server" / ".env").write_text(
+            (root / "server" / "api").mkdir(parents=True)
+            (root / "server" / "api" / ".env").write_text(
                 "OTHER=mongodb://ignored\nMONGO_URL='mongodb://server'\n"
             )
             args = ["delete_test_data.py"]

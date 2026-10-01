@@ -4,8 +4,8 @@ import os
 import sys
 
 
-def _uri_from_server_env(repo_root):
-    path = os.path.join(repo_root, "server", ".env")
+def _uri_from_api_env(repo_root):
+    path = os.path.join(repo_root, "server", "api", ".env")
     try:
         with open(path) as config:
             for line in config:
@@ -26,9 +26,9 @@ def resolve_cleanup_uri(argv, environ, repo_root):
         print("ERROR: --uri given with no value")
         sys.exit(1)
 
-    uri = environ.get("MONGO_URI") or environ.get("MONGO_URL") or _uri_from_server_env(repo_root)
+    uri = environ.get("MONGO_URI") or environ.get("MONGO_URL") or _uri_from_api_env(repo_root)
     if not uri:
         print("ERROR: no connection string. Pass --uri, set MONGO_URL, or "
-              "put MONGO_URL in server/.env")
+              "put MONGO_URL in server/api/.env")
         sys.exit(1)
     return uri

@@ -3,7 +3,8 @@
 ## Contract
 
 Preserve rendered markup, styling, routes, request and response shapes, WebSocket
-events, authentication rules, database fields, timing, and deployment entrypoints.
+events, authentication rules, database fields, and timing. When moving a service,
+update its deployment root and local entrypoints in the same verified slice.
 Existing quirks are characterization targets, not permission to change behavior.
 Refactor one area at a time, run its checks, and commit the verified slice.
 
@@ -24,14 +25,15 @@ Services currently deployed independently:
 | Directory | Responsibility | Protocol |
 | --- | --- | --- |
 | `client` | Rush application UI | React / HTTP / real-time clients |
-| `server` | API, authentication, persistence | Axum / MongoDB / Redis |
+| `server/api` | API, authentication, persistence | Axum / MongoDB / Redis |
 | `broadcaster` | Voting updates | Axum WebSocket / Redis |
 | `sorting-broadcaster` | Shared sorting sessions | Axum WebSocket |
 | `websocket-server` | Collaborative PIS editing | Socket.IO |
 
-External deployment roots and executable names remain compatible during internal
-reorganization. Runtime event and JSON names are public contracts, even when
-internal names are standardized.
+The API source now lives at `server/api`; its Railway service root must point
+there before this branch is deployed. Executable names, routes, runtime events,
+and JSON names remain unchanged. Move the three socket services into
+`server/websockets/{pis,sorting,voting}` in subsequent verified slices.
 
 The real-time package names follow `rush-<domain>-websocket`: voting is
 `rush-voting-websocket`, sorting is `rush-sorting-websocket`, and collaborative
@@ -51,22 +53,27 @@ The verified atomic slices are archived by range:
 - [Slices 301–400](refactoring-history/301-400.md)
 - [Slices 401–500](refactoring-history/401-500.md)
 
-## Next slices
+## Remaining work
 
-- Expand database scenarios for remaining branches and simplify long handler functions
-  under those tests.
-- Separate client domain helpers from hooks and external services; standardize
-  their locations with import updates and regression checks.
-- Extend real-time tests to failure/reconnect paths and cover any remaining
-  protocol branches while preserving deployment roots and protocols.
-- Decompose large client pages into feature components and hooks while preserving
-  JSX, classes, effect dependencies, request order, and state ownership.
-- Organize maintenance scripts and seed data without running destructive scripts.
+- Move and rename the three real-time services under
+  `server/websockets/{pis,sorting,voting}`. Update CI, test runners, local
+  commands, and Railway roots without changing socket URLs or event payloads.
+- Finish dense client page and feature boundaries, including Admin, Rushee Zoom,
+  sorting, Attendance presentation, and collaboration code. Pin JSX, effect
+  timing, request order, and state ownership before each move.
+- Cover remaining API branches with isolated database tests, then simplify
+  controller and assignment logic under those tests.
+- Expand real-time failure, reconnect, and role-change coverage for all three
+  protocols, then standardize internal handler and lifecycle names.
+- Inventory maintenance commands and seed inputs, move supported tools into
+  clear groups, and remove only scripts shown unused. Never validate a reset
+  by running it against a real database.
+- Verify authenticated browser flows, later registration steps, database
+  workflows, CI runs, and deployed service roots before claiming parity.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
-- Resolve JS/JSX and TSX lint findings in verified slices, then add a complete
-  lint gate; document setup,
-  service naming, and remaining integration limits.
+- Resolve the remaining Attendance lint findings only where behavior can remain
+  identical, then add a complete client lint gate.
 - Decide separately whether Attendance's undefined fetch-effect setters may
   be repaired; that would be a functional change outside this parity contract.
 

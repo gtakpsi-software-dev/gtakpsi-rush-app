@@ -37,9 +37,9 @@ The three real-time services retain their deployment variable names:
 | `VITE_BROADCASTER_API_PREFIX` | Voting updates (WebSocket) | None |
 
 Client code reads them through `client/src/config/realtimeBaseUrls.js`. Existing
-deployment variable names and service roots stay unchanged.
+deployment variable names stay unchanged.
 
-### Server (.env in /server)
+### API (.env in /server/api)
 
 ```env
 MONGO_URL=mongodb+srv://...
@@ -84,7 +84,7 @@ npm --prefix client run lint:ci
 npm --prefix client test
 npm --prefix client run typecheck
 npm --prefix websocket-server test
-cargo test --locked --manifest-path server/Cargo.toml
+cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path sorting-broadcaster/Cargo.toml
 scripts/testing/api-integration.sh
 python3 scripts/testing/voting-integration.py
@@ -125,7 +125,8 @@ npm run build
 
 The backend is deployed automatically via Railway when you push to the main branch.
 
-Railway will use the Dockerfile in the `/server` folder.
+Set the API service's Railway root directory to `server/api`. Its Dockerfile and
+`railway.toml` live there; the binary name and HTTP routes are unchanged.
 
 ## Setup Script
 

@@ -42,5 +42,5 @@ export RUSH_TEST_RUN_ID="$run_id"
 export RUSH_TIMEZONE=America/New_York
 export API_KEY=rush-integration-test-key
 
-cargo test --locked --manifest-path "$repo_root/server/Cargo.toml" \
+cargo test --locked --manifest-path "$repo_root/server/api/Cargo.toml" \
     --features integration-tests -- --nocapture
