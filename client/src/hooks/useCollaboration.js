@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { realtimeBaseUrls } from '../config/realtimeBaseUrls.js';
-import { normalizeDocumentState } from '../features/pis/collaborationProtocol.js';
 import { registerCollaborationConnectionEvents } from '../features/pis/registerCollaborationConnectionEvents.js';
+import { registerCollaborationFieldEvents } from '../features/pis/registerCollaborationFieldEvents.js';
 import { registerCollaborationTextEvents } from '../features/pis/registerCollaborationTextEvents.js';
 import {
-    applyCursorPosition,
-    applyTypingIndicator,
     pruneTypingUsers,
     clearStaleCursors,
     getActiveCursors,
@@ -70,23 +68,14 @@ export const useCollaboration = (roomId, currentUser) => {
                 setRemoteUpdates,
             });
 
-            socketRef.current.on('cursor-position', (data) => {
-                if (data.userId === currentUser.id) return;
-
-                setConnectedUsers(prev => applyCursorPosition(prev, data));
-            });
-
-            socketRef.current.on('typing-indicator', (data) => {
-                if (data.userId === currentUser.id) return;
-
-                setTypingUsers(prev => applyTypingIndicator(prev, data));
-            });
-
-            socketRef.current.on('document-state', (state) => {
-                const { values, versions } = normalizeDocumentState(state);
-                setDocumentState(values);
-                setDocumentVersions(versions);
-                knownVersionsRef.current = versions;
+            registerCollaborationFieldEvents({
+                socket: socketRef.current,
+                currentUser,
+                knownVersionsRef,
+                setConnectedUsers,
+                setTypingUsers,
+                setDocumentState,
+                setDocumentVersions,
             });
 
             setSocket(socketRef.current);

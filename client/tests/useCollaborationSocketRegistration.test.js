@@ -7,11 +7,12 @@ import { runInNewContext } from 'node:vm';
 
 import { transformWithEsbuild } from 'vite';
 import { registerCollaborationConnectionEvents } from '../src/features/pis/registerCollaborationConnectionEvents.js';
+import { registerCollaborationFieldEvents } from '../src/features/pis/registerCollaborationFieldEvents.js';
 import { registerCollaborationTextEvents } from '../src/features/pis/registerCollaborationTextEvents.js';
 
 const hookPath = fileURLToPath(new URL('../src/hooks/useCollaboration.js', import.meta.url));
 
-test('collaboration hook registers text events between operations and presence listeners', async () => {
+test('collaboration hook keeps socket listener order and cleanup', async () => {
     const source = await readFile(hookPath, 'utf8');
     const { code } = await transformWithEsbuild(source, hookPath, {
         loader: 'js', format: 'cjs',
@@ -43,12 +44,10 @@ test('collaboration hook registers text events between operations and presence l
         '../config/realtimeBaseUrls.js': {
             realtimeBaseUrls: { pisCollaboration: 'ws://collaboration.test' },
         },
-        '../features/pis/collaborationProtocol.js': { normalizeDocumentState: noop },
         '../features/pis/registerCollaborationConnectionEvents.js': { registerCollaborationConnectionEvents },
+        '../features/pis/registerCollaborationFieldEvents.js': { registerCollaborationFieldEvents },
         '../features/pis/registerCollaborationTextEvents.js': { registerCollaborationTextEvents },
         '../features/pis/collaborationPresence.js': {
-            applyCursorPosition: noop,
-            applyTypingIndicator: noop,
             pruneTypingUsers: noop,
             clearStaleCursors: noop,
             getActiveCursors: noop,

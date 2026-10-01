@@ -1227,6 +1227,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     test pins self filtering, duplicate identity, and the 50-operation bound.
     The hook is now 205 lines; all 350 client tests and the production build
     pass with unchanged CSS. Lint debt remains 273 errors and 17 warnings.
+215. Extracted cursor-position, typing-indicator, and document-state listeners
+    into a 32-line field-event module. Fake-socket tests pin self-echo filtering,
+    remote presence updates, and snapshot value/version assignment; the
+    hook-level listener-order check still passes. The hook is now 194 lines.
+    All 352 client tests and the production build pass with unchanged CSS;
+    lint debt remains 273 errors and 17 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1274,7 +1280,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 350 client tests, 43 server unit tests, 16 collaboration
+Current verified totals: 352 client tests, 43 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 44 server tests with the integration feature (including its
 isolated database contract), plus 48 maintenance-script tests. The last
