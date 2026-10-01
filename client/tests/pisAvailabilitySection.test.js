@@ -10,6 +10,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const fixturePath = fileURLToPath(new URL("./fixtures/pisAvailabilitySection.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySection.tsx", import.meta.url));
+const formCardPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilityFormCard.tsx", import.meta.url));
 const submissionsCardPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySubmissionsCard.tsx", import.meta.url));
 const submissions = [
     { brother_first_name: "Ada", brother_last_name: "Example", available_timeslots: [{}, {}] },
@@ -43,8 +44,10 @@ function buttonsIn(node, buttons = []) {
 }
 
 async function loadSection() {
+    const FormCard = await loadTsxComponent(formCardPath);
     const Card = await loadTsxComponent(submissionsCardPath);
     return loadTsxComponent(componentPath, {
+        "./PisAvailabilityFormCard": FormCard,
         "./PisAvailabilitySubmissionsCard": Card,
     });
 }
@@ -121,4 +124,15 @@ test("a submission without timeslots still shows zero and opens that brother", a
     assert.match(html, /Ada Example<span[^>]*>\(0\)<\/span>/);
     buttonsIn(Card(cardProps))[0].props.onClick();
     assert.deepEqual(opened, [brother]);
+});
+
+test("loading disables the form and assignment actions while leaving export available", async () => {
+    const PisAvailabilitySection = await loadSection();
+    const active = buttonsIn(PisAvailabilitySection(props({
+        pisFormStatus: { is_active: true, sent_at: null },
+        pisFormLoading: true,
+    })));
+    assert.deepEqual(active.map((button) => button.props.disabled), [
+        true, true, true, true, undefined,
+    ]);
 });

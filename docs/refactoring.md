@@ -2555,6 +2555,12 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     markup hashes, button callbacks, and disabled states remain unchanged; a
     new test pins the zero-timeslot fallback and edit callback. All 559 client
     tests, typecheck, scoped lint, and build pass; CSS retains its prior hash.
+438. Moved the PIS availability form status, sent-at formatting, and active/
+    inactive buttons into `features/admin/availability/PisAvailabilityFormCard.tsx`.
+    `PisAvailabilitySection.tsx` is now 96 lines instead of 149. Existing
+    markup hashes and date-format tests pass; a new test pins loading-time
+    button availability. All 560 client tests, typecheck, scoped lint, and build
+    pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2614,7 +2620,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 559 client tests, 68 server unit tests, 25 collaboration
+Current verified totals: 560 client tests, 68 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 68 server tests from the last integration-feature run (before
 the latest planner test, including its isolated database contract), plus 64
