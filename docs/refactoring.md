@@ -2053,6 +2053,12 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     modules with a shared fixture (115, 132, and 56 lines respectively).
     Rustfmt and all 13 sorting tests pass; production protocol code is
     unchanged.
+359. Simplified the legacy PIS response handler's temporary variables and
+    redundant matches while retaining its separate clear-then-push writes,
+    response messages, and error-status quirks. A new isolated database
+    scenario pins replacement order and empty-payload clearing before and
+    after the change. Rustfmt, all 58 API unit tests, and all 59 isolated
+    integration tests pass.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

@@ -5,75 +5,44 @@ use mongodb::bson::{doc, to_bson};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-/**
- * Post a Rushee's PIS
- */
 pub async fn post_pis(
     Path(id): Path<String>,
     Json(payload): Json<Vec<PisResponse>>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
-    let mut filter;
-    let mut update;
-
-    // null out current entries
-    filter = doc! {"gtid": id.clone()};
-    update = doc! {"$set": doc! { "pis" : [] }};
-
-    let clear_out_result = connection.update_one(filter, update).await;
-
-    match clear_out_result {
-        Ok(_clear_out) => {}
-
-        Err(_err) => {
-            return Ok(Json(json!({
-                "status": "success",
-                "message": "There was an error clearing out the current PIS responses"
-            })))
-        }
+    // INVARIANT: keep clear and pushes as separate writes; later failures retain earlier pushes.
+    let filter = doc! {"gtid": id.clone()};
+    let update = doc! {"$set": doc! { "pis" : [] }};
+    if connection.update_one(filter, update).await.is_err() {
+        return Ok(Json(json!({
+            "status": "success",
+            "message": "There was an error clearing out the current PIS responses"
+        })));
     }
 
-    let mut pis_bson_try;
-    let mut pis_bson;
-
-    for response in payload.iter() {
-        // push the pis response
-        filter = doc! {"gtid": id.clone()};
-
-        pis_bson_try = to_bson(&response);
-
-        match pis_bson_try {
-            Ok(x) => {
-                pis_bson = x;
-            }
-            Err(err) => {
+    for response in &payload {
+        let filter = doc! {"gtid": id.clone()};
+        let pis_bson = match to_bson(&response) {
+            Ok(value) => value,
+            Err(_) => {
                 return Ok(Json(json!({
                     "status": "error",
                     "message": "couldn't make the pis response into a bson file"
                 })))
             }
-        }
+        };
 
-        update = doc! {
+        let update = doc! {
             "$push" : {
                 "pis": pis_bson,
             }
         };
-
-        let result = connection.update_one(filter, update).await;
-
-        match result {
-            Ok(update_result) => {
-                // do nothing
-            }
-
-            Err(err) => {
-                return Ok(Json(json!({
-                    "status": "error",
-                    "message": "failed to push a pis response"
-                })))
-            }
+        if connection.update_one(filter, update).await.is_err() {
+            return Ok(Json(json!({
+                "status": "error",
+                "message": "failed to push a pis response"
+            })));
         }
     }
 

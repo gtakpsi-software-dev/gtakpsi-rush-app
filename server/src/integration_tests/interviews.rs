@@ -87,5 +87,29 @@ pub async fn check_contracts() {
     assert_eq!(stored.pis_signup.first_brother_last_name, "Brother");
     assert_eq!(stored.pis_signup.second_brother_first_name, "none");
     assert_eq!(stored.pis_signup.second_brother_last_name, "none");
-    println!("PIS reveal, persisted assignment, and autosave contracts passed");
+
+    let replacement = json!([
+        {"question": "First", "answer": "One"},
+        {"question": "Second", "answer": "Two"}
+    ]);
+    assert_eq!(
+        rushee::post_pis(path(), Json(serde_json::from_value(replacement).unwrap()))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "success", "message": "succesfully stored rushee's pis"})
+    );
+    let stored = stored_rushee().await;
+    assert_eq!(stored.pis.len(), 2);
+    assert_eq!(stored.pis[0].question, "First");
+    assert_eq!(stored.pis[1].question, "Second");
+
+    assert_eq!(
+        rushee::post_pis(path(), Json(vec![])).await.unwrap().0["status"],
+        "success"
+    );
+    assert!(stored_rushee().await.pis.is_empty());
+    println!(
+        "PIS reveal, persisted assignment, autosave, and response replacement contracts passed"
+    );
 }
