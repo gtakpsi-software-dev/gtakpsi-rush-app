@@ -3,6 +3,8 @@ use futures_util::SinkExt;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::tungstenite::Message;
 
+mod reconnect;
+
 #[tokio::test]
 async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     // INVARIANT: never write fixtures unless this exact disposable Redis instance is marked.
@@ -135,11 +137,5 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     voter.close(None).await.unwrap();
     later_admin.close(None).await.unwrap();
     later_voter.close(None).await.unwrap();
-    tokio::time::timeout(Duration::from_secs(2), async {
-        while !server.admins.is_empty() || !server.voters.is_empty() {
-            tokio::time::sleep(Duration::from_millis(10)).await;
-        }
-    })
-    .await
-    .expect("disconnected clients remained registered");
+    reconnect::assert_reconnects(&server, &mut conn).await;
 }

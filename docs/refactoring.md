@@ -2398,6 +2398,14 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     cleanup. The existing overlay and Go Back fixtures still pass. All 534
     client tests, typecheck, scoped lint, and build pass; CSS retains its prior
     hash. The JS bundle hash changed with the module extraction.
+416. Extended the voting WebSocket's guarded live integration case with a
+    same-ID admin and voter reconnect after confirmed disconnect cleanup. It
+    verifies the latest Redis snapshots, renewed broadcast registration, a
+    later question update, and final cleanup. The reconnect assertions live in
+    `broadcaster/src/integration_tests/websocket/reconnect.rs`, keeping the
+    main protocol test file at 141 lines. All four voting tests pass against a
+    disposable loopback Redis instance, and both edited files pass rustfmt.
+    No runtime service code or protocol changed.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
