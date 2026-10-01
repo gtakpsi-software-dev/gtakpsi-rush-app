@@ -2467,6 +2467,15 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     Two new tests pin idle/loading markup hashes and field/action wiring;
     existing validation and submit tests still pass. All 541 client tests,
     typecheck, scoped lint, and build pass; CSS retains its prior hash.
+426. Moved rushee-list field projection into
+    `controllers/rushee/queries/list_projection.rs`, leaving cursor and error
+    handling in the 100-line query module instead of its former 119 lines.
+    A new unit test pins the public fields, private-field exclusions, night
+    summaries, and registration-order value. All 67 server unit tests pass;
+    all 68 tests with the integration feature pass against a fresh guarded
+    MongoDB container, including the list route contract. The touched Rust
+    files pass rustfmt; the repository-wide format check still reports
+    pre-existing differences outside this slice.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2526,9 +2535,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 541 client tests, 66 server unit tests, 25 collaboration
+Current verified totals: 541 client tests, 67 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 67 server tests with the integration feature (including its
+feature, and 68 server tests with the integration feature (including its
 isolated database contract), plus 61 maintenance-script tests. The last
 client build differs from baseline CSS only by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later

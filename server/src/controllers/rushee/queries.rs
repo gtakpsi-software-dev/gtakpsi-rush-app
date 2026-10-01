@@ -1,20 +1,19 @@
 /**
  * Lookup Summary:
- * - Flattens result handling while keeping the existing list projection.
- * - Preserves response text, missing-ID behavior, and the legacy `stauts` key.
- * - Cursor records retain their original registration-order numbering.
+ * - Isolates list projection so fields exposed from stored records stay explicit.
+ * - Preserves cursor-order numbering, response text, and the legacy `stauts` key.
  */
 use crate::controllers::db;
-use crate::middlewares::{
-    attendance,
-    rush_nights::{enrich_interactions_by_night, interactions_by_night},
-};
+use crate::middlewares::{attendance, rush_nights::enrich_interactions_by_night};
 use crate::models::rushee::{RusheeModel, StrippedRushee};
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use mongodb::Collection;
 use serde_json::{json, Value};
+
+mod list_projection;
+use list_projection::project_list_rushee;
 
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
@@ -47,25 +46,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
             }
         };
 
-        let night_interactions =
-            interactions_by_night(&rush_nights, &doc.attendance, &doc.comments);
-        // INVARIANT: list responses omit private access codes, comments, and sorting notes.
-        rushees.push(StrippedRushee {
-            name: format!("{} {}", doc.first_name, doc.last_name),
-            first_name: doc.first_name.clone(),
-            last_name: doc.last_name.clone(),
-            class: doc.class,
-            gtid: doc.gtid,
-            major: doc.major,
-            ratings: doc.ratings,
-            image_url: doc.image_url,
-            email: doc.email,
-            pronouns: doc.pronouns,
-            attendance: doc.attendance,
-            registration_order: order,
-            pis_timeslot: Some(doc.pis_timeslot),
-            interactions_by_night: night_interactions,
-        });
+        rushees.push(project_list_rushee(doc, &rush_nights, order));
         order += 1;
     }
 
