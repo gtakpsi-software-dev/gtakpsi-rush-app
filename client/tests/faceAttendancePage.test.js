@@ -10,8 +10,10 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { createFaceImageSubmit } from "../src/features/faceAttendance/createFaceImageSubmit.js";
+import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/FaceAttendance.jsx", import.meta.url));
+const cameraViewPath = fileURLToPath(new URL("../src/features/faceAttendance/FaceAttendanceCameraView.tsx", import.meta.url));
 
 async function loadPage({ state = {}, modelFailure = false, getFailure = false, getResponse } = {}) {
     const updates = [];
@@ -41,6 +43,9 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
     function LoaderStub() {
         return React.createElement("span", { "data-stub": "loader" });
     }
+    const CameraView = await loadTsxComponent(cameraViewPath, {
+        "react-webcam": WebcamStub,
+    });
 
     runInNewContext(code, {
         module,
@@ -81,6 +86,7 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
                         return "tensor";
                     },
                 },
+                "../features/faceAttendance/FaceAttendanceCameraView": CameraView,
                 "../features/faceAttendance/createFaceImageSubmit": { createFaceImageSubmit },
                 "react-toastify": { toast: { warn(message, options) {
                     warnings.push(message);
@@ -99,6 +105,9 @@ async function loadPage({ state = {}, modelFailure = false, getFailure = false, 
 
 function collect(node, elements = []) {
     if (!React.isValidElement(node)) return elements;
+    if (typeof node.type === "function") {
+        return collect(node.type(node.props), elements);
+    }
     elements.push(node);
     React.Children.forEach(node.props.children, (child) => collect(child, elements));
     return elements;

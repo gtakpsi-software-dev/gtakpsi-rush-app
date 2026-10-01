@@ -2383,6 +2383,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     rendering and submission order; expanded assertions pin both warning
     option sets. All 532 client tests, typecheck, scoped lint, targeted lint,
     and build pass. The generated JS asset name and CSS hash are unchanged.
+414. Extracted the face-attendance camera and preview layout into
+    `features/faceAttendance/FaceAttendanceCameraView.tsx`. The page still owns
+    capture, retake, submit, loading, and completion state; it is now 72 lines
+    instead of 109. Existing fixtures confirm identical camera, preview,
+    loading, and completed markup and button behavior. All 532 client tests,
+    typecheck, scoped lint, and build pass; the generated JS asset name and CSS
+    hash remain unchanged.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
