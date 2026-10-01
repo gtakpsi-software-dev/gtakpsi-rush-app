@@ -31,3 +31,23 @@ fn category_updates_distinguish_empty_category_from_clearing_it() {
         assert_eq!(payload.category.as_deref(), expected);
     }
 }
+
+#[test]
+fn question_identity_uses_exact_question_and_type_in_both_mutations() {
+    assert_eq!(
+        question_identity_filter(" Describe a project ", "professional"),
+        doc! {"$and": [
+            doc! {"question": " Describe a project "},
+            doc! {"question_type": "professional"}
+        ]}
+    );
+}
+
+#[test]
+fn question_messages_keep_the_existing_json_contract() {
+    let Json(body) = question_message("error", "no matching pis question found");
+    assert_eq!(
+        body,
+        json!({"status": "error", "message": "no matching pis question found"})
+    );
+}

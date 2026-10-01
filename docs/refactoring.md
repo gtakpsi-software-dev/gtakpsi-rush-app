@@ -2595,6 +2595,11 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     restricted, busy, and partial-disable markup hashes and all four toggle
     callback checks pass. All 566 client tests, typecheck, scoped lint, and
     build pass; CSS retains its prior hash.
+445. Shared the exact question/type MongoDB filter and status/message response
+    construction across PIS question handlers. Two unit tests pin the filter's
+    BSON shape and JSON response shape. All 70 server unit tests pass with
+    normal system access; the isolated MongoDB integration run passes all 71
+    tests, including question category updates and deletion.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -2654,10 +2659,9 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 566 client tests, 68 server unit tests, 25 collaboration
+Current verified totals: 566 client tests, 70 server unit tests, 25 collaboration
 tests, 13 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
-feature, and 68 server tests from the last integration-feature run (before
-the latest planner test, including its isolated database contract), plus 64
+feature, and 71 server tests from the latest integration-feature run, plus 64
 maintenance-script tests. The last client build differs from baseline CSS only
 by the unused `hover:bg-blue-600`
 rule from removed commented-out JSX. Authenticated browser flows, later
