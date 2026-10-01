@@ -1,15 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { useAdminVotingContext } from "./AdminVotingContext";
 import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
-import { verifyUser } from "../../features/auth/verifyUser";
 import axios from "axios";
 import { adminPost } from "../../js/adminAxios";
-import Loader from "../../components/Loader";
 import { Rushee } from "./types";
 import { toast } from "react-toastify";
+import { filterPreviewRushees, previewRusheeName } from "./previewRusheeSearch";
 
 export default function RusheePreviewCard() {
-    const { rushee, setRushee } = useAdminVotingContext();
+    const { rushee } = useAdminVotingContext();
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [allRushees, setAllRushees] = useState<Rushee[] | null>(null);
@@ -17,22 +16,10 @@ export default function RusheePreviewCard() {
 
     const api = import.meta.env.VITE_API_PREFIX;
 
-    // Filter rushees based on search query
-    const filteredRushees = useMemo(() => {
-        if (!allRushees || !searchQuery.trim()) return allRushees;
-        
-        const query = searchQuery.toLowerCase();
-        return allRushees.filter(r => {
-            // Handle different possible name structures
-            const firstName = r.first_name || (r as any).firstname || '';
-            const lastName = r.last_name || (r as any).lastname || '';
-            const fullName = `${firstName} ${lastName}`.toLowerCase().trim();
-            const singleName = (r as any).name?.toLowerCase() || '';
-            const gtid = (r.gtid || '').toLowerCase();
-            
-            return fullName.includes(query) || singleName.includes(query) || gtid.includes(query);
-        });
-    }, [allRushees, searchQuery]);
+    const filteredRushees = useMemo(
+        () => filterPreviewRushees(allRushees, searchQuery),
+        [allRushees, searchQuery],
+    );
 
     const handleSearchClick = async () => {
         setSearchOpen(true);
@@ -46,7 +33,7 @@ export default function RusheePreviewCard() {
                 } else {
                     console.error("Failed to fetch rushees");
                 }
-            } catch (err) {
+            } catch {
                 console.error("Network error while fetching rushees");
             }
             setLoading(false);
@@ -110,18 +97,13 @@ export default function RusheePreviewCard() {
                         ) : filteredRushees && filteredRushees.length > 0 ? (
                             <ul>
                                 {filteredRushees.map((r, idx) => {
-                                    // Handle different possible data structures
-                                    const displayName = r.first_name && r.last_name 
-                                        ? `${r.first_name} ${r.last_name}`
-                                        : (r as any).name || `${(r as any).firstname || ''} ${(r as any).lastname || ''}`.trim() || 'Unknown Name';
-                                    
                                     return (
                                         <li
                                             key={idx}
                                             onClick={() => handleSelect(r)}
                                             className="px-4 py-3 hover:bg-apple-gray-50 text-apple-body text-black cursor-pointer border-b border-apple-gray-100 last:border-b-0 flex justify-between items-center"
                                         >
-                                            <span>{displayName}</span>
+                                            <span>{previewRusheeName(r)}</span>
                                             <span className="text-apple-footnote text-apple-gray-500">{r.gtid}</span>
                                         </li>
                                     );
