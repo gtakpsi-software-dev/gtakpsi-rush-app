@@ -1303,6 +1303,13 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     tests and the admin markup tests still pass. All 373 client tests and the
     production build pass with unchanged CSS. Touched-file lint has no errors
     and three existing hook warnings in the admin page.
+226. Extracted the rushee self-profile summary into a 62-line typed feature
+    view, reducing `RusheePage.jsx` from 210 to 169 lines. Pre-extraction markup
+    hashes match for loading, ready, and photo-modal states; a second test pins
+    the fetched profile, attendance badge, and edit-button modal action. All 375
+    client tests and the production build pass with unchanged CSS. Configured
+    touched-file ESLint passes without warnings; TSX remains outside the
+    existing ESLint configuration.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
@@ -1355,7 +1362,7 @@ Run `python3 -m unittest discover -s scripts-migrations/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 373 client tests, 46 server unit tests, 16 collaboration
+Current verified totals: 375 client tests, 46 server unit tests, 16 collaboration
 tests, 10 sorting WebSocket tests, 4 voting WebSocket tests with the Redis
 feature, and 47 server tests with the integration feature (including its
 isolated database contract), plus 49 maintenance-script tests. The last
