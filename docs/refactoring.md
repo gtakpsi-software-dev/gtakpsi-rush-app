@@ -2567,6 +2567,10 @@ Inbound socket handlers now use `src/handlers.rs` in both Rust services and
     hash and phone formatter; a new test pins all three forwarded refs. All 561
     client tests, typecheck, scoped lint, and build pass; CSS retains its prior
     hash.
+440. Shared the identical pronoun and year option lists between registration
+    and self-profile forms in `data/profileOptions.js`. Both existing form
+    markup hashes and interaction tests pass without changes. All 561 client
+    tests, typecheck, scoped lint, and build pass; CSS retains its prior hash.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with

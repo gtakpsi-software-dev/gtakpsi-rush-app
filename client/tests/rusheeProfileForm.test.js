@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
@@ -20,6 +21,7 @@ const rushee = {
 async function loadForm() {
     return loadTsxComponent(componentPath, {
         "../../../data/majorOptions.js": { MAJOR_OPTIONS },
+        "../../../data/profileOptions.js": { PRONOUN_OPTIONS, YEAR_OPTIONS },
     });
 }
 

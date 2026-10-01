@@ -1,5 +1,6 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { MAJOR_OPTIONS } from "../../../data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../../../data/profileOptions.js";
 
 /**
  * Profile Form Summary:
@@ -127,11 +128,9 @@ export default function RusheeProfileForm({ rushee, onSubmit, onChange }: Rushee
                                 onChange={onChange}
                                 className="input-apple"
                             >
-                                <option>First</option>
-                                <option>Second</option>
-                                <option>Third</option>
-                                <option>Fourth</option>
-                                <option>Fifth+</option>
+                                {YEAR_OPTIONS.map((year) => (
+                                    <option key={year}>{year}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -144,10 +143,9 @@ export default function RusheeProfileForm({ rushee, onSubmit, onChange }: Rushee
                             onChange={onChange}
                             className="input-apple"
                         >
-                            <option value="">Select pronouns</option>
-                            <option value="he/him">he/him</option>
-                            <option value="she/her">she/her</option>
-                            <option value="they/them">they/them</option>
+                            {PRONOUN_OPTIONS.map(({ value, label }) => (
+                                <option key={value} value={value}>{label}</option>
+                            ))}
                         </select>
                     </div>
 

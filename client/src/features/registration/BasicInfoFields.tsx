@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 
 import { MAJOR_OPTIONS } from "../../data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../../data/profileOptions.js";
 import BasicContactFields, { type BasicContactFieldsProps } from "./BasicContactFields";
 import { EXPOSURE_OPTIONS } from "./basicInfoOptions.js";
 
@@ -89,10 +90,9 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                         className="input-apple"
                         id="grid-pronouns"
                     >
-                        <option value="">Select pronouns</option>
-                        <option value="he/him">he/him</option>
-                        <option value="she/her">she/her</option>
-                        <option value="they/them">they/them</option>
+                        {PRONOUN_OPTIONS.map(({ value, label }) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
                     </select>
                 </div>
                 <div>
@@ -104,11 +104,9 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                         className="input-apple"
                         id="grid-year"
                     >
-                        <option>First</option>
-                        <option>Second</option>
-                        <option>Third</option>
-                        <option>Fourth</option>
-                        <option>Fifth+</option>
+                        {YEAR_OPTIONS.map((year) => (
+                            <option key={year}>{year}</option>
+                        ))}
                     </select>
                 </div>
             </div>

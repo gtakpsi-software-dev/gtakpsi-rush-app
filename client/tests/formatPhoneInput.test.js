@@ -5,6 +5,7 @@ import test from "node:test";
 import React from "react";
 import { formatPhoneInput } from "../src/features/registration/formatPhoneInput.js";
 import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
 import { EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
@@ -18,6 +19,7 @@ async function loadFields() {
     return loadTsxComponent(fieldsPath, {
         "./BasicContactFields": BasicContactFields,
         "../../data/majorOptions.js": { MAJOR_OPTIONS },
+        "../../data/profileOptions.js": { PRONOUN_OPTIONS, YEAR_OPTIONS },
         "./basicInfoOptions.js": { EXPOSURE_OPTIONS },
     });
 }
