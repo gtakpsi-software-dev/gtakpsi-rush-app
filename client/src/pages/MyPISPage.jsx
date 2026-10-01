@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import MyPisPageView from "../features/brotherPis/MyPisPageView";
@@ -19,7 +19,12 @@ export default function MyPISPage() {
     const navigate = useNavigate();
     const api = import.meta.env.VITE_API_PREFIX;
 
+    // The fetch remains mount-only and uses the first render's user and route context.
+    const initialFetch = useRef({ user, navigate, api });
+
     useEffect(() => {
+        const { user, navigate, api } = initialFetch.current;
+
         async function fetchData() {
             setLoading(true);
 
@@ -56,12 +61,14 @@ export default function MyPISPage() {
         fetchData();
     }, []);
 
-    return <MyPisPageView
-        rushees={rushees}
-        loading={loading}
-        error={error}
-        errorTitle={errorTitle}
-        errorDescription={errorDescription}
-        navigate={navigate}
-    />;
+    return (
+        <MyPisPageView
+            rushees={rushees}
+            loading={loading}
+            error={error}
+            errorTitle={errorTitle}
+            errorDescription={errorDescription}
+            navigate={navigate}
+        />
+    );
 }

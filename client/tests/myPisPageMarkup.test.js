@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import test from "node:test";
+import { setImmediate } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
@@ -23,7 +24,7 @@ const appointment = {
     pis_timeslot: { $date: { $numberLong: "123456789" } },
 };
 
-async function loadPage(state = {}, captured = new Map()) {
+async function loadPage(state = {}, captured = new Map(), runtime = {}) {
     const stub = (name) => function Stub(props) {
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
@@ -53,18 +54,22 @@ async function loadPage(state = {}, captured = new Map()) {
             ...React,
             useState(initial) {
                 const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, noop];
+                return [Object.hasOwn(state, index) ? state[index] : initial,
+                    (value) => runtime.updates?.push([index, value])];
             },
-            useEffect: noop,
+            useEffect: (effect) => runtime.effects?.push(effect),
+            useRef: (value) => ({ current: value }),
         },
-        "react-router-dom": { useNavigate: () => (path) => captured.set("navigation", path) },
+        "react-router-dom": {
+            useNavigate: () => runtime.navigate ?? ((path) => captured.set("navigation", path)),
+        },
         "../components/Badge": stub("badge"),
-        "../features/auth/verifyUser": { verifyUser: noop },
+        "../features/auth/verifyUser": { verifyUser: runtime.verify ?? noop },
         "../features/brotherPis/appointments": {
-            sortPisAppointments: noop,
+            sortPisAppointments: runtime.sort ?? noop,
         },
         "../features/brotherPis/MyPisPageView": View,
-        "../features/admin/api": { adminPost: noop },
+        "../features/admin/api": { adminPost: runtime.post ?? noop },
     };
     const source = (await readFile(pagePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
@@ -77,7 +82,9 @@ async function loadPage(state = {}, captured = new Map()) {
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => '{"firstname":"A","lastname":"B"}' },
+        localStorage: {
+            getItem: () => runtime.user ?? '{"firstname":"A","lastname":"B"}',
+        },
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -118,4 +125,31 @@ test("appointment card receives its row and keeps profile navigation", async () 
 
     card.onView();
     assert.equal(captured.get("navigation"), "/brother/rushee/123");
+});
+
+test("my PIS page fetch uses its initial user and preserves update order", async () => {
+    const calls = [];
+    const runtime = {
+        effects: [], updates: [],
+        verify: async () => { calls.push("verify"); return true; },
+        post: async (url, payload) => {
+            calls.push([url, payload]);
+            return { data: { status: "success", payload: [appointment] } };
+        },
+        sort: (value) => { calls.push("sort"); return value; },
+    };
+    const Page = await loadPage({}, new Map(), runtime);
+    Page();
+    runtime.user = '{"firstname":"Changed","lastname":"User"}';
+    runtime.effects[0]();
+    await setImmediate();
+
+    assert.deepEqual(JSON.parse(JSON.stringify(calls)), [
+        "verify",
+        ["/api/admin/get-brother-pis", { first_name: "A", last_name: "B" }],
+        "sort",
+    ]);
+    assert.deepEqual(runtime.updates, [
+        [1, true], [0, [appointment]], [1, false],
+    ]);
 });
