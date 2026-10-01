@@ -11,10 +11,32 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
 const bannerPath = fileURLToPath(new URL("../src/pages/BrotherVotingPage/QuestionBanner.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/pages/BrotherVotingPage/QuestionBannerView.tsx", import.meta.url));
 const requireFromBanner = createRequire(bannerPath);
+const requireFromView = createRequire(viewPath);
 const storedUser = '{"_id":"b1","firstname":"Sam","lastname":"Brother"}';
 
 async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
+    const viewSource = await readFile(viewPath, "utf8");
+    const viewCode = await transformWithEsbuild(viewSource, viewPath, {
+        loader: "tsx", format: "cjs", jsx: "automatic",
+    });
+    const viewModule = { exports: {} };
+    function SplitTextStub() {
+        return React.createElement("span", { "data-stub": "split" }, "Who?");
+    }
+    runInNewContext(viewCode.code, {
+        module: viewModule,
+        exports: viewModule.exports,
+        Math: { random: () => 0.5 },
+        require(specifier) {
+            if (specifier === "../../components/ReactBitsComponents/SplitText") {
+                return SplitTextStub;
+            }
+            return requireFromView(specifier);
+        },
+    }, { filename: viewPath });
+
     const source = (await readFile(bannerPath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
     const { code } = await transformWithEsbuild(source, bannerPath, {
@@ -36,9 +58,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
         "./BrotherVotingContext": {
             useBrotherVotingContext: () => ({ question: "Who?", setQuestion: noop }),
         },
-        "../../components/ReactBitsComponents/SplitText": ({ text }) => (
-            React.createElement("span", { "data-stub": "split" }, text)
-        ),
+        "./QuestionBannerView": viewModule.exports.default,
         "react-toastify": { toast: { error: noop, promise: async (request) => request } },
         "../NotFound": () => React.createElement("div", { "data-stub": "not-found" }),
         axios: {
@@ -104,6 +124,7 @@ test("Yes vote retains the API path and brother payload", async () => {
     const findYes = (node) => {
         if (!React.isValidElement(node)) return null;
         if (node.type === "button" && node.props.children === "Yes") return node;
+        if (typeof node.type === "function") return findYes(node.type(node.props));
         for (const child of React.Children.toArray(node.props.children)) {
             const found = findYes(child);
             if (found) return found;

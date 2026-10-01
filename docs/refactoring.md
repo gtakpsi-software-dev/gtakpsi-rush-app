@@ -1827,6 +1827,11 @@ the deployment roots. The Rust binaries remain `broadcaster` and
     hashes match the prior component, and the vote payload/path are pinned.
     All 446 client tests, typecheck, build, and changed-file ESLint pass. Full
     client lint falls to 70 errors and 26 warnings.
+318. Separated the voting banner's regular and midterm layouts into a typed
+    view, leaving the vote request and state in the 111-line controller. The
+    five existing markup hashes and vote payload test pass against the real
+    view; all 446 client tests, typecheck, build, and changed-file ESLint pass.
+    Full client lint remains at 70 errors and 26 warnings.
 
 The API baseline builds with 78 existing warnings and zero tests. On this Mac,
 select the installed command-line tools for Cargo with
