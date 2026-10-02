@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createQuestionActions } from "../pis/questionActions";
 
-/**
- * Management Input Summary:
- * - Keeps question and scheduling form state with the actions that use it.
- * - Registers question loading after the page's bootstrap effect, preserving request order.
- * - Existing question-action and admin-page fixtures pin the resulting contracts.
- */
 export default function useAdminManagementInputs({ apiBase, axios, toast }) {
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");

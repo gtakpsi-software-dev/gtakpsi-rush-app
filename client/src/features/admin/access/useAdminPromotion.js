@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { createPromotionActions } from "./promotionActions";
 
-/**
- * Promotion Summary:
- * - Keeps the selected brother and role status with their promotion actions.
- * - Retains the same initial values and role-request closures.
- * - Existing action and admin markup tests pin selection and display behavior.
- */
 export default function useAdminPromotion({
     apiBase,
     setBrotherSearch,

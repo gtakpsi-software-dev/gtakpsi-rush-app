@@ -7,12 +7,6 @@ import { verifyUser } from "../../auth/verifyUser";
 import { auth, db } from "../../../firebase";
 import { loadAdminData } from "./loadAdminData";
 
-/**
- * Admin Bootstrap Summary:
- * - Keeps authorization and initial section reads with the bootstrap service.
- * - Retains the original effect dependencies and setter/request order.
- * - The authorization gate still runs before data is exposed to the page.
- */
 export default function useAdminBootstrap({
     loading,
     navigate,

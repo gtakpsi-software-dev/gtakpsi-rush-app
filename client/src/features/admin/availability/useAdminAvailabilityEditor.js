@@ -2,12 +2,6 @@ import { useState } from "react";
 import { groupEditSlots } from "../pis/pisTime";
 import { createAvailabilityEditorActions } from "./availabilityEditorActions";
 
-/**
- * Availability Editor Summary:
- * - Keeps editor state and its actions together while preserving their original state-call order.
- * - Returns the same slot grouping and action closures consumed by the admin page.
- * - Existing editor-action and admin-page fixtures pin behavior and rendered markup.
- */
 export default function useAdminAvailabilityEditor({
     apiBase,
     getApiPrefix,

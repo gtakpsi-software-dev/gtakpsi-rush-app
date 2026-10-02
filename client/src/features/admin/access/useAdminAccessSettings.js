@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { createAccessSettingsActions } from "./accessSettingsActions";
 
-/**
- * Access Settings Summary:
- * - Keeps access, midterm, and comment-visibility state beside their toggles.
- * - Retains the original state-call order and request-producing action closures.
- * - Existing access-action tests and admin markup fixtures pin the contracts.
- */
 export default function useAdminAccessSettings({ apiBase, axios, toast, auth }) {
     const [rushAppStatus, setRushAppStatus] = useState({
         disable_bidcom: false,
