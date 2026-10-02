@@ -1,7 +1,7 @@
 use crate::middlewares::auth::FirebaseUser;
 use crate::models::rushee::RusheeModel;
+use crate::storage::cursor_rows::for_each_valid_row;
 use axum::http::StatusCode;
-use futures::stream::StreamExt;
 use mongodb::bson::{doc, DateTime};
 use mongodb::Collection;
 
@@ -33,13 +33,9 @@ pub(super) async fn fetch_ids(
 ) -> Result<Vec<String>, StatusCode> {
     let cursor = collection.find(doc! { "sorting_status": column }).await;
     match cursor {
-        Ok(mut cursor) => {
+        Ok(cursor) => {
             let mut items: Vec<(i32, String)> = Vec::new();
-            while let Some(item) = cursor.next().await {
-                if let Ok(doc) = item {
-                    items.push((doc.sorting_order, doc.gtid));
-                }
-            }
+            for_each_valid_row(cursor, |doc| items.push((doc.sorting_order, doc.gtid))).await;
             // Tie-break by GTID so cursor order cannot change the visible board order.
             items.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
             Ok(items.into_iter().map(|(_, id)| id).collect())

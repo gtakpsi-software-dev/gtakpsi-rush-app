@@ -48,10 +48,11 @@ socket contracts remain unchanged.
 PIS auto-assignment planning, loading, execution, and persistence live in
 `services/`; its controller retains the existing HTTP response mapping.
 API readers that intentionally skip malformed MongoDB documents share a small
-storage cursor reader: availability, PIS assignment, sorting, PIS schedule
-export, interview-question loading, and brother-comment queries. Sorting,
-export, and comment queries project rows as they arrive, preserving memory use
-and ordering. Other API readers retain their own read-error behavior.
+storage cursor reader: availability, PIS assignment, sorting board and column
+order, PIS schedule export, interview-question loading, and brother-comment
+queries. Sorting, export, and comment queries project rows as they arrive,
+preserving memory use and ordering. Other API readers retain their own
+read-error behavior.
 
 The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their
