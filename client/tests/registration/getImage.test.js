@@ -10,8 +10,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
-const componentPath = fileURLToPath(new URL("../src/features/registration/photo/PhotoCaptureStep.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/getImageMarkup.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/registration/photo/PhotoCaptureStep.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/getImageMarkup.json", import.meta.url));
 
 async function loadComponent({ showPreview = false, document = {}, setPreview = () => {} } = {}) {
     const source = await readFile(componentPath, "utf8");

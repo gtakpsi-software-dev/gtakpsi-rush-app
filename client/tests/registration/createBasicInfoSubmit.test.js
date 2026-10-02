@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createBasicInfoSubmit } from "../src/features/registration/createBasicInfoSubmit.js";
+import { createBasicInfoSubmit } from "../../src/features/registration/createBasicInfoSubmit.js";
 
 const warningOptions = {
     position: "top-center", autoClose: 5000, hideProgressBar: false,

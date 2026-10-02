@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const hookPath = fileURLToPath(new URL(
-    "../src/features/registration/useRegistrationFormState.js", import.meta.url,
+    "../../src/features/registration/useRegistrationFormState.js", import.meta.url,
 ));
 
 test("registration form state keeps hook order and pairs each field with its setter", async () => {

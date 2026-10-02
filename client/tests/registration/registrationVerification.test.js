@@ -7,7 +7,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/features/registration/registrationVerification.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../../src/features/registration/registrationVerification.js", import.meta.url));
 const requireFromSource = createRequire(sourcePath);
 
 async function loadVerifications(get = async () => ({ data: { status: "success" } })) {

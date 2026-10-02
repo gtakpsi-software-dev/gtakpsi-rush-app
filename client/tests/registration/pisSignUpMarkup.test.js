@@ -5,7 +5,7 @@ import { setImmediate } from 'node:timers';
 
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { loadPage, textOf, walk } from './helpers/loadPisSignUpPage.js';
+import { loadPage, textOf, walk } from '../helpers/loadPisSignUpPage.js';
 
 const slot = (time, label, num_available) => ({
     time: {

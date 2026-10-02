@@ -3,14 +3,14 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import React from "react";
-import { formatPhoneInput } from "../src/lib/formatPhoneInput.js";
-import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
-import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
-import { EXPOSURE_OPTIONS } from "../src/features/registration/basicInfoOptions.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { formatPhoneInput } from "../../src/lib/formatPhoneInput.js";
+import { MAJOR_OPTIONS } from "../../src/data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../../src/data/profileOptions.js";
+import { EXPOSURE_OPTIONS } from "../../src/features/registration/basicInfoOptions.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const fieldsPath = fileURLToPath(new URL("../src/features/registration/BasicInfoFields.tsx", import.meta.url));
-const contactPath = fileURLToPath(new URL("../src/features/registration/BasicContactFields.tsx", import.meta.url));
+const fieldsPath = fileURLToPath(new URL("../../src/features/registration/BasicInfoFields.tsx", import.meta.url));
+const contactPath = fileURLToPath(new URL("../../src/features/registration/BasicContactFields.tsx", import.meta.url));
 
 async function loadFields() {
     const BasicContactFields = await loadTsxComponent(contactPath, {

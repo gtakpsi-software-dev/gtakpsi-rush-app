@@ -10,12 +10,12 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/Register.jsx", import.meta.url));
-const hookPath = fileURLToPath(new URL("../src/features/registration/useRegistrationFormState.js", import.meta.url));
-const stagePath = fileURLToPath(new URL("../src/features/registration/RegistrationStageView.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/registerPageMarkup.json", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/pages/Register.jsx", import.meta.url));
+const hookPath = fileURLToPath(new URL("../../src/features/registration/useRegistrationFormState.js", import.meta.url));
+const stagePath = fileURLToPath(new URL("../../src/features/registration/RegistrationStageView.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/registerPageMarkup.json", import.meta.url));
 const noop = () => {};
 
 async function loadPage(state = {}, captured = new Map()) {

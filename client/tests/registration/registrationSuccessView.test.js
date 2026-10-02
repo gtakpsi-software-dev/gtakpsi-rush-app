@@ -10,8 +10,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
-const componentPath = fileURLToPath(new URL("../src/features/registration/RegistrationSuccessView.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/registrationSuccessMarkup.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/registration/RegistrationSuccessView.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/registrationSuccessMarkup.json", import.meta.url));
 
 async function loadComponent({ copied = false, navigator = {}, setCopied = () => {}, setTimeout = () => {} } = {}) {
     const source = await readFile(componentPath, "utf8");

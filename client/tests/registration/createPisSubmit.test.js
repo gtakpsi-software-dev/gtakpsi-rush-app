@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createPisSubmit } from "../src/features/registration/createPisSubmit.js";
+import { createPisSubmit } from "../../src/features/registration/createPisSubmit.js";
 
 function harness(overrides = {}) {
     const events = [];
