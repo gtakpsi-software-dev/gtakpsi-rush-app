@@ -1,4 +1,4 @@
-use std::{collections::HashSet, io::Error};
+use std::io::Error;
 
 use bson::doc;
 
@@ -10,30 +10,25 @@ use crate::{
 use crate::services::rush_time::same_day;
 
 // These fields are duplicated in PIS signup, so edits must update both copies.
-pub fn pis_signup_synced_fields() -> HashSet<String> {
-    ["first_name", "last_name", "gtid"]
-        .into_iter()
-        .map(str::to_string)
-        .collect()
+pub fn is_pis_signup_synced_field(field: &str) -> bool {
+    matches!(field, "first_name" | "last_name" | "gtid")
 }
 
 // INVARIANT: only these profile fields may be changed by the rushee edit endpoint.
-pub fn editable_rushee_fields() -> HashSet<String> {
-    [
-        "first_name",
-        "last_name",
-        "housing",
-        "phone_number",
-        "email",
-        "gtid",
-        "major",
-        "class",
-        "pronouns",
-        "image_url",
-    ]
-    .into_iter()
-    .map(str::to_string)
-    .collect()
+pub fn is_editable_rushee_field(field: &str) -> bool {
+    matches!(
+        field,
+        "first_name"
+            | "last_name"
+            | "housing"
+            | "phone_number"
+            | "email"
+            | "gtid"
+            | "major"
+            | "class"
+            | "pronouns"
+            | "image_url"
+    )
 }
 
 pub async fn is_gtid_valid(gtid: &str) -> Result<bool, Error> {
@@ -63,5 +58,36 @@ pub async fn check_valid_comment(
         Err(Error::other("already made a comment"))
     } else {
         Ok(true)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{is_editable_rushee_field, is_pis_signup_synced_field};
+
+    #[test]
+    fn profile_edit_fields_keep_exact_allowlists() {
+        for field in ["first_name", "last_name", "gtid"] {
+            assert!(is_pis_signup_synced_field(field));
+            assert!(is_editable_rushee_field(field));
+        }
+
+        for field in [
+            "housing",
+            "phone_number",
+            "email",
+            "major",
+            "class",
+            "pronouns",
+            "image_url",
+        ] {
+            assert!(!is_pis_signup_synced_field(field));
+            assert!(is_editable_rushee_field(field));
+        }
+
+        for field in ["", "First_name", "first_name ", "access_code", "pis_signup"] {
+            assert!(!is_pis_signup_synced_field(field));
+            assert!(!is_editable_rushee_field(field));
+        }
     }
 }

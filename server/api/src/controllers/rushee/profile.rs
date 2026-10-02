@@ -39,7 +39,7 @@ pub async fn update_rushee(
 
     // Apply edits in order; a later invalid field leaves earlier writes committed.
     for edit in payload.iter() {
-        let synced = validation::pis_signup_synced_fields().contains(&edit.field);
+        let synced = validation::is_pis_signup_synced_field(&edit.field);
         let update = if synced {
             doc! {
                 "$set": {
@@ -47,7 +47,7 @@ pub async fn update_rushee(
                     format!("pis_signup.rushee_{}", edit.field.clone()): edit.new_value.clone()
                 }
             }
-        } else if validation::editable_rushee_fields().contains(&edit.field) {
+        } else if validation::is_editable_rushee_field(&edit.field) {
             doc! {"$set": doc! { edit.field.clone(): edit.new_value.clone() }}
         } else {
             return Ok(Json(json!({
