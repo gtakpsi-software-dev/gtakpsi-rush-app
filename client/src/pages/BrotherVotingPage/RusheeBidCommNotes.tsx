@@ -1,5 +1,5 @@
 import React from "react";
-import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
 
 const TAGS: { [key: string]: { label: string; color: string } } = {
     night_1: { label: "Night 1", color: "bg-blue-100 text-blue-700 border-blue-200" },

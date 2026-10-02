@@ -29,7 +29,7 @@ async function renderComments(rushee) {
             useState: (initial) => [initial, () => {}],
             useEffect: (callback, values) => effects.push({ callback, values }),
         },
-        "./BrotherVotingContext": { useBrotherVotingContext: () => ({ rushee }) },
+        "../../features/voting/brother/BrotherVotingContext": { useBrotherVotingContext: () => ({ rushee }) },
         "../../components/Badge": () => null,
         gsap: { fromTo: (...args) => animations.push(args) },
         "../../features/comments/ratingDisplay": {

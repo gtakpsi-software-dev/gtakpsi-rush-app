@@ -1,5 +1,5 @@
 import React from "react";
-import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
 import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
 
 interface Props {

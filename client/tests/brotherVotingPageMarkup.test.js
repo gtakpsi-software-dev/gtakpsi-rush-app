@@ -33,10 +33,10 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         },
         'react-router-dom': { useNavigate: () => noop },
         '../../components/Navbar': stub('navbar'),
-        './BrotherVotingContext': {
+        '../../features/voting/brother/BrotherVotingContext': {
             useBrotherVotingContext: () => ({ setRushee: noop, setQuestion: noop }),
         },
-        './BrotherVotingContextProvider': {
+        '../../features/voting/brother/BrotherVotingContextProvider': {
             BrotherVotingContextProvider: ({ children }) => children,
         },
         './useBrotherVotingSocket': {

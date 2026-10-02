@@ -1,5 +1,5 @@
 import React from "react";
-import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
 import { useCommentVisibility } from "../../features/comments/useCommentVisibility";
 
 export default function RusheeScores() {

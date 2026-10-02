@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
 import Badges from "../../components/Badge";
 import gsap from "gsap";
 import { formatRatingValue, ratingBadgeClass } from "../../features/comments/ratingDisplay";

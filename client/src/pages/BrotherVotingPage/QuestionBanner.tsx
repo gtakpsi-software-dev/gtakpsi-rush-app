@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import QuestionBannerView from "./QuestionBannerView";
-import { Brother } from "./types";
-import { useBrotherVotingContext } from "./BrotherVotingContext";
+import { Brother } from "../../features/voting/brother/types";
+import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
 import { toast } from "react-toastify";
 import NotFound from "../NotFound";
 import axios from 'axios'

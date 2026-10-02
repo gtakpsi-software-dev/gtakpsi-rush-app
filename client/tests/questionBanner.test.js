@@ -55,7 +55,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
             },
             useEffect: (effect) => effects.push(effect),
         },
-        "./BrotherVotingContext": {
+        "../../features/voting/brother/BrotherVotingContext": {
             useBrotherVotingContext: () => ({ question: "Who?", setQuestion: noop }),
         },
         "./QuestionBannerView": viewModule.exports.default,

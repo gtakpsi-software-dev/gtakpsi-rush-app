@@ -6,10 +6,10 @@ import React from "react";
 import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
 const contextPath = fileURLToPath(new URL(
-    "../src/pages/BrotherVotingPage/BrotherVotingContext.tsx", import.meta.url,
+    "../src/features/voting/brother/BrotherVotingContext.tsx", import.meta.url,
 ));
 const providerPath = fileURLToPath(new URL(
-    "../src/pages/BrotherVotingPage/BrotherVotingContextProvider.tsx", import.meta.url,
+    "../src/features/voting/brother/BrotherVotingContextProvider.tsx", import.meta.url,
 ));
 
 test("voter context retains its initial values and provider contract", async () => {
