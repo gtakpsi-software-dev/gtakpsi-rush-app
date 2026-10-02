@@ -1,8 +1,8 @@
 use mongodb::Collection;
 
 use super::persistence::persist_assignment;
-use super::planning::{AssignmentPlanner, AvailabilityByTimeslot};
 use crate::models::rushee::RusheeModel;
+use crate::services::pis_assignments::{AssignmentPlanner, AvailabilityByTimeslot};
 
 pub(super) struct AssignmentCounts {
     pub assignments_made: i32,

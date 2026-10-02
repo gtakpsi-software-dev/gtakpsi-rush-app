@@ -2,9 +2,9 @@ use crate::models::pis::{BrotherPISAvailability, PISSignup};
 use std::collections::{HashMap, HashSet};
 
 type BrotherName = (String, String);
-pub(super) type AvailabilityByTimeslot = HashMap<i64, Vec<BrotherName>>;
+pub(crate) type AvailabilityByTimeslot = HashMap<i64, Vec<BrotherName>>;
 
-pub(super) fn index_availability(
+pub(crate) fn index_availability(
     availabilities: &[BrotherPISAvailability],
 ) -> AvailabilityByTimeslot {
     let mut by_timeslot = AvailabilityByTimeslot::new();
@@ -28,12 +28,12 @@ pub(super) fn index_availability(
 }
 
 #[derive(Default)]
-pub(super) struct AssignmentPlanner {
+pub(crate) struct AssignmentPlanner {
     total_assignments: HashMap<String, i32>,
     assigned_by_timeslot: HashMap<i64, HashSet<String>>,
 }
 
-pub(super) struct AssignmentPlan {
+pub(crate) struct AssignmentPlan {
     pub first: Option<BrotherName>,
     pub second: Option<BrotherName>,
     pub still_missing_first: bool,

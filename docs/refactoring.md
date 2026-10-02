@@ -45,6 +45,8 @@ Inside the API, `controllers/` owns HTTP handlers, `services/` owns rush-domain
 operations, `storage/` owns MongoDB and Redis connection factories, and
 `middlewares/` owns request gates. These are internal module paths; HTTP and
 socket contracts remain unchanged.
+The PIS auto-assignment planner lives in `services/`; its controller still
+loads and persists the plan through the same database calls.
 
 The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their

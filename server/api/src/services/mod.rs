@@ -1,3 +1,4 @@
+pub mod pis_assignments;
 pub mod pis_capacity;
 pub mod rush_night_queries;
 pub mod rush_nights;

@@ -6,11 +6,10 @@ mod clear;
 mod execution;
 mod loading;
 mod persistence;
-mod planning;
+use crate::services::pis_assignments::index_availability;
 pub use clear::clear_pis_assignments;
 use execution::assign_rushees;
 use loading::{load_brother_availabilities, load_rushees};
-use planning::index_availability;
 
 /// Auto-assign brothers to PIS slots based on availability
 pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
