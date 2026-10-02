@@ -21,9 +21,8 @@ python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 | `delete_test_data.py` | Remove listed test rushees and all database rush nights | Dry run by default; `--apply` deletes |
 | `import_rushees.py` | Replace rushees from a root JSON export | Deletes and reinserts MongoDB rushees |
 | `reset_rushees_for_new_rush.py` | Keep listed rushees and reset their season data | Deletes and updates MongoDB rushees |
-| `temp_ratings_fix.py` | Recalculate stored ratings | Updates MongoDB rushees |
 
-Seven commands use their own `<SCRIPT_NAME>_MONGO_URI` setting, either in the
+Six commands use their own `<SCRIPT_NAME>_MONGO_URI` setting, either in the
 environment or the ignored root `.env.migrations` file. The other commands
 retain their existing root `.env`, API `.env`, or Firebase credential rules;
 see each entrypoint before running it. `set_admin_claim.py` expects its working

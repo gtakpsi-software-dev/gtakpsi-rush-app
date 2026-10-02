@@ -25,12 +25,12 @@ class MongoConfigTests(unittest.TestCase):
             (root / ".env").write_text("MONGO_URI=mongodb://app\n")
             (root / ".env.migrations").write_text(
                 "DATA_PULL_MONGO_URI='mongodb://export'\n"
-                "TEMP_RATINGS_FIX_MONGO_URI=mongodb://repair\n"
+                "ADD_ATTENDANCE_MONGO_URI=mongodb://attendance\n"
             )
             self.assertEqual(resolve_mongo_uri("data_pull.py", {"MONGO_URI": "mongodb://app"}, root),
                              "mongodb://export")
-            self.assertEqual(resolve_mongo_uri("temp_ratings_fix.py", {}, root),
-                             "mongodb://repair")
+            self.assertEqual(resolve_mongo_uri("add_attendance.py", {}, root),
+                             "mongodb://attendance")
 
     def test_missing_configuration_stops_before_a_database_client_is_created(self):
         with tempfile.TemporaryDirectory() as directory:
