@@ -66,4 +66,32 @@ pub(super) async fn check_write_failures() {
         .run_command(doc! { "collMod": "pis-questions", "validator": {} })
         .await
         .unwrap();
+
+    check_delete_failure().await;
+}
+
+async fn check_delete_failure() {
+    reset().await;
+    let database = db::get_mongo_client().await.database("rush-app");
+    let collection = db::get_pis_questions_client().await;
+    collection.drop().await.unwrap();
+
+    // A view rejects writes, allowing the endpoint's delete error to be tested without live data.
+    database
+        .run_command(doc! {
+            "create": "pis-questions", "viewOn": "rushees", "pipeline": []
+        })
+        .await
+        .unwrap();
+    let question = PISQuestion {
+        question: "Unavailable".to_string(),
+        question_type: "professional".to_string(),
+        order: None,
+        category: None,
+    };
+    assert_eq!(
+        admin::delete_pis_question(Json(question)).await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    collection.drop().await.unwrap();
 }
