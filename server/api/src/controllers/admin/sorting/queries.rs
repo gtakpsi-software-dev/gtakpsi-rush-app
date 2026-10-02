@@ -1,7 +1,9 @@
 use super::{validate_status, SortingRushee, SORTING_STATUSES};
-use crate::{models::rushee::RusheeModel, storage::db};
+use crate::{
+    models::rushee::RusheeModel,
+    storage::{cursor_rows::for_each_valid_row, db},
+};
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
@@ -64,15 +66,14 @@ async fn load_sorting_rushees(audience: SortingAudience) -> Result<Json<Value>, 
 
     let cursor_result = collection.find(doc! {}).await;
     match cursor_result {
-        Ok(mut cursor) => {
+        Ok(cursor) => {
             let mut list = Vec::new();
             let mut order_counter = 1;
-            while let Some(item) = cursor.next().await {
-                if let Ok(document) = item {
-                    list.push(project_sorting_rushee(&document, order_counter, audience));
-                    order_counter += 1;
-                }
-            }
+            for_each_valid_row(cursor, |document| {
+                list.push(project_sorting_rushee(&document, order_counter, audience));
+                order_counter += 1;
+            })
+            .await;
 
             sort_sorting_rushees(&mut list);
             Ok(Json(json!({ "status": "success", "payload": list })))
