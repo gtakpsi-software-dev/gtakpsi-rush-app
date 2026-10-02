@@ -1,5 +1,7 @@
 use super::*;
 
+mod remote;
+
 #[test]
 fn identity_toolkit_urls_keep_the_project_and_operation_paths() {
     let mut auth = FirebaseAuth::new("default-project".to_string(), None, None);
