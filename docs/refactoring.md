@@ -100,6 +100,7 @@ The verified atomic slices are archived by range:
 - [Slices 401–500](refactoring-history/401-500.md)
 - [Slices 501–600](refactoring-history/501-600.md)
 - [Slices 601–700](refactoring-history/601-700.md)
+- [Slices 701–800](refactoring-history/701-800.md)
 
 ## Remaining work
 
@@ -200,6 +201,14 @@ changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
 public-entry comparison does not establish full application parity.
+
+At local commit `9ec6119`, all six regression groups pass together: client
+scoped lint, tests, typecheck, and build; PIS collaboration tests; API tests
+against disposable MongoDB; sorting socket tests; voting socket and API Redis
+tests against disposable Redis; and offline maintenance tests. Formatting and
+strict all-target Clippy pass for all three Rust services. This does not replace
+a GitHub CI run or authenticated and deployed workflow checks.
+
 Local browser smoke checks with placeholder service URLs rendered the landing,
 registration entry, login, password-reset, and account-creation routes without
 console errors. The public navigation buttons and links reached their expected
