@@ -79,6 +79,9 @@ integration module is compiled only with its test feature. This source-level
 check does not establish that every handler or branch executes.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
+Frontend component and filename identifiers now use `Pis` in PascalCase.
+User-facing `PIS` text, routes, API fields, and socket events retain their
+existing spelling.
 All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 199-line maintenance
 test. Of the two tracked stylesheets, one is empty and the other is 115 lines;
