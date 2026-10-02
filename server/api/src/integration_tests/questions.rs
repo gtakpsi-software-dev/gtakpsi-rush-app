@@ -35,6 +35,26 @@ pub async fn check_contracts() {
     assert_eq!(listed["status"], "success");
     assert_eq!(listed["payload"].as_array().unwrap().len(), 2);
 
+    let collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("pis-questions");
+    // The admin listing rejects a malformed stored question instead of returning a partial list.
+    let malformed = collection
+        .insert_one(doc! {
+            "question": "Invalid", "question_type": "professional", "order": "not-a-number"
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::get_pis_questions().await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    collection
+        .delete_one(doc! {"_id": malformed.inserted_id})
+        .await
+        .unwrap();
+
     let update = json!({
         "question": "Describe a project", "question_type": "professional",
         "category": "leadership"
@@ -48,10 +68,6 @@ pub async fn check_contracts() {
         "successfully updated pis question category"
     );
 
-    let collection = db::get_mongo_client()
-        .await
-        .database("rush-app")
-        .collection::<bson::Document>("pis-questions");
     let professional = collection
         .find_one(doc! {"question": "Describe a project", "question_type": "professional"})
         .await

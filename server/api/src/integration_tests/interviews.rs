@@ -38,6 +38,16 @@ pub async fn check_contracts() {
             .await
             .unwrap();
     }
+    // Interview selection skips malformed stored questions while retaining valid ones.
+    db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("pis-questions")
+        .insert_one(doc! {
+            "question": "Invalid", "question_type": "professional", "order": "not-a-number"
+        })
+        .await
+        .unwrap();
     let future = DateTime::from_millis(DateTime::now().timestamp_millis() + 3_600_000);
     db::get_rushee_client()
         .await
