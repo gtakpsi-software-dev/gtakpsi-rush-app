@@ -24,7 +24,7 @@ function Content() {
   const reconnectAttemptsRef = useRef(0);
   const navigate = useNavigate();
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
-  
+
   const storedUser: string | null = localStorage.getItem('user');
 
   // Memoize user to prevent WebSocket reconnecting on every render
@@ -57,19 +57,15 @@ function Content() {
   if (isMidtermMode) {
     return (
       <div className="w-screen h-screen flex flex-col bg-apple-gray-50 overflow-hidden">
-        {/* Fixed Navbar */}
         <div className="fixed top-0 left-0 w-full z-50">
           <Navbar />
         </div>
 
-        {/* Midterm layout: left = rushee profile, right = question + vote */}
         <div className="pt-24 pb-8 px-8 flex-1 flex gap-8 overflow-hidden">
-          {/* Left column: image + info stacked vertically */}
           <div className="w-96 flex-shrink-0 flex flex-col">
             <RusheePreviewCard midtermMode />
           </div>
 
-          {/* Right column: question + buttons fills remaining space */}
           <div className="flex-1 flex flex-col min-w-0">
             <QuestionBanner midtermMode />
           </div>
@@ -80,12 +76,10 @@ function Content() {
 
   return (
     <div className="w-screen h-screen overflow-auto flex flex-col bg-apple-gray-50">
-      {/* Fixed Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
         <Navbar />
       </div>
 
-      {/* Connection Status Indicator */}
       {connectionStatus === 'disconnected' && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 text-red-700 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
           <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -105,29 +99,25 @@ function Content() {
         </div>
       )}
 
-      {/* Main content area */}
       <div className="pt-20 sm:pt-24 px-4 pb-32 flex-1">
         <div className="w-full max-w-7xl mx-auto flex flex-col gap-4">
-          {/* Question Banner */}
           <QuestionBanner />
-          
-          {/* Rushee Info Card */}
+
           <RusheePreviewCard />
-          
-          {/* Four-panel grid layout */}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <VotingPanel title="Scores">
               <RusheeScores />
             </VotingPanel>
-            
+
             <VotingPanel title="Bid Committee Notes">
               <RusheeBidCommitteeNotes />
             </VotingPanel>
-            
+
             <VotingPanel title="Comments">
               <RusheeComments />
             </VotingPanel>
-            
+
             <VotingPanel title="PIS Information">
               <RusheePISInfo />
             </VotingPanel>
