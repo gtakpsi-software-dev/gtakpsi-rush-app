@@ -160,6 +160,11 @@ the other mobile public routes had matching control widths and dimensions.
 Screenshots of the settled landing page were visually checked at both widths.
 These checks used placeholder local service URLs and did not exercise signed-in
 screens, form submissions, or backend workflows.
+After slice 620, the full local regression set passed again: client tests,
+scoped lint, typecheck, and production build; guarded API integration; sorting
+and voting WebSocket tests; PIS Socket.IO tests; maintenance tests; and Rust
+formatting for all three crates. This verifies the current checkout locally,
+not the unrun GitHub workflow or deployed services.
 The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a
