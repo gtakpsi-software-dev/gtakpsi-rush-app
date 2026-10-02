@@ -13,7 +13,7 @@ mod verification;
 #[cfg(test)]
 mod tests;
 
-pub use middleware::{require_admin, require_any_brother, require_bidcom_or_admin, AdminUser};
+pub use middleware::{require_admin, require_any_brother, require_bidcom_or_admin};
 
 #[derive(Debug, Clone)]
 pub struct FirebaseAuth {
@@ -103,13 +103,5 @@ impl FirebaseAuth {
             #[cfg(test)]
             identity_toolkit_base_url: None,
         }
-    }
-
-    pub fn is_allowlisted(&self, email: &str) -> bool {
-        self.allowlist.iter().any(|e| e.eq_ignore_ascii_case(email))
-    }
-
-    pub fn has_service_account(&self) -> bool {
-        self.service_account.is_some()
     }
 }

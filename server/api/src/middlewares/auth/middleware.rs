@@ -1,33 +1,10 @@
-use super::{AuthError, FirebaseAuth, FirebaseUser};
-use async_trait::async_trait;
+use super::{AuthError, FirebaseAuth};
 use axum::{
-    extract::{FromRef, FromRequestParts, State},
-    http::{request::Parts, HeaderMap, StatusCode},
+    extract::State,
+    http::{HeaderMap, StatusCode},
     middleware::Next,
 };
 use std::sync::Arc;
-
-pub struct AdminUser(pub FirebaseUser);
-
-#[async_trait]
-impl<S> FromRequestParts<S> for AdminUser
-where
-    Arc<FirebaseAuth>: axum::extract::FromRef<S>,
-    S: Send + Sync,
-{
-    type Rejection = StatusCode;
-
-    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let auth = Arc::<FirebaseAuth>::from_ref(state);
-        let token = extract_bearer(&parts.headers).ok_or(StatusCode::UNAUTHORIZED)?;
-        // Preserve the extractor contract: token failures are 403, while a missing header is 401.
-        let user = auth
-            .verify_token(&token)
-            .await
-            .map_err(|_| StatusCode::FORBIDDEN)?;
-        Ok(AdminUser(user))
-    }
-}
 
 fn extract_bearer(headers: &HeaderMap) -> Option<String> {
     let value = headers.get(axum::http::header::AUTHORIZATION)?;

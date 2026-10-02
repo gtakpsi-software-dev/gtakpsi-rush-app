@@ -1,6 +1,6 @@
 use super::*;
 use crate::middlewares::auth::{
-    require_admin, require_any_brother, require_bidcom_or_admin, AdminUser, FirebaseUser,
+    require_admin, require_any_brother, require_bidcom_or_admin, FirebaseUser,
 };
 use axum::{
     body::{Body, HttpBody},
@@ -32,10 +32,6 @@ async fn app(allowlist: Option<&str>) -> Router {
                 auth.clone(),
                 require_any_brother,
             )),
-        )
-        .route(
-            "/extractor",
-            get(|AdminUser(user): AdminUser| async move { user.uid }),
         )
         .with_state(auth)
 }
@@ -138,37 +134,4 @@ async fn bearer_parsing_preserves_supported_case_and_whitespace_rules() {
             StatusCode::UNAUTHORIZED
         );
     }
-}
-
-#[tokio::test]
-async fn admin_extractor_keeps_its_distinct_invalid_token_status() {
-    let app = app(None).await;
-    assert_eq!(
-        request(&app, "/extractor", None).await.0,
-        StatusCode::UNAUTHORIZED
-    );
-    assert_eq!(
-        request(&app, "/extractor", Some("Basic invalid")).await.0,
-        StatusCode::UNAUTHORIZED
-    );
-    for value in [
-        "Bearer ".to_string(),
-        "Bearer invalid".to_string(),
-        format!("Bearer {}", token(&claims())),
-    ] {
-        assert_eq!(
-            request(&app, "/extractor", Some(&value)).await.0,
-            StatusCode::FORBIDDEN
-        );
-    }
-    let mut claims = claims();
-    claims["admin"] = json!(true);
-    let (status, body) = request(
-        &app,
-        "/extractor",
-        Some(&format!("Bearer {}", token(&claims))),
-    )
-    .await;
-    assert_eq!(status, StatusCode::OK);
-    assert_eq!(body, b"test-brother-uid");
 }

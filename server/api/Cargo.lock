@@ -1881,6 +1881,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "rush-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.6.20",
+ "axum-extra",
+ "bson",
+ "chrono",
+ "chrono-tz",
+ "dotenv",
+ "futures",
+ "jsonwebtoken",
+ "mongodb",
+ "once_cell",
+ "rand",
+ "redis",
+ "reqwest",
+ "rustls 0.23.23",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower 0.4.13",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2173,35 +2201,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.95",
-]
-
-[[package]]
-name = "rush-api"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum 0.6.20",
- "axum-extra",
- "bson",
- "chrono",
- "chrono-tz",
- "dotenv",
- "futures",
- "jsonwebtoken",
- "mongodb",
- "once_cell",
- "rand",
- "redis",
- "reqwest",
- "rustls 0.23.23",
- "serde",
- "serde_json",
- "tokio",
- "tower 0.4.13",
- "tower-http",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

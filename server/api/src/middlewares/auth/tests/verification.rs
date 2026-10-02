@@ -55,8 +55,6 @@ async fn role_claims_require_booleans_and_email_is_optional() {
         auth.verify_token_bidcom(&token).await,
         Err(AuthError::NotAdmin)
     ));
-    assert!(auth.is_allowlisted("BROTHER@EXAMPLE.TEST"));
-    assert!(!auth.is_allowlisted(" brother@example.test "));
 }
 
 #[tokio::test]
@@ -117,7 +115,6 @@ async fn every_verifier_rejects_invalid_identity_claims_and_signature_metadata()
 #[tokio::test]
 async fn missing_service_account_fails_before_any_remote_role_operation() {
     let auth = auth(None).await;
-    assert!(!auth.has_service_account());
     assert!(matches!(
         auth.set_admin_claim("uid", true).await,
         Err(AuthError::ServiceAccountMissing)
