@@ -92,6 +92,27 @@ pub async fn check_contracts() {
         assert_eq!(assigned, json!({ "status": "success", "payload": [] }));
     }
 
+    // A malformed rushee after a matching one rejects the whole brother listing.
+    let raw_collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("rushees");
+    let malformed = raw_collection
+        .insert_one(doc! {"gtid": "malformed", "first_name": "Incomplete"})
+        .await
+        .unwrap();
+    assert_eq!(
+        assigned_rushees("Alex", "Brother").await,
+        json!({
+            "status": "error",
+            "message": "there was an error pushing the stripped rushee to the array"
+        })
+    );
+    raw_collection
+        .delete_one(doc! {"_id": malformed.inserted_id})
+        .await
+        .unwrap();
+
     let full = admin::brother_pis_sign_up(path(), brother("Cam", "Brother"))
         .await
         .unwrap()
