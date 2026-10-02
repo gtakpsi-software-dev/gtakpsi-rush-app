@@ -119,6 +119,7 @@ pub async fn check_contracts() {
         })
     );
     failure_cases::check_attendance_write_failure().await;
+    failure_cases::check_profile_write_failures().await;
     println!(
         "attendance, profile edits, partial-write ordering, and rushee lookup contracts passed"
     );
