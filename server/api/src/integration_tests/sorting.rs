@@ -1,4 +1,5 @@
 mod failure_cases;
+mod malformed_rows;
 mod moves;
 
 use axum::{Extension, Json};
@@ -87,6 +88,7 @@ pub async fn check_contracts() {
     assert_eq!(public_list["payload"][0]["rushNumber"], 0);
     println!("sorting status, note tags, and attribution contracts passed");
 
+    malformed_rows::check_malformed_rows().await;
     moves::check_move_contracts().await;
     failure_cases::check_single_sorting_write_failure().await;
     failure_cases::check_notes_write_failure().await;
