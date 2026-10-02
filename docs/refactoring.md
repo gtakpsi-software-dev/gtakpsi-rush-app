@@ -214,6 +214,15 @@ each runtime change. The profile-field allowlist test now brings the guarded
 API suite to 90 passing tests. GitHub CI and authenticated browser checks
 remain pending. The Firebase first-claim case brings offline maintenance
 coverage to 49 passing tests.
+
+At local commit `edb1e6c`, all six regression groups pass together: 563 client,
+90 guarded API, 33 PIS collaboration, 15 sorting socket, 6 voting socket,
+1 API Redis, and 49 offline maintenance tests. Client typecheck, scoped lint,
+and production build pass, as do formatting and strict all-target Clippy for
+the API and both Rust socket services. This checkpoint uses disposable local
+MongoDB and Redis instances and does not verify deployed service roots or
+authenticated browser flows.
+
 Full client lint still reports the eight
 Attendance errors described above. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
