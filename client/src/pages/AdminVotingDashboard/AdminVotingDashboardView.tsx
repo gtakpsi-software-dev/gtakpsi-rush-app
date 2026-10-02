@@ -1,6 +1,6 @@
 import Navbar from '../../components/Navbar';
 import QuestionDisplay from './QuestionDisplay';
-import RusheePreviewCard from './RusheePreviewCard';
+import RusheePreviewCard from '../../features/voting/admin/RusheePreviewCard';
 import RusheeComments from './RusheeComments';
 import VoteSummary from '../../features/voting/admin/VoteSummary';
 import BrotherList from './BrotherList';

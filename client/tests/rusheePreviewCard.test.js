@@ -11,9 +11,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { loadTsxComponent, loadTsxModule } from "./helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/RusheePreviewCard.tsx", import.meta.url));
-const searchPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/RusheePreviewSearch.tsx", import.meta.url));
-const currentPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/CurrentRusheePreview.tsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../src/features/voting/admin/RusheePreviewCard.tsx", import.meta.url));
+const searchPath = fileURLToPath(new URL("../src/features/voting/admin/RusheePreviewSearch.tsx", import.meta.url));
+const currentPath = fileURLToPath(new URL("../src/features/voting/admin/CurrentRusheePreview.tsx", import.meta.url));
 const searchFunctionsPath = fileURLToPath(new URL("../src/features/voting/admin/previewRusheeSearch.ts", import.meta.url));
 const { filterPreviewRushees, previewRusheeName } = await loadTsxModule(searchFunctionsPath);
 
@@ -38,10 +38,10 @@ async function loadCard({ state = {}, rushee = null } = {}) {
     const posts = [];
     const interactions = () => React.createElement("span", { "data-stub": "interactions" });
     const search = await loadTsxComponent(searchPath, {
-        "../../features/voting/admin/previewRusheeSearch": { previewRusheeName },
+        "./previewRusheeSearch": { previewRusheeName },
     });
     const current = await loadTsxComponent(currentPath, {
-        "../../components/RusheeInteractionsByNight": interactions,
+        "../../../components/RusheeInteractionsByNight": interactions,
     });
     let stateIndex = 0;
     const dependencies = {
@@ -54,18 +54,18 @@ async function loadCard({ state = {}, rushee = null } = {}) {
             },
             useMemo: (calculate) => calculate(),
         },
-        "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
-        "../../components/RusheeInteractionsByNight": interactions,
+        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "../../../components/RusheeInteractionsByNight": interactions,
         axios: { get: async (url) => {
             gets.push(url);
             return { data: { status: "success", payload: [selected] } };
         } },
-        "../../features/admin/api": { adminPost: (url, payload) => {
+        "../../admin/api": { adminPost: (url, payload) => {
             posts.push({ url, payload });
             return Promise.resolve();
         } },
         "react-toastify": { toast: { promise: (request) => request } },
-        "../../features/voting/admin/previewRusheeSearch": { filterPreviewRushees, previewRusheeName },
+        "./previewRusheeSearch": { filterPreviewRushees, previewRusheeName },
         "./RusheePreviewSearch": search,
         "./CurrentRusheePreview": current,
     };

@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-import { adminPost } from "../../features/admin/api";
-import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
+import { adminPost } from "../../admin/api";
+import { useAdminVotingContext } from "./AdminVotingContext";
 import CurrentRusheePreview from "./CurrentRusheePreview";
 import RusheePreviewSearch from "./RusheePreviewSearch";
-import { filterPreviewRushees } from "../../features/voting/admin/previewRusheeSearch";
-import type { Rushee } from "../../features/voting/admin/types";
+import { filterPreviewRushees } from "./previewRusheeSearch";
+import type { Rushee } from "./types";
 
 export default function RusheePreviewCard() {
     const { rushee } = useAdminVotingContext();

@@ -36,7 +36,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     const View = await loadTsxComponent(viewPath, {
         '../../components/Navbar': stub('navbar'),
         './QuestionDisplay': stub('question'),
-        './RusheePreviewCard': stub('rushee'),
+        '../../features/voting/admin/RusheePreviewCard': stub('rushee'),
         './RusheeComments': stub('comments'),
         '../../features/voting/admin/VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
@@ -59,7 +59,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
             AdminVotingContextProvider: ({ children }) => children,
         },
         './QuestionDisplay': stub('question'),
-        './RusheePreviewCard': stub('rushee'),
+        '../../features/voting/admin/RusheePreviewCard': stub('rushee'),
         './RusheeComments': stub('comments'),
         '../../features/voting/admin/VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
