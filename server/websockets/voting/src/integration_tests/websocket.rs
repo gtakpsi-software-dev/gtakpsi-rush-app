@@ -56,6 +56,27 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     assert!(server.admins.contains_key(&17));
     assert!(server.voters.contains_key(&17));
 
+    // Invalid route IDs still receive snapshots and get temporary IDs in each role map.
+    let mut unnamed_admin = connect(&format!("{}/admin/unnamed", server.url)).await;
+    assert_eq!(receive(&mut unnamed_admin).await["type"], "vote_update");
+    assert_eq!(receive(&mut unnamed_admin).await["type"], "rushee_update");
+    assert_eq!(receive(&mut unnamed_admin).await["type"], "question_update");
+    let mut unnamed_voter = connect(&format!("{}/voter/unnamed", server.url)).await;
+    assert_eq!(receive(&mut unnamed_voter).await["type"], "rushee_update");
+    assert_eq!(receive(&mut unnamed_voter).await["type"], "question_update");
+    assert_eq!(server.admins.len(), 2);
+    assert_eq!(server.voters.len(), 2);
+
+    unnamed_admin.close(None).await.unwrap();
+    unnamed_voter.close(None).await.unwrap();
+    tokio::time::timeout(Duration::from_secs(2), async {
+        while server.admins.len() != 1 || server.voters.len() != 1 {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("temporary clients remained registered after disconnect");
+
     for socket in [&mut admin, &mut voter] {
         socket
             .send(Message::Text("not-json".to_owned()))

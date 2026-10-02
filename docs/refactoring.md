@@ -42,6 +42,11 @@ Rust socket executables use their package names,
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
 
+The remaining admin, rushee-profile, and sorting page files were reviewed.
+They now assemble bounded feature hooks, actions, and views; moving their
+remaining state or props into another wrapper would obscure ownership without
+removing a distinct responsibility.
+
 ## Slice ledger
 
 The verified atomic slices are archived by range:
@@ -58,10 +63,6 @@ The verified atomic slices are archived by range:
 - Update the four deployed service roots to the paths in the table, then verify
   their health endpoints and the socket URL wiring without changing event
   payloads.
-- Review the remaining page orchestrators (`Admin.jsx`, `RusheeZoom.jsx`,
-  `AdminSorting.jsx`, and `BidCommitteeSorting.jsx`) only where a smaller boundary
-  clarifies state ownership. Their supporting views and actions already live in
-  feature folders; pin effect timing and request order before moving more code.
 - Cover remaining API failure and partial-write branches with isolated data
   before simplifying their controller logic. Firebase role-claim outcomes need
   a separate safe test setup because they call the remote admin API.
