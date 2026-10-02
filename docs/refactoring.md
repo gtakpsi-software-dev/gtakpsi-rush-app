@@ -129,7 +129,7 @@ for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
 Current verified totals: 583 client tests, 79 server unit tests, 30 collaboration
-tests, 13 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
+tests, 14 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 80 server tests from the latest
 MongoDB integration-feature run, plus 69
 maintenance-script tests. The last client build differs from baseline CSS only

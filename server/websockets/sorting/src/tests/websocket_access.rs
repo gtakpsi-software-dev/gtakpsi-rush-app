@@ -4,6 +4,38 @@ use futures_util::SinkExt;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
 #[tokio::test]
+async fn card_saved_follows_the_latest_join_role() {
+    let (state, mut broadcasts) = state();
+    add_client(&state, "member");
+    let saved = json!({
+        "type": "card_saved", "rushee_id": "card", "new_status": "accepted"
+    });
+    let moved = json!({
+        "type": "card_moved", "rushee_id": "card", "new_status": "accepted"
+    });
+
+    super::send(&state, "member", saved.clone()).await;
+    assert_empty(&mut broadcasts);
+
+    join_admin(&state, "member", Some("Admin")).await;
+    super::send(&state, "member", saved.clone()).await;
+    assert_eq!(super::receive(&mut broadcasts), moved);
+
+    super::send(
+        &state,
+        "member",
+        json!({"type": "join", "is_admin": false, "name": "Viewer"}),
+    )
+    .await;
+    super::send(&state, "member", saved.clone()).await;
+    assert_empty(&mut broadcasts);
+
+    join_admin(&state, "member", Some("Admin Again")).await;
+    super::send(&state, "member", saved).await;
+    assert_eq!(super::receive(&mut broadcasts), moved);
+}
+
+#[tokio::test]
 async fn malformed_text_does_not_close_the_sorting_socket() {
     let server = TestServer::start();
     let (mut socket, _) = connect_async(&server.url).await.unwrap();
