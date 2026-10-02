@@ -160,6 +160,12 @@ the other mobile public routes had matching control widths and dimensions.
 Screenshots of the settled landing page were visually checked at both widths.
 These checks used placeholder local service URLs and did not exercise signed-in
 screens, form submissions, or backend workflows.
+The API route declarations were also compared with baseline `5250f4b`: all 73
+method/path bindings remain in the same public, brother, bid committee, or
+admin route group, and all 71 paths retain their explicit `OPTIONS` setting.
+The sole handler-name difference is the internal spelling correction from
+`get_elibibility` to `get_eligibility`. This static audit does not replace
+deployed endpoint or authenticated browser checks.
 After slice 620, the full local regression set passed again: client tests,
 scoped lint, typecheck, and production build; guarded API integration; sorting
 and voting WebSocket tests; PIS Socket.IO tests; maintenance tests; and Rust
