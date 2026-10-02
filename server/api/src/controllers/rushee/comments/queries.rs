@@ -1,6 +1,5 @@
-use crate::storage::db;
+use crate::storage::{cursor_rows::for_each_valid_row, db};
 use axum::{extract::Path, http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
@@ -12,30 +11,28 @@ pub async fn get_brother_comments(
     let result = collection.find(doc! {}).await;
 
     match result {
-        Ok(mut cursor) => {
+        Ok(cursor) => {
             let mut commented_rushees = Vec::new();
-            while let Some(rushee_res) = cursor.next().await {
-                if let Ok(rushee) = rushee_res {
-                    // Find all comments by this brother on this rushee
-                    let brother_comments: Vec<_> = rushee
-                        .comments
-                        .iter()
-                        .filter(|c| c.brother_name == brother_name)
-                        .cloned()
-                        .collect();
-                    if !brother_comments.is_empty() {
-                        commented_rushees.push(serde_json::json!({
-                            "rushee": {
-                                "gtid": rushee.gtid,
-                                "first_name": rushee.first_name,
-                                "last_name": rushee.last_name,
-                                "image_url": rushee.image_url,
-                            },
-                            "comments": brother_comments
-                        }));
-                    }
+            for_each_valid_row(cursor, |rushee| {
+                let brother_comments: Vec<_> = rushee
+                    .comments
+                    .iter()
+                    .filter(|c| c.brother_name == brother_name)
+                    .cloned()
+                    .collect();
+                if !brother_comments.is_empty() {
+                    commented_rushees.push(serde_json::json!({
+                        "rushee": {
+                            "gtid": rushee.gtid,
+                            "first_name": rushee.first_name,
+                            "last_name": rushee.last_name,
+                            "image_url": rushee.image_url,
+                        },
+                        "comments": brother_comments
+                    }));
                 }
-            }
+            })
+            .await;
             Ok(Json(json!({
                 "status": "success",
                 "payload": commented_rushees
