@@ -111,7 +111,33 @@ pub async fn check_selected_rushee_contract() {
         .query_async(&mut redis)
         .await
         .unwrap();
+
+    let _: () = redis.set("rushee", "prior-selection").await.unwrap();
+    // Denying SET distinguishes a failed write from the partial write above.
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("-set")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
+    let payload = Json(serde_json::from_value(json!({"gtid": GTID})).unwrap());
+    assert_eq!(
+        voting::change_rushee(payload).await.unwrap_err(),
+        StatusCode::INTERNAL_SERVER_ERROR
+    );
+    assert_eq!(
+        redis.get::<_, String>("rushee").await.unwrap(),
+        "prior-selection"
+    );
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("+set")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
     let _: () = redis.del("rushee").await.unwrap();
     reset().await;
-    println!("selected-rushee MongoDB and Redis contract and publish failure passed");
+    println!("selected-rushee MongoDB and Redis success and failure contracts passed");
 }
