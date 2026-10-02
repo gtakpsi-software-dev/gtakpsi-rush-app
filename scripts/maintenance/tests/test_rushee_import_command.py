@@ -51,6 +51,39 @@ class RusheeImportCommandTests(unittest.TestCase):
             "Verified: 1 rushees now in database\n"
         ))
 
+    def test_conversion_failure_keeps_delete_before_insert(self):
+        events = []
+
+        class Collection:
+            def delete_many(self, query):
+                events.append(("delete", query))
+                return types.SimpleNamespace(deleted_count=2)
+
+            def insert_many(self, documents):
+                events.append(("insert", documents))
+
+            def count_documents(self, query):
+                events.append(("count", query))
+
+        def convert_dates(document):
+            events.append(("convert", document))
+            raise ValueError("invalid date")
+
+        output = StringIO()
+        with redirect_stdout(output):
+            with self.assertRaisesRegex(ValueError, "invalid date"):
+                replace_rushees(Collection(), [{"gtid": "123"}], convert_dates)
+
+        self.assertEqual(events, [
+            ("delete", {}),
+            ("convert", {"gtid": "123"}),
+        ])
+        self.assertEqual(output.getvalue(), (
+            "Clearing existing rushees...\n"
+            "Deleted 2 existing rushees\n"
+            "Converting and inserting rushees...\n"
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()
