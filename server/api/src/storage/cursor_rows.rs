@@ -20,9 +20,20 @@ pub(crate) async fn collect_valid_rows<T, E>(
     rows
 }
 
+pub(crate) async fn collect_strict_rows<T, E>(
+    mut cursor: impl Stream<Item = Result<T, E>> + Unpin,
+) -> Result<Vec<T>, E> {
+    // Strict readers reject the full response at the first malformed row.
+    let mut rows = Vec::new();
+    while let Some(row) = cursor.next().await {
+        rows.push(row?);
+    }
+    Ok(rows)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{collect_valid_rows, for_each_valid_row};
+    use super::{collect_strict_rows, collect_valid_rows, for_each_valid_row};
     use futures::stream;
 
     #[tokio::test]
@@ -34,5 +45,11 @@ mod tests {
         let cursor = stream::iter([Ok(1), Err(()), Ok(2)]);
         for_each_valid_row(cursor, |row| visited.push(row)).await;
         assert_eq!(visited, [1, 2]);
+    }
+
+    #[tokio::test]
+    async fn strict_reads_discard_partial_rows_at_the_first_error() {
+        let cursor = stream::iter([Ok(1), Err("invalid"), Ok(2)]);
+        assert_eq!(collect_strict_rows(cursor).await, Err("invalid"));
     }
 }

@@ -1,11 +1,10 @@
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::{doc, Document};
 use serde_json::{json, Value};
 
 use crate::models::pis::{PISTimeslot, PISTimeslotIncoming};
 use crate::services::rush_time;
-use crate::storage::db;
+use crate::storage::{cursor_rows::collect_strict_rows, db};
 
 mod delete;
 pub use delete::delete_pis_timeslot;
@@ -66,7 +65,7 @@ pub async fn add_pis_timeslot(
 
 pub async fn get_pis_timeslots() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_timeslots_client().await;
-    let mut cursor = match connection.find(doc! {}).await {
+    let cursor = match connection.find(doc! {}).await {
         Ok(cursor) => cursor,
         Err(_) => {
             return Ok(timeslot_message(
@@ -76,15 +75,10 @@ pub async fn get_pis_timeslots() -> Result<Json<Value>, StatusCode> {
         }
     };
 
-    let mut pis_timeslots: Vec<PISTimeslot> = Vec::new();
-    while let Some(timeslot) = cursor.next().await {
-        match timeslot {
-            Ok(doc) => pis_timeslots.push(doc),
-            Err(_) => {
-                return Ok(timeslot_message("error", "some error occurred"));
-            }
-        }
-    }
+    let pis_timeslots: Vec<PISTimeslot> = match collect_strict_rows(cursor).await {
+        Ok(timeslots) => timeslots,
+        Err(_) => return Ok(timeslot_message("error", "some error occurred")),
+    };
 
     Ok(Json(json!({
         "status": "success",

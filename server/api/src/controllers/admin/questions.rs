@@ -1,11 +1,10 @@
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::{doc, Document};
 use serde::Deserialize;
 use serde_json::{json, Value};
 
 use crate::models::pis::PISQuestion;
-use crate::storage::db;
+use crate::storage::{cursor_rows::collect_strict_rows, db};
 
 fn question_identity_filter(question: &str, question_type: &str) -> Document {
     // INVARIANT: update and delete match the same exact question/type pair.
@@ -87,7 +86,7 @@ pub async fn delete_pis_question(
 
 pub async fn get_pis_questions() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_questions_client().await;
-    let mut cursor = match connection.find(doc! {}).await {
+    let cursor = match connection.find(doc! {}).await {
         Ok(cursor) => cursor,
         Err(_) => {
             return Ok(question_message(
@@ -97,13 +96,10 @@ pub async fn get_pis_questions() -> Result<Json<Value>, StatusCode> {
         }
     };
 
-    let mut pis_questions: Vec<PISQuestion> = Vec::new();
-    while let Some(question) = cursor.next().await {
-        match question {
-            Ok(doc) => pis_questions.push(doc),
-            Err(_) => return Ok(question_message("error", "some error occurred")),
-        }
-    }
+    let pis_questions: Vec<PISQuestion> = match collect_strict_rows(cursor).await {
+        Ok(questions) => questions,
+        Err(_) => return Ok(question_message("error", "some error occurred")),
+    };
 
     Ok(Json(json!({
         "status": "success",
