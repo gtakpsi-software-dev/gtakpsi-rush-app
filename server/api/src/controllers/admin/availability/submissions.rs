@@ -12,7 +12,6 @@ pub async fn submit_brother_availability(
 ) -> Result<Json<Value>, StatusCode> {
     let collection = db::get_brother_pis_availability_client().await;
 
-    // Convert timeslot strings to DateTime
     let timeslots: Vec<DateTime> = payload
         .available_timeslots
         .iter()
@@ -28,7 +27,8 @@ pub async fn submit_brother_availability(
         submitted_at: DateTime::now(),
     };
 
-    // Upsert - update if exists, insert if not
+    // Replace by brother UID, retaining the existing ignored delete error.
+    // An insert failure after deletion leaves that brother without a submission.
     let filter = doc! { "brother_uid": &payload.brother_uid };
     let _ = collection.delete_one(filter).await;
 

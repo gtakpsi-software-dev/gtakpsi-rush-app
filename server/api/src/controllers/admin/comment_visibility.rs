@@ -15,10 +15,10 @@ pub async fn update_comment_visibility_settings(
 ) -> Result<Json<Value>, StatusCode> {
     let collection = db::get_comment_visibility_settings_client().await;
 
-    // Delete any existing settings document
+    // Readers take the first document, so replacement clears old settings first.
+    // A failed insert leaves the public read on its enabled default.
     let _ = collection.delete_many(doc! {}).await;
 
-    // Insert new settings
     let settings = CommentVisibilitySettings {
         require_comment_to_view: payload.require_comment_to_view,
         updated_at: Some(DateTime::now()),

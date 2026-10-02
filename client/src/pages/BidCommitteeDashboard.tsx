@@ -56,10 +56,8 @@ export default function BidCommitteeDashboard(props: Props) {
                                 console.log(response.data.payload.length);
                                 const fetchedRushees = response.data.payload;
 
-                                // Create the number map based on registration_order
                                 const numberMap: Record<string, string> = {};
                                 fetchedRushees.forEach((rushee) => {
-                                    // Format as 001, 002, etc.
                                     numberMap[rushee.gtid] = String(rushee.registration_order).padStart(3, '0');
                                 });
                                 setRusheeNumberMap(numberMap);
