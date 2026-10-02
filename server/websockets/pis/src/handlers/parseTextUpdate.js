@@ -1,8 +1,3 @@
-/**
- * Text Update Summary:
- * - Keeps the current protocol's validation and empty-string value fallback together.
- * - Preserves accepted field and version types while leaving room writes to the handler.
- */
 function parseTextUpdate(payload) {
     const field = payload?.field;
     const value = typeof payload?.value === 'string' ? payload.value : '';

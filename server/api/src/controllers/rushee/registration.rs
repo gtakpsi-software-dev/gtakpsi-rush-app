@@ -7,12 +7,6 @@ use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};
 use serde_json::{json, Value};
 
-/**
- * Registration Flow Summary:
- * - Keeps GTID validation, PIS reservation, code generation, and insertion in their existing order.
- * - Builds the stored record through a pure mapper without changing response contracts.
- * - Retains the existing reservation before insert behavior if the insert fails.
- */
 pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
     let pis_timeslot = time_helpers::string_to_bson_datetime(&payload.pis_timeslot.to_string());

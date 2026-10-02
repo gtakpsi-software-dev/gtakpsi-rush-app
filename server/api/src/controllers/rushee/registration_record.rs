@@ -1,9 +1,3 @@
-/**
- * Registration Record Summary:
- * - Maps validated input into the stored rushee and PIS signup records.
- * - Keeps the original defaults and shared timeslot/access-code values.
- * - Leaves validation, reservation, randomness, and database writes to the caller.
- */
 use crate::models::{
     misc::RushNight,
     pis::PISSignup,

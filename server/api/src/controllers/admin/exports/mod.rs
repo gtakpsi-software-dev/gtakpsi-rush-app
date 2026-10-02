@@ -1,8 +1,3 @@
-/**
- * Admin Export Summary:
- * - Separates number, personal-info, and PIS schedule exports by response contract.
- * - Keeps each collection read, cursor error policy, field projection, and sort rule intact.
- */
 mod numbers;
 pub use numbers::export_rushee_numbers;
 

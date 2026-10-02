@@ -1,8 +1,3 @@
-/**
- * Lookup Summary:
- * - Isolates list projection so fields exposed from stored records stay explicit.
- * - Preserves cursor-order numbering, response text, and the legacy `stauts` key.
- */
 use crate::controllers::db;
 use crate::middlewares::{attendance, rush_nights::enrich_interactions_by_night};
 use crate::models::rushee::{RusheeModel, StrippedRushee};
