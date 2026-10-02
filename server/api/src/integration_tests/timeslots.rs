@@ -75,6 +75,7 @@ pub async fn check_contracts() {
 
     check_malformed_existing_slot().await;
     check_rejected_creation().await;
+    check_delete_lookup_error().await;
     println!("PIS timeslot create, update, delete, and list contracts passed");
 }
 
@@ -125,4 +126,24 @@ async fn check_rejected_creation() {
         .run_command(doc! { "collMod": "pis-timeslots", "validator": {} })
         .await
         .unwrap();
+}
+
+async fn check_delete_lookup_error() {
+    reset().await;
+    let collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("pis-timeslots");
+    collection
+        .insert_one(doc! {"time": SLOT, "num_available": 2})
+        .await
+        .unwrap();
+
+    // The delete lookup matches this string, but decoding requires a BSON date.
+    // Preserve its error response and leave the malformed row untouched.
+    assert_eq!(
+        admin::delete_pis_timeslot(change(1)).await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
 }
