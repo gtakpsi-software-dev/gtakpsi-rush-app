@@ -74,6 +74,8 @@ pub async fn check_contracts() {
         .await
         .unwrap();
 
+    check_delete_failure().await;
+
     // A valid night before a malformed one must not return a partial schedule.
     collection
         .insert_one(RushNight {
@@ -99,4 +101,33 @@ pub async fn check_contracts() {
         json!({"status": "error", "message": "some error occurred"})
     );
     reset().await;
+}
+
+async fn check_delete_failure() {
+    let database = db::get_mongo_client().await.database("rush-app");
+    let collection = db::get_rush_nights_client().await;
+    collection.drop().await.unwrap();
+
+    // A read-only view makes deletion fail without changing live or shared data.
+    database
+        .run_command(doc! {
+            "create": "rush-nights", "viewOn": "rushees", "pipeline": []
+        })
+        .await
+        .unwrap();
+    let time = DateTime::parse_rfc3339_str(SLOT).unwrap();
+    assert_eq!(
+        admin::delete_rush_night(Json(RushNight {
+            time,
+            name: "Unavailable".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({
+            "status": "error",
+            "message": "there was an issue while deleting the rush night"
+        })
+    );
+    collection.drop().await.unwrap();
 }
