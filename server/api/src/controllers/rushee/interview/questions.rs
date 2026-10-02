@@ -4,7 +4,7 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
-use super::selection::{category_buckets, draw_one_per_bucket};
+use crate::services::pis_question_selection::{category_buckets, draw_one_per_bucket};
 mod store;
 use self::store::{load_questions, save_assignment};
 

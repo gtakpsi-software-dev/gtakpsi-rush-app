@@ -1,6 +1,7 @@
 pub mod comment_ratings;
 pub mod pis_assignments;
 pub mod pis_capacity;
+pub mod pis_question_selection;
 pub mod pis_signup;
 pub mod pis_timeslot_deletion;
 pub mod pis_timeslot_sort;

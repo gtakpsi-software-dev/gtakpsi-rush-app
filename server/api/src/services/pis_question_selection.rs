@@ -2,7 +2,7 @@ use crate::models::pis::PISQuestion;
 use rand::Rng;
 use std::collections::HashMap;
 
-pub(super) fn category_buckets(questions: Vec<PISQuestion>) -> HashMap<String, Vec<PISQuestion>> {
+pub(crate) fn category_buckets(questions: Vec<PISQuestion>) -> HashMap<String, Vec<PISQuestion>> {
     let mut by_category: HashMap<String, Vec<PISQuestion>> = HashMap::new();
     for question in questions.into_iter() {
         if let Some(category) = &question.category {
@@ -15,7 +15,7 @@ pub(super) fn category_buckets(questions: Vec<PISQuestion>) -> HashMap<String, V
     by_category
 }
 
-pub(super) fn draw_one_per_bucket<R: Rng + ?Sized>(
+pub(crate) fn draw_one_per_bucket<R: Rng + ?Sized>(
     by_category: HashMap<String, Vec<PISQuestion>>,
     rng: &mut R,
 ) -> Vec<PISQuestion> {
