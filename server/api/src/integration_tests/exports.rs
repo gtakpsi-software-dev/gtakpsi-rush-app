@@ -4,6 +4,8 @@ use serde_json::json;
 use super::fixtures::*;
 use crate::{controllers::admin, storage::db};
 
+mod failure_cases;
+
 pub async fn check_contracts() {
     reset().await;
     register().await;
@@ -69,4 +71,6 @@ pub async fn check_contracts() {
         2
     );
     println!("admin export number, PII, and PIS schedule contracts passed");
+
+    failure_cases::check_malformed_rushee().await;
 }
