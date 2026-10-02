@@ -12,7 +12,7 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const summaryPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VoteSummary.tsx', import.meta.url));
-const chartPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VotePieChart.tsx', import.meta.url));
+const chartPath = fileURLToPath(new URL('../src/features/voting/admin/VotePieChart.tsx', import.meta.url));
 
 async function loadSummary(votes) {
     const posts = [];
@@ -31,7 +31,7 @@ async function loadSummary(votes) {
             },
         },
         'react-toastify': { toast: { promise: (promise) => promise } },
-        './VotePieChart': VotePieChart,
+        '../../features/voting/admin/VotePieChart': VotePieChart,
     };
     const source = (await readFile(summaryPath, 'utf8'))
         .replaceAll('import.meta.env.VITE_API_PREFIX', '"/api"');

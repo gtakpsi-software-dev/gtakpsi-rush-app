@@ -3,7 +3,7 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import { FaSync } from "react-icons/fa";
 import { adminPost } from "../../features/admin/api";
 import { toast } from "react-toastify";
-import VotePieChart from "./VotePieChart";
+import VotePieChart from "../../features/voting/admin/VotePieChart";
 
 interface VoteSummaryProps {
   showBreakdown?: boolean;
