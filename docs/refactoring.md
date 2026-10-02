@@ -102,6 +102,8 @@ Disposable containers returned HTTP 200 from `/health`, `/health`, and `/`,
 respectively, using the renamed release executables. Their local images and
 containers were removed after verification; deployed Railway roots remain
 unverified.
+The PIS Socket.IO entrypoint also returned HTTP 200 from `/health` on a
+disposable local port and exited cleanly on `SIGTERM`.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
 
