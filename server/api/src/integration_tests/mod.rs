@@ -15,6 +15,7 @@ mod rush_nights;
 mod rushee_lists;
 mod sorting;
 mod timeslots;
+mod voting;
 
 use crate::storage::db;
 use mongodb::{bson::doc, Client};
@@ -55,4 +56,5 @@ async fn database_contracts() {
     timeslots::check_contracts().await;
     rush_nights::check_contracts().await;
     exports::check_contracts().await;
+    voting::check_missing_rushee_contracts().await;
 }
