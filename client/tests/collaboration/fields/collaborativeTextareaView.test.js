@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 
-const viewPath = fileURLToPath(new URL('../src/features/collaboration/CollaborativeTextareaView.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeTextareaView.tsx', import.meta.url));
 
 test('textarea view preserves input handlers, cursor positions, and cursor colors', async () => {
     const caretCalls = [];

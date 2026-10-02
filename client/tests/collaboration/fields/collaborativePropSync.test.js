@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { syncPropValue } from '../src/features/collaboration/syncPropValue.js';
+import { syncPropValue } from '../../../src/features/collaboration/syncPropValue.js';
 
 function setup(overrides = {}) {
     const changes = [];

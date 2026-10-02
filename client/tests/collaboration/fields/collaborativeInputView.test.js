@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 
-const viewPath = fileURLToPath(new URL('../src/features/collaboration/CollaborativeInputView.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeInputView.tsx', import.meta.url));
 
 test('input view keeps field handlers, state, and lock label attached', async () => {
     const View = await loadTsxComponent(viewPath);

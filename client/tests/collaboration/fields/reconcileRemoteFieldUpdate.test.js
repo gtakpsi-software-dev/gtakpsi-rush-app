@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { reconcileRemoteFieldUpdate } from '../src/features/collaboration/reconcileRemoteFieldUpdate.js';
+import { reconcileRemoteFieldUpdate } from '../../../src/features/collaboration/reconcileRemoteFieldUpdate.js';
 
 function setup(overrides = {}) {
     const calls = [];

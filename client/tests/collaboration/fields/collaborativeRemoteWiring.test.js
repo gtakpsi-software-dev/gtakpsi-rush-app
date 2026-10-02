@@ -3,14 +3,14 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import React from 'react';
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
-import { syncPropValue } from '../src/features/collaboration/syncPropValue.js';
-import { clearLocalChangeTimers, scheduleLocalChangeTimers } from '../src/features/collaboration/scheduleLocalChangeTimers.js';
+import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
+import { syncPropValue } from '../../../src/features/collaboration/syncPropValue.js';
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from '../../../src/features/collaboration/scheduleLocalChangeTimers.js';
 
 const fields = [
     {
         name: 'input',
-        path: fileURLToPath(new URL('../src/features/collaboration/CollaborativeInput.tsx', import.meta.url)),
+        path: fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeInput.tsx', import.meta.url)),
         viewImport: './CollaborativeInputView',
         fieldProp: 'fieldKey',
         deferMs: 500,
@@ -18,7 +18,7 @@ const fields = [
     },
     {
         name: 'textarea',
-        path: fileURLToPath(new URL('../src/features/collaboration/CollaborativeTextarea.tsx', import.meta.url)),
+        path: fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeTextarea.tsx', import.meta.url)),
         viewImport: './CollaborativeTextareaView',
         fieldProp: 'questionKey',
         deferMs: 650,

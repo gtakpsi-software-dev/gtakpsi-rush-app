@@ -5,21 +5,21 @@ import test from "node:test";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent, loadTsxModule } from "./helpers/loadTsxComponent.js";
-import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
-import { reconcileRemoteFieldUpdate } from "../src/features/collaboration/reconcileRemoteFieldUpdate.js";
-import { syncPropValue } from "../src/features/collaboration/syncPropValue.js";
-import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../src/features/collaboration/scheduleLocalChangeTimers.js";
+import { loadTsxComponent, loadTsxModule } from "../../helpers/loadTsxComponent.js";
+import { activeCursorsForField } from "../../../src/features/collaboration/activeCursorsForField.js";
+import { reconcileRemoteFieldUpdate } from "../../../src/features/collaboration/reconcileRemoteFieldUpdate.js";
+import { syncPropValue } from "../../../src/features/collaboration/syncPropValue.js";
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../../../src/features/collaboration/scheduleLocalChangeTimers.js";
 
 const components = {
-    input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInput.tsx", import.meta.url)),
-    textarea: fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextarea.tsx", import.meta.url)),
+    input: fileURLToPath(new URL("../../../src/features/collaboration/CollaborativeInput.tsx", import.meta.url)),
+    textarea: fileURLToPath(new URL("../../../src/features/collaboration/CollaborativeTextarea.tsx", import.meta.url)),
 };
 const views = {
-    input: fileURLToPath(new URL("../src/features/collaboration/CollaborativeInputView.tsx", import.meta.url)),
-    textarea: fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextareaView.tsx", import.meta.url)),
+    input: fileURLToPath(new URL("../../../src/features/collaboration/CollaborativeInputView.tsx", import.meta.url)),
+    textarea: fileURLToPath(new URL("../../../src/features/collaboration/CollaborativeTextareaView.tsx", import.meta.url)),
 };
-const presencePath = fileURLToPath(new URL("../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
+const presencePath = fileURLToPath(new URL("../../../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
 
 const cursors = [1, 2, 3, 4].map((index) => ({
     id: `user-${index}`, name: `Editor ${index}`, cursor: index,

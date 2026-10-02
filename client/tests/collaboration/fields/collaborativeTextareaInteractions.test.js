@@ -7,11 +7,11 @@ import { runInNewContext } from "node:vm";
 
 import React from "react";
 import { transformWithEsbuild } from "vite";
-import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../src/features/collaboration/scheduleLocalChangeTimers.js";
-import { loadTsxModule } from "./helpers/loadTsxComponent.js";
+import { clearLocalChangeTimers, scheduleLocalChangeTimers } from "../../../src/features/collaboration/scheduleLocalChangeTimers.js";
+import { loadTsxModule } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/collaboration/CollaborativeTextarea.tsx", import.meta.url));
-const presencePath = fileURLToPath(new URL("../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/collaboration/CollaborativeTextarea.tsx", import.meta.url));
+const presencePath = fileURLToPath(new URL("../../../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
 
 async function loadTextarea({ cursors = [] } = {}) {
     const presence = await loadTsxModule(presencePath, {

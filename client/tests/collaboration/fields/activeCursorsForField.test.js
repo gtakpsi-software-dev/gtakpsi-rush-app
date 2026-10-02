@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { activeCursorsForField } from "../src/features/collaboration/activeCursorsForField.js";
+import { activeCursorsForField } from "../../../src/features/collaboration/activeCursorsForField.js";
 
 test("active cursor API takes precedence and only textarea callers cap overlays", () => {
     const calls = [];
