@@ -11,6 +11,8 @@ pub async fn update_cloud(
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
 
+    // Keep the original `_id` lookup and success-on-no-match contract during this refactor.
+    // Registered rushees are normally addressed elsewhere by GTID.
     let filter = doc! {"_id": id};
     let update = doc! {"$set": doc! {"cloud": payload}};
 
@@ -37,35 +39,33 @@ pub async fn update_rushee(
 
     // Apply edits in order; a later invalid field leaves earlier writes committed.
     for edit in payload.iter() {
-        if validation::pis_signup_synced_fields().contains(&edit.field) {
-            let filter = doc! {"gtid": id.clone()};
-            let update = doc! {
+        let synced = validation::pis_signup_synced_fields().contains(&edit.field);
+        let update = if synced {
+            doc! {
                 "$set": {
                     edit.field.clone(): edit.new_value.clone(),
                     format!("pis_signup.rushee_{}", edit.field.clone()): edit.new_value.clone()
                 }
-            };
-
-            if let Err(err) = connection.update_one(filter, update).await {
-                return Ok(Json(json!({
-                    "status": "error",
-                    "message": err.to_string()
-                })));
             }
         } else if validation::editable_rushee_fields().contains(&edit.field) {
-            let filter = doc! {"gtid": id.clone()};
-            let update = doc! {"$set": doc! { edit.field.clone(): edit.new_value.clone() }};
-
-            if connection.update_one(filter, update).await.is_err() {
-                return Ok(Json(json!({
-                    "status": "error",
-                    "message": "Some error occurred when updating the rushee"
-                })));
-            }
+            doc! {"$set": doc! { edit.field.clone(): edit.new_value.clone() }}
         } else {
             return Ok(Json(json!({
                 "status": "error",
                 "message": format!("Invalid rushee field passed in: {}", edit.field)
+            })));
+        };
+
+        let filter = doc! {"gtid": id.clone()};
+        if let Err(err) = connection.update_one(filter, update).await {
+            let message = if synced {
+                err.to_string()
+            } else {
+                "Some error occurred when updating the rushee".to_string()
+            };
+            return Ok(Json(json!({
+                "status": "error",
+                "message": message
             })));
         }
     }
