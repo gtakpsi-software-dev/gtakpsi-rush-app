@@ -9,13 +9,10 @@ use std::sync::Arc;
 fn extract_bearer(headers: &HeaderMap) -> Option<String> {
     let value = headers.get(axum::http::header::AUTHORIZATION)?;
     let value = value.to_str().ok()?;
-    if let Some(rest) = value.strip_prefix("Bearer ") {
-        Some(rest.to_string())
-    } else if let Some(rest) = value.strip_prefix("bearer ") {
-        Some(rest.to_string())
-    } else {
-        None
-    }
+    value
+        .strip_prefix("Bearer ")
+        .or_else(|| value.strip_prefix("bearer "))
+        .map(str::to_string)
 }
 
 pub async fn require_admin<B>(
