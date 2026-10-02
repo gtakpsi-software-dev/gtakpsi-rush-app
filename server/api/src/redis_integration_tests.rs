@@ -88,6 +88,8 @@ async fn voting_redis_contracts() {
         serde_json::from_str(&published_vote.get_payload::<String>().unwrap()).unwrap();
     assert_eq!(published_vote, stored);
 
+    failure_cases::assert_vote_write_failure(&mut redis).await;
+
     assert_eq!(voting::clear_votes().await.unwrap().0["status"], "success");
     let cleared = tokio::time::timeout(Duration::from_secs(2), messages.next())
         .await
