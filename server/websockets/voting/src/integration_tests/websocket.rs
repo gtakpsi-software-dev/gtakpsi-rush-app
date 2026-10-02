@@ -100,6 +100,8 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     voter_socket::spawn_pubsub_listener(server.voters.clone()).await;
     wait_for_subscribers(&mut conn).await;
 
+    // Invalid UTF-8 cannot form a client event; a later valid update must still arrive.
+    let _: i64 = conn.publish("question", vec![0xffu8, 0xfe]).await.unwrap();
     let _: i64 = conn
         .publish("question", r#"{"prompt":"new"}"#)
         .await
