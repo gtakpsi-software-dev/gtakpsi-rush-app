@@ -51,6 +51,7 @@ The verified atomic slices are archived by range:
 - [Slices 201–300](refactoring-history/201-300.md)
 - [Slices 301–400](refactoring-history/301-400.md)
 - [Slices 401–500](refactoring-history/401-500.md)
+- [Slices 501–600](refactoring-history/501-600.md)
 
 ## Remaining work
 
@@ -58,7 +59,7 @@ The verified atomic slices are archived by range:
   their health endpoints and the socket URL wiring without changing event
   payloads.
 - Finish dense client page and feature boundaries, including Admin, Rushee Zoom,
-  sorting, Attendance presentation, and collaboration code. Pin JSX, effect
+  sorting, and collaboration code. Pin JSX, effect
   timing, request order, and state ownership before each move.
 - Cover remaining API branches with isolated database tests, then simplify
   controller and assignment logic under those tests.

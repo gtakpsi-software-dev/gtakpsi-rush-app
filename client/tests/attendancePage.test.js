@@ -9,8 +9,10 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { createAttendanceActions } from "../src/features/attendance/createAttendanceActions.js";
+import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Attendance.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/attendance/AttendanceView.tsx", import.meta.url));
 
 async function loadPage({ state = {}, getResponse, postResponse, getFailure = false, postFailure = false } = {}) {
     const updates = [];
@@ -35,6 +37,12 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
         Stub.displayName = name;
         return Stub;
     };
+    const AttendanceView = await loadTsxComponent(viewPath, {
+        "../../components/Loader": stub("loader"),
+        "../../components/AttendanceComponents/SplashPage": stub("splash"),
+        "../../components/AttendanceComponents/DisplayInfo": stub("info"),
+        "../../components/AttendanceComponents/SuccessPage": stub("success"),
+    });
 
     runInNewContext(code, {
         module,
@@ -53,10 +61,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
                         effects.push({ callback, dependencies });
                     },
                 },
-                "../components/Loader": stub("loader"),
-                "../components/AttendanceComponents/SplashPage": stub("splash"),
-                "../components/AttendanceComponents/DisplayInfo": stub("info"),
-                "../components/AttendanceComponents/SuccessPage": stub("success"),
+                "../features/attendance/AttendanceView": AttendanceView,
                 "react-toastify": { toast: { error: (message, options) => errors.push([message, options]) } },
                 "react-toastify/dist/ReactToastify.css": {},
                 "../features/registration/registrationVerification": {},
@@ -87,6 +92,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
 
 function renderBranch(page) {
     let element = page.Page();
+    element = element.type(element.props);
     while (typeof element.type === "string") {
         element = element.props.children;
     }

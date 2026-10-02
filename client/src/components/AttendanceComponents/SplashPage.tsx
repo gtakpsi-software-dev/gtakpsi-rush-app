@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 type Props = {
     setGtid: (gtid: string) => void;
     func: () => void;
+    gtid?: string;
 };
 
 export default function SplashPage(props: Props) {

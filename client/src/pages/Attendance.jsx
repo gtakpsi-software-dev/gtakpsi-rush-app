@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 
-import Loader from "../components/Loader";
-import SplashPage from "../components/AttendanceComponents/SplashPage";
+import AttendanceView from "../features/attendance/AttendanceView";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { verifyUser } from "../features/auth/verifyUser";
 import axios from "axios";
-import DisplayInfo from "../components/AttendanceComponents/DisplayInfo";
-import SuccessPage from "../components/AttendanceComponents/SuccessPage";
 import { useNavigate } from "react-router-dom";
 import { createAttendanceActions } from "../features/attendance/createAttendanceActions";
 
@@ -67,24 +64,15 @@ export default function Attendance() {
     });
 
     return (
-        <div>
-            {loading ? (
-                <Loader />
-            ) : (
-                <div>
-                    {page == 0 ? (
-                        <SplashPage func={handleSubmit} gtid={gtid} setGtid={setGtid} />
-                    ) : (
-                        <div>
-                            {page == 1 ? (
-                                <DisplayInfo rushee={rushee} goBack={goBack} checkIn={checkIn} />
-                            ) : (
-                                <SuccessPage goBack={goBack} />
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+        <AttendanceView
+            loading={loading}
+            page={page}
+            gtid={gtid}
+            setGtid={setGtid}
+            rushee={rushee}
+            handleSubmit={handleSubmit}
+            goBack={goBack}
+            checkIn={checkIn}
+        />
     );
 }

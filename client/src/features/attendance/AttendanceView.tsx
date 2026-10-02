@@ -1,0 +1,43 @@
+import type { ComponentProps } from "react";
+
+import Loader from "../../components/Loader";
+import SplashPage from "../../components/AttendanceComponents/SplashPage";
+import DisplayInfo from "../../components/AttendanceComponents/DisplayInfo";
+import SuccessPage from "../../components/AttendanceComponents/SuccessPage";
+
+type AttendanceViewProps = {
+    loading: boolean | undefined;
+    page: number;
+    gtid: string | undefined;
+    setGtid: (gtid: string) => void;
+    rushee: ComponentProps<typeof DisplayInfo>["rushee"];
+    handleSubmit: () => void;
+    goBack: () => void;
+    checkIn: () => void;
+};
+
+export default function AttendanceView({
+    loading, page, gtid, setGtid, rushee, handleSubmit, goBack, checkIn,
+}: AttendanceViewProps) {
+    return (
+        <div>
+            {loading ? (
+                <Loader />
+            ) : (
+                <div>
+                    {page == 0 ? (
+                        <SplashPage func={handleSubmit} gtid={gtid} setGtid={setGtid} />
+                    ) : (
+                        <div>
+                            {page == 1 ? (
+                                <DisplayInfo rushee={rushee} goBack={goBack} checkIn={checkIn} />
+                            ) : (
+                                <SuccessPage goBack={goBack} />
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
