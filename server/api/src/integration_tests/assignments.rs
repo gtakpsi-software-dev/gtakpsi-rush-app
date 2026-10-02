@@ -4,6 +4,8 @@ use serde_json::json;
 use super::fixtures::{register, reset, stored_rushee, SLOT};
 use crate::{controllers::admin, models::pis::BrotherPISAvailability, storage::db};
 
+mod failure_cases;
+
 async fn add_availability_at(first: &str, last: &str, slot: &str) {
     db::get_brother_pis_availability_client()
         .await
@@ -113,5 +115,6 @@ pub async fn check_contracts() {
         .run_command(doc! { "collMod": "rushees", "validator": {} })
         .await
         .unwrap();
+    failure_cases::check_clear_failure().await;
     println!("PIS auto-assignment and clearing contracts passed");
 }
