@@ -9,12 +9,12 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { loadTsxComponent, loadTsxModule } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent, loadTsxModule } from "../../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/features/voting/admin/RusheePreviewCard.tsx", import.meta.url));
-const searchPath = fileURLToPath(new URL("../src/features/voting/admin/RusheePreviewSearch.tsx", import.meta.url));
-const currentPath = fileURLToPath(new URL("../src/features/voting/admin/CurrentRusheePreview.tsx", import.meta.url));
-const searchFunctionsPath = fileURLToPath(new URL("../src/features/voting/admin/previewRusheeSearch.ts", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../../src/features/voting/admin/RusheePreviewCard.tsx", import.meta.url));
+const searchPath = fileURLToPath(new URL("../../../src/features/voting/admin/RusheePreviewSearch.tsx", import.meta.url));
+const currentPath = fileURLToPath(new URL("../../../src/features/voting/admin/CurrentRusheePreview.tsx", import.meta.url));
+const searchFunctionsPath = fileURLToPath(new URL("../../../src/features/voting/admin/previewRusheeSearch.ts", import.meta.url));
 const { filterPreviewRushees, previewRusheeName } = await loadTsxModule(searchFunctionsPath);
 
 const selected = {

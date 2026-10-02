@@ -6,14 +6,14 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { MAJOR_OPTIONS } from "../src/data/majorOptions.js";
-import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../src/data/profileOptions.js";
-import { formatPhoneInput } from "../src/lib/formatPhoneInput.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { MAJOR_OPTIONS } from "../../../src/data/majorOptions.js";
+import { PRONOUN_OPTIONS, YEAR_OPTIONS } from "../../../src/data/profileOptions.js";
+import { formatPhoneInput } from "../../../src/lib/formatPhoneInput.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
-const contactPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileContactFields.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeProfileForm.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/rushee/self/RusheeProfileForm.tsx", import.meta.url));
+const contactPath = fileURLToPath(new URL("../../../src/features/rushee/self/RusheeProfileContactFields.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeProfileForm.json", import.meta.url));
 const rushee = {
     first_name: "Ada", last_name: "One", housing: "Hall",
     phone_number: "(404) 555-1234", email: "ada@example.com", gtid: "123456789",

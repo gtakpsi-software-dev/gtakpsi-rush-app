@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { submitRusheePhoto } from "../src/features/rushee/self/submitRusheePhoto.js";
+import { submitRusheePhoto } from "../../../src/features/rushee/self/submitRusheePhoto.js";
 
 const toastOptions = {
     position: "top-center", autoClose: 5000, hideProgressBar: false,

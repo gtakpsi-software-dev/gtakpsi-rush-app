@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { submitProfileChanges } from "../src/features/rushee/self/submitProfileChanges.js";
+import { submitProfileChanges } from "../../../src/features/rushee/self/submitProfileChanges.js";
 
 const original = {
     first_name: "Ada", last_name: "One", housing: "Hall", phone_number: "4045551234",

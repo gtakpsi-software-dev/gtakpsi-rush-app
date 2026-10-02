@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { nightMatches, mergeRushNights, computeInteractionsByNight, formatNightInteractionLine } from '../src/features/rushee/interactions.js';
+import { nightMatches, mergeRushNights, computeInteractionsByNight, formatNightInteractionLine } from '../../../src/features/rushee/interactions.js';
 
 test('nights match by normalized name or Eastern calendar day across UTC midnight', () => {
     assert.equal(nightMatches({ name: ' NIGHT 1 ' }, { name: 'Night 1' }), true);

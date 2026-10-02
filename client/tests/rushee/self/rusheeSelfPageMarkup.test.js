@@ -9,12 +9,12 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/RusheePage.jsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeSelfPageView.tsx", import.meta.url));
-const summaryPath = fileURLToPath(new URL("../src/features/rushee/self/RusheeProfileSummary.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeSelfPageMarkup.json", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../../src/pages/RusheePage.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../../src/features/rushee/self/RusheeSelfPageView.tsx", import.meta.url));
+const summaryPath = fileURLToPath(new URL("../../../src/features/rushee/self/RusheeProfileSummary.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeSelfPageMarkup.json", import.meta.url));
 
 const rushee = {
     first_name: "Ada", last_name: "Example", image_url: "/ada.jpg",

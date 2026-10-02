@@ -5,14 +5,14 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 import {
     computeInteractionsByNight,
     formatNightInteractionLine,
-} from "../src/features/rushee/interactions.js";
+} from "../../../src/features/rushee/interactions.js";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/components/RusheeInteractionsByNight.tsx", import.meta.url,
+    "../../../src/components/RusheeInteractionsByNight.tsx", import.meta.url,
 ));
 
 test("interaction summaries keep regular, compact, and empty markup", async () => {
