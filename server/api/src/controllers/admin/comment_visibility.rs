@@ -65,18 +65,14 @@ pub async fn get_comment_visibility_settings() -> Result<Json<Value>, StatusCode
 pub async fn get_comment_visibility_status() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_comment_visibility_settings_client().await;
 
-    match collection.find_one(doc! {}).await {
-        Ok(Some(settings)) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": settings.require_comment_to_view
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": true  // Default to enabled (existing behavior)
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "success",
-            "require_comment_to_view": true  // On error, default to existing behavior
-        }))),
-    }
+    // Keep comment visibility restricted when settings are absent or unreadable.
+    let require_comment_to_view = match collection.find_one(doc! {}).await {
+        Ok(Some(settings)) => settings.require_comment_to_view,
+        Ok(None) | Err(_) => true,
+    };
+
+    Ok(Json(json!({
+        "status": "success",
+        "require_comment_to_view": require_comment_to_view
+    })))
 }
