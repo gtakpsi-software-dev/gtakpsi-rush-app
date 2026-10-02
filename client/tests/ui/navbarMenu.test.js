@@ -6,12 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/navigation/NavbarMenu.tsx", import.meta.url));
-const moreItemsPath = fileURLToPath(new URL("../src/features/navigation/NavbarMoreItems.tsx", import.meta.url));
-const adminItemsPath = fileURLToPath(new URL("../src/features/navigation/NavbarAdminItems.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/navbarMenu.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/navigation/NavbarMenu.tsx", import.meta.url));
+const moreItemsPath = fileURLToPath(new URL("../../src/features/navigation/NavbarMoreItems.tsx", import.meta.url));
+const adminItemsPath = fileURLToPath(new URL("../../src/features/navigation/NavbarAdminItems.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/navbarMenu.json", import.meta.url));
 
 // The link stub keeps snapshots focused on Navbar's markup, independent of router internals.
 // eslint-disable-next-line react/prop-types

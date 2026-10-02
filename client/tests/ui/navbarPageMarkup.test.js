@@ -9,9 +9,9 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { parseAdminAllowlist } from "../src/features/auth/parseAdminAllowlist.js";
+import { parseAdminAllowlist } from "../../src/features/auth/parseAdminAllowlist.js";
 
-const navbarPath = fileURLToPath(new URL("../src/components/Navbar.tsx", import.meta.url));
+const navbarPath = fileURLToPath(new URL("../../src/components/Navbar.tsx", import.meta.url));
 const requireFromNavbar = createRequire(navbarPath);
 
 async function renderNavbar(state, props = {}, midterm = false) {

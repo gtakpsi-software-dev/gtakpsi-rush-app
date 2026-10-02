@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/components/Error.tsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/components/Error.tsx", import.meta.url));
 
 async function loadPage(params, navigate = () => {}) {
     return loadTsxComponent(pagePath, {

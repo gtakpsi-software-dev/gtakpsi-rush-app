@@ -9,7 +9,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { transformWithEsbuild } from "vite";
 
-const shaderPath = fileURLToPath(new URL("../src/features/notFound/LiquidShader.jsx", import.meta.url));
+const shaderPath = fileURLToPath(new URL("../../src/features/notFound/LiquidShader.jsx", import.meta.url));
 
 async function loadShader() {
     const source = await readFile(shaderPath, "utf8");
