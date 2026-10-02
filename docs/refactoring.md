@@ -69,6 +69,9 @@ export or conditional branch is used.
 The collaboration hook's unused legacy operation exports and private helper
 were removed. No runtime source imported them, and the production JS and CSS
 asset hashes stayed identical after removal.
+The test-only alternate API-client factory was removed; the default client's
+prefix, API-key interceptor, and error forwarding still have direct tests.
+Production asset hashes remained identical.
 The PIS Socket.IO entrypoint reaches all 14 source modules through static
 imports. Current Rust build/test dependency lists cover all 151 API source
 files, 16 sorting socket files, and 22 voting socket files; the API's Redis

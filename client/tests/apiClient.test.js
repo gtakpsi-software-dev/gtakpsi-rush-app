@@ -44,34 +44,25 @@ async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
     return { api: module.exports, instances };
 }
 
-test("default and custom API clients share the prefix and add the API key", async () => {
+test("the API client keeps the prefix and adds the API key", async () => {
     const { api, instances } = await loadApiClient();
-    const extraHeaders = { Authorization: "Bearer token" };
-    const custom = api.createApiInstance(extraHeaders);
 
     assert.equal(api.default, instances[0]);
-    assert.equal(custom, instances[1]);
+    assert.equal(instances.length, 1);
     assert.equal(instances[0].config.baseURL, "/api");
-    assert.equal(instances[1].config.baseURL, "/api");
-    assert.equal(instances[1].config.headers, extraHeaders);
-    for (const instance of instances) {
-        const request = { headers: {} };
-        assert.equal(instance.onRequest(request), request);
-        assert.equal(request.headers["X-API-Key"], "rush-key");
-        const error = new Error("request failed");
-        await assert.rejects(instance.onError(error), (reason) => reason === error);
-    }
+    const request = { headers: {} };
+    assert.equal(instances[0].onRequest(request), request);
+    assert.equal(request.headers["X-API-Key"], "rush-key");
+    const error = new Error("request failed");
+    await assert.rejects(instances[0].onError(error), (reason) => reason === error);
 });
 
 test("missing environment settings retain empty prefix and leave headers untouched", async () => {
-    const { api, instances } = await loadApiClient({ apiPrefix: "", apiKey: "" });
-    api.createApiInstance();
-    for (const instance of instances) {
-        assert.equal(instance.config.baseURL, "");
-        const request = { headers: { Existing: "value" } };
-        assert.equal(instance.onRequest(request), request);
-        assert.equal(request.headers.Existing, "value");
-        assert.equal(Object.hasOwn(request.headers, "X-API-Key"), false);
-    }
-    assert.equal(Object.keys(instances[1].config.headers).length, 0);
+    const { instances } = await loadApiClient({ apiPrefix: "", apiKey: "" });
+    assert.equal(instances.length, 1);
+    assert.equal(instances[0].config.baseURL, "");
+    const request = { headers: { Existing: "value" } };
+    assert.equal(instances[0].onRequest(request), request);
+    assert.equal(request.headers.Existing, "value");
+    assert.equal(Object.hasOwn(request.headers, "X-API-Key"), false);
 });

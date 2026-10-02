@@ -20,10 +20,3 @@ const apiClient = addApiKeyInterceptor(axios.create({
 }));
 
 export default apiClient;
-
-export function createApiInstance(additionalHeaders = {}) {
-    return addApiKeyInterceptor(axios.create({
-        baseURL: import.meta.env.VITE_API_PREFIX || '',
-        headers: additionalHeaders,
-    }));
-}
