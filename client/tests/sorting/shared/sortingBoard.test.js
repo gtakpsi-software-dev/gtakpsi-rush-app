@@ -8,7 +8,7 @@ import {
     MAX_SCALE,
     createEmptyColumns,
     groupSortingRows,
-} from "../src/features/sorting/board.js";
+} from "../../../src/features/sorting/board.js";
 
 test("sorting boards keep their six column labels and visible tag classes", () => {
     assert.deepEqual(STATUSES, [

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { cleanupStaleSortingGhosts } from "../src/features/sorting/cleanupStaleSortingGhosts.js";
+import { cleanupStaleSortingGhosts } from "../../../src/features/sorting/cleanupStaleSortingGhosts.js";
 
 function harness(timestamps) {
     const calls = [];

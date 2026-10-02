@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { subscribeToSortingAuth } from '../src/features/sorting/subscribeToSortingAuth.js';
+import { subscribeToSortingAuth } from '../../../src/features/sorting/subscribeToSortingAuth.js';
 
 test('completed sorting auth checks do not create another listener', () => {
     const calls = [];

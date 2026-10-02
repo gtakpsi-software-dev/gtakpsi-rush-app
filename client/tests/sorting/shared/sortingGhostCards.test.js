@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/sortingGhostCards.json", import.meta.url));
-const componentPath = fileURLToPath(new URL("../src/features/sorting/SortingGhostCards.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/sortingGhostCards.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/sorting/SortingGhostCards.tsx", import.meta.url));
 
 function loadGhostCards() {
     return loadTsxComponent(componentPath);

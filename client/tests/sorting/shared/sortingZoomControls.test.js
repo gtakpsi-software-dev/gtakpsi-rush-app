@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/sortingZoomControls.json", import.meta.url));
-const componentPath = fileURLToPath(new URL("../src/features/sorting/SortingZoomControls.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/sortingZoomControls.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/sorting/SortingZoomControls.tsx", import.meta.url));
 
 function loadControls() {
     return loadTsxComponent(componentPath);

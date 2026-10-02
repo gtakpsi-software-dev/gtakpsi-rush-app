@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { startSortingConnectionLifecycle } from "../src/features/sorting/startSortingConnectionLifecycle.js";
+import { startSortingConnectionLifecycle } from "../../../src/features/sorting/startSortingConnectionLifecycle.js";
 
 test("sorting connection starts before its sweep and clears the timer without a socket", () => {
     const events = [];

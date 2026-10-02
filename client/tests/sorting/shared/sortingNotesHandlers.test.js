@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { harness, rushee } from "./helpers/sortingNotesHarness.js";
+import { harness, rushee } from "../../helpers/sortingNotesHarness.js";
 
 test("opening notes keeps the request path and success fallbacks", async () => {
     const urls = [];

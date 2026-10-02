@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { connectSortingAdmin } from "../src/features/sorting/connectSortingAdmin.js";
+import { connectSortingAdmin } from "../../../src/features/sorting/connectSortingAdmin.js";
 
 function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
     const sockets = [];
