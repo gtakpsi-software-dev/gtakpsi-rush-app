@@ -8,7 +8,6 @@ use serde_json::{json, Value};
 
 mod signup;
 pub use signup::brother_pis_sign_up;
-mod slot_selection;
 
 pub async fn get_brother_pis(
     Json(payload): Json<IncomingBrotherName>,

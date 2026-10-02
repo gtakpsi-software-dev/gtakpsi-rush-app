@@ -6,7 +6,7 @@ use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 use serde_json::{json, Value};
 
-use super::slot_selection::{select_signup_slot, SignupSlot};
+use crate::services::pis_signup::{select_signup_slot, SignupSlot};
 
 fn set_field_update(field: &str, value: &str) -> Document {
     let mut fields = Document::new();

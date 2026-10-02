@@ -1,13 +1,13 @@
 use crate::models::pis::{IncomingPISSignup, PISSignup};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum SignupSlot {
+pub(crate) enum SignupSlot {
     First,
     Second,
 }
 
 impl SignupSlot {
-    pub(super) fn fields(self) -> (&'static str, &'static str) {
+    pub(crate) fn fields(self) -> (&'static str, &'static str) {
         match self {
             Self::First => (
                 "pis_signup.first_brother_first_name",
@@ -20,7 +20,7 @@ impl SignupSlot {
         }
     }
 
-    pub(super) fn success_message(self) -> &'static str {
+    pub(crate) fn success_message(self) -> &'static str {
         match self {
             Self::First => "Successfully registered!",
             Self::Second => "Successfully registered for PIS!",
@@ -28,7 +28,7 @@ impl SignupSlot {
     }
 }
 
-pub(super) fn select_signup_slot(
+pub(crate) fn select_signup_slot(
     signup: &PISSignup,
     payload: &IncomingPISSignup,
 ) -> Result<SignupSlot, String> {
