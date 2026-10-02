@@ -19,7 +19,7 @@ pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
                 match rushee {
                     Ok(doc) => signups.push(doc.pis_signup),
                     Err(err) => {
-                        println!("{}", err.to_string());
+                        println!("{err}");
                         return Ok(Json(json!({
                             "status": "error",
                             "message": "there was an error pushing the stripped rushee to the array"
@@ -63,7 +63,7 @@ pub async fn get_available_timeslots() -> Result<Json<Value>, StatusCode> {
                         }));
                     }
                     Err(err) => {
-                        eprintln!("Error reading timeslot: {:?}", err);
+                        eprintln!("Error reading timeslot: {err:?}");
                         return Ok(Json(json!({
                             "status": "error",
                             "message": "Error reading timeslot data"
@@ -81,7 +81,7 @@ pub async fn get_available_timeslots() -> Result<Json<Value>, StatusCode> {
         }
 
         Err(err) => {
-            eprintln!("Error fetching available timeslots: {:?}", err);
+            eprintln!("Error fetching available timeslots: {err:?}");
             Ok(Json(json!({
                 "status": "error",
                 "message": "Could not fetch available timeslots"

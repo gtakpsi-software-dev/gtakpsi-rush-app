@@ -34,7 +34,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
         let doc = match result {
             Ok(doc) => doc,
             Err(err) => {
-                println!("{}", err.to_string());
+                println!("{err}");
                 return Ok(Json(json!({
                     "status": "error",
                     "message": "there was an error pushing the stripped rushee to the array"

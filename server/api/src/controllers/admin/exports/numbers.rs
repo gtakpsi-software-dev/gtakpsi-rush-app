@@ -25,7 +25,7 @@ pub async fn export_rushee_numbers() -> Result<Json<Value>, StatusCode> {
                         order += 1;
                     }
                     Err(err) => {
-                        println!("{}", err.to_string());
+                        println!("{err}");
                         return Ok(Json(json!({
                             "status": "error",
                             "message": "Error reading rushee data"

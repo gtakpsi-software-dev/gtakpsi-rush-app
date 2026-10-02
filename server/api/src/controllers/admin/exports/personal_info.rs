@@ -30,7 +30,7 @@ pub async fn export_rushee_personal_info() -> Result<Json<Value>, StatusCode> {
                         }));
                     }
                     Err(err) => {
-                        println!("{}", err.to_string());
+                        println!("{err}");
                         return Ok(Json(json!({
                             "status": "error",
                             "message": "Error reading rushee data"

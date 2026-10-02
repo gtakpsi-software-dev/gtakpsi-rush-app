@@ -30,7 +30,7 @@ pub async fn fetch_rushee(gtid: String) -> Result<RusheeModel, RusheeError> {
         }),
         Err(e) => Err(RusheeError {
             code: "DATABASE_ERROR".to_string(),
-            message: format!("Database error: {}", e),
+            message: format!("Database error: {e}"),
         }),
     }
 }
