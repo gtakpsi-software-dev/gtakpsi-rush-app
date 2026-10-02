@@ -1,4 +1,4 @@
-use crate::middlewares::auth::FirebaseAuth;
+use crate::middlewares::auth::{AuthError, FirebaseAuth};
 use axum::extract::State;
 use axum::{http::StatusCode, response::Json};
 use serde_json::{json, Value};
@@ -15,6 +15,40 @@ pub struct AdminStatusPayload {
     pub uid: String,
 }
 
+#[derive(Clone, Copy)]
+enum RoleClaim {
+    Admin,
+    BidCommittee,
+}
+
+fn role_update_response(
+    outcome: Result<(), AuthError>,
+    enabled: bool,
+    role: RoleClaim,
+) -> Result<Json<Value>, StatusCode> {
+    let (granted, removed, missing_service_account, failed) = match role {
+        RoleClaim::Admin => (
+            "Admin access granted",
+            "Admin access removed",
+            "Service account missing on server; cannot update admin claim",
+            "Failed to update admin claim",
+        ),
+        RoleClaim::BidCommittee => (
+            "Bid committee access granted",
+            "Bid committee access removed",
+            "Service account missing on server; cannot update bidcom claim",
+            "Failed to update bidcom claim",
+        ),
+    };
+    let (status, message) = match outcome {
+        Ok(()) => ("success", if enabled { granted } else { removed }),
+        Err(AuthError::ServiceAccountMissing) => ("error", missing_service_account),
+        Err(_) => ("error", failed),
+    };
+
+    Ok(Json(json!({ "status": status, "message": message })))
+}
+
 /// Promote/demote a brother to admin (protected by admin middleware)
 pub async fn make_admin(
     State(auth): State<std::sync::Arc<FirebaseAuth>>,
@@ -22,20 +56,11 @@ pub async fn make_admin(
 ) -> Result<Json<Value>, StatusCode> {
     let make_admin = payload.make_admin.unwrap_or(true);
 
-    match auth.set_admin_claim(&payload.uid, make_admin).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": if make_admin { "Admin access granted" } else { "Admin access removed" }
-        }))),
-        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
-            "status": "error",
-            "message": "Service account missing on server; cannot update admin claim"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update admin claim"
-        }))),
-    }
+    role_update_response(
+        auth.set_admin_claim(&payload.uid, make_admin).await,
+        make_admin,
+        RoleClaim::Admin,
+    )
 }
 
 /// Check admin and bidcom status for a given uid
@@ -74,20 +99,11 @@ pub async fn make_bidcom(
 ) -> Result<Json<Value>, StatusCode> {
     let make_bidcom = payload.make_bidcom.unwrap_or(true);
 
-    match auth.set_bidcom_claim(&payload.uid, make_bidcom).await {
-        Ok(_) => Ok(Json(json!({
-            "status": "success",
-            "message": if make_bidcom { "Bid committee access granted" } else { "Bid committee access removed" }
-        }))),
-        Err(crate::middlewares::auth::AuthError::ServiceAccountMissing) => Ok(Json(json!({
-            "status": "error",
-            "message": "Service account missing on server; cannot update bidcom claim"
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "error",
-            "message": "Failed to update bidcom claim"
-        }))),
-    }
+    role_update_response(
+        auth.set_bidcom_claim(&payload.uid, make_bidcom).await,
+        make_bidcom,
+        RoleClaim::BidCommittee,
+    )
 }
 
 #[cfg(test)]
@@ -152,5 +168,38 @@ mod tests {
                 "message": "Service account missing on server; cannot read user roles"
             })
         );
+    }
+
+    #[test]
+    fn role_updates_keep_grant_revoke_and_generic_failure_messages() {
+        for (role, granted, removed, failed) in [
+            (
+                RoleClaim::Admin,
+                "Admin access granted",
+                "Admin access removed",
+                "Failed to update admin claim",
+            ),
+            (
+                RoleClaim::BidCommittee,
+                "Bid committee access granted",
+                "Bid committee access removed",
+                "Failed to update bidcom claim",
+            ),
+        ] {
+            assert_eq!(
+                role_update_response(Ok(()), true, role).unwrap().0,
+                json!({"status": "success", "message": granted})
+            );
+            assert_eq!(
+                role_update_response(Ok(()), false, role).unwrap().0,
+                json!({"status": "success", "message": removed})
+            );
+            assert_eq!(
+                role_update_response(Err(AuthError::Internal), true, role)
+                    .unwrap()
+                    .0,
+                json!({"status": "error", "message": failed})
+            );
+        }
     }
 }
