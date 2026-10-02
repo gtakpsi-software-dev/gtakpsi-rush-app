@@ -1,13 +1,19 @@
-use crate::models::{misc::IncomingBrotherName, rushee::StrippedRushee};
+use crate::models::{misc::IncomingBrotherName, pis::PISSignup, rushee::StrippedRushee};
 use crate::services::rush_nights::interactions_by_night;
-use crate::storage::db;
+use crate::storage::{cursor_rows::for_each_strict_row, db};
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
 mod signup;
 pub use signup::brother_pis_sign_up;
+
+fn signed_up_with(signup: &PISSignup, brother: &IncomingBrotherName) -> bool {
+    (signup.first_brother_first_name.eq(&brother.first_name)
+        && signup.first_brother_last_name.eq(&brother.last_name))
+        || (signup.second_brother_first_name.eq(&brother.first_name)
+            && signup.second_brother_last_name.eq(&brother.last_name))
+}
 
 pub async fn get_brother_pis(
     Json(payload): Json<IncomingBrotherName>,
@@ -20,57 +26,38 @@ pub async fn get_brother_pis(
     let result = connection.find(doc! {}).await;
 
     match result {
-        Ok(mut cursor) => {
+        Ok(cursor) => {
             let mut rushees = Vec::<StrippedRushee>::new();
 
-            while let Some(rushee) = cursor.next().await {
-                match rushee {
-                    Ok(doc) => {
-                        if (doc
-                            .pis_signup
-                            .first_brother_first_name
-                            .eq(&payload.first_name)
-                            && doc
-                                .pis_signup
-                                .first_brother_last_name
-                                .eq(&payload.last_name))
-                            || (doc
-                                .pis_signup
-                                .second_brother_first_name
-                                .eq(&payload.first_name)
-                                && doc
-                                    .pis_signup
-                                    .second_brother_last_name
-                                    .eq(&payload.last_name))
-                        {
-                            let night_interactions =
-                                interactions_by_night(&rush_nights, &doc.attendance, &doc.comments);
-                            rushees.push(StrippedRushee {
-                                name: format!("{} {}", doc.first_name, doc.last_name),
-                                first_name: doc.first_name.clone(),
-                                last_name: doc.last_name.clone(),
-                                class: doc.class,
-                                gtid: doc.gtid,
-                                major: doc.major,
-                                ratings: doc.ratings,
-                                image_url: doc.image_url,
-                                email: doc.email,
-                                pronouns: doc.pronouns,
-                                attendance: doc.attendance,
-                                registration_order: 0, // Not used in this context
-                                pis_timeslot: Some(doc.pis_timeslot),
-                                interactions_by_night: night_interactions,
-                            });
-                        }
-                    }
-                    Err(err) => {
-                        println!("{err}");
-                        return Ok(Json(json!({
-                            "status": "error",
-                            "message": "there was an error pushing the stripped rushee to the array"
-                        })));
-                    }
+            if let Err(err) = for_each_strict_row(cursor, |doc| {
+                if signed_up_with(&doc.pis_signup, &payload) {
+                    let night_interactions =
+                        interactions_by_night(&rush_nights, &doc.attendance, &doc.comments);
+                    rushees.push(StrippedRushee {
+                        name: format!("{} {}", doc.first_name, doc.last_name),
+                        first_name: doc.first_name.clone(),
+                        last_name: doc.last_name.clone(),
+                        class: doc.class,
+                        gtid: doc.gtid,
+                        major: doc.major,
+                        ratings: doc.ratings,
+                        image_url: doc.image_url,
+                        email: doc.email,
+                        pronouns: doc.pronouns,
+                        attendance: doc.attendance,
+                        registration_order: 0, // Not used in this context
+                        pis_timeslot: Some(doc.pis_timeslot),
+                        interactions_by_night: night_interactions,
+                    });
                 }
+            })
+            .await
+            {
+                println!("{err}");
+                return Ok(Json(json!({
+                    "status": "error",
+                    "message": "there was an error pushing the stripped rushee to the array"
+                })));
             }
 
             Ok(Json(json!({
