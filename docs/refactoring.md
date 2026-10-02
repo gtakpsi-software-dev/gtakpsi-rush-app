@@ -66,6 +66,11 @@ voice-tagged update branch remains unchanged.
 The remaining 270 client JS/TS modules, including two type declarations, all
 have a static import path from `main.jsx`. This does not establish that every
 export or conditional branch is used.
+The PIS Socket.IO entrypoint reaches all 14 source modules through static
+imports. Current Rust build/test dependency lists cover all 151 API source
+files, 16 sorting socket files, and 22 voting socket files; the API's Redis
+integration module is compiled only with its test feature. This source-level
+check does not establish that every handler or branch executes.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
 
