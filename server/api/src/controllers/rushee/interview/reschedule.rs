@@ -66,17 +66,13 @@ pub async fn reschedule_pis(
     let update_result = connection.update_one(query, update).await;
 
     match update_result {
-        Ok(_) => {
-            return Ok(Json(json!({
-                "status": "success",
-                "message": "Successfully rescheduled PIS"
-            })))
-        }
-        Err(_) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "Failed to update rushee record"
-            })))
-        }
+        Ok(_) => Ok(Json(json!({
+            "status": "success",
+            "message": "Successfully rescheduled PIS"
+        }))),
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "Failed to update rushee record"
+        }))),
     }
 }

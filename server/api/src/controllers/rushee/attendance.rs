@@ -75,17 +75,15 @@ pub async fn update_attendance(Path(id): Path<String>) -> Result<Json<Value>, St
                 }
             }
 
-            return Ok(Json(json!({
+            Ok(Json(json!({
                 "status": "error",
                 "message": "rush night does not exist"
-            })));
-        }
-
-        Err(_) => {
-            return Ok(Json(json!({
-                "status": "error",
-                "message": "some error occurred"
             })))
         }
+
+        Err(_) => Ok(Json(json!({
+            "status": "error",
+            "message": "some error occurred"
+        }))),
     }
 }
