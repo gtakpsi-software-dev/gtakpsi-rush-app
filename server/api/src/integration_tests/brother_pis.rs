@@ -7,7 +7,7 @@ use serde_json::json;
 use super::fixtures::{path, register, reset, stored_rushee};
 use crate::{
     controllers::admin,
-    models::{misc::IncomingBrotherName, pis::IncomingPISSignup},
+    models::{brother::IncomingBrotherName, pis::IncomingPISSignup},
     storage::db,
 };
 

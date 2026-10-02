@@ -12,9 +12,3 @@ pub struct IncomingRushNight {
     pub time: String,
     pub name: String,
 }
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct IncomingBrotherName {
-    pub first_name: String,
-    pub last_name: String,
-}

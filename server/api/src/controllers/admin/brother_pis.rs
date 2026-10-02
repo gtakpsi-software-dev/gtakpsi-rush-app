@@ -1,4 +1,4 @@
-use crate::models::{misc::IncomingBrotherName, pis::PISSignup, rushee::StrippedRushee};
+use crate::models::{brother::IncomingBrotherName, pis::PISSignup, rushee::StrippedRushee};
 use crate::services::rush_nights::interactions_by_night;
 use crate::storage::{cursor_rows::for_each_strict_row, db};
 use axum::{http::StatusCode, response::Json};

@@ -1,3 +1,4 @@
+pub mod brother;
 pub mod misc;
 pub mod pis;
 pub mod rushee;
