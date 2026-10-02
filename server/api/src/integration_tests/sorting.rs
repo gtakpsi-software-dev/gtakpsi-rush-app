@@ -175,5 +175,49 @@ async fn check_move_contracts() {
         (second.sorting_status.as_str(), second.sorting_order),
         ("IN_CLOUD", 1)
     );
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject the second order write after the moved card has entered its target column.
+    database
+        .run_command(mongodb::bson::doc! {
+            "collMod": "rushees", "validator": { "gtid": { "$ne": second_id } }
+        })
+        .await
+        .unwrap();
+    let partial_move = admin::move_rushee(
+        brother(),
+        Json(
+            serde_json::from_value(json!({
+                "fromColumn": "MID_CLOUD", "toColumn": "IN_CLOUD",
+                "movedRusheeId": GTID, "targetIndex": 0
+            }))
+            .unwrap(),
+        ),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert_eq!(
+        partial_move,
+        json!({"status": "error", "message": "Failed to move rushee"})
+    );
+    let first = stored_rushee().await;
+    let second = collection
+        .find_one(mongodb::bson::doc! { "gtid": second_id })
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        (first.sorting_status.as_str(), first.sorting_order),
+        ("IN_CLOUD", 1)
+    );
+    assert_eq!(
+        (second.sorting_status.as_str(), second.sorting_order),
+        ("IN_CLOUD", 1)
+    );
+    database
+        .run_command(mongodb::bson::doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
     println!("same-column and cross-column move contracts passed");
 }
