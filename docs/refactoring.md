@@ -123,9 +123,9 @@ The verified atomic slices are archived by range:
   Remaining entrypoints and side effects are listed in
   `scripts/maintenance/README.md`; absence of app imports does not prove they
   are unused. Never validate a reset against real data.
-- Verify authenticated browser flows, later registration steps, database
-  workflows, GitHub CI for current HEAD, and deployed service roots before
-  claiming parity.
+- Verify authenticated browser flows, photo capture and later registration
+  steps, database workflows, GitHub CI for current HEAD, and deployed service
+  roots before claiming parity.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
 - Resolve the remaining Attendance lint findings only where behavior can remain
@@ -198,9 +198,9 @@ omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
 Button component, and a dormant recorder. No remaining client source uses those
 exact class names. The JavaScript bundle
 changes when logic is refactored, so its hash alone cannot establish parity;
-the targeted behavior tests cover those paths. Authenticated browser flows, later
-registration steps, and end-to-end database flows are still pending; the
-public-entry comparison does not establish full application parity.
+the targeted behavior tests cover those paths. Authenticated browser flows,
+photo capture, later registration steps, and end-to-end database flows are still
+pending; the public-entry comparison does not establish full application parity.
 
 At local commit `9ec6119`, all six regression groups pass together: client
 scoped lint, tests, typecheck, and build; PIS collaboration tests; API tests
@@ -220,6 +220,12 @@ the other mobile public routes had matching control widths and dimensions.
 Screenshots of the settled landing page were visually checked at both widths.
 These checks used placeholder local service URLs and did not exercise signed-in
 screens, form submissions, or backend workflows.
+With a disposable loopback response for the duplicate-GTID lookup, a synthetic
+registration advanced from Basic Information to Capture Your Photo in the local
+browser. No registration was submitted. The browser had no camera feed, so photo
+capture and the PIS selection screen were not exercised end to end. The existing
+PIS signup tests separately cover timeslot grouping, selection, Monday fallback,
+disabled slots, and the Continue state; all 10 focused tests passed.
 The API route declarations were also compared with baseline `5250f4b`: all 73
 method/path bindings remain in the same public, brother, bid committee, or
 admin route group, and all 71 paths retain their explicit `OPTIONS` setting.
