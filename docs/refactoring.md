@@ -79,6 +79,9 @@ integration module is compiled only with its test feature. This source-level
 check does not establish that every handler or branch executes.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
+All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
+including tests, are under 200 lines; the largest is a 199-line maintenance
+test. This is a size check, not a judgment that every module boundary is ideal.
 
 ## Slice ledger
 
@@ -142,8 +145,8 @@ filesystem sandbox, macOS Dynamic Store initialization panics before those
 tests run. The full suite passes with normal system access.
 Collaboration tests use `npm --prefix server/websockets/pis test` and require permission
 to bind local ports; their pinned Socket.IO client is a development dependency.
-The two sorting WebSocket loopback tests also require local port access; the
-remaining eight sorting tests pass inside the filesystem sandbox.
+Sorting WebSocket loopback tests also require local port access. The complete
+15-test suite passes with that access.
 The API, sorting, and voting Docker images build from their new service roots.
 Disposable containers returned HTTP 200 from `/health`, `/health`, and `/`,
 respectively, using the renamed release executables. Their local images and
