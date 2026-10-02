@@ -14,12 +14,13 @@ const brother = {
     available_timeslots: [extendedDate, nextIso],
 };
 
-function setup({ selected = brother, slots = new Set([slotIso]), postResponse = { status: "success" }, getResponse = { status: "success", payload: [brother] } } = {}) {
+function setup({ selected = brother, slots = new Set([slotIso]), postResponse = { status: "success" }, getResponse = { status: "success", payload: [brother] }, prefixError = false } = {}) {
     const calls = [];
     const actions = createAvailabilityEditorActions({
         apiBase: "/api/admin",
         getApiPrefix: () => {
             calls.push(["apiPrefix"]);
+            if (prefixError) throw new Error("prefix unavailable");
             return "/api";
         },
         editingBrotherAvailability: selected,
@@ -113,4 +114,21 @@ test("missing selection, rejected saves, and failed refresh keep their original 
     assert.equal(failedRefresh.calls[5][1], "Failed to save availability");
     assert.ok(!failedRefresh.calls.some(([kind]) => kind === "selected"));
     assert.deepEqual(failedRefresh.calls.at(-1), ["saving", false]);
+});
+
+test("non-success refresh still closes the editor, while prefix failure skips the request", async () => {
+    const refreshRejected = setup({ getResponse: { status: "error" } });
+    await refreshRejected.actions.saveEditedAvailability();
+    assert.deepEqual(refreshRejected.calls.map(([kind]) => kind), [
+        "saving", "apiPrefix", "post", "success", "get", "selected", "slots", "saving",
+    ]);
+    assert.deepEqual(refreshRejected.calls.at(-1), ["saving", false]);
+
+    const missingPrefix = setup({ prefixError: true });
+    await missingPrefix.actions.saveEditedAvailability();
+    assert.deepEqual(missingPrefix.calls.map(([kind]) => kind), [
+        "saving", "apiPrefix", "error", "saving",
+    ]);
+    assert.equal(missingPrefix.calls[2][1], "Failed to save availability");
+    assert.deepEqual(missingPrefix.calls.at(-1), ["saving", false]);
 });

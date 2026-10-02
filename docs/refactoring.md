@@ -195,15 +195,16 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 556 client tests, 88 server unit tests, 33 collaboration
+Current verified totals: 557 client tests, 88 server unit tests, 33 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 89 server tests from the latest
 MongoDB integration-feature run, plus 48 maintenance-script tests. At local
 commit `dac99c5`, all six regression groups, client typecheck, scoped lint,
 and the production build passed with 32 collaboration tests. Later API slices
 passed the guarded API suite, and the added PIS disconnect test brought its
-suite to 33 passing tests. GitHub CI and authenticated browser checks remain
-pending.
+suite to 33 passing tests. A later frontend characterization case brought the
+client suite to 557 passing tests without changing runtime source. GitHub CI
+and authenticated browser checks remain pending.
 Full client lint still reports the eight
 Attendance errors described above. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
