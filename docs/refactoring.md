@@ -52,6 +52,8 @@ The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their
 remaining state or props into another wrapper would obscure ownership without
 removing a distinct responsibility.
+The brother PIS slot page now keeps loading and selection behavior in the page
+and renders its feature-owned slot view separately.
 
 ## Slice ledger
 
@@ -139,7 +141,7 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 588 client tests, 87 server unit tests, 31 collaboration
+Current verified totals: 590 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
 MongoDB integration-feature run, plus 64 maintenance-script tests. Current CSS
