@@ -198,9 +198,10 @@ require PyMongo or a database connection.
 Current verified totals: 556 client tests, 88 server unit tests, 32 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 89 server tests from the latest
-MongoDB integration-feature run, plus 48 maintenance-script tests. On October
-2, 2026, the latest client slice passed its full test suite, typecheck, scoped
-lint, and production build. The other suite totals are from earlier slices.
+MongoDB integration-feature run, plus 48 maintenance-script tests. At local
+commit `dac99c5`, all six regression groups, client typecheck, scoped lint,
+and the production build passed. GitHub CI and authenticated browser checks
+remain pending.
 Full client lint still reports the eight
 Attendance errors described above. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
