@@ -6,7 +6,7 @@ import { adminPost } from "../../features/admin/api";
 import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
 import CurrentRusheePreview from "./CurrentRusheePreview";
 import RusheePreviewSearch from "./RusheePreviewSearch";
-import { filterPreviewRushees } from "./previewRusheeSearch";
+import { filterPreviewRushees } from "../../features/voting/admin/previewRusheeSearch";
 import type { Rushee } from "../../features/voting/admin/types";
 
 export default function RusheePreviewCard() {

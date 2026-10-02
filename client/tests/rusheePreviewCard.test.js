@@ -14,7 +14,7 @@ import { loadTsxComponent, loadTsxModule } from "./helpers/loadTsxComponent.js";
 const pagePath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/RusheePreviewCard.tsx", import.meta.url));
 const searchPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/RusheePreviewSearch.tsx", import.meta.url));
 const currentPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/CurrentRusheePreview.tsx", import.meta.url));
-const searchFunctionsPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/previewRusheeSearch.ts", import.meta.url));
+const searchFunctionsPath = fileURLToPath(new URL("../src/features/voting/admin/previewRusheeSearch.ts", import.meta.url));
 const { filterPreviewRushees, previewRusheeName } = await loadTsxModule(searchFunctionsPath);
 
 const selected = {
@@ -38,7 +38,7 @@ async function loadCard({ state = {}, rushee = null } = {}) {
     const posts = [];
     const interactions = () => React.createElement("span", { "data-stub": "interactions" });
     const search = await loadTsxComponent(searchPath, {
-        "./previewRusheeSearch": { previewRusheeName },
+        "../../features/voting/admin/previewRusheeSearch": { previewRusheeName },
     });
     const current = await loadTsxComponent(currentPath, {
         "../../components/RusheeInteractionsByNight": interactions,
@@ -65,7 +65,7 @@ async function loadCard({ state = {}, rushee = null } = {}) {
             return Promise.resolve();
         } },
         "react-toastify": { toast: { promise: (request) => request } },
-        "./previewRusheeSearch": { filterPreviewRushees, previewRusheeName },
+        "../../features/voting/admin/previewRusheeSearch": { filterPreviewRushees, previewRusheeName },
         "./RusheePreviewSearch": search,
         "./CurrentRusheePreview": current,
     };

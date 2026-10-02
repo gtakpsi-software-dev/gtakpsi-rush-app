@@ -1,5 +1,5 @@
 import type { Rushee } from "../../features/voting/admin/types";
-import { previewRusheeName } from "./previewRusheeSearch";
+import { previewRusheeName } from "../../features/voting/admin/previewRusheeSearch";
 
 type Props = {
     searchQuery: string;

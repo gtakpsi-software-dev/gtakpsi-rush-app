@@ -1,4 +1,4 @@
-import type { Rushee } from "../../features/voting/admin/types";
+import type { Rushee } from "./types";
 
 type PreviewRushee = Rushee & {
     firstname?: string;
