@@ -56,7 +56,7 @@ export default function Attendance() {
         if (loading === true) {
             fetch();
         }
-    }, [loading, navigate]);
+    }, [api, loading, navigate]);
 
     const { handleSubmit, goBack, checkIn } = createAttendanceActions({
         api, gtid, setLoading, setPage, setRushee, setGtid,

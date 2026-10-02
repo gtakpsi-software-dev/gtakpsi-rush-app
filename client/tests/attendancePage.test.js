@@ -109,7 +109,7 @@ test("attendance keeps its wrapper markup and fetch-effect dependencies", async 
         const page = await loadPage({ state });
         assert.equal(renderToStaticMarkup(React.createElement(page.Page)), expected);
         assert.equal(page.effects.length, 1);
-        assert.deepEqual(Array.from(page.effects[0].dependencies), [state[2], page.navigate]);
+        assert.deepEqual(Array.from(page.effects[0].dependencies), ["/api", state[2], page.navigate]);
     }
 });
 
