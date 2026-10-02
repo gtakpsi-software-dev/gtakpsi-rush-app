@@ -21,19 +21,27 @@ pub(crate) async fn collect_valid_rows<T, E>(
 }
 
 pub(crate) async fn collect_strict_rows<T, E>(
-    mut cursor: impl Stream<Item = Result<T, E>> + Unpin,
+    cursor: impl Stream<Item = Result<T, E>> + Unpin,
 ) -> Result<Vec<T>, E> {
-    // Strict readers reject the full response at the first malformed row.
     let mut rows = Vec::new();
-    while let Some(row) = cursor.next().await {
-        rows.push(row?);
-    }
+    for_each_strict_row(cursor, |row| rows.push(row)).await?;
     Ok(rows)
+}
+
+pub(crate) async fn for_each_strict_row<T, E>(
+    mut cursor: impl Stream<Item = Result<T, E>> + Unpin,
+    mut visit: impl FnMut(T),
+) -> Result<(), E> {
+    // Stop before visiting later rows if a strict reader encounters malformed data.
+    while let Some(row) = cursor.next().await {
+        visit(row?);
+    }
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{collect_strict_rows, collect_valid_rows, for_each_valid_row};
+    use super::{collect_strict_rows, collect_valid_rows, for_each_strict_row, for_each_valid_row};
     use futures::stream;
 
     #[tokio::test]
@@ -51,5 +59,13 @@ mod tests {
     async fn strict_reads_discard_partial_rows_at_the_first_error() {
         let cursor = stream::iter([Ok(1), Err("invalid"), Ok(2)]);
         assert_eq!(collect_strict_rows(cursor).await, Err("invalid"));
+
+        let mut visited = Vec::new();
+        let cursor = stream::iter([Ok(1), Err("invalid"), Ok(2)]);
+        assert_eq!(
+            for_each_strict_row(cursor, |row| visited.push(row)).await,
+            Err("invalid")
+        );
+        assert_eq!(visited, [1]);
     }
 }
