@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::models::misc::RushNight;
+use crate::models::rush_nights::RushNight;
 use crate::models::rushee::{Comment, NightInteractionSummary, RusheeModel};
 
 use super::{merge_rush_nights, night_matches};

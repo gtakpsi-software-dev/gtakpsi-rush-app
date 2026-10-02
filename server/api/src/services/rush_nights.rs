@@ -1,6 +1,6 @@
 use bson::DateTime;
 
-use crate::models::misc::RushNight;
+use crate::models::rush_nights::RushNight;
 use crate::models::rushee::Comment;
 use crate::services::rush_time::same_day;
 

@@ -8,7 +8,7 @@ use serde_json::json;
 use super::fixtures::*;
 use crate::{
     controllers::rushee,
-    models::{misc::RushNight, rushee::IncomingComment},
+    models::{rush_nights::RushNight, rushee::IncomingComment},
     storage::db,
 };
 

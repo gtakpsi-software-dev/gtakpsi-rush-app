@@ -48,6 +48,8 @@ socket contracts remain unchanged.
 Storage getters that return a MongoDB collection use `get_*_collection`;
 `get_mongo_client` is reserved for the actual MongoDB client.
 `get_redis_manager` returns the shared Redis connection manager.
+The API model modules use domain names: brother-name requests live under
+`models/brother`, and rush-night records and requests under `models/rush_nights`.
 PIS auto-assignment planning, loading, execution, and persistence live in
 `services/pis_assignments/`; its controller retains the existing HTTP response
 mapping.

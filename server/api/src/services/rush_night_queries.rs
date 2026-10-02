@@ -1,7 +1,7 @@
 use mongodb::bson::doc;
 use std::io::Error;
 
-use crate::models::misc::RushNight;
+use crate::models::rush_nights::RushNight;
 use crate::storage::{cursor_rows::collect_strict_rows, db};
 
 pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {

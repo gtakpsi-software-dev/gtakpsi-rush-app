@@ -2,8 +2,8 @@ use bson::DateTime;
 use serde::{Deserialize, Serialize};
 
 use super::{
-    misc::RushNight,
     pis::{PISQuestion, PISSignup},
+    rush_nights::RushNight,
 };
 
 pub use super::voting::{IncomingRusheeVote, RusheeVote, VoteOption};

@@ -2,7 +2,7 @@ use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
-use crate::models::misc::{IncomingRushNight, RushNight};
+use crate::models::rush_nights::{IncomingRushNight, RushNight};
 use crate::services::rush_time::string_to_bson_datetime;
 use crate::storage::db;
 

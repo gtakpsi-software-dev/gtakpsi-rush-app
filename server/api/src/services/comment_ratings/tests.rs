@@ -1,6 +1,6 @@
 use super::*;
 use crate::models::{
-    misc::RushNight,
+    rush_nights::RushNight,
     rushee::{Comment, Rating},
 };
 use bson::{doc, DateTime};

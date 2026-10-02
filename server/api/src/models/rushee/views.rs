@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{Rating, RusheeModel};
-use crate::models::misc::RushNight;
+use crate::models::rush_nights::RushNight;
 
 /// Safe subset of a rushee's own record for the self-service rushee page
 /// (`/rushee/:gtid/:link`). Deliberately excludes comments, sorting notes,

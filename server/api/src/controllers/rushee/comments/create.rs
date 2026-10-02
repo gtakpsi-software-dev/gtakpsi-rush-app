@@ -1,5 +1,5 @@
 use crate::models::{
-    misc::RushNight,
+    rush_nights::RushNight,
     rushee::{Comment, IncomingComment},
 };
 use crate::services::comment_ratings::update_global_ratings;

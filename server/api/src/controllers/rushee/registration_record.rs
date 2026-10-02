@@ -1,6 +1,6 @@
 use crate::models::{
-    misc::RushNight,
     pis::PISSignup,
+    rush_nights::RushNight,
     rushee::{Comment, IncomingRushee, PisResponse, Rating, RusheeModel},
 };
 use bson::DateTime;

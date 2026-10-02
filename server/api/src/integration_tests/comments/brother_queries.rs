@@ -6,7 +6,7 @@ use super::payload;
 use crate::{
     controllers::rushee,
     integration_tests::fixtures::{path, register, reset, GTID},
-    models::misc::RushNight,
+    models::rush_nights::RushNight,
     storage::db,
 };
 

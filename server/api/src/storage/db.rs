@@ -6,11 +6,11 @@ use redis::aio::ConnectionManager;
 use tokio::sync::OnceCell;
 
 use crate::models::{
-    misc::RushNight,
     pis::{
         BrotherPISAvailability, CommentVisibilitySettings, PISAvailabilityFormStatus, PISQuestion,
         PISTimeslot, RushAppStatus,
     },
+    rush_nights::RushNight,
     rushee::RusheeModel,
 };
 

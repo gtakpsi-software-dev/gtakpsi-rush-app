@@ -3,7 +3,7 @@ use std::io::Error;
 use bson::doc;
 
 use crate::{
-    models::{misc::RushNight, rushee::Comment},
+    models::{rush_nights::RushNight, rushee::Comment},
     storage::db,
 };
 

@@ -3,7 +3,7 @@ use bson::DateTime;
 use serde_json::json;
 
 use super::fixtures::*;
-use crate::{controllers::rushee, models::misc::RushNight, storage::db};
+use crate::{controllers::rushee, models::rush_nights::RushNight, storage::db};
 
 mod failure_cases;
 

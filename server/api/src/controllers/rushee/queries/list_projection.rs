@@ -1,4 +1,4 @@
-use crate::models::misc::RushNight;
+use crate::models::rush_nights::RushNight;
 use crate::models::rushee::{RusheeModel, StrippedRushee};
 use crate::services::rush_nights::interactions_by_night;
 

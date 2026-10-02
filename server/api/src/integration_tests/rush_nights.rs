@@ -5,7 +5,7 @@ use serde_json::json;
 use super::fixtures::{path, reset, SLOT};
 use crate::{
     controllers::{admin, rushee},
-    models::misc::{IncomingRushNight, RushNight},
+    models::rush_nights::{IncomingRushNight, RushNight},
     storage::db,
 };
 
