@@ -146,6 +146,9 @@ changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
 public-entry comparison does not establish full application parity.
+Local browser smoke checks with placeholder service URLs rendered the landing,
+registration entry, login, password-reset, and account-creation routes without
+console errors. Navigation clicks and form submissions were not verified.
 The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a
