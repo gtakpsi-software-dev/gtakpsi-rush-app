@@ -1,13 +1,15 @@
 use crate::models::pis::PISAvailabilityFormStatus;
 use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
-use mongodb::bson::{doc, DateTime};
+use mongodb::{
+    bson::{doc, DateTime},
+    Collection,
+};
 use serde_json::{json, Value};
 
-pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_pis_availability_form_status_collection().await;
-
-    // Preserve the existing replacement order and ignored deletion error before inserting the active form.
+async fn replace_active_form(collection: &Collection<PISAvailabilityFormStatus>) -> bool {
+    // INVARIANT: delete before insert; an insert failure leaves no active form.
+    // The deletion error remains ignored to preserve the existing response path.
     let _ = collection.delete_many(doc! {}).await;
 
     let status = PISAvailabilityFormStatus {
@@ -15,15 +17,22 @@ pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
         sent_at: Some(DateTime::now()),
     };
 
-    match collection.insert_one(status).await {
-        Ok(_) => Ok(Json(json!({
+    collection.insert_one(status).await.is_ok()
+}
+
+pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
+    let collection = db::get_pis_availability_form_status_collection().await;
+
+    if replace_active_form(&collection).await {
+        Ok(Json(json!({
             "status": "success",
             "message": "PIS availability form sent to all brothers"
-        }))),
-        Err(_) => Ok(Json(json!({
+        })))
+    } else {
+        Ok(Json(json!({
             "status": "error",
             "message": "Failed to send form"
-        }))),
+        })))
     }
 }
 
@@ -39,24 +48,19 @@ pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, Sta
         })));
     }
 
-    // Keep status replacement after submission clearing; this deletion's error remains ignored.
+    // Keep status replacement after submission clearing.
     let form_collection = db::get_pis_availability_form_status_collection().await;
-    let _ = form_collection.delete_many(doc! {}).await;
 
-    let status = PISAvailabilityFormStatus {
-        is_active: true,
-        sent_at: Some(DateTime::now()),
-    };
-
-    match form_collection.insert_one(status).await {
-        Ok(_) => Ok(Json(json!({
+    if replace_active_form(&form_collection).await {
+        Ok(Json(json!({
             "status": "success",
             "message": "Cleared all submissions and resent form"
-        }))),
-        Err(_) => Ok(Json(json!({
+        })))
+    } else {
+        Ok(Json(json!({
             "status": "error",
             "message": "Failed to resend form"
-        }))),
+        })))
     }
 }
 
