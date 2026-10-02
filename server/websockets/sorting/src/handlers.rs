@@ -24,10 +24,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
                 client.is_admin = is_admin;
                 client.name = name.clone();
             }
-            println!(
-                "Client {} joined as admin={}, name={:?}",
-                client_id, is_admin, name
-            );
+            println!("Client {client_id} joined as admin={is_admin}, name={name:?}");
         }
 
         Ok(IncomingMessage::DragStart {
@@ -61,7 +58,7 @@ pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppS
         }
 
         Err(e) => {
-            println!("Failed to parse message: {} - {}", text, e);
+            println!("Failed to parse message: {text} - {e}");
         }
     }
 }

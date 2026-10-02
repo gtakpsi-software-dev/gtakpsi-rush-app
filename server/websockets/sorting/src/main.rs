@@ -24,7 +24,7 @@ async fn main() {
         .unwrap_or(4001);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    println!("Sorting Broadcaster listening on 0.0.0.0:{}", port);
+    println!("Sorting Broadcaster listening on 0.0.0.0:{port}");
 
     axum::Server::bind(&addr)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())

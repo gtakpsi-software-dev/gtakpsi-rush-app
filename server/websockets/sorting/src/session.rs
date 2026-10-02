@@ -40,7 +40,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     };
     state.clients.insert(client_id.clone(), client);
 
-    println!("Client connected: {} from {}", client_id, addr);
+    println!("Client connected: {client_id} from {addr}");
 
     broadcast_viewer_count(&state).await;
 
@@ -79,7 +79,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     drag_lifecycle::release_client_drags(&state, &client_id).await;
 
     state.clients.remove(&client_id);
-    println!("Client disconnected: {}", client_id);
+    println!("Client disconnected: {client_id}");
 
     broadcast_viewer_count(&state).await;
 }
