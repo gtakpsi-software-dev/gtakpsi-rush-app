@@ -3,12 +3,13 @@ import test from "node:test";
 
 import { createAdminDataActions } from "../src/features/admin/data/dataActionHandlers.js";
 
-function setup(responses = {}) {
+function setup(responses = {}, { prefixError, downloadError } = {}) {
     const calls = [];
     const actions = createAdminDataActions({
         apiBase: "/api/admin",
         getApiPrefix: () => {
             calls.push(["apiPrefix"]);
+            if (prefixError) throw prefixError;
             return "/api";
         },
         axios: {
@@ -29,7 +30,10 @@ function setup(responses = {}) {
             success: (message, options) => calls.push(["success", message, options]),
             error: (message, options) => calls.push(["error", message, options]),
         },
-        download: (content, prefix) => calls.push(["download", content, prefix]),
+        download: (content, prefix) => {
+            calls.push(["download", content, prefix]);
+            if (downloadError) throw downloadError;
+        },
     });
     return { calls, actions };
 }
@@ -95,4 +99,16 @@ test("failed exports preserve their distinct response and transport messages", a
     const assigned = setup({ "/api/admin/pis-availability/export-csv": { status: "error" } });
     await assigned.actions.exportPISWithBrothers();
     assert.equal(assigned.calls[1][1], "Failed to export");
+});
+
+test("export setup and download errors use the existing generic error toast", async () => {
+    const prefix = setup({}, { prefixError: new Error("missing API prefix") });
+    await prefix.actions.exportPISSchedule();
+    assert.deepEqual(prefix.calls.map(([kind]) => kind), ["apiPrefix", "error"]);
+    assert.equal(prefix.calls.at(-1)[1], "Export error: missing API prefix");
+
+    const downloadFailure = setup({}, { downloadError: new Error("save failed") });
+    await downloadFailure.actions.exportRusheeNumbers();
+    assert.deepEqual(downloadFailure.calls.map(([kind]) => kind), ["get", "download", "error"]);
+    assert.equal(downloadFailure.calls.at(-1)[1], "Export error: save failed");
 });
