@@ -14,7 +14,7 @@ import Dashboard from './pages/Dashboard';
 import BidCommitteeDashboard from './pages/BidCommitteeDashboard';
 import RusheeZoom from './pages/RusheeZoom';
 import RusheePage from './pages/RusheePage';
-import PIS from './pages/PIS';
+import Pis from './pages/Pis';
 
 import MyError from './components/Error';
 import Admin from './pages/Admin';
@@ -49,7 +49,7 @@ function AppInner() {
         <Route path='/admin' element={<Admin/>} />
         <Route path='/addtimeslotpage' element={<AddTimeslotPage />} />
         <Route path='/rushee/:gtid/:link' element={<RusheePage/>} />
-        <Route path='/pis/:gtid' element={<PIS/>} />
+        <Route path='/pis/:gtid' element={<Pis/>} />
         <Route path='/attendance' element={<Attendance/>} />
         <Route path='/comments' element={<Comments />} />
         <Route path='/my-pis' element={<MyPisPage/>} />

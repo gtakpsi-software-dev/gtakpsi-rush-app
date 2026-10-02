@@ -15,7 +15,7 @@ import { usePisPageBootstrap } from "../features/pis/usePisPageBootstrap";
 import { usePisRevealPolling } from "../features/pis/usePisRevealPolling";
 import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
 
-export default function PIS() {
+export default function Pis() {
     const { gtid } = useParams();
 
     const [loading, setLoading] = useState(true);

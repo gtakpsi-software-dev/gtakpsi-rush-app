@@ -11,7 +11,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/PIS.jsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../src/pages/Pis.jsx", import.meta.url));
 const cardPath = fileURLToPath(new URL("../src/features/pis/PisQuestionsCard.tsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/pis/PisInterviewView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/pisPageMarkup.json", import.meta.url));
