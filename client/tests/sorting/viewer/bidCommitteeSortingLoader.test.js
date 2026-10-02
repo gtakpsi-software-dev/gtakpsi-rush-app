@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadBidCommitteeSortingData } from "../src/features/sorting/loadBidCommitteeSortingData.js";
+import { loadBidCommitteeSortingData } from "../../../src/features/sorting/loadBidCommitteeSortingData.js";
 
 function makeUser(claims, email = "member@example.edu") {
     const refreshes = [];

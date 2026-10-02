@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createBrotherSortingDetailsHandlers } from "../src/features/sorting/createBrotherSortingDetailsHandlers.js";
+import { createBrotherSortingDetailsHandlers } from "../../../src/features/sorting/createBrotherSortingDetailsHandlers.js";
 
 function harness({ response, failure } = {}) {
     const calls = [];

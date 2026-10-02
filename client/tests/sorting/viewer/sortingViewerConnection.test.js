@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { connectSortingViewer } from "../src/features/sorting/connectSortingViewer.js";
+import { connectSortingViewer } from "../../../src/features/sorting/connectSortingViewer.js";
 
 function harness(
     showRusheeNames,

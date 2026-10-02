@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadBrotherSortingData } from "../src/features/sorting/loadBrotherSortingData.js";
+import { loadBrotherSortingData } from "../../../src/features/sorting/loadBrotherSortingData.js";
 
 function harness({ user = null, response, failure } = {}) {
     const calls = [];

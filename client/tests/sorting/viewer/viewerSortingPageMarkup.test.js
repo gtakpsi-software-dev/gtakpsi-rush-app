@@ -7,10 +7,10 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { createEmptyColumns } from "../src/features/sorting/board.js";
-import { loadPage } from "./helpers/loadViewerSortingPage.js";
+import { createEmptyColumns } from "../../../src/features/sorting/board.js";
+import { loadPage } from "../../helpers/loadViewerSortingPage.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/viewerSortingPageMarkup.json", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/viewerSortingPageMarkup.json", import.meta.url));
 
 test("brother and bid-committee viewer pages retain their loading and board markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));

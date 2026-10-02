@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { handleSortingViewerMessage } from "../src/features/sorting/handleSortingViewerMessage.js";
+import { handleSortingViewerMessage } from "../../../src/features/sorting/handleSortingViewerMessage.js";
 
 function harness() {
     const calls = [];
