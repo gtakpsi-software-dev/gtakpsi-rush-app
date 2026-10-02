@@ -144,3 +144,6 @@ The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a
 separate behavior decision.
+The voting socket integration also pins a duplicate-ID quirk: when a second
+admin socket registers under the same route ID, the older socket's disconnect
+removes the newer socket from the broadcast map even though it remains connected.

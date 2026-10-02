@@ -3,6 +3,7 @@ use futures_util::SinkExt;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::tungstenite::Message;
 
+mod duplicate_id;
 mod reconnect;
 
 #[tokio::test]
@@ -159,4 +160,5 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     later_admin.close(None).await.unwrap();
     later_voter.close(None).await.unwrap();
     reconnect::assert_reconnects(&server, &mut conn).await;
+    duplicate_id::assert_duplicate_id_behavior(&server).await;
 }
