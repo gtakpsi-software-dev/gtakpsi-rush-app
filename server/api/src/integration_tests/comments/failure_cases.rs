@@ -7,6 +7,30 @@ use serde_json::json;
 
 pub(super) async fn check_contracts() {
     let database = db::get_mongo_client().await.database("rush-app");
+    let mut blocked_edit = stored_rushee().await.comments[0].clone();
+    blocked_edit.comment = "Blocked edit".to_string();
+
+    // Reject the comment text update without rejecting the existing document.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "comments.comment": { "$ne": "Blocked edit" } }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        rushee::edit_comment(path(), Json(blocked_edit))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "error", "message": "there was an error pushing the update to the database"})
+    );
+    assert_eq!(stored_rushee().await.comments[0].comment, "Observation");
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
+
     // Reject only the comment append so the earlier rating write remains observable.
     database
         .run_command(doc! {
