@@ -20,14 +20,14 @@ type CollaborativeTextareaProps = {
     disabled?: boolean;
 };
 
-const CollaborativeTextarea = ({ 
-    questionKey, 
-    value, 
-    onChange, 
-    placeholder, 
+const CollaborativeTextarea = ({
+    questionKey,
+    value,
+    onChange,
+    placeholder,
     className,
     collaboration,
-    disabled = false
+    disabled = false,
 }: CollaborativeTextareaProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [localValue, setLocalValue] = useState(value || '');
@@ -40,19 +40,19 @@ const CollaborativeTextarea = ({
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastLocalInputTimeRef = useRef(0);
     const lastProcessedVersionRef = useRef(0);
-    
+
     const handleTextChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
         if (processingRemoteOp.current) {
             return;
         }
-        
+
         const newValue = e.target.value;
-        
+
         setLocalValue(newValue);
-        pendingLocalChangeRef.current = true; // mark that this tab initiated a change
+        pendingLocalChangeRef.current = true;
         lastLocalInputTimeRef.current = Date.now();
         onChange(questionKey, newValue, { source: 'typing' });
-        
+
         scheduleLocalChangeTimers({
             pendingLocalChangeRef,
             pendingLocalChangeTimeoutRef,
@@ -87,8 +87,6 @@ const CollaborativeTextarea = ({
     }, [collaboration, questionKey]);
 
     const otherUserCursors = activeCursorsForField(collaboration, questionKey, 3);
-    
-    // Lock the field if any other user's cursor is in this field (strong lock)
     const isFieldLocked = otherUserCursors.length > 0;
 
     const { handleFocus, handleBlur, handleMouseDown } = useCollaborativeFieldPresence({

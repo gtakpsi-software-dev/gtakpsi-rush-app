@@ -21,15 +21,15 @@ type CollaborativeInputProps = {
     required?: boolean;
 };
 
-const CollaborativeInput = ({ 
-    fieldKey, 
-    value, 
-    onChange, 
-    placeholder, 
+const CollaborativeInput = ({
+    fieldKey,
+    value,
+    onChange,
+    placeholder,
     className,
     collaboration,
     disabled = false,
-    required = false
+    required = false,
 }: CollaborativeInputProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [localValue, setLocalValue] = useState(value || '');
@@ -40,19 +40,19 @@ const CollaborativeInput = ({
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastLocalInputTimeRef = useRef(0);
     const lastProcessedVersionRef = useRef(0);
-    
+
     const handleTextChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         if (processingRemoteOp.current) {
             return;
         }
-        
+
         const newValue = e.target.value;
-        
+
         setLocalValue(newValue);
         pendingLocalChangeRef.current = true;
         lastLocalInputTimeRef.current = Date.now();
         onChange(newValue);
-        
+
         scheduleLocalChangeTimers({
             pendingLocalChangeRef,
             pendingLocalChangeTimeoutRef,
@@ -75,12 +75,10 @@ const CollaborativeInput = ({
     }, [fieldKey, collaboration]);
 
     const otherUserCursors = activeCursorsForField(collaboration, fieldKey);
-    
-    // Lock the field if any other user's cursor is in this field
     const isFieldLocked = otherUserCursors.length > 0;
-    
-    const lockedByUser = otherUserCursors.length > 0 
-        ? `${otherUserCursors[0].name || otherUserCursors[0].firstName || 'Another user'}` 
+
+    const lockedByUser = otherUserCursors.length > 0
+        ? `${otherUserCursors[0].name || otherUserCursors[0].firstName || 'Another user'}`
         : null;
 
     const { handleFocus, handleBlur, handleMouseDown } = useCollaborativeFieldPresence({
