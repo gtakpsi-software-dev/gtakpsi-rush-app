@@ -52,8 +52,8 @@ The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their
 remaining state or props into another wrapper would obscure ownership without
 removing a distinct responsibility.
-The brother PIS slot page now keeps loading and selection behavior in the page
-and renders its feature-owned slot view separately.
+The unrouted brother PIS slot-selection page and its private helpers were
+removed after confirming that no active route or runtime module imports them.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
 
@@ -143,12 +143,14 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 590 client tests, 87 server unit tests, 31 collaboration
+Current verified totals: 580 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
 MongoDB integration-feature run, plus 64 maintenance-script tests. Current CSS
-differs from baseline only by the unused
-`hover:bg-blue-600` rule from removed commented-out JSX. The JavaScript bundle
+omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
+eight utilities that appeared only in the unrouted brother PIS slot-selection
+page. No remaining client source uses those eight exact class names. The
+JavaScript bundle
 changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
