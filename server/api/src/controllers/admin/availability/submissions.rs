@@ -1,8 +1,7 @@
 use crate::models::pis::{BrotherPISAvailability, IncomingBrotherAvailability};
 use crate::services::rush_time::string_to_bson_datetime;
-use crate::storage::db;
+use crate::storage::{cursor_rows::collect_valid_rows, db};
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
 
@@ -49,13 +48,8 @@ pub async fn get_all_brother_availabilities() -> Result<Json<Value>, StatusCode>
     let collection = db::get_brother_pis_availability_client().await;
 
     match collection.find(doc! {}).await {
-        Ok(mut cursor) => {
-            let mut availabilities: Vec<BrotherPISAvailability> = Vec::new();
-            while let Some(item) = cursor.next().await {
-                if let Ok(avail) = item {
-                    availabilities.push(avail);
-                }
-            }
+        Ok(cursor) => {
+            let availabilities: Vec<BrotherPISAvailability> = collect_valid_rows(cursor).await;
             Ok(Json(json!({
                 "status": "success",
                 "payload": availabilities
