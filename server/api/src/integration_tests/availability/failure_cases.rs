@@ -5,6 +5,8 @@ use serde_json::json;
 use super::{reset, SLOT};
 use crate::{controllers::admin, models::pis::IncomingBrotherAvailability, storage::db};
 
+mod submission_clear;
+
 pub(super) async fn check_contracts() {
     let submission = IncomingBrotherAvailability {
         brother_uid: "brother-2".to_string(),
@@ -61,6 +63,7 @@ pub(super) async fn check_contracts() {
         .unwrap();
 
     check_rejected_form_send().await;
+    submission_clear::check_rejected_submission_clear().await;
     check_rejected_deactivation().await;
     check_rejected_submission_replacement().await;
 }
