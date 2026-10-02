@@ -9,10 +9,11 @@ from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "set_admin_claim.py"
+DEFAULT_CLAIMS = object()
 
 
 def run_script(
-    arguments=(), execute=True, user_exists=True, existing_claims=None,
+    arguments=(), execute=True, user_exists=True, existing_claims=DEFAULT_CLAIMS,
     set_failure=None,
 ):
     events = []
@@ -30,7 +31,7 @@ def run_script(
         events.append(("lookup", email))
         if not user_exists:
             raise UserNotFoundError()
-        claims = {"existing": True} if existing_claims is None else existing_claims
+        claims = {"existing": True} if existing_claims is DEFAULT_CLAIMS else existing_claims
         return types.SimpleNamespace(uid="user-1", email=email, custom_claims=claims)
 
     auth.UserNotFoundError = UserNotFoundError
@@ -111,6 +112,15 @@ class SetAdminClaimTests(unittest.TestCase):
         }))
         self.assertIn("admin: False", output)
         self.assertIn("bidcom: True", output)
+
+    def test_first_claim_write_starts_with_only_the_requested_role(self):
+        _, events, output, exit_code = run_script(
+            ("person@example.com", "--admin"), existing_claims=None,
+        )
+        self.assertIsNone(exit_code)
+        self.assertEqual(events[-1], ("set", "user-1", {"admin": True}))
+        self.assertIn("admin: True", output)
+        self.assertIn("bidcom: False", output)
 
     def test_claim_write_failure_keeps_error_and_exit_status(self):
         _, events, output, exit_code = run_script(

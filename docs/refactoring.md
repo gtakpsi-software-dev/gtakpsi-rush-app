@@ -200,7 +200,7 @@ require PyMongo or a database connection.
 Current verified totals: 562 client tests, 89 server unit tests, 33 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 90 server tests from the latest
-MongoDB integration-feature run, plus 48 maintenance-script tests. At local
+MongoDB integration-feature run, plus 49 maintenance-script tests. At local
 commit `dac99c5`, all six regression groups, client typecheck, scoped lint,
 and the production build passed with 32 collaboration tests. Later API slices
 passed the guarded API suite, and the added PIS disconnect test brought its
@@ -208,7 +208,8 @@ suite to 33 passing tests. Later frontend slices brought the client suite to
 562 passing tests; typecheck, scoped lint, and production build passed after
 each runtime change. The profile-field allowlist test now brings the guarded
 API suite to 90 passing tests. GitHub CI and authenticated browser checks
-remain pending.
+remain pending. The Firebase first-claim case brings offline maintenance
+coverage to 49 passing tests.
 Full client lint still reports the eight
 Attendance errors described above. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
