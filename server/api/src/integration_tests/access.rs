@@ -111,7 +111,7 @@ pub async fn check_contracts() {
         is_admin: true,
         is_bidcom: false,
     });
-    admin::update_rush_app_settings(
+    let response = admin::update_rush_app_settings(
         uid_user,
         Json(UpdateRushAppPayload {
             disable_bidcom: false,
@@ -121,6 +121,7 @@ pub async fn check_contracts() {
     )
     .await
     .unwrap();
+    assert_eq!(response.0["status"], "success");
     let collection = db::get_rush_app_status_client().await;
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
     assert_eq!(
