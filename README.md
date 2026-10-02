@@ -105,6 +105,7 @@ commands run. Historical exports are not tracked; keep any needed copies locally
 npm --prefix client run lint:ci
 npm --prefix client test
 npm --prefix client run typecheck
+npm --prefix client run build
 npm --prefix server/websockets/pis test
 cargo fmt --manifest-path server/api/Cargo.toml -- --check
 cargo fmt --manifest-path server/websockets/sorting/Cargo.toml -- --check
