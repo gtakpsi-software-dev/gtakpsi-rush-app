@@ -1,5 +1,5 @@
 use axum::Json;
-use bson::DateTime;
+use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::fixtures::*;
@@ -125,6 +125,34 @@ pub async fn check_contracts() {
     let remaining = stored_rushee().await;
     assert_eq!(remaining.comments.len(), 1);
     assert!(remaining.ratings.is_empty());
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject only the comment append so the earlier rating write remains observable.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "$jsonSchema": {
+                "bsonType": "object",
+                "properties": { "comments": { "bsonType": "array", "maxItems": 1 } }
+            } }
+        })
+        .await
+        .unwrap();
+    let failed_append = rushee::post_comment(path(), Json(payload("Cameron", 2.0)))
+        .await
+        .unwrap()
+        .0;
+    assert_eq!(
+        failed_append,
+        json!({"status": "error", "message": "something wrong occurred"})
+    );
+    let partial = stored_rushee().await;
+    assert_eq!(partial.comments.len(), 1);
+    assert_eq!(partial.ratings[0].value, 2.0);
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
     println!(
         "comment duplication, legacy ratings, text-only editing, and deletion contracts passed"
     );
