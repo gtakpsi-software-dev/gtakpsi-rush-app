@@ -129,7 +129,7 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 588 client tests, 82 server unit tests, 30 collaboration
+Current verified totals: 588 client tests, 82 server unit tests, 31 collaboration
 tests, 14 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 83 server tests from the latest
 MongoDB integration-feature run, plus 69
@@ -139,3 +139,7 @@ changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
 public-entry comparison does not establish full application parity.
+The PIS socket tests pin one existing reconnect quirk: when two sockets join
+with the same user ID, the older socket's disconnect removes that user's
+presence even while the replacement stays connected. Changing this needs a
+separate behavior decision.

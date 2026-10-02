@@ -57,6 +57,20 @@ test('health, missing rooms, room membership, and disconnect preserve response s
     assert.deepEqual((await left).map((user) => user.id), ['brother-1']);
 });
 
+test('an older socket disconnect removes a replacement with the same user ID from presence', async (t) => {
+    const service = await startServer(t);
+    const original = await service.client('brother-1');
+    const replacement = await service.client('brother-1');
+    const before = await (await fetch(`${service.url}/rooms/pis-1/stats`)).json();
+    assert.deepEqual(before.users.map((user) => user.id), ['brother-1']);
+
+    const updated = event(replacement, 'users-updated');
+    original.disconnect();
+    assert.deepEqual(await updated, []);
+    assert.equal(replacement.connected, true);
+    assert.deepEqual(await documentState(replacement), {});
+});
+
 test('full-text updates acknowledge the sender, broadcast committed versions, and hydrate late joiners', async (t) => {
     const service = await startServer(t);
     const first = await service.client();
