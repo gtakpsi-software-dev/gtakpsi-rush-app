@@ -151,6 +151,13 @@ Local browser smoke checks with placeholder service URLs rendered the landing,
 registration entry, login, password-reset, and account-creation routes without
 console errors. The public navigation buttons and links reached their expected
 routes. Form submissions were not verified.
+Against baseline `5250f4b`, those five public routes produced identical rendered
+root markup at desktop (1280 x 720) and mobile (390 x 844) widths. The landing
+and registration controls also had identical settled positions and dimensions;
+the other mobile public routes had matching control widths and dimensions.
+Screenshots of the settled landing page were visually checked at both widths.
+These checks used placeholder local service URLs and did not exercise signed-in
+screens, form submissions, or backend workflows.
 The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a
