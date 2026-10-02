@@ -21,7 +21,7 @@ pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {
                 }
             }
 
-            return Ok(answer);
+            Ok(answer)
         }
 
         Err(_err) => Err(Error::other("some error occurred")),
