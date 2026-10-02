@@ -6,7 +6,7 @@ One-off cleanup: remove test rushees and wipe the rush-nights collection.
      Fall-2026 nights can be added fresh from the Admin page.
 
 NOTE: "Night 1", "Night 2", and "Closed Night" remain default interaction
-nights in server/api/src/middlewares/rush_nights.rs and
+nights in server/api/src/services/rush_nights.rs and
 client/src/features/rushee/interactions.js. Deleting database nights does not
 remove those display defaults; this script only changes the database.
 
