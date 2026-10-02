@@ -1,12 +1,12 @@
 use crate::controllers::db;
-use crate::middlewares::attendance;
+use crate::services::rush_night_queries;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use mongodb::bson::to_bson;
 use serde_json::{json, Value};
 
 pub async fn get_rush_nights() -> Result<Json<Value>, StatusCode> {
-    match attendance::get_rush_nights_sorted().await {
+    match rush_night_queries::get_rush_nights_sorted().await {
         Ok(nights) => Ok(Json(json!({
             "status": "success",
             "payload": nights
@@ -19,7 +19,7 @@ pub async fn get_rush_nights() -> Result<Json<Value>, StatusCode> {
 }
 
 pub async fn update_attendance(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
-    let fetch_rush_nights = attendance::get_rush_nights().await;
+    let fetch_rush_nights = rush_night_queries::get_rush_nights().await;
     let connection = db::get_rushee_client().await;
 
     match fetch_rush_nights {

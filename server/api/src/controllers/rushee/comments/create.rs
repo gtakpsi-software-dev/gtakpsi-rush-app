@@ -1,10 +1,11 @@
 use super::rating_updates::update_global_ratings;
 use crate::controllers::db;
-use crate::middlewares::{attendance, valid::check_valid_comment};
+use crate::middlewares::valid::check_valid_comment;
 use crate::models::{
     misc::RushNight,
     rushee::{Comment, IncomingComment},
 };
+use crate::services::rush_night_queries;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
@@ -18,7 +19,7 @@ pub async fn post_comment(
     Json(payload): Json<IncomingComment>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
-    let rush_nights = match attendance::get_rush_nights().await {
+    let rush_nights = match rush_night_queries::get_rush_nights().await {
         Ok(nights) => nights,
         Err(_) => return comment_error("there was some error while matching the rush night"),
     };

@@ -1,6 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::attendance;
 use crate::models::rushee::{RusheeModel, StrippedRushee};
+use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
@@ -13,7 +13,7 @@ use list_projection::project_list_rushee;
 
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
-    let rush_nights = attendance::get_rush_nights_sorted()
+    let rush_nights = rush_night_queries::get_rush_nights_sorted()
         .await
         .unwrap_or_default();
 
@@ -57,7 +57,7 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
 
     match connection.find_one(doc! { "gtid": id.clone() }).await {
         Ok(Some(mut rushee)) => {
-            if let Ok(rush_nights) = attendance::get_rush_nights_sorted().await {
+            if let Ok(rush_nights) = rush_night_queries::get_rush_nights_sorted().await {
                 enrich_interactions_by_night(&mut rushee, &rush_nights);
             }
             Ok(Json(json!({

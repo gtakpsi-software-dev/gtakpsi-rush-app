@@ -1,6 +1,6 @@
 use crate::controllers::db::get_redis_conn;
-use crate::middlewares::attendance;
 use crate::models::rushee::RusheeModel;
+use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
 use crate::services::rushee_lookup::fetch_rushee;
 use axum::{http::StatusCode, response::Json};
@@ -31,7 +31,7 @@ pub async fn change_rushee(
 
     match rushee_result {
         Ok(mut rushee) => {
-            if let Ok(rush_nights) = attendance::get_rush_nights_sorted().await {
+            if let Ok(rush_nights) = rush_night_queries::get_rush_nights_sorted().await {
                 enrich_interactions_by_night(&mut rushee, &rush_nights);
             }
             let mut redis = get_redis_conn().await.as_ref().clone();
