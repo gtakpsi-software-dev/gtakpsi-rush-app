@@ -5,7 +5,7 @@ import {
     RATING_FIELDS,
     createDefaultRatings,
     createDefaultNotSeen,
-} from "../src/features/rushee/zoom/commentRatingDefaults.js";
+} from "../../../src/features/rushee/zoom/commentRatingDefaults.js";
 
 test("new comment ratings retain their original fields, values, and independent state", () => {
     assert.deepEqual(RATING_FIELDS, [

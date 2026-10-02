@@ -107,7 +107,8 @@ live under `client/tests/voting/brother/`, and PIS page tests under
 `client/tests/brother-pis/`, and shared comment tests under
 `client/tests/comments/`. Attendance tests live under
 `client/tests/attendance/`, and dashboard tests under
-`client/tests/dashboard/`.
+`client/tests/dashboard/`. Remaining feature-specific singleton tests follow
+their corresponding auth, admin, rushee, sorting, and brother-directory folders.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,

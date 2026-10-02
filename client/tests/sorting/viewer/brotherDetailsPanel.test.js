@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { TAGS } from "../src/features/sorting/board.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { TAGS } from "../../../src/features/sorting/board.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/brotherDetailsPanel.json", import.meta.url));
-const componentPath = fileURLToPath(new URL("../src/features/sorting/ReadOnlyDetailsPanel.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/brotherDetailsPanel.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/sorting/ReadOnlyDetailsPanel.tsx", import.meta.url));
 
 function loadPanel() {
     return loadTsxComponent(componentPath, { "./board": { TAGS } });

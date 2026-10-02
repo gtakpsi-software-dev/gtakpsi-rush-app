@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/features/auth/verifyUser.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../../src/features/auth/verifyUser.js", import.meta.url));
 
 async function harness({
     user = null,

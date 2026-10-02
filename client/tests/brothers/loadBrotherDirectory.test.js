@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadBrotherDirectory } from "../src/features/brothers/loadBrotherDirectory.js";
+import { loadBrotherDirectory } from "../../src/features/brothers/loadBrotherDirectory.js";
 
 test("brother directory keeps the Firestore query and voting fields", async () => {
     const calls = [];
