@@ -113,3 +113,58 @@ async fn reconnect_after_owner_disconnect_can_reacquire_the_released_card() {
     reconnected.close(None).await.unwrap();
     observer.close(None).await.unwrap();
 }
+
+#[tokio::test]
+async fn role_change_preserves_drag_ownership_but_gates_new_save_broadcasts() {
+    let server = TestServer::start();
+    let (mut socket, _) = connect_async(&server.url).await.unwrap();
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "viewer_count", "count": 1})
+    );
+
+    send(
+        &mut socket,
+        json!({"type": "join", "is_admin": true, "name": "Admin"}),
+    )
+    .await;
+    send(&mut socket, json!({"type": "drag_start", "rushee_id": "card", "rushee_name": "Test Rushee", "x": 1.0, "y": 2.0})).await;
+    assert_eq!(receive(&mut socket).await["type"], "drag_start");
+
+    send(&mut socket, json!({"type": "join", "is_admin": false})).await;
+    send(
+        &mut socket,
+        json!({"type": "drag_move", "rushee_id": "card", "x": 3.0, "y": 4.0}),
+    )
+    .await;
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "drag_move", "rushee_id": "card", "x": 3.0, "y": 4.0})
+    );
+    send(
+        &mut socket,
+        json!({"type": "drag_end", "rushee_id": "card"}),
+    )
+    .await;
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "drag_end", "rushee_id": "card"})
+    );
+
+    send(
+        &mut socket,
+        json!({"type": "card_saved", "rushee_id": "ignored", "new_status": "IN_CLOUD"}),
+    )
+    .await;
+    send(&mut socket, json!({"type": "join", "is_admin": true})).await;
+    send(
+        &mut socket,
+        json!({"type": "card_saved", "rushee_id": "allowed", "new_status": "MID_CLOUD"}),
+    )
+    .await;
+    assert_eq!(
+        receive(&mut socket).await,
+        json!({"type": "card_moved", "rushee_id": "allowed", "new_status": "MID_CLOUD"})
+    );
+    socket.close(None).await.unwrap();
+}
