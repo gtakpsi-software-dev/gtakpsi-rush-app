@@ -1,6 +1,6 @@
 use super::eligibility::INELIGIBLE_BROTHERS;
-use crate::controllers::db::get_redis_conn;
 use crate::models::rushee::{IncomingRusheeVote, RusheeVote, VoteOption};
+use crate::storage::db::get_redis_conn;
 use anyhow::{Error, Result};
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;

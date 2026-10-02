@@ -1,8 +1,8 @@
-use crate::controllers::db::get_redis_conn;
 use crate::models::rushee::RusheeModel;
 use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
 use crate::services::rushee_lookup::fetch_rushee;
+use crate::storage::db::get_redis_conn;
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};

@@ -1,4 +1,4 @@
-use crate::controllers::db::get_redis_conn;
+use crate::storage::db::get_redis_conn;
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::Deserialize;
