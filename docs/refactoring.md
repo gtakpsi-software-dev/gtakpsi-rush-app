@@ -73,7 +73,7 @@ The test-only alternate API-client factory was removed; the default client's
 prefix, API-key interceptor, and error forwarding still have direct tests.
 Production asset hashes remained identical.
 The PIS Socket.IO entrypoint reaches all 14 source modules through static
-imports. Current Rust build/test dependency lists cover all 151 API source
+imports. Current Rust build/test dependency lists cover all 156 API source
 files, 16 sorting socket files, and 22 voting socket files; the API's Redis
 integration module is compiled only with its test feature. This source-level
 check does not establish that every handler or branch executes.
@@ -82,9 +82,9 @@ in the page while its question form lives with the other admin PIS views.
 Frontend component and filename identifiers now use `Pis` in PascalCase.
 User-facing `PIS` text, routes, API fields, and socket events retain their
 existing spelling.
-All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
-including tests, are under 200 lines; the largest is a 199-line maintenance
-test. The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
+All 732 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
+including tests, are under 200 lines; the largest is a 188-line client test.
+The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency
 lockfiles and refactoring documentation. The size check does not judge whether
 every module boundary is ideal.
