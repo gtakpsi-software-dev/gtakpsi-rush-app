@@ -1,4 +1,4 @@
-use bson::DateTime;
+use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::fixtures::{register, reset, stored_rushee, SLOT};
@@ -92,5 +92,29 @@ pub async fn check_contracts() {
     assert_eq!(cleared.first_brother_last_name, "none");
     assert_eq!(cleared.second_brother_first_name, "none");
     assert_eq!(cleared.second_brother_last_name, "none");
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // A rejected assignment write leaves the slot empty; its planned result still drives counts.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "pis_signup.first_brother_first_name": "none" }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 0 PIS slots. 0 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let rejected = stored_rushee().await.pis_signup;
+    assert_eq!(rejected.first_brother_first_name, "none");
+    assert_eq!(rejected.second_brother_first_name, "none");
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
     println!("PIS auto-assignment and clearing contracts passed");
 }
