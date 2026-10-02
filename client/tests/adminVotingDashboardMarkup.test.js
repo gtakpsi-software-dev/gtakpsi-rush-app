@@ -64,7 +64,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         './VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
         './AdminVotingDashboardView': ViewWithCapture,
-        './useAdminVotingSocket': {
+        '../../features/voting/admin/useAdminVotingSocket': {
             useAdminVotingSocket: (props) => captured.set('socket', props),
         },
         '../NotFound': stub('not-found'),

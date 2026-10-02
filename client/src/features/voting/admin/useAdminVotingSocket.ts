@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { useVotingSocket } from '../../features/voting/useVotingSocket';
-import type { AdminVotingContextType, Brother, ConnectionStatus } from '../../features/voting/admin/types';
+import { useVotingSocket } from '../useVotingSocket';
+import type { AdminVotingContextType, Brother, ConnectionStatus } from './types';
 
 type AdminVotingSocketOptions = Pick<
     AdminVotingContextType,

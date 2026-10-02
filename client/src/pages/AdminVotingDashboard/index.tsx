@@ -6,7 +6,7 @@ import AdminVotingDashboardView from "./AdminVotingDashboardView";
 import type { Brother, ConnectionStatus } from "../../features/voting/admin/types";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
-import { useAdminVotingSocket } from "./useAdminVotingSocket";
+import { useAdminVotingSocket } from "../../features/voting/admin/useAdminVotingSocket";
 import { parseAdminAllowlist } from "../../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);

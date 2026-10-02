@@ -58,6 +58,7 @@ export async function loadVotingSocketHook(hookPath, exportName) {
     const shared = await loadModule(sharedPath);
     const wrapper = await loadModule(hookPath, {
         '../../features/voting/useVotingSocket': shared,
+        '../useVotingSocket': shared,
     });
     return { [exportName]: wrapper[exportName], effects, sockets, timers, errors };
 }
