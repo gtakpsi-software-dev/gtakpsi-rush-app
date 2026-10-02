@@ -19,18 +19,22 @@ pub(super) struct RecordedRequest {
 #[derive(Clone)]
 struct MockState {
     requests: Arc<Mutex<Vec<RecordedRequest>>>,
+    token_body: Value,
     lookup_status: StatusCode,
     lookup_body: Value,
     update_status: StatusCode,
 }
 
-async fn token(Form(body): Form<HashMap<String, String>>) -> Json<Value> {
+async fn token(
+    State(state): State<MockState>,
+    Form(body): Form<HashMap<String, String>>,
+) -> Json<Value> {
     assert_eq!(
         body.get("grant_type").map(String::as_str),
         Some("urn:ietf:params:oauth:grant-type:jwt-bearer")
     );
     assert!(body.get("assertion").is_some_and(|value| !value.is_empty()));
-    Json(json!({"access_token": "local-access-token"}))
+    Json(state.token_body)
 }
 
 async fn record(state: &MockState, action: &'static str, headers: HeaderMap, body: Value) {
@@ -77,9 +81,24 @@ impl MockServer {
         lookup_body: Value,
         update_status: StatusCode,
     ) -> Self {
+        Self::start_with_token_body(
+            json!({"access_token": "local-access-token"}),
+            lookup_status,
+            lookup_body,
+            update_status,
+        )
+    }
+
+    pub(super) fn start_with_token_body(
+        token_body: Value,
+        lookup_status: StatusCode,
+        lookup_body: Value,
+        update_status: StatusCode,
+    ) -> Self {
         let requests = Arc::new(Mutex::new(Vec::new()));
         let state = MockState {
             requests: requests.clone(),
+            token_body,
             lookup_status,
             lookup_body,
             update_status,

@@ -94,6 +94,21 @@ async fn failed_lookup_returns_internal_for_a_direct_role_read() {
 }
 
 #[tokio::test]
+async fn missing_oauth_access_token_stops_before_identity_toolkit_requests() {
+    let server = MockServer::start_with_token_body(
+        json!({}),
+        StatusCode::OK,
+        json!({"users": []}),
+        StatusCode::OK,
+    );
+    assert!(matches!(
+        server.auth().get_user_roles("brother-5").await,
+        Err(AuthError::Internal)
+    ));
+    assert!(server.requests().await.is_empty());
+}
+
+#[tokio::test]
 async fn failed_update_returns_internal_after_a_successful_lookup() {
     let server = MockServer::start(
         StatusCode::OK,

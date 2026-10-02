@@ -7,7 +7,7 @@ impl FirebaseAuth {
         &self,
         sa: &ServiceAccount,
     ) -> Result<String, AuthError> {
-        // JWT for OAuth2 client_credentials
+        // Google OAuth exchanges a signed service-account JWT for a short-lived access token.
         #[derive(serde::Serialize)]
         struct Claims<'a> {
             iss: &'a str,
