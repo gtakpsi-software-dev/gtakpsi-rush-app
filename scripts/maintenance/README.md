@@ -39,7 +39,7 @@ Spreadsheet exports are generated in the current working directory when their
 commands run. Historical exports are not tracked; keep any needed copies
 locally.
 
-The `commands/` package holds operation logic, and `lib/` holds shared parsing,
-configuration, and image helpers. The entrypoints remain separate because their
+The `commands/` package holds operation logic, and `lib/` holds shared parsing
+and configuration helpers. The entrypoints remain separate because their
 inputs and side effects differ. Do not delete a one-off command solely because
 the application does not import it; these commands are invoked manually.
