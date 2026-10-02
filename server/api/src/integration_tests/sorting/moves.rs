@@ -9,6 +9,14 @@ use serde_json::json;
 
 pub(super) async fn check_move_contracts() {
     reset().await;
+    // An incomplete row in the source column must not enter move ordering.
+    db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("rushees")
+        .insert_one(bson::doc! {"gtid": "malformed", "sorting_status": "IN_CLOUD"})
+        .await
+        .unwrap();
     register().await;
     let second_id = "900000002";
     let mut second_payload = signup_payload();
