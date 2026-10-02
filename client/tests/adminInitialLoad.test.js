@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { loadAdminData } from "../src/features/admin/bootstrap/loadAdminData.js";
 
-function setup({ currentUser = { email: "admin@example.com" }, admin = true, allowlist = [], verified = true, failedPath } = {}) {
+function setup({ currentUser = { email: "admin@example.com" }, admin = true, allowlist = [], verified = true, failedPath, rejectedPath, failingSetter } = {}) {
     const calls = [];
     const timeSlots = [
         { time: { $date: { $numberLong: "200" } } },
@@ -30,6 +30,7 @@ function setup({ currentUser = { email: "admin@example.com" }, admin = true, all
         get: async (path) => {
             calls.push(["get", path, axios.defaults.headers.common.Authorization]);
             if (path === failedPath) throw new Error("offline");
+            if (path === rejectedPath) return { data: { status: "error" } };
             return { data: responses[path] };
         },
     };
@@ -58,7 +59,10 @@ function setup({ currentUser = { email: "admin@example.com" }, admin = true, all
         toast: { error: (message) => calls.push(["toast", message]) },
         logError: (message, error) => calls.push(["log", message, error.message]),
         setBrothers: (value) => calls.push(["brothers", value]),
-        setRushees: (value) => calls.push(["rushees", value]),
+        setRushees: (value) => {
+            calls.push(["rushees", value]);
+            if (failingSetter === "rushees") throw new Error("setter failed");
+        },
         setAvailableTimeslots: (value) => calls.push(["available", value]),
         setPisFormStatus: (value) => calls.push(["formStatus", value]),
         setBrotherAvailabilities: (value) => calls.push(["availabilities", value]),
@@ -126,5 +130,25 @@ test("an individual data failure logs and continues later fetches", async () => 
     await loadAdminData(options);
     assert.deepEqual(calls.find(([kind]) => kind === "log"), ["log", "Failed to fetch brother availabilities:", "offline"]);
     assert.ok(calls.some(([kind, path]) => kind === "get" && path === "/api/admin/comment-visibility/status"));
+    assert.deepEqual(calls.at(-1), ["loading", false]);
+});
+
+test("unsuccessful data responses skip only their setter without logging", async () => {
+    const { calls, options } = setup({ rejectedPath: "/api/rushee/get-rushees" });
+    await loadAdminData(options);
+
+    assert.ok(!calls.some(([kind]) => kind === "rushees" || kind === "log"));
+    assert.ok(calls.some(([kind]) => kind === "available"));
+    assert.deepEqual(calls.at(-1), ["loading", false]);
+});
+
+test("a setter error uses its section label and does not stop later reads", async () => {
+    const { calls, options } = setup({ failingSetter: "rushees" });
+    await loadAdminData(options);
+
+    assert.deepEqual(calls.find(([kind]) => kind === "log"), [
+        "log", "Failed to fetch rushees:", "setter failed",
+    ]);
+    assert.ok(calls.some(([kind]) => kind === "commentStatus"));
     assert.deepEqual(calls.at(-1), ["loading", false]);
 });
