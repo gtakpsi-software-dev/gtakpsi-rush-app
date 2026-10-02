@@ -64,8 +64,9 @@ The verified atomic slices are archived by range:
   their health endpoints and the socket URL wiring without changing event
   payloads.
 - Cover remaining API failure and partial-write branches with isolated data
-  before simplifying their controller logic. Firebase role-claim outcomes need
-  a separate safe test setup because they call the remote admin API.
+  before simplifying their controller logic. Firebase role-claim success and
+  failure paths now have offline HTTP coverage; real Google integration remains
+  unverified.
 - Expand real-time failure and role-change coverage where the protocols have
   observable behavior beyond the current reconnect, malformed-message, and
   cleanup tests.

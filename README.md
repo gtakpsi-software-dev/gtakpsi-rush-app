@@ -67,6 +67,9 @@ REDIS_URL=rediss://...
 ```env
 MONGO_URI=mongodb+srv://...
 API=https://your-railway-backend-url.railway.app
+FIREBASE_API_KEY=your-api-key
+ADMIN_UID=your-admin-user-id
+API_KEY=your-client-api-key
 FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
@@ -158,8 +161,8 @@ are unchanged.
 ### PIS collaboration service
 
 Set this Socket.IO service's deployment root to `server/websockets/pis`. Run it
-there with `npm start`; its package name, port default, and event protocol are
-unchanged.
+there with `npm start`. Its package name is `rush-pis-websocket`; its port
+default and event protocol are unchanged.
 
 ### Sorting WebSocket service
 
