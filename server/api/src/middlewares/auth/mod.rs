@@ -39,6 +39,9 @@ pub struct ServiceAccount {
     project_id: Option<String>,
 }
 
+// INVARIANT: these required fields must deserialize even when validation
+// reads their values from the JWT; removing them would accept missing claims.
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct FirebaseClaims {
     aud: String,
