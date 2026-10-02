@@ -1,9 +1,3 @@
-/**
- * Badge Summary:
- * - Types the optional label and lays out the existing color cases for review.
- * - Keeps every class string and fallback unchanged.
- * - Markup tests pin all named night badges and missing text.
- */
 export default function Badge(props: { text?: string }) {
     let css = "bg-apple-gray-100 text-apple-gray-700 text-apple-caption1 font-light me-2 px-2 py-1 rounded-apple whitespace-nowrap";
 

@@ -1,11 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
 
-/**
- * Home Page Summary:
- * - Keeps rush and midterm copy and action routes unchanged.
- * - Removes presentation-only comments and JSX text lint errors.
- */
 export default function Home() {
 
     const navigate = useNavigate();

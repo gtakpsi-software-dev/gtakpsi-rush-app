@@ -6,12 +6,6 @@ import {
 } from "../features/rushee/interactions";
 import type { NightInteractionSummary } from "../features/rushee/interactions.types";
 
-/**
- * Interaction View Summary:
- * - Types the optional precomputed and fallback interaction inputs.
- * - Keeps the same fetch gate, memo dependencies, and rendered states.
- * - Markup fixtures pin regular, compact, and empty output.
- */
 type RusheeInteractionsByNightProps = {
     nights?: NightInteractionSummary[];
     attendance?: unknown[];
@@ -30,6 +24,7 @@ export default function RusheeInteractionsByNight({
     const [rushNights, setRushNights] = useState<object[] | null>(null);
 
     useEffect(() => {
+        // Precomputed summaries avoid a second rush-night request on list cards.
         if (nightsProp?.length) {
             return;
         }

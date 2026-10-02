@@ -10,11 +10,6 @@ import NavbarMenu from "../features/navigation/NavbarMenu";
 
 const ADMIN_ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
-/**
- * Navbar Summary:
- * - Types the shared stripped-mode input without changing auth or menu state.
- * - Existing render fixtures pin loading, access, and display variants.
- */
 type NavbarProps = { stripped?: boolean };
 
 export default function Navbar(props: NavbarProps) {

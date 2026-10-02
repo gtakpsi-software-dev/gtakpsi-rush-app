@@ -6,11 +6,6 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     size?: string;
 };
 
-/**
- * Button Summary:
- * - Types the existing customization props without changing their fallbacks.
- * - Keeps the later prop spread so callers can override the default class and type.
- */
 export default function Button(props: ButtonProps) {
     const text = props.text ? props.text : "Submit";
     const variant = props.variant || "primary";
@@ -33,6 +28,7 @@ export default function Button(props: ButtonProps) {
     const variantClass = variants[variant] || variants.primary;
     const sizeClass = variant === "primary" || variant === "secondary" ? "" : sizes[size];
 
+    // Spreading props last lets callers override the default class and type.
     return (
         <button
             className={`${baseClasses} ${variantClass} ${sizeClass} mt-3`}

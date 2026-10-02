@@ -1,10 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
 
-/**
- * Error Page Summary:
- * - Types the props accepted by existing callers without changing display rules.
- * - Route params remain the source of the shown title and description.
- */
 type ErrorPageProps = {
     wrongpage?: boolean;
     title?: string;
@@ -30,7 +25,6 @@ export default function MyError(props: ErrorPageProps) {
     return (
         <div className="relative w-full h-screen bg-white flex flex-col items-center justify-center">
             <div className="text-center animate-fade-in">
-                {/* Error Icon */}
                 <div className="flex items-center justify-center w-24 h-24 bg-apple-gray-100 rounded-apple-2xl border border-apple-gray-200 mb-8 animate-slide-up mx-auto">
                     <svg
                         className="w-12 h-12 text-apple-gray-600"
@@ -56,18 +50,15 @@ export default function MyError(props: ErrorPageProps) {
                     </svg>
                 </div>
 
-                {/* Title */}
                 <div className="mb-6 animate-slide-up" style={{animationDelay: '0.1s'}}>
                     <h1 className="text-apple-large font-light text-black mb-2">{titleShown}</h1>
                     <div className="w-16 h-0.5 bg-black mx-auto"></div>
                 </div>
 
-                {/* Description */}
                 <p className="text-apple-title2 text-apple-gray-600 font-light mb-8 max-w-md mx-auto leading-relaxed animate-slide-up" style={{animationDelay: '0.2s'}}>
                     {descriptionShown}
                 </p>
 
-                {/* Button */}
                 <div className="animate-slide-up" style={{animationDelay: '0.3s'}}>
                     <button 
                         onClick={() => navigate("/")} 
