@@ -186,6 +186,37 @@ pub async fn check_contracts() {
         .run_command(doc! { "collMod": "rushees", "validator": {} })
         .await
         .unwrap();
+
+    // Reject rating removal after the stored comment has already been pulled.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "$jsonSchema": {
+                "bsonType": "object",
+                "properties": { "ratings": { "bsonType": "array", "minItems": 1 } }
+            } }
+        })
+        .await
+        .unwrap();
+    let last_comment = stored_rushee().await.comments[0].clone();
+    let failed_removal = rushee::delete_comment(path(), Json(last_comment))
+        .await
+        .unwrap()
+        .0;
+    assert_eq!(
+        failed_removal,
+        json!({
+            "status": "error", "message": "error removing rating category after comment deletion"
+        })
+    );
+    let partial_delete = stored_rushee().await;
+    assert!(partial_delete.comments.is_empty());
+    assert_eq!(partial_delete.ratings.len(), 1);
+    assert_eq!(partial_delete.ratings[0].value, 2.0);
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
     println!(
         "comment duplication, legacy ratings, text-only editing, and deletion contracts passed"
     );
