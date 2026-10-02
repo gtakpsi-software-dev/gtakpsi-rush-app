@@ -11,5 +11,3 @@ mod selection;
 
 mod scheduling;
 pub use scheduling::{get_available_timeslots, get_signup_timeslots};
-
-mod timeslot_sort;

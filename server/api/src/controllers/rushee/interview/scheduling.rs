@@ -1,5 +1,5 @@
-use super::timeslot_sort::sort_available_timeslots;
 use crate::models::pis::PISSignup;
+use crate::services::pis_timeslot_sort::sort_available_timeslots;
 use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;

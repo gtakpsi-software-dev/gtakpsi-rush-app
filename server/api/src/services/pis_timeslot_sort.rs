@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-pub(super) fn sort_available_timeslots(timeslots: &mut [Value]) {
+pub(crate) fn sort_available_timeslots(timeslots: &mut [Value]) {
     timeslots.sort_by(|left, right| {
         let left_time = sort_time(left);
         let right_time = sort_time(right);
