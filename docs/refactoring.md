@@ -47,11 +47,11 @@ operations, `storage/` owns MongoDB and Redis connection factories, and
 socket contracts remain unchanged.
 PIS auto-assignment planning, loading, execution, and persistence live in
 `services/`; its controller retains the existing HTTP response mapping.
-The admin availability list, PIS assignment loader, and sorting board share a
-small storage cursor reader that skips malformed documents while retaining
-later valid rows. Sorting projects each row as it arrives so its fallback
-numbering and memory use stay unchanged. Other API readers retain their own
-read-error behavior.
+The admin availability list, PIS assignment loader, sorting board, and PIS
+schedule export share a small storage cursor reader that skips malformed
+documents while retaining later valid rows. Sorting and the export project
+each row as it arrives, preserving their memory use and final ordering. Other
+API readers retain their own read-error behavior.
 
 The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their
