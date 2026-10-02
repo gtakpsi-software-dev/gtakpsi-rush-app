@@ -35,7 +35,7 @@ function props(overrides = {}) {
 async function loadForm() {
     return loadTsxComponent(componentPath, {
         "../../comments/CommentWarning": CommentWarning,
-        "../../../components/RatingSlider": RatingSlider,
+        "./RatingSlider": RatingSlider,
     });
 }
 

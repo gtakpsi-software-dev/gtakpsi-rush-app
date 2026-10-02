@@ -1,6 +1,6 @@
 import CommentWarning from "../../comments/CommentWarning";
 import type { CommentWarningItem } from "../../comments/CommentWarning";
-import RatingSlider from "../../../components/RatingSlider";
+import RatingSlider from "./RatingSlider";
 
 type NewCommentFormProps = {
     isAddingComment: boolean;

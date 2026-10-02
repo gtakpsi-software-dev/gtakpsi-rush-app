@@ -7,7 +7,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const sliderPath = fileURLToPath(new URL("../src/components/RatingSlider.tsx", import.meta.url));
+const sliderPath = fileURLToPath(new URL("../src/features/rushee/zoom/RatingSlider.tsx", import.meta.url));
 
 test("rating slider retains enabled and not-seen markup", async () => {
     const Slider = await loadTsxComponent(sliderPath);
