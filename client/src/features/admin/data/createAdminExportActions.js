@@ -6,129 +6,75 @@ import {
 } from "./exportCsv.js";
 
 export function createAdminExportActions({ apiBase, getApiPrefix, axios, toast, download }) {
-    const exportRusheePersonalInfo = async () => {
+    async function runExport(endpoint, buildCsv, filename, successMessage, failureMessage) {
         try {
-            const response = await axios.get(`${apiBase}/export-rushee-info`);
-
-            if (response.data.status === "success") {
-                const rushees = response.data.payload;
-
-                const csvContent = buildRusheePersonalInfoCsv(rushees);
-                download(csvContent, "Rushee_Personal_Info");
-
-                toast.success(`Exported personal info for ${rushees.length} rushees`, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error("Failed to fetch rushee personal info", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error(`Export error: ${error.message}`, {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-    };
-
-    const exportRusheeNumbers = async () => {
-        try {
-            const response = await axios.get(`${apiBase}/export-rushee-numbers`);
-
-            if (response.data.status === "success") {
-                const mappings = response.data.payload;
-
-                const csvContent = buildRusheeNumbersCsv(mappings);
-                download(csvContent, "Rushee_Numbers");
-
-                toast.success(`Exported ${mappings.length} rushee numbers`, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error("Failed to fetch rushee numbers", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error(`Export error: ${error.message}`, {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-    };
-
-    const exportPISSchedule = async () => {
-        try {
-            const api = getApiPrefix();
-            const response = await axios.get(`${api}/rushee/get-timeslots`);
-
-            if (response.data.status === "success") {
-                const timeslots = response.data.payload;
-
-                const csvContent = buildPisScheduleCsv(timeslots);
-                download(csvContent, "PIS_Schedule");
-
-                toast.success(`Exported ${timeslots.length} PIS appointments`, {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error("Failed to fetch PIS timeslots", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch (error) {
-            toast.error(`Export error: ${error.message}`, {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        }
-    };
-
-    const exportPISWithBrothers = async () => {
-        try {
-            const response = await axios.get(`${apiBase}/pis-availability/export-csv`);
+            const response = await axios.get(endpoint());
 
             if (response.data.status === "success") {
                 const data = response.data.payload;
+                const csvContent = buildCsv(data);
+                download(csvContent, filename);
 
-                const csvContent = buildPisScheduleWithBrothersCsv(data);
-                download(csvContent, "PIS_Schedule_With_Brothers");
-
-                toast.success(`Exported ${data.length} PIS appointments with brother assignments`, {
+                toast.success(successMessage(data.length), {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             } else {
-                toast.error("Failed to export", {
+                toast.error(failureMessage, {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             }
         } catch (error) {
+            // Endpoint lookup, CSV creation, and download share the existing error toast.
             toast.error(`Export error: ${error.message}`, {
                 position: "top-center",
                 autoClose: 3000,
                 theme: "dark",
             });
         }
+    }
+
+    const exportRusheePersonalInfo = async () => {
+        await runExport(
+            () => `${apiBase}/export-rushee-info`,
+            buildRusheePersonalInfoCsv,
+            "Rushee_Personal_Info",
+            (count) => `Exported personal info for ${count} rushees`,
+            "Failed to fetch rushee personal info",
+        );
+    };
+
+    const exportRusheeNumbers = async () => {
+        await runExport(
+            () => `${apiBase}/export-rushee-numbers`,
+            buildRusheeNumbersCsv,
+            "Rushee_Numbers",
+            (count) => `Exported ${count} rushee numbers`,
+            "Failed to fetch rushee numbers",
+        );
+    };
+
+    const exportPISSchedule = async () => {
+        await runExport(
+            () => `${getApiPrefix()}/rushee/get-timeslots`,
+            buildPisScheduleCsv,
+            "PIS_Schedule",
+            (count) => `Exported ${count} PIS appointments`,
+            "Failed to fetch PIS timeslots",
+        );
+    };
+
+    const exportPISWithBrothers = async () => {
+        await runExport(
+            () => `${apiBase}/pis-availability/export-csv`,
+            buildPisScheduleWithBrothersCsv,
+            "PIS_Schedule_With_Brothers",
+            (count) => `Exported ${count} PIS appointments with brother assignments`,
+            "Failed to export",
+        );
     };
 
     return {
