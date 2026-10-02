@@ -89,5 +89,6 @@ pub async fn check_contracts() {
 
     moves::check_move_contracts().await;
     failure_cases::check_single_sorting_write_failure().await;
+    failure_cases::check_notes_write_failure().await;
     failure_cases::check_bulk_reorder_failure().await;
 }

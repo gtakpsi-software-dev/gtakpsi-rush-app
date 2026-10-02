@@ -42,6 +42,45 @@ pub(super) async fn check_single_sorting_write_failure() {
         .unwrap();
 }
 
+pub(super) async fn check_notes_write_failure() {
+    reset().await;
+    register().await;
+    let before = stored_rushee().await;
+    let database = db::get_mongo_client().await.database("rush-app");
+
+    // Reject the autosave so notes, tags, and attribution stay together at their old values.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "sorting_notes": before.sorting_notes.clone() }
+        })
+        .await
+        .unwrap();
+    let payload = json!({
+        "sortingNotes": "Blocked update", "sortingTags": ["pis"]
+    });
+    assert_eq!(
+        admin::update_rushee_notes(
+            path(),
+            brother(),
+            Json(serde_json::from_value(payload).unwrap()),
+        )
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "error", "message": "Failed to update notes"})
+    );
+    let after = stored_rushee().await;
+    assert_eq!(after.sorting_notes, before.sorting_notes);
+    assert_eq!(after.sorting_tags, before.sorting_tags);
+    assert_eq!(after.notes_updated_at, before.notes_updated_at);
+    assert_eq!(after.notes_updated_by, before.notes_updated_by);
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
+}
+
 pub(super) async fn check_bulk_reorder_failure() {
     reset().await;
     register().await;
