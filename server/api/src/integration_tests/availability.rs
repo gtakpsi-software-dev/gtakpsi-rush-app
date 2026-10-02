@@ -1,8 +1,9 @@
 use axum::Json;
+use bson::doc;
 use serde_json::json;
 
 use super::fixtures::{reset, SLOT};
-use crate::{controllers::admin, models::pis::IncomingBrotherAvailability};
+use crate::{controllers::admin, models::pis::IncomingBrotherAvailability, storage::db};
 
 mod failure_cases;
 
@@ -40,6 +41,16 @@ pub async fn check_contracts() {
         json!({"status": "success", "needs_form": true})
     );
 
+    // A malformed earlier submission must not hide a later valid brother.
+    let availability_collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("brother-pis-availability");
+    availability_collection
+        .insert_one(doc! {"brother_uid": "malformed"})
+        .await
+        .unwrap();
+
     for first in ["Ada", "Grace"] {
         let payload = IncomingBrotherAvailability {
             brother_uid: "brother-1".to_string(),
@@ -62,6 +73,13 @@ pub async fn check_contracts() {
     );
     let submissions = admin::get_all_brother_availabilities().await.unwrap().0;
     assert_eq!(submissions["status"], "success");
+    assert_eq!(
+        availability_collection
+            .count_documents(doc! {})
+            .await
+            .unwrap(),
+        2
+    );
     assert_eq!(submissions["payload"].as_array().unwrap().len(), 1);
     assert_eq!(submissions["payload"][0]["brother_first_name"], "Grace");
     assert_eq!(submissions["payload"][0]["brother_uid"], "brother-1");
