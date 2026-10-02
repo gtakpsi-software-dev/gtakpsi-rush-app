@@ -75,13 +75,13 @@ pub async fn clear_votes() -> Result<Json<Value>, StatusCode> {
     let mut conn = conn_arc.as_ref().clone();
 
     let _: () = conn.del("vote_log").await.map_err(|e| {
-        println!("❌ Failed to clear vote_log: {}", e);
+        println!("❌ Failed to clear vote_log: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
     // Notify listeners after the log has been cleared.
     let _: () = conn.publish("vote_channel", "cleared").await.map_err(|e| {
-        println!("❌ Failed to publish clear notification: {}", e);
+        println!("❌ Failed to publish clear notification: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 

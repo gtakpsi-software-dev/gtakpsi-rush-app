@@ -37,12 +37,12 @@ pub async fn change_rushee(
             let mut redis = get_redis_conn().await.as_ref().clone();
 
             let serialized_rushee = to_string(&rushee).map_err(|e| {
-                println!("Failed to serialize rushee: {:?}", e);
+                println!("Failed to serialize rushee: {e:?}");
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
 
             let _: () = redis.set("rushee", &serialized_rushee).await.map_err(|e| {
-                println!("Failed to set Redis key 'rushee': {:?}", e);
+                println!("Failed to set Redis key 'rushee': {e:?}");
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
 
@@ -51,7 +51,7 @@ pub async fn change_rushee(
                 .publish("rushee", &serialized_rushee)
                 .await
                 .map_err(|e| {
-                    println!("Failed to publish to Redis channel 'rushee': {:?}", e);
+                    println!("Failed to publish to Redis channel 'rushee': {e:?}");
                     StatusCode::INTERNAL_SERVER_ERROR
                 })?;
 
@@ -62,7 +62,7 @@ pub async fn change_rushee(
         }
 
         Err(e) => {
-            println!("Rushee not found: {:?}", e);
+            println!("Rushee not found: {e:?}");
             Err(StatusCode::NOT_FOUND)
         }
     }
@@ -100,7 +100,7 @@ pub async fn post_question(
         .set("question", &payload.question)
         .await
         .map_err(|e| {
-            println!("❌ Failed to set Redis key 'question': {:?}", e);
+            println!("❌ Failed to set Redis key 'question': {e:?}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -109,7 +109,7 @@ pub async fn post_question(
         .publish("question", &payload.question)
         .await
         .map_err(|e| {
-            println!("❌ Failed to publish to Redis channel 'question': {:?}", e);
+            println!("❌ Failed to publish to Redis channel 'question': {e:?}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 

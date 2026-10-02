@@ -20,7 +20,7 @@ pub async fn make_eligible(
         .srem(INELIGIBLE_BROTHERS, &payload.gtid)
         .await
         .map_err(|e| {
-            println!("Redis SREM error: {}", e);
+            println!("Redis SREM error: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -41,7 +41,7 @@ pub async fn make_ineligible(
         .sadd(INELIGIBLE_BROTHERS, &payload.gtid)
         .await
         .map_err(|e| {
-            println!("Redis SADD error: {}", e);
+            println!("Redis SADD error: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -55,7 +55,7 @@ pub async fn get_eligibility() -> Result<Json<Value>, StatusCode> {
     let mut conn = get_redis_conn().await.as_ref().clone();
 
     let ineligible_ids: Vec<String> = conn.smembers(INELIGIBLE_BROTHERS).await.map_err(|e| {
-        println!("Redis SMEMBERS error: {}", e);
+        println!("Redis SMEMBERS error: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
