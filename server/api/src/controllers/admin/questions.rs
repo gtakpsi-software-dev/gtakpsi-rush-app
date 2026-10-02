@@ -4,8 +4,8 @@ use mongodb::bson::{doc, Document};
 use serde::Deserialize;
 use serde_json::{json, Value};
 
-use crate::controllers::db;
 use crate::models::pis::PISQuestion;
+use crate::storage::db;
 
 fn question_identity_filter(question: &str, question_type: &str) -> Document {
     // INVARIANT: update and delete match the same exact question/type pair.

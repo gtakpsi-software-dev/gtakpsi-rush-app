@@ -1,4 +1,4 @@
-use crate::controllers::db;
+use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde::Deserialize;

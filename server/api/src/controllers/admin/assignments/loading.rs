@@ -1,9 +1,9 @@
 use futures::{Stream, StreamExt};
 use mongodb::{bson::doc, Collection};
 
-use crate::controllers::db;
 use crate::models::pis::BrotherPISAvailability;
 use crate::models::rushee::RusheeModel;
+use crate::storage::db;
 
 pub(super) async fn load_brother_availabilities() -> Result<Vec<BrotherPISAvailability>, ()> {
     let collection = db::get_brother_pis_availability_client().await;

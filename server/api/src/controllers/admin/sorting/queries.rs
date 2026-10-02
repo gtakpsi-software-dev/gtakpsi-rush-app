@@ -1,5 +1,5 @@
 use super::{validate_status, SortingRushee, SORTING_STATUSES};
-use crate::{controllers::db, models::rushee::RusheeModel};
+use crate::{models::rushee::RusheeModel, storage::db};
 use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;

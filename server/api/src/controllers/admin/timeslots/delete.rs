@@ -3,9 +3,9 @@ use mongodb::bson::doc;
 use serde_json::Value;
 
 use super::{incoming_time_filter, timeslot_message};
-use crate::controllers::db;
 use crate::models::pis::PISTimeslotIncoming;
 use crate::services::rush_time;
+use crate::storage::db;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum DeletionPlan {

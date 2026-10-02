@@ -1,5 +1,5 @@
-use crate::controllers::db;
 use crate::models::pis::{RushAppStatus, UpdateRushAppPayload};
+use crate::storage::db;
 use axum::extract::Extension;
 use axum::{http::StatusCode, response::Json};
 use mongodb::bson::{doc, DateTime};

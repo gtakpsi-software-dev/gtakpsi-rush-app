@@ -1,6 +1,6 @@
-use crate::controllers::db;
 use crate::models::pis::{IncomingPISSignup, PISSignup};
 use crate::models::rushee::RusheeModel;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;

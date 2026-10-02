@@ -2,7 +2,7 @@ use super::{
     column_order::{fetch_ids, move_between_columns, move_within_column, write_column_order},
     validate_status, MoveRusheePayload, SORTING_COLUMN_LOCKS,
 };
-use crate::controllers::db;
+use crate::storage::db;
 use axum::extract::Extension;
 use axum::{http::StatusCode, response::Json};
 use serde_json::{json, Value};

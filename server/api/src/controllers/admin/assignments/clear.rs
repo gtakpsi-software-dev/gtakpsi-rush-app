@@ -2,7 +2,7 @@ use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
-use crate::controllers::db;
+use crate::storage::db;
 
 /// Clear all brother assignments from PIS slots
 pub async fn clear_pis_assignments() -> Result<Json<Value>, StatusCode> {

@@ -2,9 +2,9 @@ use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
-use crate::controllers::db;
 use crate::models::misc::{IncomingRushNight, RushNight};
 use crate::services::rush_time::string_to_bson_datetime;
+use crate::storage::db;
 
 pub async fn add_rush_night(
     Json(payload): Json<IncomingRushNight>,
