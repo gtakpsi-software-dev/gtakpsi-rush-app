@@ -99,3 +99,24 @@ test("failed responses and transport errors retain messages and clear loading", 
     assert.equal(comments.calls[2][1], "Failed to update settings");
     assert.deepEqual(comments.calls.at(-1), ["commentsLoading", false]);
 });
+
+test("state setter failures show the existing request error and clear loading", async () => {
+    const calls = [];
+    const { actions } = setup(undefined, {
+        setRushAppStatus: (value) => {
+            calls.push(["rushStatus", value]);
+            throw new Error("state setter failed");
+        },
+        setRushAppLoading: (value) => calls.push(["rushLoading", value]),
+        toast: {
+            success: (message) => calls.push(["success", message]),
+            error: (message) => calls.push(["error", message]),
+        },
+    });
+
+    await actions.handleToggleRushAppAccess("disable_bidcom", true);
+
+    assert.deepEqual(calls.map(([kind]) => kind), ["rushLoading", "rushStatus", "error", "rushLoading"]);
+    assert.deepEqual(calls[2], ["error", "Failed to update Rush App settings"]);
+    assert.deepEqual(calls.at(-1), ["rushLoading", false]);
+});
