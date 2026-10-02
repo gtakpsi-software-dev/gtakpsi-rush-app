@@ -1,27 +1,27 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
 } from "firebase/auth";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
   getDocs,
   query,
-  orderBy
+  orderBy,
 } from "firebase/firestore";
 
-// Your Firebase configuration
-// Replace these with your actual Firebase project config from Firebase Console
+// Client settings contain public project identifiers only.
+// Keep service-account keys server-side.
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -31,29 +31,21 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Cloud Storage and get a reference to the service
 export const storage = getStorage(app);
-
-// Initialize Firebase Auth
 export const auth = getAuth(app);
-
-// Initialize Firestore
 export const db = getFirestore(app);
 
-// Auth helper functions
-export { 
-  signInWithEmailAndPassword, 
+export {
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
 };
 
-// Firestore helper functions
 export {
   collection,
   doc,
@@ -61,8 +53,7 @@ export {
   getDoc,
   getDocs,
   query,
-  orderBy
+  orderBy,
 };
 
 export default app;
-
