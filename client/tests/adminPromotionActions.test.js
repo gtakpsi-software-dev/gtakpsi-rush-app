@@ -6,7 +6,7 @@ import { createPromotionActions } from "../src/features/admin/access/promotionAc
 
 const brother = { uid: "uid-1", id: "fallback", email: "ada@example.com", firstname: "Ada", lastname: "Example" };
 
-function setup({ selectedBrother = brother, statusResponse = { status: "success", admin: true, bidcom: false }, roleResponse = { status: "success" } } = {}) {
+function setup({ selectedBrother = brother, statusResponse = { status: "success", admin: true, bidcom: false }, roleResponse = { status: "success" }, failingAdminSetter = false } = {}) {
     const calls = [];
     const actions = createPromotionActions({
         apiBase: "/api/admin",
@@ -14,7 +14,10 @@ function setup({ selectedBrother = brother, statusResponse = { status: "success"
         setSelectedBrother: (value) => calls.push(["selected", value]),
         setBrotherSearch: (value) => calls.push(["search", value]),
         setFilteredBrothers: (value) => calls.push(["filtered", value]),
-        setBrotherAdminStatus: (value) => calls.push(["adminStatus", value]),
+        setBrotherAdminStatus: (value) => {
+            calls.push(["adminStatus", value]);
+            if (failingAdminSetter) throw new Error("setter failed");
+        },
         setBrotherBidcomStatus: (value) => calls.push(["bidcomStatus", value]),
         setIsPromoting: (value) => calls.push(["promoting", value]),
         axios: {
@@ -98,4 +101,21 @@ test("role gates and failures do not update privileges", async () => {
     await offline.actions.handleSetBidcom(true);
     assert.equal(offline.calls[2][1], "Failed to update bid committee");
     assert.deepEqual(offline.calls.at(-1), ["promoting", false]);
+});
+
+test("server-provided and setter errors keep their toasts and loading cleanup", async () => {
+    const rejected = new Error("request failed");
+    rejected.response = { data: { message: "Claim update denied" } };
+    const server = setup({ roleResponse: rejected });
+    await server.actions.handleSetAdmin(true);
+    assert.equal(server.calls[2][1], "Claim update denied");
+    assert.deepEqual(server.calls.at(-1), ["promoting", false]);
+
+    const setter = setup({ failingAdminSetter: true });
+    await setter.actions.handleSetAdmin(true);
+    assert.deepEqual(setter.calls.map(([kind]) => kind), [
+        "promoting", "post", "adminStatus", "error", "promoting",
+    ]);
+    assert.equal(setter.calls[3][1], "Failed to update admin");
+    assert.deepEqual(setter.calls.at(-1), ["promoting", false]);
 });
