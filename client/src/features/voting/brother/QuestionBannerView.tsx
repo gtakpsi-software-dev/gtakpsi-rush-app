@@ -1,4 +1,4 @@
-import SplitText from "../../components/ReactBitsComponents/SplitText";
+import SplitText from "../../../components/ReactBitsComponents/SplitText";
 
 /**
  * Voting Banner Layout Summary:

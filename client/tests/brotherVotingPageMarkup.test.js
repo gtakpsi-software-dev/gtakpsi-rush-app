@@ -12,7 +12,7 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/index.tsx', import.meta.url));
-const panelPath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/VotingPanel.tsx', import.meta.url));
+const panelPath = fileURLToPath(new URL('../src/features/voting/brother/VotingPanel.tsx', import.meta.url));
 
 async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMode = false, status = 'connecting' } = {}) {
     const VotingPanel = await loadTsxComponent(panelPath);
@@ -42,13 +42,13 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         '../../features/voting/brother/useBrotherVotingSocket': {
             useBrotherVotingSocket: (options) => captured.set('socket', options),
         },
-        './QuestionBanner': stub('question'),
+        '../../features/voting/brother/QuestionBanner': stub('question'),
         './RusheePreviewCard': stub('rushee'),
         './RusheeComments': stub('comments'),
         './RusheePISInfo': stub('pis'),
         './RusheeScores': stub('scores'),
         './RusheeBidCommNotes': stub('notes'),
-        './VotingPanel': VotingPanel,
+        '../../features/voting/brother/VotingPanel': VotingPanel,
         '../../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
         '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },
     };

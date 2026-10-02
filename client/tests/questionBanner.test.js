@@ -10,8 +10,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
-const bannerPath = fileURLToPath(new URL("../src/pages/BrotherVotingPage/QuestionBanner.tsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/pages/BrotherVotingPage/QuestionBannerView.tsx", import.meta.url));
+const bannerPath = fileURLToPath(new URL("../src/features/voting/brother/QuestionBanner.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../src/features/voting/brother/QuestionBannerView.tsx", import.meta.url));
 const requireFromBanner = createRequire(bannerPath);
 const requireFromView = createRequire(viewPath);
 const storedUser = '{"_id":"b1","firstname":"Sam","lastname":"Brother"}';
@@ -30,7 +30,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
         exports: viewModule.exports,
         Math: { random: () => 0.5 },
         require(specifier) {
-            if (specifier === "../../components/ReactBitsComponents/SplitText") {
+            if (specifier === "../../../components/ReactBitsComponents/SplitText") {
                 return SplitTextStub;
             }
             return requireFromView(specifier);
@@ -55,12 +55,12 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
             },
             useEffect: (effect) => effects.push(effect),
         },
-        "../../features/voting/brother/BrotherVotingContext": {
+        "./BrotherVotingContext": {
             useBrotherVotingContext: () => ({ question: "Who?", setQuestion: noop }),
         },
         "./QuestionBannerView": viewModule.exports.default,
         "react-toastify": { toast: { error: noop, promise: async (request) => request } },
-        "../NotFound": () => React.createElement("div", { "data-stub": "not-found" }),
+        "../../../pages/NotFound": () => React.createElement("div", { "data-stub": "not-found" }),
         axios: {
             post: async (url, payload) => {
                 requests.push({ url, payload });
