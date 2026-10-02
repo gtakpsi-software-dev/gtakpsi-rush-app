@@ -7,7 +7,7 @@ import {
     selectAllTimeslots,
     sortTimeslots,
     timeslotIso
-} from '../src/features/brotherPisAvailability/timeslots.js';
+} from '../../src/features/brotherPisAvailability/timeslots.js';
 
 const slot = (date) => ({ time: { $date: { $numberLong: String(date.getTime()) } } });
 const early = slot(new Date(2030, 0, 1, 9, 15));

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { submitAvailability } from '../src/features/brotherPisAvailability/submitAvailability.js';
+import { submitAvailability } from '../../src/features/brotherPisAvailability/submitAvailability.js';
 
 function harness(overrides = {}) {
     const calls = [];

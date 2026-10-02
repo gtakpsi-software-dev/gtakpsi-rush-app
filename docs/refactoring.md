@@ -103,7 +103,8 @@ sorting cases under `client/tests/sorting/`, registration cases under
 `client/tests/rushee/`. Shared test loaders and fixtures remain under
 `client/tests/helpers/` and `client/tests/fixtures/`; brother voting tests
 live under `client/tests/voting/brother/`, and PIS page tests under
-`client/tests/pis/`.
+`client/tests/pis/`. Brother PIS availability and appointment tests live under
+`client/tests/brother-pis/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,

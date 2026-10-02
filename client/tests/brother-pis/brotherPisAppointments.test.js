@@ -6,7 +6,7 @@ import {
     sortPisAppointments,
     formatPisAppointmentTime,
     getPisAppointmentRelativeTime,
-} from "../src/features/brotherPis/appointments.js";
+} from "../../src/features/brotherPis/appointments.js";
 
 const slot = (milliseconds) => ({ $date: { $numberLong: String(milliseconds) } });
 
