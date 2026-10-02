@@ -19,7 +19,7 @@ test("all three sorting pages retain original zoom control markup and percentage
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const SortingZoomControls = await loadControls();
 
-    for (const page of ["AdminSorting.jsx", "BidComSorting.jsx", "BrotherSorting.jsx"]) {
+    for (const page of ["AdminSorting.jsx", "BidCommitteeSorting.jsx", "BrotherSorting.jsx"]) {
         for (const scale of [1, 1.25]) {
             const html = renderToStaticMarkup(React.createElement(SortingZoomControls, {
                 scale,

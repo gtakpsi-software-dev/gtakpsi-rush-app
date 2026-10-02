@@ -118,7 +118,7 @@ async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/useSortingViewerConnection": {
             useSortingViewerConnection: (options) => captured.set("viewer-connection", options),
         },
-        "../features/sorting/loadBidComSortingData": { loadBidComSortingData: noop },
+        "../features/sorting/loadBidCommitteeSortingData": { loadBidCommitteeSortingData: noop },
         "../features/sorting/subscribeToSortingAuth": {
             subscribeToSortingAuth: (options) => captured.set("auth-subscription", options),
         },
@@ -149,7 +149,7 @@ test("brother and bid-committee viewer pages retain their loading and board mark
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         BrotherSorting: { loading: {}, ready: { 0: false }, details: { 0: false, 2: { id: "r1" } } },
-        BidComSorting: { loading: {}, ready: { 0: false }, details: { 0: false, 3: { id: "r1" } } },
+        BidCommitteeSorting: { loading: {}, ready: { 0: false }, details: { 0: false, 3: { id: "r1" } } },
     };
     const actual = {};
 
@@ -175,7 +175,7 @@ test("viewer pages pass the original board state and audience to their controls"
             showRusheeNames: true,
         },
         {
-            name: "BidComSorting",
+            name: "BidCommitteeSorting",
             state: { 0: false, 2: columns, 3: selected, 7: 1.5, 9: true, 10: 3 },
             details: "editable-notes",
             showRusheeNames: false,
@@ -225,7 +225,7 @@ test("brother sorting wires its notes request and details callbacks", async () =
 
 test("bid-committee sorting wires its auth subscription and socket setup", async () => {
     const captured = new Map();
-    const Page = await loadPage("BidComSorting", { 1: false }, captured);
+    const Page = await loadPage("BidCommitteeSorting", { 1: false }, captured);
     renderToStaticMarkup(React.createElement(Page));
 
     const effects = captured.get("effects");

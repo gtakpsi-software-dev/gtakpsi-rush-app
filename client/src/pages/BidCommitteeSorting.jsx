@@ -11,13 +11,13 @@ import { useSortingViewport } from "../features/sorting/useSortingViewport";
 import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
-import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
+import { loadBidCommitteeSortingData } from "../features/sorting/loadBidCommitteeSortingData";
 import { subscribeToSortingAuth } from "../features/sorting/subscribeToSortingAuth";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
-export default function BidComSorting() {
+export default function BidCommitteeSorting() {
     // Uses bidcom endpoints which allow both admin and bidcom users
     const apiBase = import.meta.env.VITE_API_PREFIX + "/bidcom";
 
@@ -49,7 +49,7 @@ export default function BidComSorting() {
     
     const fetchDataRef = useRef(null);
 
-    const fetchData = useCallback(() => loadBidComSortingData({
+    const fetchData = useCallback(() => loadBidCommitteeSortingData({
         auth,
         navigate,
         allowlist: ALLOWLIST,

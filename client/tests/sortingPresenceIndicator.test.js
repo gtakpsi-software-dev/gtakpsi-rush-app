@@ -26,7 +26,7 @@ test("sorting presence badge retains each role's visibility, labels, and styling
         multiple: { connected: true, viewerCount: 3, ghostCards: { a: { draggerName: "Alex" }, b: { draggerName: "Blair" } } },
     };
 
-    for (const page of ["AdminSorting.jsx", "BidComSorting.jsx", "BrotherSorting.jsx"]) {
+    for (const page of ["AdminSorting.jsx", "BidCommitteeSorting.jsx", "BrotherSorting.jsx"]) {
         for (const [scenario, values] of Object.entries(scenarios)) {
             const html = renderToStaticMarkup(React.createElement(SortingPresenceIndicator, {
                 ...values,

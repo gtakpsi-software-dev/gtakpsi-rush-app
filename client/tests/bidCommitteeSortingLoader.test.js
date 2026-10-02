@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadBidComSortingData } from "../src/features/sorting/loadBidComSortingData.js";
+import { loadBidCommitteeSortingData } from "../src/features/sorting/loadBidCommitteeSortingData.js";
 
 function makeUser(claims, email = "member@example.edu") {
     const refreshes = [];
@@ -38,7 +38,7 @@ function harness({ user = null, allowlist = [], response, failure } = {}) {
 
 test("missing bid-committee viewer redirects and still finishes loading", async () => {
     const { deps, calls } = harness();
-    await loadBidComSortingData(deps);
+    await loadBidCommitteeSortingData(deps);
     assert.deepEqual(calls, [
         ["navigate", "/login"], ["loading", false], ["checked", true],
     ]);
@@ -47,7 +47,7 @@ test("missing bid-committee viewer redirects and still finishes loading", async 
 test("denied viewer reports access failure before redirecting", async () => {
     const user = makeUser({ admin: false, bidcom: false });
     const { deps, calls } = harness({ user });
-    await loadBidComSortingData(deps);
+    await loadBidCommitteeSortingData(deps);
     assert.deepEqual(user.refreshes, [true]);
     assert.deepEqual(calls, [
         ["error", "Access denied - Bid Committee or Admin only"],
@@ -69,7 +69,7 @@ test("admin, bidcom, and case-insensitive allowlist each retain board access", a
         const { deps, calls, state } = harness({
             user, allowlist, response: { data: { status: "success", payload: rows } },
         });
-        await loadBidComSortingData(deps);
+        await loadBidCommitteeSortingData(deps);
 
         assert.deepEqual(user.refreshes, [true]);
         assert.deepEqual(calls, [
@@ -86,7 +86,7 @@ test("unsuccessful response, request failure, and token failure keep the load er
         { failure: new Error("offline") },
     ]) {
         const { deps, calls, state } = harness({ user: makeUser({ bidcom: true }), ...options });
-        await loadBidComSortingData(deps);
+        await loadBidCommitteeSortingData(deps);
         assert.deepEqual(calls, [
             ["get", "/api/bidcom/rushees/sorting"],
             ["error", "Failed to load rushees"],
@@ -97,7 +97,7 @@ test("unsuccessful response, request failure, and token failure keep the load er
 
     const user = { email: "member@example.edu", async getIdTokenResult() { throw Error("token"); } };
     const { deps, calls } = harness({ user });
-    await loadBidComSortingData(deps);
+    await loadBidCommitteeSortingData(deps);
     assert.deepEqual(calls, [
         ["error", "Failed to load rushees"], ["loading", false], ["checked", true],
     ]);

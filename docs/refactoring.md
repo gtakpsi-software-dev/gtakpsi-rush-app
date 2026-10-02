@@ -59,7 +59,7 @@ The verified atomic slices are archived by range:
   their health endpoints and the socket URL wiring without changing event
   payloads.
 - Review the remaining page orchestrators (`Admin.jsx`, `RusheeZoom.jsx`,
-  `AdminSorting.jsx`, and `BidComSorting.jsx`) only where a smaller boundary
+  `AdminSorting.jsx`, and `BidCommitteeSorting.jsx`) only where a smaller boundary
   clarifies state ownership. Their supporting views and actions already live in
   feature folders; pin effect timing and request order before moving more code.
 - Cover remaining API failure and partial-write branches with isolated data

@@ -27,7 +27,7 @@ test("all sorting boards retain ghost card positions, names, and widths", async 
         },
     };
 
-    for (const page of ["AdminSorting.jsx", "BidComSorting.jsx", "BrotherSorting.jsx"]) {
+    for (const page of ["AdminSorting.jsx", "BidCommitteeSorting.jsx", "BrotherSorting.jsx"]) {
         for (const [scenario, ghostCards] of Object.entries(scenarios)) {
             const html = renderToStaticMarkup(React.createElement(SortingGhostCards, {
                 ghostCards,

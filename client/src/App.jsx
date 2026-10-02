@@ -28,7 +28,7 @@ import Comments from './pages/Comments';
 import AdminVotingDashboard from './pages/AdminVotingDashboard';
 import BrotherVotingPage from './pages/BrotherVotingPage';
 import AdminSorting from './pages/AdminSorting';
-import BidComSorting from './pages/BidComSorting';
+import BidCommitteeSorting from './pages/BidCommitteeSorting';
 import BrotherSorting from './pages/BrotherSorting';
 
 function AppInner() {
@@ -57,7 +57,7 @@ function AppInner() {
         <Route path='/admin/addpis' element={<AddPIS/>} />
         <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
         <Route path='/admin/sorting' element={<AdminSorting/>} />
-        <Route path='/bidcom/sorting' element={<BidComSorting/>} />
+        <Route path='/bidcom/sorting' element={<BidCommitteeSorting/>} />
         <Route path='/sorting' element={<BrotherSorting/>} />
         <Route path='/voting' element={<BrotherVotingPage/>} />
       </Routes>

@@ -38,7 +38,7 @@ test("viewer columns retain brother and bid committee markup from before extract
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const ViewerSortingColumn = await loadTsxComponent(componentPath, { "./board": { TAGS } });
 
-    for (const [page, showRusheeNames] of [["BrotherSorting", true], ["BidComSorting", false]]) {
+    for (const [page, showRusheeNames] of [["BrotherSorting", true], ["BidCommitteeSorting", false]]) {
         for (const [scenario, cards] of [["empty", []], ["cards", [first, second]]]) {
             const html = renderToStaticMarkup(React.createElement(ViewerSortingColumn, props({
                 columns: { UNSORTED: cards },
