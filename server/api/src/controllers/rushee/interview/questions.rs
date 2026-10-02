@@ -12,7 +12,7 @@ use self::store::{load_questions, save_assignment};
 /// questions become visible/get assigned.
 const PIS_QUESTION_REVEAL_LEAD_MINUTES: i64 = 10;
 
-fn sort_pis_questions(questions: &mut Vec<PISQuestion>) {
+fn sort_pis_questions(questions: &mut [PISQuestion]) {
     questions.sort_by_key(|q| q.order.unwrap_or(i32::MAX));
 }
 

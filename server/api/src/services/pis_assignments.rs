@@ -146,7 +146,7 @@ fn least_assigned_available(
         })
         .min_by_key(|(first, last)| {
             total_assignments
-                .get(&format!("{} {}", first, last))
+                .get(&format!("{first} {last}"))
                 .copied()
                 .unwrap_or_default()
         })
