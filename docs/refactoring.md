@@ -81,7 +81,10 @@ The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
 All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 199-line maintenance
-test. This is a size check, not a judgment that every module boundary is ideal.
+test. Of the two tracked stylesheets, one is empty and the other is 115 lines;
+non-lock JSON, TOML, YAML, and HTML files are at most 97 lines. Longer tracked
+text files are dependency lockfiles and refactoring documentation. This is a
+size check, not a judgment that every module boundary is ideal.
 
 ## Slice ledger
 
