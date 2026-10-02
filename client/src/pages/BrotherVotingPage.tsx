@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../components/Navbar";
-import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
-import { BrotherVotingContextProvider } from "../../features/voting/brother/BrotherVotingContextProvider";
-import QuestionBanner from "../../features/voting/brother/QuestionBanner";
-import RusheePreviewCard from "../../features/voting/brother/RusheePreviewCard";
-import RusheeComments from "../../features/voting/brother/RusheeComments";
-import RusheePISInfo from "../../features/voting/brother/RusheePISInfo";
-import RusheeScores from "../../features/voting/brother/RusheeScores";
-import RusheeBidCommNotes from "../../features/voting/brother/RusheeBidCommNotes";
-import VotingPanel from "../../features/voting/brother/VotingPanel";
-import { Brother, ConnectionStatus } from "../../features/voting/brother/types";
-import { useMidtermMode } from "../../contexts/MidtermModeContext";
-import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
-import { useBrotherVotingSocket } from "../../features/voting/brother/useBrotherVotingSocket";
+import Navbar from "../components/Navbar";
+import { useBrotherVotingContext } from "../features/voting/brother/BrotherVotingContext";
+import { BrotherVotingContextProvider } from "../features/voting/brother/BrotherVotingContextProvider";
+import QuestionBanner from "../features/voting/brother/QuestionBanner";
+import RusheePreviewCard from "../features/voting/brother/RusheePreviewCard";
+import RusheeComments from "../features/voting/brother/RusheeComments";
+import RusheePISInfo from "../features/voting/brother/RusheePISInfo";
+import RusheeScores from "../features/voting/brother/RusheeScores";
+import RusheeBidCommNotes from "../features/voting/brother/RusheeBidCommNotes";
+import VotingPanel from "../features/voting/brother/VotingPanel";
+import { Brother, ConnectionStatus } from "../features/voting/brother/types";
+import { useMidtermMode } from "../contexts/MidtermModeContext";
+import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
+import { useBrotherVotingSocket } from "../features/voting/brother/useBrotherVotingSocket";
 
 function Content() {
   const { setRushee, setQuestion } = useBrotherVotingContext();

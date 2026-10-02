@@ -11,7 +11,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/index.tsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/BrotherVotingPage.tsx', import.meta.url));
 const panelPath = fileURLToPath(new URL('../src/features/voting/brother/VotingPanel.tsx', import.meta.url));
 
 async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMode = false, status = 'connecting' } = {}) {
@@ -32,25 +32,25 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
             useEffect: noop,
         },
         'react-router-dom': { useNavigate: () => noop },
-        '../../components/Navbar': stub('navbar'),
-        '../../features/voting/brother/BrotherVotingContext': {
+        '../components/Navbar': stub('navbar'),
+        '../features/voting/brother/BrotherVotingContext': {
             useBrotherVotingContext: () => ({ setRushee: noop, setQuestion: noop }),
         },
-        '../../features/voting/brother/BrotherVotingContextProvider': {
+        '../features/voting/brother/BrotherVotingContextProvider': {
             BrotherVotingContextProvider: ({ children }) => children,
         },
-        '../../features/voting/brother/useBrotherVotingSocket': {
+        '../features/voting/brother/useBrotherVotingSocket': {
             useBrotherVotingSocket: (options) => captured.set('socket', options),
         },
-        '../../features/voting/brother/QuestionBanner': stub('question'),
-        '../../features/voting/brother/RusheePreviewCard': stub('rushee'),
-        '../../features/voting/brother/RusheeComments': stub('comments'),
-        '../../features/voting/brother/RusheePISInfo': stub('pis'),
-        '../../features/voting/brother/RusheeScores': stub('scores'),
-        '../../features/voting/brother/RusheeBidCommNotes': stub('notes'),
-        '../../features/voting/brother/VotingPanel': VotingPanel,
-        '../../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
-        '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },
+        '../features/voting/brother/QuestionBanner': stub('question'),
+        '../features/voting/brother/RusheePreviewCard': stub('rushee'),
+        '../features/voting/brother/RusheeComments': stub('comments'),
+        '../features/voting/brother/RusheePISInfo': stub('pis'),
+        '../features/voting/brother/RusheeScores': stub('scores'),
+        '../features/voting/brother/RusheeBidCommNotes': stub('notes'),
+        '../features/voting/brother/VotingPanel': VotingPanel,
+        '../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
+        '../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },
     };
     const source = await readFile(pagePath, 'utf8');
     const { code } = await transformWithEsbuild(source, pagePath, {
