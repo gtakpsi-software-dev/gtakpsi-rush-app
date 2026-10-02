@@ -49,13 +49,13 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         react,
         'react-router-dom': { useNavigate: () => () => {} },
         '../../components/Navbar': stub('navbar'),
-        './AdminVotingContext': {
+        '../../features/voting/admin/AdminVotingContext': {
             useAdminVotingContext: () => ({
                 votes: [], rushee: null, question: null,
                 setVotes() {}, setRushee() {}, setQuestion() {},
             }),
         },
-        './AdminVotingContextProvider': {
+        '../../features/voting/admin/AdminVotingContextProvider': {
             AdminVotingContextProvider: ({ children }) => children,
         },
         './QuestionDisplay': stub('question'),

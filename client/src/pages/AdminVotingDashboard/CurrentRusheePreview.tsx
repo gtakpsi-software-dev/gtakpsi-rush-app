@@ -1,5 +1,5 @@
 import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
-import type { Rushee } from "./types";
+import type { Rushee } from "../../features/voting/admin/types";
 
 export default function CurrentRusheePreview({ rushee }: { rushee: Rushee | null }) {
     return (

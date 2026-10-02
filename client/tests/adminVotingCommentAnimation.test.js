@@ -19,7 +19,7 @@ async function renderComments(rushee) {
             useRef: (initial) => ({ current: initial }),
             useEffect: (callback, dependencies) => effects.push({ callback, dependencies }),
         },
-        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
         "../../components/Badge": () => null,
         gsap: { fromTo: (...args) => animations.push(args) },
         "../../features/comments/ratingDisplay": { formatRatingValue: String },

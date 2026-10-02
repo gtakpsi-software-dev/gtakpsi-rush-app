@@ -36,7 +36,7 @@ async function loadQuestion({ question = "Current?", editing = true, inputValue 
                     },
                     useRef: () => ({ current: null }),
                 },
-                "./AdminVotingContext": { useAdminVotingContext: () => ({ question }) },
+                "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ question }) },
                 "../../features/admin/api": {
                     adminPost: async (url, payload) => {
                         requests.push({ url, payload });

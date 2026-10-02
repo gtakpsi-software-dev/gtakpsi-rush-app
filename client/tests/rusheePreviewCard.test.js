@@ -54,7 +54,7 @@ async function loadCard({ state = {}, rushee = null } = {}) {
             },
             useMemo: (calculate) => calculate(),
         },
-        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
         "../../components/RusheeInteractionsByNight": interactions,
         axios: { get: async (url) => {
             gets.push(url);

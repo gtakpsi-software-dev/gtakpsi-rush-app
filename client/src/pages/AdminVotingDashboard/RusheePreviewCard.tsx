@@ -3,11 +3,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 import { adminPost } from "../../features/admin/api";
-import { useAdminVotingContext } from "./AdminVotingContext";
+import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
 import CurrentRusheePreview from "./CurrentRusheePreview";
 import RusheePreviewSearch from "./RusheePreviewSearch";
 import { filterPreviewRushees } from "./previewRusheeSearch";
-import type { Rushee } from "./types";
+import type { Rushee } from "../../features/voting/admin/types";
 
 export default function RusheePreviewCard() {
     const { rushee } = useAdminVotingContext();

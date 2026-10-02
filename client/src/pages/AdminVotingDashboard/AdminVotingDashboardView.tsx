@@ -4,7 +4,7 @@ import RusheePreviewCard from './RusheePreviewCard';
 import RusheeComments from './RusheeComments';
 import VoteSummary from './VoteSummary';
 import BrotherList from './BrotherList';
-import type { ConnectionStatus } from './types';
+import type { ConnectionStatus } from '../../features/voting/admin/types';
 
 export default function AdminVotingDashboardView({ connectionStatus }: { connectionStatus: ConnectionStatus }) {
     return (

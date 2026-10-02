@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAdminVotingContext } from "./AdminVotingContext";
+import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
 import Loader from "../../components/Loader";
 import { adminGet, adminPost } from "../../features/admin/api";
 

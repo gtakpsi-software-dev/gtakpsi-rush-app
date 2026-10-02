@@ -18,7 +18,7 @@ async function loadSummary(votes) {
     const posts = [];
     const VotePieChart = await loadTsxComponent(chartPath);
     const dependencies = {
-        './AdminVotingContext': {
+        '../../features/voting/admin/AdminVotingContext': {
             useAdminVotingContext: () => ({ votes, setVotes: () => {} }),
         },
         'react-icons/fa': {

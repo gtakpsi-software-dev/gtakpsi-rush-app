@@ -6,8 +6,8 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { loadTsxModule } from "./helpers/loadTsxComponent.js";
 
-const contextPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/AdminVotingContext.tsx", import.meta.url));
-const providerPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/AdminVotingContextProvider.tsx", import.meta.url));
+const contextPath = fileURLToPath(new URL("../src/features/voting/admin/AdminVotingContext.tsx", import.meta.url));
+const providerPath = fileURLToPath(new URL("../src/features/voting/admin/AdminVotingContextProvider.tsx", import.meta.url));
 
 test("admin voting provider retains its initial context and fetch transition", async () => {
     const initialStates = [];
@@ -30,7 +30,7 @@ test("admin voting provider retains its initial context and fetch transition", a
     const provider = await loadTsxModule(providerPath, {
         react,
         "./AdminVotingContext": { AdminVotingContext: context.AdminVotingContext },
-        "../../features/brothers/getAllBrothers": {
+        "../../brothers/getAllBrothers": {
             getAllBrothers: async () => {
                 requests.push("brothers");
                 return [{ _id: "brother-1" }];
@@ -60,7 +60,7 @@ test("admin voting provider retains its initial context and fetch transition", a
 test("admin voting context rejects use outside its provider", async () => {
     const context = await loadTsxModule(contextPath, {
         react: { ...React, useContext: () => null },
-        "../../features/brothers/getAllBrothers": { getAllBrothers: async () => [] },
+        "../../brothers/getAllBrothers": { getAllBrothers: async () => [] },
     });
 
     assert.throws(() => context.useAdminVotingContext(), /MUST use context within some provider/);

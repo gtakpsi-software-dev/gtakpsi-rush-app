@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { Vote, Rushee, Brother } from "./types";
-import { getAllBrothers } from "../../features/brothers/getAllBrothers";
+import { getAllBrothers } from "../../brothers/getAllBrothers";
 import { AdminVotingContext } from "./AdminVotingContext";
 
 export const AdminVotingContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
