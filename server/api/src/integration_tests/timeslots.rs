@@ -43,6 +43,24 @@ pub async fn check_contracts() {
     assert_eq!(listed["payload"].as_array().unwrap().len(), 1);
     assert_eq!(listed["payload"][0]["num_available"], 2);
 
+    // A malformed row rejects the whole typed listing rather than returning the valid slot.
+    let raw_collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("pis-timeslots");
+    let malformed = raw_collection
+        .insert_one(doc! {"time": "invalid", "num_available": 1})
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::get_pis_timeslots().await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    raw_collection
+        .delete_one(doc! {"_id": malformed.inserted_id})
+        .await
+        .unwrap();
+
     check_rejected_creation().await;
     println!("PIS timeslot create, update, delete, and list contracts passed");
 }
