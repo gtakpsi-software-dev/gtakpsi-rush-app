@@ -11,7 +11,7 @@ const previewPath = fileURLToPath(new URL(
     "../src/features/voting/brother/RusheePreviewCard.tsx", import.meta.url,
 ));
 const pisPath = fileURLToPath(new URL(
-    "../src/features/voting/brother/RusheePISInfo.tsx", import.meta.url,
+    "../src/features/voting/brother/RusheePisInfo.tsx", import.meta.url,
 ));
 
 const rushee = {

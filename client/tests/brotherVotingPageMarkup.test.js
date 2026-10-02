@@ -45,7 +45,7 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         '../features/voting/brother/QuestionBanner': stub('question'),
         '../features/voting/brother/RusheePreviewCard': stub('rushee'),
         '../features/voting/brother/RusheeComments': stub('comments'),
-        '../features/voting/brother/RusheePISInfo': stub('pis'),
+        '../features/voting/brother/RusheePisInfo': stub('pis'),
         '../features/voting/brother/RusheeScores': stub('scores'),
         '../features/voting/brother/RusheeBidCommitteeNotes': stub('notes'),
         '../features/voting/brother/VotingPanel': VotingPanel,

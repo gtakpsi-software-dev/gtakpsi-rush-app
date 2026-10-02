@@ -6,7 +6,7 @@ import { BrotherVotingContextProvider } from "../features/voting/brother/Brother
 import QuestionBanner from "../features/voting/brother/QuestionBanner";
 import RusheePreviewCard from "../features/voting/brother/RusheePreviewCard";
 import RusheeComments from "../features/voting/brother/RusheeComments";
-import RusheePISInfo from "../features/voting/brother/RusheePISInfo";
+import RusheePisInfo from "../features/voting/brother/RusheePisInfo";
 import RusheeScores from "../features/voting/brother/RusheeScores";
 import RusheeBidCommitteeNotes from "../features/voting/brother/RusheeBidCommitteeNotes";
 import VotingPanel from "../features/voting/brother/VotingPanel";
@@ -119,7 +119,7 @@ function Content() {
             </VotingPanel>
 
             <VotingPanel title="PIS Information">
-              <RusheePISInfo />
+              <RusheePisInfo />
             </VotingPanel>
           </div>
         </div>
