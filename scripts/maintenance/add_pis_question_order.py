@@ -3,10 +3,8 @@
 Script to replace all PIS questions in MongoDB with those from pis_questions.json.
 This will DELETE all existing questions and INSERT the new ones.
 
-Usage:
-    cd /path/to/gtakpsi-rush-app/scripts/maintenance
-    source ../../server/api/bin/activate
-    python3 add_pis_question_order.py
+Usage from the repository root:
+    python3 scripts/maintenance/add_pis_question_order.py
 """
 
 from dotenv import load_dotenv
