@@ -1,12 +1,6 @@
 import Navbar from "../../components/Navbar";
 import { formatRatingValue } from "./ratingDisplay";
 
-/**
- * Brother Comments Layout Summary:
- * - Keeps loading, error, and submitted-comment markup separate from fetching.
- * - Preserves the rendered cards, rating labels, and profile navigation target.
- * - Page fixtures pin all four visible states.
- */
 type CommentEntry = {
   rushee: {
     image_url: string;

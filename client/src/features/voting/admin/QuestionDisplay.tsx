@@ -3,11 +3,6 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import { adminPost } from "../../admin/api";
 import { toast } from "react-toastify";
 
-/**
- * Question Display Summary:
- * - Removes unused context state and redundant comments without changing the UI.
- * - Preserves the question-post then vote-clear request order.
- */
 export default function QuestionDisplay() {
 
     const { question } = useAdminVotingContext();

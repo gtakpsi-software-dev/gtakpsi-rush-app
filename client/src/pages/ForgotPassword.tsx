@@ -4,11 +4,6 @@ import type { KeyboardEvent } from "react";
 import { resetPassword } from "../features/auth/account";
 import ForgotPasswordView from "../features/auth/ForgotPasswordView";
 
-/**
- * Password Reset Summary:
- * - Keep request state in the route so the form and confirmation share one email ref.
- * - The view receives actions without changing reset or retry timing.
- */
 export default function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [emailSent, setEmailSent] = useState(false);

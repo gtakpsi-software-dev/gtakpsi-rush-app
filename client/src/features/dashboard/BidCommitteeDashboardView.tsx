@@ -6,12 +6,6 @@ import Navbar from "../../components/Navbar";
 import BidCommitteeFilters from "./BidCommitteeFilters";
 import BidCommitteeRusheeCard from "./BidCommitteeRusheeCard";
 
-/**
- * Bid Committee Dashboard Layout Summary:
- * - Keeps status, filters, and numbered cards separate from fetch effects.
- * - Preserves the numbered-card URL callback and all rendered wrappers.
- * - Existing page fixtures pin loading, error, empty, and populated states.
- */
 export type BidCommitteeDashboardRushee = ComponentProps<typeof BidCommitteeRusheeCard>["rushee"] & {
     id: string;
     gtid: string;

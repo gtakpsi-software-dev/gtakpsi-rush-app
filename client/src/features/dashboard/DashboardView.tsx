@@ -7,12 +7,6 @@ import PISAvailabilityModal from "../brotherPisAvailability/PISAvailabilityModal
 import DashboardFilters from "./DashboardFilters";
 import DashboardRusheeCard from "./DashboardRusheeCard";
 
-/**
- * Dashboard Layout Summary:
- * - Keeps loading, error, modal, filter, and card markup outside data effects.
- * - Preserves the blocking availability gate and card navigation callbacks.
- * - Page markup fixtures pin each visible state.
- */
 export type DashboardCard = ComponentProps<typeof DashboardRusheeCard>["rushee"] & {
     id: string;
     class: string;

@@ -6,11 +6,6 @@ import { login } from "../features/auth/account";
 import LoginView from "../features/auth/LoginView";
 import { verifyUser } from "../features/auth/verifyUser";
 
-/**
- * Login Page Summary:
- * - Verification stays in the route because it controls the redirect and initial loader.
- * - The view receives refs and actions so the form keeps its existing submit behavior.
- */
 export default function Login() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();

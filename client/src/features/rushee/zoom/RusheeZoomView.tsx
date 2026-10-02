@@ -8,12 +8,6 @@ import RusheeProfileHeader from "./RusheeProfileHeader";
 import RusheeRatings from "./RusheeRatings";
 import ZoomModals from "./ZoomModals";
 
-/**
- * Rushee Zoom Layout Summary:
- * - Keeps the loaded profile layout separate from fetch and comment state.
- * - Preserves the existing element tree and bid committee action gate.
- * - Loading and loaded markup are pinned by the page fixtures.
- */
 type Props = {
     modals: ComponentProps<typeof ZoomModals>;
     profile: ComponentProps<typeof RusheeProfileHeader>;

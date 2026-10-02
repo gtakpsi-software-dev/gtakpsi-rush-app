@@ -1,11 +1,5 @@
 import SplitText from "../../../components/ReactBitsComponents/SplitText";
 
-/**
- * Voting Banner Layout Summary:
- * - Separates the two existing layouts from request and vote state.
- * - Keeps question marks, classes, labels, and click targets unchanged.
- * - Page markup fixtures pin regular, voted, and midterm states.
- */
 const votingOptions = ["Yes", "No", "Abstain"];
 
 type Props = {

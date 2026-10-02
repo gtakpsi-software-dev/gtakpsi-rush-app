@@ -1,9 +1,3 @@
-/**
- * Profile Action Summary:
- * - Groups navigation and copy-link controls away from the page's comment state.
- * - Keeps their labels, classes, and click behavior unchanged.
- * - Rushee Zoom markup fixtures pin the rendered states.
- */
 type RusheeActionsProps = {
     gtid: string | undefined;
     copied: boolean;
