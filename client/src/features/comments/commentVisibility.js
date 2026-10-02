@@ -4,16 +4,13 @@
  * Admins, bid committee, and unrestricted mode see all comments.
  *
  * Rushee ratings ride the same switch: whenever comments are hidden, the
- * aggregate rating numbers are hidden too (see shouldShowRatings / the
+ * aggregate rating numbers are hidden too (see the
  * useCommentVisibility hook).
  */
 
 export function shouldShowAllComments({ requireCommentToView, isAdmin, isBidcom }) {
     return !requireCommentToView || isAdmin || isBidcom;
 }
-
-// Ratings are gated identically to comments — no separate toggle.
-export const shouldShowRatings = shouldShowAllComments;
 
 export function getBrotherDisplayName(user) {
     if (!user) return "";

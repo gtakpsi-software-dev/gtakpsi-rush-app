@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { shouldShowAllComments, shouldShowRatings, getVisibleComments, hasOwnComment, getBrotherDisplayName } from "../src/features/comments/commentVisibility.js";
+import { shouldShowAllComments, getVisibleComments, hasOwnComment, getBrotherDisplayName } from "../src/features/comments/commentVisibility.js";
 
 const user = { firstname: 'Alex', lastname: 'Brother' };
 const comments = [
@@ -8,14 +8,13 @@ const comments = [
     { brother_name: 'Other Brother', comment: 'Another observation' },
 ];
 
-test('comment and rating visibility share every restriction and role combination', () => {
+test('comment visibility retains every restriction and role combination', () => {
     for (const requireCommentToView of [false, true]) {
         for (const isAdmin of [false, true]) {
             for (const isBidcom of [false, true]) {
                 const options = { requireCommentToView, isAdmin, isBidcom };
                 const expected = !requireCommentToView || isAdmin || isBidcom;
                 assert.equal(shouldShowAllComments(options), expected);
-                assert.equal(shouldShowRatings(options), expected);
                 assert.deepEqual(getVisibleComments(comments, user, options), expected ? comments : [comments[0]]);
             }
         }
