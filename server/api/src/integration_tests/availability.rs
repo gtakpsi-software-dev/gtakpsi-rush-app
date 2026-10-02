@@ -4,6 +4,8 @@ use serde_json::json;
 use super::fixtures::{reset, SLOT};
 use crate::{controllers::admin, models::pis::IncomingBrotherAvailability};
 
+mod failure_cases;
+
 async fn needs_form() -> serde_json::Value {
     admin::check_brother_needs_availability_form(Json(
         serde_json::from_value(json!({"brother_uid": "brother-1"})).unwrap(),
@@ -100,5 +102,6 @@ pub async fn check_contracts() {
         needs_form().await,
         json!({"status": "success", "needs_form": false})
     );
+    failure_cases::check_contracts().await;
     println!("PIS availability lifecycle and submission contracts passed");
 }
