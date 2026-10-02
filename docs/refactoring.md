@@ -131,9 +131,9 @@ require PyMongo or a database connection.
 
 Current verified totals: 588 client tests, 86 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
-feature, 1 API Redis integration test, and 83 server tests from the latest
-MongoDB integration-feature run, plus 69
-maintenance-script tests. Current CSS differs from baseline only by the unused
+feature, 1 API Redis integration test, and 87 server tests from the latest
+MongoDB integration-feature run, plus 69 maintenance-script tests. Current CSS
+differs from baseline only by the unused
 `hover:bg-blue-600` rule from removed commented-out JSX. The JavaScript bundle
 changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
