@@ -171,6 +171,11 @@ Socket.IO incoming and eight outgoing names, the same ordered sorting message
 type names, and the same three voting update types. Runtime socket tests cover
 selected payloads and lifecycle cases; the name comparison alone does not
 prove deployed event delivery.
+The client still declares the same 23 active routes; the bid committee sorting
+component was renamed internally without changing `/bidcom/sorting`. Voting,
+sorting, and PIS also retain their original socket/health paths and local port
+defaults (4000, 4001, and 3001 respectively). These are source-level checks,
+not deployed URL verification.
 After slice 620, the full local regression set passed again: client tests,
 scoped lint, typecheck, and production build; guarded API integration; sorting
 and voting WebSocket tests; PIS Socket.IO tests; maintenance tests; and Rust
