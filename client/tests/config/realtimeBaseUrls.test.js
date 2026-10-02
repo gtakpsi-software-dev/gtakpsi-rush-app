@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getRealtimeBaseUrls } from "../src/config/realtimeBaseUrls.js";
+import { getRealtimeBaseUrls } from "../../src/config/realtimeBaseUrls.js";
 
 test("real-time endpoints retain their three deployment keys and local fallbacks", () => {
     assert.deepEqual(getRealtimeBaseUrls({}), {

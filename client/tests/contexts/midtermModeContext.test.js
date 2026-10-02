@@ -4,10 +4,10 @@ import { setImmediate } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 import React from "react";
-import { loadTsxModule } from "./helpers/loadTsxComponent.js";
+import { loadTsxModule } from "../helpers/loadTsxComponent.js";
 
-const contextPath = fileURLToPath(new URL("../src/contexts/MidtermModeContext.tsx", import.meta.url));
-const providerPath = fileURLToPath(new URL("../src/contexts/MidtermModeProvider.tsx", import.meta.url));
+const contextPath = fileURLToPath(new URL("../../src/contexts/MidtermModeContext.tsx", import.meta.url));
+const providerPath = fileURLToPath(new URL("../../src/contexts/MidtermModeProvider.tsx", import.meta.url));
 
 async function loadContext(get) {
     const updates = [];

@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const sourcePath = fileURLToPath(new URL("../src/api/configureAxios.js", import.meta.url));
+const sourcePath = fileURLToPath(new URL("../../src/api/configureAxios.js", import.meta.url));
 
 async function loadAxiosSetup(apiKey) {
     const source = (await readFile(sourcePath, "utf8"))

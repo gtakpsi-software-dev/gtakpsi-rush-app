@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import test from "node:test";
 
-import { base64ToBlob } from "../src/lib/imageProcessing.js";
+import { base64ToBlob } from "../../src/lib/imageProcessing.js";
 
 test("base64 image conversion keeps the decoded bytes and default JPEG type", async () => {
     const bytes = Uint8Array.from([0, 1, 127, 255]);
