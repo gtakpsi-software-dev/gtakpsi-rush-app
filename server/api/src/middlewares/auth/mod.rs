@@ -22,6 +22,8 @@ pub struct FirebaseAuth {
     client: Client,
     cert_cache: Arc<RwLock<CertCache>>,
     service_account: Option<ServiceAccount>,
+    #[cfg(test)]
+    identity_toolkit_base_url: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -98,6 +100,8 @@ impl FirebaseAuth {
                 certs: HashMap::new(),
             })),
             service_account,
+            #[cfg(test)]
+            identity_toolkit_base_url: None,
         }
     }
 

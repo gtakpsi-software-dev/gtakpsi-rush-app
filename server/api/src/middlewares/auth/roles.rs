@@ -1,11 +1,28 @@
-use super::{AuthError, FirebaseAuth};
+use super::{AuthError, FirebaseAuth, ServiceAccount};
 use claims::{claims_from_lookup_response, role_enabled, LookupBody, LookupResponse, UpdateBody};
 use serde_json::Value;
 use std::collections::HashMap;
 
 mod claims;
+#[cfg(test)]
+mod tests;
+
+const IDENTITY_TOOLKIT_BASE_URL: &str = "https://identitytoolkit.googleapis.com";
 
 impl FirebaseAuth {
+    fn identity_toolkit_url(&self, sa: &ServiceAccount, action: &str) -> String {
+        let project_id = sa.project_id.as_deref().unwrap_or(&self.project_id);
+        #[cfg(test)]
+        let base_url = self
+            .identity_toolkit_base_url
+            .as_deref()
+            .unwrap_or(IDENTITY_TOOLKIT_BASE_URL);
+        #[cfg(not(test))]
+        let base_url = IDENTITY_TOOLKIT_BASE_URL;
+
+        format!("{base_url}/v1/projects/{project_id}/accounts:{action}")
+    }
+
     async fn get_custom_claims(&self, uid: &str) -> Result<HashMap<String, Value>, AuthError> {
         let sa = self
             .service_account
@@ -17,12 +34,7 @@ impl FirebaseAuth {
             .await
             .map_err(|_| AuthError::Internal)?;
 
-        let url = format!(
-            "https://identitytoolkit.googleapis.com/v1/projects/{}/accounts:lookup",
-            sa.project_id
-                .clone()
-                .unwrap_or_else(|| self.project_id.clone())
-        );
+        let url = self.identity_toolkit_url(sa, "lookup");
 
         let resp = self
             .client
@@ -64,12 +76,7 @@ impl FirebaseAuth {
             .await
             .map_err(|_| AuthError::Internal)?;
 
-        let url = format!(
-            "https://identitytoolkit.googleapis.com/v1/projects/{}/accounts:update",
-            sa.project_id
-                .clone()
-                .unwrap_or_else(|| self.project_id.clone())
-        );
+        let url = self.identity_toolkit_url(sa, "update");
 
         let body = UpdateBody {
             local_id: uid,
