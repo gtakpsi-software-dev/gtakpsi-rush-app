@@ -139,7 +139,9 @@ Later local commits still need their own GitHub CI run.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
 `cargo fmt --manifest-path <service>/Cargo.toml -- --check` passes for the API,
-sorting, and voting crates and is enforced in regression CI.
+sorting, and voting crates and is enforced in regression CI. Strict all-target
+Clippy passes for all three crates using Rust 1.88.0 and is also enforced in
+regression CI; the current local branch still needs its own GitHub run.
 On this Mac, auth and route tests need normal system access: inside the
 filesystem sandbox, macOS Dynamic Store initialization panics before those
 tests run. The full suite passes with normal system access.
