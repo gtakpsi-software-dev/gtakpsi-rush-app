@@ -320,3 +320,12 @@ resume only after the later admin join.
 The voting socket integration also pins a duplicate-ID quirk: when a second
 admin socket registers under the same route ID, the older socket's disconnect
 removes the newer socket from the broadcast map even though it remains connected.
+
+After slice 793, the full local regression set passes on the current branch:
+563 client tests, 90 guarded API tests, 33 PIS Socket.IO tests, 15 sorting
+WebSocket tests, 6 voting WebSocket tests, 1 API Redis contract, and 49
+offline maintenance tests. Client typecheck, scoped lint, and production build
+pass, along with formatting and strict Clippy for all three Rust services.
+The test-tree and lockfile organization slices since the prior checkpoint did
+not change runtime source. GitHub CI and the authenticated and deployed checks
+listed above remain pending for this local branch.
