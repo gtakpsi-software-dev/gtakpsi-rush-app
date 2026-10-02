@@ -8,29 +8,7 @@ import json
 import os
 
 
-def replace_questions(script_path, load_dotenv, mongo_client):
-    env_path = os.path.join(os.path.dirname(script_path), '..', '..', '.env')
-    print(f"Loading .env from: {os.path.abspath(env_path)}")
-    load_dotenv(dotenv_path=env_path)
-
-    mongo_uri = os.getenv('MONGO_URI')
-
-    if not mongo_uri:
-        print("Error: MONGO_URI environment variable not set")
-        print("Make sure you have a .env file with MONGO_URI in the project root")
-        exit(1)
-
-    print("Connecting to MongoDB...")
-    client = mongo_client(mongo_uri)
-    db = client['rush-app']
-    collection = db['pis-questions']
-
-    json_path = os.path.join(
-        os.path.dirname(script_path), '..', '..', 'data', 'season_seed', 'pis_questions.json'
-    )
-    with open(json_path, 'r') as f:
-        questions_from_json = json.load(f)
-
+def replace_and_verify_questions(collection, questions_from_json):
     print(f"\nLoaded {len(questions_from_json)} questions from pis_questions.json")
 
     existing_count = collection.count_documents({})
@@ -57,6 +35,32 @@ def replace_questions(script_path, load_dotenv, mongo_client):
         order = q.get('order', 'N/A')
         qtype = q.get('question_type', 'N/A')
         print(f"  {order} [{qtype}]: {q['question'][:55]}...")
+
+
+def replace_questions(script_path, load_dotenv, mongo_client):
+    env_path = os.path.join(os.path.dirname(script_path), '..', '..', '.env')
+    print(f"Loading .env from: {os.path.abspath(env_path)}")
+    load_dotenv(dotenv_path=env_path)
+
+    mongo_uri = os.getenv('MONGO_URI')
+
+    if not mongo_uri:
+        print("Error: MONGO_URI environment variable not set")
+        print("Make sure you have a .env file with MONGO_URI in the project root")
+        exit(1)
+
+    print("Connecting to MongoDB...")
+    client = mongo_client(mongo_uri)
+    db = client['rush-app']
+    collection = db['pis-questions']
+
+    json_path = os.path.join(
+        os.path.dirname(script_path), '..', '..', 'data', 'season_seed', 'pis_questions.json'
+    )
+    with open(json_path, 'r') as f:
+        questions_from_json = json.load(f)
+
+    replace_and_verify_questions(collection, questions_from_json)
 
     client.close()
     print("\nDone!")

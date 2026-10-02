@@ -198,7 +198,7 @@ require PyMongo or a database connection.
 Current verified totals: 549 client tests, 88 server unit tests, 32 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 89 server tests from the latest
-MongoDB integration-feature run, plus 46 maintenance-script tests. On October
+MongoDB integration-feature run, plus 47 maintenance-script tests. On October
 2, 2026, the current local branch passed those suites, client typecheck,
 scoped lint, and the production build. Full client lint still reports the eight
 Attendance errors described above. Current CSS
