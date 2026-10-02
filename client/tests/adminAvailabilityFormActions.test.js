@@ -96,3 +96,22 @@ test("request failures keep each action's fallback and clear loading", async () 
     assert.equal(assigned.calls[3][1], "Failed to auto-assign brothers");
     assert.deepEqual(assigned.calls.at(-1), ["loading", false]);
 });
+
+test("assignment responses keep distinct fallbacks and success timeouts", async () => {
+    const rejected = setup({ status: "error" });
+    await rejected.actions.handleAutoAssignBrothers();
+    assert.equal(rejected.calls[3][1], "Failed to auto-assign");
+    assert.equal(rejected.calls[3][2].autoClose, 3000);
+    assert.deepEqual(rejected.calls.at(-1), ["loading", false]);
+
+    const cleared = setup({ status: "success", message: "Assignments cleared" });
+    await cleared.actions.handleClearAssignments();
+    assert.equal(cleared.calls[3][1], "Assignments cleared");
+    assert.equal(cleared.calls[3][2].autoClose, 3000);
+    assert.deepEqual(cleared.calls.at(-1), ["loading", false]);
+
+    const offline = setup(new Error("offline"));
+    await offline.actions.handleClearAssignments();
+    assert.equal(offline.calls[3][1], "Failed to clear assignments");
+    assert.deepEqual(offline.calls.at(-1), ["loading", false]);
+});
