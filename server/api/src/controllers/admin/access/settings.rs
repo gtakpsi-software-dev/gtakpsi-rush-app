@@ -68,18 +68,14 @@ pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
 pub async fn get_midterm_mode_status() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_rush_app_status_client().await;
 
-    match collection.find_one(doc! {}).await {
-        Ok(Some(status)) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": status.midterm_mode
-        }))),
-        Ok(None) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": false
-        }))),
-        Err(_) => Ok(Json(json!({
-            "status": "success",
-            "midterm_mode": false
-        }))),
-    }
+    // Keep the public status available when settings are absent or unreadable.
+    let midterm_mode = match collection.find_one(doc! {}).await {
+        Ok(Some(status)) => status.midterm_mode,
+        Ok(None) | Err(_) => false,
+    };
+
+    Ok(Json(json!({
+        "status": "success",
+        "midterm_mode": midterm_mode
+    })))
 }
