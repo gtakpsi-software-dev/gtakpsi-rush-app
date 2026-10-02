@@ -166,6 +166,11 @@ admin route group, and all 71 paths retain their explicit `OPTIONS` setting.
 The sole handler-name difference is the internal spelling correction from
 `get_elibibility` to `get_eligibility`. This static audit does not replace
 deployed endpoint or authenticated browser checks.
+Static event-name comparison with the same baseline found the same seven PIS
+Socket.IO incoming and eight outgoing names, the same ordered sorting message
+type names, and the same three voting update types. Runtime socket tests cover
+selected payloads and lifecycle cases; the name comparison alone does not
+prove deployed event delivery.
 After slice 620, the full local regression set passed again: client tests,
 scoped lint, typecheck, and production build; guarded API integration; sorting
 and voting WebSocket tests; PIS Socket.IO tests; maintenance tests; and Rust
