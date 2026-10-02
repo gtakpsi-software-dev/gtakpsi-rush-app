@@ -1,27 +1,17 @@
-use futures::stream::StreamExt;
 use mongodb::bson::{doc, to_bson};
 use mongodb::Collection;
 
 use crate::models::pis::PISQuestion;
 use crate::models::rushee::RusheeModel;
-use crate::storage::db;
+use crate::storage::{cursor_rows::collect_valid_rows, db};
 
 pub(super) async fn load_questions() -> Result<Vec<PISQuestion>, &'static str> {
     let connection = db::get_pis_questions_client().await;
-    let mut cursor = connection
+    let cursor = connection
         .find(doc! {})
         .await
         .map_err(|_| "some error occurred while fetching pis questions")?;
-    let mut questions = Vec::new();
-
-    // Preserve partial reads: a malformed question is skipped rather than failing the request.
-    while let Some(question) = cursor.next().await {
-        if let Ok(question) = question {
-            questions.push(question);
-        }
-    }
-
-    Ok(questions)
+    Ok(collect_valid_rows(cursor).await)
 }
 
 pub(super) async fn save_assignment(
