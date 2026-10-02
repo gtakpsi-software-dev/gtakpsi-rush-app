@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { handleAdminSortingMessage } from "../src/features/sorting/handleAdminSortingMessage.js";
+import { handleAdminSortingMessage } from "../../../src/features/sorting/handleAdminSortingMessage.js";
 
 function harness(overrides = {}) {
     const calls = [];

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applySavedSortingTags } from "../src/features/sorting/applySavedSortingTags.js";
+import { applySavedSortingTags } from "../../../src/features/sorting/applySavedSortingTags.js";
 
 test("saved notes refresh tags for the matching card without changing other cards", () => {
     const selected = { id: "r1", sortingTags: ["night_1"], sortingOrder: 1 };

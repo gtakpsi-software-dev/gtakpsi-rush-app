@@ -9,16 +9,16 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
-import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from '../src/features/sorting/board.js';
-import { loadTsxComponent, loadTsxModule } from './helpers/loadTsxComponent.js';
-import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
-import { createAdminSortingMoveActions } from '../src/features/sorting/createAdminSortingMoveActions.js';
-import { createSortingViewportHandlers } from '../src/features/sorting/createSortingViewportHandlers.js';
+import { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns } from '../../../src/features/sorting/board.js';
+import { loadTsxComponent, loadTsxModule } from '../../helpers/loadTsxComponent.js';
+import { parseAdminAllowlist } from '../../../src/features/auth/parseAdminAllowlist.js';
+import { createAdminSortingMoveActions } from '../../../src/features/sorting/createAdminSortingMoveActions.js';
+import { createSortingViewportHandlers } from '../../../src/features/sorting/createSortingViewportHandlers.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/AdminSorting.jsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/features/sorting/AdminSortingBoardView.tsx', import.meta.url));
-const viewportPath = fileURLToPath(new URL('../src/features/sorting/useSortingViewport.js', import.meta.url));
-const fixturePath = fileURLToPath(new URL('./fixtures/adminSortingPageMarkup.json', import.meta.url));
+const pagePath = fileURLToPath(new URL('../../../src/pages/AdminSorting.jsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../../../src/features/sorting/AdminSortingBoardView.tsx', import.meta.url));
+const viewportPath = fileURLToPath(new URL('../../../src/features/sorting/useSortingViewport.js', import.meta.url));
+const fixturePath = fileURLToPath(new URL('../../fixtures/adminSortingPageMarkup.json', import.meta.url));
 
 async function loadPage(state = {}, captured = new Map()) {
     const stub = (name) => function Stub(props) {

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createSortingViewportHandlers } from "../src/features/sorting/createSortingViewportHandlers.js";
+import { createSortingViewportHandlers } from "../../../src/features/sorting/createSortingViewportHandlers.js";
 
 function harness(initialScale = 1, initialTranslate = { x: 20, y: 30 }) {
     const calls = [];

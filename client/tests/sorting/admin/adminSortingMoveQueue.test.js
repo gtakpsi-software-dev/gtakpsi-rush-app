@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { setImmediate } from "node:timers";
 
-import { processSortingMoveQueue } from "../src/features/sorting/processSortingMoveQueue.js";
+import { processSortingMoveQueue } from "../../../src/features/sorting/processSortingMoveQueue.js";
 
 function deferred() {
     let resolve;

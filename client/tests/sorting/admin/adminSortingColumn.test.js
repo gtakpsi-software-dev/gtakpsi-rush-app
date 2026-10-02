@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { TAGS } from "../src/features/sorting/board.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { TAGS } from "../../../src/features/sorting/board.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/sorting/SortingColumn.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/adminSortingColumn.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/sorting/SortingColumn.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/adminSortingColumn.json", import.meta.url));
 const col = { key: "UNSORTED", label: "Unsorted" };
 const first = { id: "r1", fullName: "Ada One", rushNumber: 12, sortingTags: ["night_1", "unknown"] };
 const second = { id: "r2", fullName: "Bea Two", rushNumber: 13, sortingTags: [] };

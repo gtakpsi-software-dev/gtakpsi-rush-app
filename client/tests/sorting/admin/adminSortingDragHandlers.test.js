@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createSortingDragHandlers } from "../src/features/sorting/createSortingDragHandlers.js";
+import { createSortingDragHandlers } from "../../../src/features/sorting/createSortingDragHandlers.js";
 
 function harness(lockedCards = {}) {
     const calls = [];

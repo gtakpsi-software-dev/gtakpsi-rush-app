@@ -94,7 +94,10 @@ in the page while its question form lives with the other admin PIS views.
 Frontend component and filename identifiers now use `Pis` in PascalCase.
 User-facing `PIS` text, routes, API fields, and socket events retain their
 existing spelling.
-All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
+The client test tree now groups admin sorting cases under
+`client/tests/sorting/admin/`; shared test loaders and fixtures remain under
+`client/tests/helpers/` and `client/tests/fixtures/`.
+All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency

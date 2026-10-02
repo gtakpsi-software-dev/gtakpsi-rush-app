@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applySortingDrop } from "../src/features/sorting/applySortingDrop.js";
+import { applySortingDrop } from "../../../src/features/sorting/applySortingDrop.js";
 
 const first = { id: "r1", sortingStatus: "UNSORTED", sortingOrder: 1 };
 const second = { id: "r2", sortingStatus: "UNSORTED", sortingOrder: 2 };

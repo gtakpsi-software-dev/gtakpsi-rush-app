@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createAdminSortingMoveActions } from "../src/features/sorting/createAdminSortingMoveActions.js";
+import { createAdminSortingMoveActions } from "../../../src/features/sorting/createAdminSortingMoveActions.js";
 
 test("admin sorting ignores a drop when no card is being dragged", () => {
     const { handleDrop } = createAdminSortingMoveActions({
