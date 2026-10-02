@@ -9,7 +9,7 @@ const componentPath = fileURLToPath(new URL("../src/features/voting/brother/Spli
 async function setup({ splitError = false, emptyTargets = false } = {}) {
     const calls = [];
     const element = { style: {} };
-    const refs = [{ current: element }, { current: false }, { current: null }];
+    const refs = [{ current: element }, { current: null }];
     const targets = {
         lines: [{ style: {} }],
         words: [{ style: {} }],

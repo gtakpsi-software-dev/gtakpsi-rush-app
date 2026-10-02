@@ -55,7 +55,6 @@ const SplitText: React.FC<SplitTextProps> = ({
   onLetterAnimationComplete,
 }) => {
   const ref = useRef<HTMLParagraphElement>(null);
-  const animationCompletedRef = useRef(false);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
   useEffect(() => {
@@ -63,8 +62,6 @@ const SplitText: React.FC<SplitTextProps> = ({
 
     const el = ref.current;
     
-    animationCompletedRef.current = false;
-
     const absoluteLines = splitType === "lines";
     if (absoluteLines) el.style.position = "relative";
 
@@ -106,7 +103,6 @@ const SplitText: React.FC<SplitTextProps> = ({
       },
       smoothChildTiming: true,
       onComplete: () => {
-        animationCompletedRef.current = true;
         gsap.set(targets, {
           ...to,
           clearProps: "willChange",
