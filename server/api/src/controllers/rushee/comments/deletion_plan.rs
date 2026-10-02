@@ -1,6 +1,6 @@
 use super::average_rating_value;
-use crate::middlewares::time_helpers::same_day;
 use crate::models::rushee::Comment;
+use crate::services::rush_time::same_day;
 use mongodb::bson::{doc, Document};
 use std::collections::HashSet;
 

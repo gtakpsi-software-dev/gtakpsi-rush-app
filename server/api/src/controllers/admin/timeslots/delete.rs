@@ -4,8 +4,8 @@ use serde_json::Value;
 
 use super::{incoming_time_filter, timeslot_message};
 use crate::controllers::db;
-use crate::middlewares::time_helpers;
 use crate::models::pis::PISTimeslotIncoming;
+use crate::services::rush_time;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum DeletionPlan {
@@ -27,7 +27,7 @@ pub async fn delete_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_timeslots_client().await;
-    let time = time_helpers::string_to_bson_datetime(&payload.time);
+    let time = rush_time::string_to_bson_datetime(&payload.time);
 
     let existing = match connection
         .find_one(incoming_time_filter(&payload.time))

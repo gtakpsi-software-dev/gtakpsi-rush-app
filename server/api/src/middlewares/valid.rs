@@ -10,7 +10,7 @@ use crate::{
     models::{misc::RushNight, rushee::Comment},
 };
 
-use super::time_helpers::same_day;
+use crate::services::rush_time::same_day;
 
 // These fields are duplicated in PIS signup, so edits must update both copies.
 pub fn pis_signup_synced_fields() -> HashSet<String> {

@@ -4,8 +4,8 @@ use mongodb::bson::{doc, Document};
 use serde_json::{json, Value};
 
 use crate::controllers::db;
-use crate::middlewares::time_helpers;
 use crate::models::pis::{PISTimeslot, PISTimeslotIncoming};
+use crate::services::rush_time;
 
 mod delete;
 pub use delete::delete_pis_timeslot;
@@ -24,7 +24,7 @@ pub async fn add_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
 ) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_timeslots_client().await;
-    let time = time_helpers::string_to_bson_datetime(&payload.time);
+    let time = rush_time::string_to_bson_datetime(&payload.time);
 
     let existing = match connection.find_one(doc! {"time": time}).await {
         Ok(timeslot) => timeslot,

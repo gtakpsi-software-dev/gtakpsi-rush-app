@@ -1,8 +1,8 @@
 use bson::DateTime;
 
-use crate::middlewares::time_helpers::same_day;
 use crate::models::misc::RushNight;
 use crate::models::rushee::Comment;
+use crate::services::rush_time::same_day;
 
 mod interactions;
 pub use interactions::{enrich_interactions_by_night, interactions_by_night};

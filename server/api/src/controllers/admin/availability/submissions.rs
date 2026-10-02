@@ -1,6 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::time_helpers::string_to_bson_datetime;
 use crate::models::pis::{BrotherPISAvailability, IncomingBrotherAvailability};
+use crate::services::rush_time::string_to_bson_datetime;
 use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, DateTime};

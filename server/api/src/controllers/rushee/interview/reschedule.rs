@@ -1,6 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::time_helpers;
 use crate::services::pis_capacity;
+use crate::services::rush_time;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
@@ -9,7 +9,7 @@ pub async fn reschedule_pis(
     Path(id): Path<String>,
     Json(payload): Json<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let new_time = time_helpers::string_to_bson_datetime(&payload);
+    let new_time = rush_time::string_to_bson_datetime(&payload);
     let connection = db::get_rushee_client().await;
 
     let fetch_result = connection.find_one(doc! {"gtid": id.clone()}).await;
