@@ -93,3 +93,22 @@ test("verification failure logs and warns before clearing loading", async () => 
         ["loading", false],
     ]);
 });
+
+test("synchronous verification and field-setter failures keep separate cleanup paths", async () => {
+    const verifyError = new Error("verification setup failed");
+    const synchronous = harness({ verifyInfo: () => { throw verifyError; } });
+    await assert.rejects(createBasicInfoSubmit(synchronous.deps)(), verifyError);
+    assert.deepEqual(synchronous.events, [["loading", true]]);
+
+    const setterError = new Error("field update failed");
+    const setter = harness();
+    setter.deps.fields[0][1] = () => { throw setterError; };
+    await createBasicInfoSubmit(setter.deps)();
+    assert.deepEqual(setter.events.slice(-4), [
+        ["verify", "900000001", "ada@example.invalid", "4045550100", true],
+        ["log", setterError],
+        ["warn", "Some internal error occurred", warningOptions],
+        ["loading", false],
+    ]);
+    assert.ok(!setter.events.some(([kind]) => kind === "page"));
+});
