@@ -10,26 +10,26 @@ export function createAvailabilityFormActions({
     toast,
     confirm,
 }) {
-    const handleSendPISForm = async () => {
+    const submitForm = async ({ endpoint, onSuccess, successMessage, failureMessage }) => {
         setPisFormLoading(true);
         try {
-            const response = await axios.post(`${apiBase}/pis-availability/send-form`);
+            const response = await axios.post(`${apiBase}/pis-availability/${endpoint}`);
             if (response.data.status === "success") {
-                setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() });
-                toast.success("PIS availability form sent to all brothers!", {
+                onSuccess();
+                toast.success(successMessage, {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             } else {
-                toast.error(response.data.message || "Failed to send form", {
+                toast.error(response.data.message || failureMessage, {
                     position: "top-center",
                     autoClose: 3000,
                     theme: "dark",
                 });
             }
         } catch {
-            toast.error("Failed to send form", {
+            toast.error(failureMessage, {
                 position: "top-center",
                 autoClose: 3000,
                 theme: "dark",
@@ -39,38 +39,27 @@ export function createAvailabilityFormActions({
         }
     };
 
+    const handleSendPISForm = () => submitForm({
+        endpoint: "send-form",
+        onSuccess: () => setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() }),
+        successMessage: "PIS availability form sent to all brothers!",
+        failureMessage: "Failed to send form",
+    });
+
     const handleClearAndResendPISForm = async () => {
         // Confirm destructive form and assignment changes before any state or network work.
         if (!confirm("This will clear all existing brother availability submissions and resend the form. Continue?")) {
             return;
         }
-        setPisFormLoading(true);
-        try {
-            const response = await axios.post(`${apiBase}/pis-availability/clear-and-resend`);
-            if (response.data.status === "success") {
+        await submitForm({
+            endpoint: "clear-and-resend",
+            onSuccess: () => {
                 setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() });
                 setBrotherAvailabilities([]);
-                toast.success("Cleared submissions and resent form!", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to clear and resend", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch {
-            toast.error("Failed to clear and resend", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setPisFormLoading(false);
-        }
+            },
+            successMessage: "Cleared submissions and resent form!",
+            failureMessage: "Failed to clear and resend",
+        });
     };
 
     const handleDeactivatePISForm = async () => {
