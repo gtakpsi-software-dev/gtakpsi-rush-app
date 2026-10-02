@@ -74,12 +74,22 @@ pub async fn check_contracts() {
         .await
         .unwrap();
 
-    // A malformed stored night must fail the whole typed read, not return a partial schedule.
+    // A valid night before a malformed one must not return a partial schedule.
+    collection
+        .insert_one(RushNight {
+            time,
+            name: "Valid Night".to_string(),
+        })
+        .await
+        .unwrap();
     database
         .collection::<bson::Document>("rush-nights")
         .insert_one(doc! { "name": "Malformed", "time": "not-a-date" })
         .await
         .unwrap();
+    assert!(crate::services::rush_night_queries::get_rush_nights()
+        .await
+        .is_err());
     assert_eq!(
         rushee::get_rush_nights().await.unwrap().0,
         json!({"status": "error", "message": "could not load rush nights"})
