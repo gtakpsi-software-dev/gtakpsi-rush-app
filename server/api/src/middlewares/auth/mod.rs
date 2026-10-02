@@ -61,7 +61,6 @@ pub struct FirebaseUser {
 
 #[derive(Debug)]
 pub enum AuthError {
-    MissingAuthHeader,
     InvalidToken,
     NotAdmin,
     ServiceAccountMissing,

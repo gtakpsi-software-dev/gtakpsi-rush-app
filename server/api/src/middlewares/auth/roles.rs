@@ -100,16 +100,6 @@ impl FirebaseAuth {
         self.update_custom_claim(uid, "bidcom", make_bidcom).await
     }
 
-    pub async fn get_admin_status(&self, uid: &str) -> Result<bool, AuthError> {
-        let claims = self.get_custom_claims(uid).await?;
-        Ok(role_enabled(&claims, "admin"))
-    }
-
-    pub async fn get_bidcom_status(&self, uid: &str) -> Result<bool, AuthError> {
-        let claims = self.get_custom_claims(uid).await?;
-        Ok(role_enabled(&claims, "bidcom"))
-    }
-
     pub async fn get_user_roles(&self, uid: &str) -> Result<(bool, bool), AuthError> {
         let claims = self.get_custom_claims(uid).await?;
         let is_admin = role_enabled(&claims, "admin");
