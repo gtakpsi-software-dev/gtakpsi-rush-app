@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
-import Badges from "../../components/Badge";
+import { useBrotherVotingContext } from "./BrotherVotingContext";
+import Badges from "../../../components/Badge";
 import gsap from "gsap";
-import { formatRatingValue, ratingBadgeClass } from "../../features/comments/ratingDisplay";
-import { getVisibleComments, shouldShowAllComments } from "../../features/comments/commentVisibility";
+import { formatRatingValue, ratingBadgeClass } from "../../comments/ratingDisplay";
+import { getVisibleComments, shouldShowAllComments } from "../../comments/commentVisibility";
 import axios from "axios";
-import { auth } from "../../firebase";
+import { auth } from "../../../firebase";
 
 export default function RusheeComments() {
     const { rushee } = useBrotherVotingContext();

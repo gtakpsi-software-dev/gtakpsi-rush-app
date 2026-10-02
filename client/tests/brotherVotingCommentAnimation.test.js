@@ -9,7 +9,7 @@ import React from "react";
 import { transformWithEsbuild } from "vite";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/pages/BrotherVotingPage/RusheeComments.tsx",
+    "../src/features/voting/brother/RusheeComments.tsx",
     import.meta.url,
 ));
 
@@ -29,19 +29,19 @@ async function renderComments(rushee) {
             useState: (initial) => [initial, () => {}],
             useEffect: (callback, values) => effects.push({ callback, values }),
         },
-        "../../features/voting/brother/BrotherVotingContext": { useBrotherVotingContext: () => ({ rushee }) },
-        "../../components/Badge": () => null,
+        "./BrotherVotingContext": { useBrotherVotingContext: () => ({ rushee }) },
+        "../../../components/Badge": () => null,
         gsap: { fromTo: (...args) => animations.push(args) },
-        "../../features/comments/ratingDisplay": {
+        "../../comments/ratingDisplay": {
             formatRatingValue: String,
             ratingBadgeClass: () => "",
         },
-        "../../features/comments/commentVisibility": {
+        "../../comments/commentVisibility": {
             getVisibleComments: (comments) => comments,
             shouldShowAllComments: () => true,
         },
         axios: {},
-        "../../firebase": { auth: { currentUser: null } },
+        "../../../firebase": { auth: { currentUser: null } },
     };
 
     runInNewContext(compiled.code, {

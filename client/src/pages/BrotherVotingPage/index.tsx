@@ -5,10 +5,10 @@ import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVo
 import { BrotherVotingContextProvider } from "../../features/voting/brother/BrotherVotingContextProvider";
 import QuestionBanner from "../../features/voting/brother/QuestionBanner";
 import RusheePreviewCard from "./RusheePreviewCard";
-import RusheeComments from "./RusheeComments";
+import RusheeComments from "../../features/voting/brother/RusheeComments";
 import RusheePISInfo from "./RusheePISInfo";
-import RusheeScores from "./RusheeScores";
-import RusheeBidCommNotes from "./RusheeBidCommNotes";
+import RusheeScores from "../../features/voting/brother/RusheeScores";
+import RusheeBidCommNotes from "../../features/voting/brother/RusheeBidCommNotes";
 import VotingPanel from "../../features/voting/brother/VotingPanel";
 import { Brother, ConnectionStatus } from "../../features/voting/brother/types";
 import { useMidtermMode } from "../../contexts/MidtermModeContext";
