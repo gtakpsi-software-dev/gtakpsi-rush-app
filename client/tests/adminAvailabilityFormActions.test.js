@@ -3,12 +3,15 @@ import test from "node:test";
 
 import { createAvailabilityFormActions } from "../src/features/admin/availability/availabilityFormActions.js";
 
-function setup(response = { status: "success" }, confirmed = true) {
+function setup(response = { status: "success" }, confirmed = true, failingStatusSetter = false) {
     const calls = [];
     const actions = createAvailabilityFormActions({
         apiBase: "/api/admin",
         pisFormStatus: { is_active: true, sent_at: "previous" },
-        setPisFormStatus: (value) => calls.push(["status", value]),
+        setPisFormStatus: (value) => {
+            calls.push(["status", value]);
+            if (failingStatusSetter) throw new Error("setter failed");
+        },
         setPisFormLoading: (value) => calls.push(["loading", value]),
         setBrotherAvailabilities: (value) => calls.push(["availabilities", value]),
         axios: {
@@ -114,4 +117,22 @@ test("assignment responses keep distinct fallbacks and success timeouts", async 
     await offline.actions.handleClearAssignments();
     assert.equal(offline.calls[3][1], "Failed to clear assignments");
     assert.deepEqual(offline.calls.at(-1), ["loading", false]);
+});
+
+test("form failures preserve silent deactivation and caught state-update errors", async () => {
+    const unsent = setup({ status: "error" });
+    await unsent.actions.handleSendPISForm();
+    assert.deepEqual(unsent.calls.map(([kind]) => kind), ["loading", "post", "error", "loading"]);
+    assert.equal(unsent.calls[2][1], "Failed to send form");
+
+    const inactive = setup({ status: "error", message: "Denied" });
+    await inactive.actions.handleDeactivatePISForm();
+    assert.deepEqual(inactive.calls.map(([kind]) => kind), ["loading", "post", "loading"]);
+
+    const failedClear = setup({ status: "success" }, true, true);
+    await failedClear.actions.handleClearAndResendPISForm();
+    assert.deepEqual(failedClear.calls.map(([kind]) => kind), [
+        "confirm", "loading", "post", "status", "error", "loading",
+    ]);
+    assert.equal(failedClear.calls[4][1], "Failed to clear and resend");
 });
