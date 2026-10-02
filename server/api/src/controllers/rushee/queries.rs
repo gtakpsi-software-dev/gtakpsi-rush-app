@@ -1,55 +1,33 @@
-use crate::models::rushee::{RusheeModel, StrippedRushee};
 use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
 use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::doc;
-use mongodb::Collection;
 use serde_json::{json, Value};
+
+use super::read_rows::map_rushee_rows;
 
 mod list_projection;
 use list_projection::project_list_rushee;
 
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
-    let collection: Collection<RusheeModel> = db::get_rushee_client().await;
+    let collection = db::get_rushee_client().await;
     let rush_nights = rush_night_queries::get_rush_nights_sorted()
         .await
         .unwrap_or_default();
 
-    let mut cursor = match collection.find(doc! {}).await {
-        Ok(cursor) => cursor,
-        Err(_) => {
-            // The misspelled key is an existing wire response on this error path.
-            return Ok(Json(json!({
-                "stauts": "error",
-                "message": "some network error occurred"
-            })));
-        }
-    };
-
-    let mut rushees = Vec::<StrippedRushee>::new();
     let mut order: i32 = 1;
-    while let Some(result) = cursor.next().await {
-        let doc = match result {
-            Ok(doc) => doc,
-            Err(err) => {
-                println!("{err}");
-                return Ok(Json(json!({
-                    "status": "error",
-                    "message": "there was an error pushing the stripped rushee to the array"
-                })));
-            }
-        };
-
-        rushees.push(project_list_rushee(doc, &rush_nights, order));
+    let rushees = map_rushee_rows(collection, |rushee| {
+        let projected = project_list_rushee(rushee, &rush_nights, order);
         order += 1;
-    }
+        projected
+    })
+    .await;
 
-    Ok(Json(json!({
-        "status": "success",
-        "payload": rushees
-    })))
+    match rushees {
+        Ok(payload) => Ok(Json(json!({"status": "success", "payload": payload}))),
+        Err(response) => Ok(response),
+    }
 }
 
 pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {

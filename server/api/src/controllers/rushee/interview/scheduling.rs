@@ -1,4 +1,3 @@
-use crate::models::pis::PISSignup;
 use crate::services::pis_timeslot_sort::sort_available_timeslots;
 use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
@@ -6,38 +5,13 @@ use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+use super::super::read_rows::map_rushee_rows;
+
 pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_client().await;
-
-    let result = connection.find(doc! {}).await;
-
-    match result {
-        Ok(mut cursor) => {
-            let mut signups = Vec::<PISSignup>::new();
-
-            while let Some(rushee) = cursor.next().await {
-                match rushee {
-                    Ok(doc) => signups.push(doc.pis_signup),
-                    Err(err) => {
-                        println!("{err}");
-                        return Ok(Json(json!({
-                            "status": "error",
-                            "message": "there was an error pushing the stripped rushee to the array"
-                        })));
-                    }
-                }
-            }
-
-            Ok(Json(json!({
-                "status": "success",
-                "payload": signups
-            })))
-        }
-
-        Err(_) => Ok(Json(json!({
-            "stauts": "error",
-            "message": "some network error occurred"
-        }))),
+    match map_rushee_rows(connection, |rushee| rushee.pis_signup).await {
+        Ok(payload) => Ok(Json(json!({"status": "success", "payload": payload}))),
+        Err(response) => Ok(response),
     }
 }
 
