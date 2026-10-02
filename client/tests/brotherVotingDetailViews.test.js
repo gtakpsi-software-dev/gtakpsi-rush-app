@@ -8,10 +8,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const previewPath = fileURLToPath(new URL(
-    "../src/pages/BrotherVotingPage/RusheePreviewCard.tsx", import.meta.url,
+    "../src/features/voting/brother/RusheePreviewCard.tsx", import.meta.url,
 ));
 const pisPath = fileURLToPath(new URL(
-    "../src/pages/BrotherVotingPage/RusheePISInfo.tsx", import.meta.url,
+    "../src/features/voting/brother/RusheePISInfo.tsx", import.meta.url,
 ));
 
 const rushee = {
@@ -22,10 +22,10 @@ const rushee = {
 
 async function renderView(path, selectedRushee, props = {}) {
     const View = await loadTsxComponent(path, {
-        "../../features/voting/brother/BrotherVotingContext": {
+        "./BrotherVotingContext": {
             useBrotherVotingContext: () => ({ rushee: selectedRushee }),
         },
-        "../../components/RusheeInteractionsByNight": () => (
+        "../../../components/RusheeInteractionsByNight": () => (
             React.createElement("span", { "data-stub": "interactions" })
         ),
     });

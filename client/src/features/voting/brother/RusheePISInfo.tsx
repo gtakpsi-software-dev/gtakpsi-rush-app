@@ -1,5 +1,5 @@
 import React from "react";
-import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
+import { useBrotherVotingContext } from "./BrotherVotingContext";
 
 export default function RusheePISInfo() {
     const { rushee } = useBrotherVotingContext();

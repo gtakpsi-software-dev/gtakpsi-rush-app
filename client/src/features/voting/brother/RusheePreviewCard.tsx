@@ -1,6 +1,6 @@
 import React from "react";
-import { useBrotherVotingContext } from "../../features/voting/brother/BrotherVotingContext";
-import RusheeInteractionsByNight from "../../components/RusheeInteractionsByNight";
+import { useBrotherVotingContext } from "./BrotherVotingContext";
+import RusheeInteractionsByNight from "../../../components/RusheeInteractionsByNight";
 
 interface Props {
     midtermMode?: boolean;
