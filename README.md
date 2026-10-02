@@ -97,28 +97,8 @@ The root `.env.example` belongs to season setup and some manual commands. The
 client and API read configuration from their own service directories or
 deployment environment.
 
-Six remaining maintenance commands use dedicated script-specific MongoDB URI
-settings, such as `DATA_PULL_MONGO_URI` for `data_pull.py`.
-Set it in the environment or in a root `.env.migrations` file. That file is
-ignored by Git. These scripts do not fall back to the app's `MONGO_URI` or
-`MONGO_URL` because their original database targets can differ.
-
 The [maintenance command guide](scripts/maintenance/README.md) lists each
-manual command and its side effects.
-
-`scripts/maintenance/add_pis_question_order.py` is the command for replacing
-PIS questions. Its implementation lives in `scripts/maintenance/commands/`;
-the command still reads the root `.env` and
-`data/season_seed/pis_questions.json`, then performs the same delete, insert,
-and verification sequence.
-`scripts/maintenance/data_pull.py` keeps its `rushees.xlsx`
-output; the export columns and row mapping live in
-`scripts/maintenance/commands/rushee_export.py`.
-`scripts/maintenance/set_admin_claim.py` keeps its CLI flags and Firebase
-initialization; its role-claim lookup, update, and reporting live in
-`scripts/maintenance/commands/firebase_claims.py`.
-Spreadsheet exports are generated in the current working directory when their
-commands run. Historical exports are not tracked; keep any needed copies locally.
+manual command, its side effects, and its configuration requirements.
 
 ## Tests
 

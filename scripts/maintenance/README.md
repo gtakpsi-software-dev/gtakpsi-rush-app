@@ -25,8 +25,20 @@ environment or the ignored root `.env.migrations` file. The other commands
 retain their existing root `.env`, API `.env`, or Firebase credential rules;
 see each entrypoint before running it. `set_admin_claim.py` expects its working
 directory to be `scripts/maintenance/` because its service-account path is
-relative to that directory. The export commands write into whichever working
-directory invokes them.
+relative to that directory. Script-specific MongoDB settings such as
+`DATA_PULL_MONGO_URI` do not fall back to the app's `MONGO_URI` or `MONGO_URL`
+because their original database targets can differ.
+
+`add_pis_question_order.py` reads the root `.env` and
+`data/season_seed/pis_questions.json`, then deletes, inserts, and verifies the
+replacement PIS questions. `data_pull.py` maps rushee records into
+`rushees.xlsx`; its columns and row mapping live in `commands/rushee_export.py`.
+`set_admin_claim.py` keeps Firebase initialization in the entrypoint and role
+claim lookup, update, and reporting in `commands/firebase_claims.py`.
+
+Spreadsheet exports are generated in the current working directory when their
+commands run. Historical exports are not tracked; keep any needed copies
+locally.
 
 The `commands/` package holds operation logic, and `lib/` holds shared parsing,
 configuration, and image helpers. The entrypoints remain separate because their
