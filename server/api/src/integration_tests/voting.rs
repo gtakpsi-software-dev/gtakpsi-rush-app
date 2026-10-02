@@ -84,7 +84,34 @@ pub async fn check_selected_rushee_contract() {
         voting::get_rushee().await.unwrap_err(),
         StatusCode::INTERNAL_SERVER_ERROR
     );
+
+    // A failed notification currently leaves the selected rushee stored.
+    // Restrict publishing only on the marked disposable Redis instance.
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("-publish")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
+    let payload = Json(serde_json::from_value(json!({"gtid": GTID})).unwrap());
+    assert_eq!(
+        voting::change_rushee(payload).await.unwrap_err(),
+        StatusCode::INTERNAL_SERVER_ERROR
+    );
+    let retained: String = redis.get("rushee").await.unwrap();
+    assert_eq!(
+        serde_json::from_str::<RusheeModel>(&retained).unwrap().gtid,
+        GTID
+    );
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("+publish")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
     let _: () = redis.del("rushee").await.unwrap();
     reset().await;
-    println!("selected-rushee MongoDB and Redis contract passed");
+    println!("selected-rushee MongoDB and Redis contract and publish failure passed");
 }
