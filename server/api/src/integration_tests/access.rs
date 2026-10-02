@@ -9,6 +9,8 @@ use crate::{
     models::pis::{CheckAccessPayload, UpdateRushAppPayload},
 };
 
+mod failure_cases;
+
 async fn check_access(is_admin: bool, is_bidcom: bool) -> Value {
     admin::check_rush_app_access(Json(CheckAccessPayload {
         uid: "brother-1".to_string(),
@@ -143,6 +145,7 @@ pub async fn check_contracts() {
         admin::get_midterm_mode_status().await.unwrap().0,
         json!({"status": "success", "midterm_mode": false})
     );
+    failure_cases::check_contracts().await;
     println!(
         "rush app access defaults, role gates, status update, and attribution contracts passed"
     );
