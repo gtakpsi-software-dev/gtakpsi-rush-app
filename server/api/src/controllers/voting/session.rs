@@ -27,45 +27,39 @@ pub struct QuestionAndRushee {
 pub async fn change_rushee(
     Json(payload): Json<ChangeRusheePayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let rushee_result = fetch_rushee(payload.gtid).await;
+    let mut rushee = fetch_rushee(payload.gtid).await.map_err(|e| {
+        println!("Rushee not found: {e:?}");
+        StatusCode::NOT_FOUND
+    })?;
 
-    match rushee_result {
-        Ok(mut rushee) => {
-            if let Ok(rush_nights) = rush_night_queries::get_rush_nights_sorted().await {
-                enrich_interactions_by_night(&mut rushee, &rush_nights);
-            }
-            let mut redis = get_redis_manager().await.as_ref().clone();
-
-            let serialized_rushee = to_string(&rushee).map_err(|e| {
-                println!("Failed to serialize rushee: {e:?}");
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            let _: () = redis.set("rushee", &serialized_rushee).await.map_err(|e| {
-                println!("Failed to set Redis key 'rushee': {e:?}");
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            // Publish after storing so subscribers can read the newly selected rushee.
-            let _: () = redis
-                .publish("rushee", &serialized_rushee)
-                .await
-                .map_err(|e| {
-                    println!("Failed to publish to Redis channel 'rushee': {e:?}");
-                    StatusCode::INTERNAL_SERVER_ERROR
-                })?;
-
-            Ok(Json(json!({
-                "status": "success",
-                "message": "Rushee set and published"
-            })))
-        }
-
-        Err(e) => {
-            println!("Rushee not found: {e:?}");
-            Err(StatusCode::NOT_FOUND)
-        }
+    if let Ok(rush_nights) = rush_night_queries::get_rush_nights_sorted().await {
+        enrich_interactions_by_night(&mut rushee, &rush_nights);
     }
+    let mut redis = get_redis_manager().await.as_ref().clone();
+
+    let serialized_rushee = to_string(&rushee).map_err(|e| {
+        println!("Failed to serialize rushee: {e:?}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let _: () = redis.set("rushee", &serialized_rushee).await.map_err(|e| {
+        println!("Failed to set Redis key 'rushee': {e:?}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    // Publish after storing so subscribers can read the newly selected rushee.
+    let _: () = redis
+        .publish("rushee", &serialized_rushee)
+        .await
+        .map_err(|e| {
+            println!("Failed to publish to Redis channel 'rushee': {e:?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    Ok(Json(json!({
+        "status": "success",
+        "message": "Rushee set and published"
+    })))
 }
 
 pub async fn get_rushee() -> Result<Json<Value>, StatusCode> {
