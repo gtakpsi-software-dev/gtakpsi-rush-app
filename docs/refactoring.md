@@ -208,6 +208,10 @@ against disposable MongoDB; sorting socket tests; voting socket and API Redis
 tests against disposable Redis; and offline maintenance tests. Formatting and
 strict all-target Clippy pass for all three Rust services. This does not replace
 a GitHub CI run or authenticated and deployed workflow checks.
+The API Redis integration test also denies publishing within its marked
+disposable instance to verify existing partial-write behavior: failed vote and
+question notifications leave their writes stored, while failed clear
+notification leaves the vote log empty.
 
 Local browser smoke checks with placeholder service URLs rendered the landing,
 registration entry, login, password-reset, and account-creation routes without
