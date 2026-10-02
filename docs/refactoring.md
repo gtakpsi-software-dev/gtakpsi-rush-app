@@ -101,9 +101,9 @@ The verified atomic slices are archived by range:
   before simplifying their controller logic. Firebase role-claim success and
   failure paths now have offline HTTP coverage; real Google integration remains
   unverified.
-- Expand real-time failure and role-change coverage where the protocols have
-  observable behavior beyond the current reconnect, malformed-message, and
-  cleanup tests.
+- Expand real-time failure coverage for protocol branches that are not yet
+  characterized. The sorting socket already has a live role-change test as
+  well as reconnect, malformed-message, and cleanup coverage.
 - Confirm which remaining manual maintenance commands are truly obsolete before
   removing them. The one-time Night 1 attendance migration and temporary
   historical rating repair were removed. Remaining entrypoints and side effects
@@ -214,6 +214,9 @@ The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a
 separate behavior decision.
+The sorting WebSocket suite also checks a live admin-to-viewer-to-admin role
+change: an existing drag can finish after demotion, while new save broadcasts
+resume only after the later admin join.
 The voting socket integration also pins a duplicate-ID quirk: when a second
 admin socket registers under the same route ID, the older socket's disconnect
 removes the newer socket from the broadcast map even though it remains connected.
