@@ -56,6 +56,28 @@ async fn voting_redis_contracts() {
     let stored: Option<String> = redis.hget("vote_log", "brother-1").await.unwrap();
     assert!(stored.is_none());
 
+    // Deny the eligibility read in the disposable instance to verify that
+    // a Redis failure stops voting before any ballot is stored.
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("-sismember")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
+    assert_eq!(
+        voting::handle_rushee_vote(Json(vote())).await.unwrap_err(),
+        StatusCode::INTERNAL_SERVER_ERROR
+    );
+    assert_eq!(redis.hlen::<_, usize>("vote_log").await.unwrap(), 0);
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("+sismember")
+        .query_async(&mut redis)
+        .await
+        .unwrap();
+
     assert_eq!(
         voting::make_eligible(Json(serde_json::from_value(identity).unwrap()))
             .await

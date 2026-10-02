@@ -262,7 +262,8 @@ a GitHub CI run or authenticated and deployed workflow checks.
 The API Redis integration test also denies publishing within its marked
 disposable instance to verify existing partial-write behavior: failed vote and
 question notifications leave their writes stored, while failed clear
-notification leaves the vote log empty.
+notification leaves the vote log empty. It also denies the eligibility read to
+verify that a Redis failure returns an error before any ballot is stored.
 
 Local browser smoke checks with placeholder service URLs rendered the landing,
 registration entry, login, password-reset, and account-creation routes without
