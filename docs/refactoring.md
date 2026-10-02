@@ -103,9 +103,11 @@ The verified atomic slices are archived by range:
 
 ## Remaining work
 
-- Update the four deployed service roots to the paths in the table, then verify
-  their health endpoints and the socket URL wiring without changing event
-  payloads.
+- Update the four deployed service roots to the paths in the table. For any
+  existing Rust service using `railway.toml`, also update its separate Config
+  as Code path to the absolute repository path listed in the README. Inspect
+  the live settings before migrating the deprecated config files, then verify
+  health endpoints and socket URL wiring without changing event payloads.
 - Cover remaining API failure and partial-write branches with isolated data
   before simplifying their controller logic. Firebase role-claim success and
   failure paths now have offline HTTP coverage; real Google integration remains

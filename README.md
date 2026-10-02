@@ -205,6 +205,23 @@ Set this service's Railway root directory to `server/websockets/voting`. Its
 Dockerfile and `railway.toml` live there. The executable is
 `rush-voting-websocket`; its port default and WebSocket messages are unchanged.
 
+Railway treats the Root Directory and the Config as Code file path separately.
+For an existing Rust service that already uses its `railway.toml`, update the
+config file path as well as the root directory:
+
+| Service | Root Directory | Config file path |
+| --- | --- | --- |
+| API | `/server/api` | `/server/api/railway.toml` |
+| Sorting WebSocket | `/server/websockets/sorting` | `/server/websockets/sorting/railway.toml` |
+| Voting WebSocket | `/server/websockets/voting` | `/server/websockets/voting/railway.toml` |
+
+Check each deployment's settings to confirm whether it used the file. The PIS
+service has no `railway.toml` and starts with `npm start` from its own root.
+[Railway's current guidance](https://docs.railway.com/config-as-code) deprecates
+Config as Code: existing files work only until December 1, 2026, and new
+services cannot opt in. Migrate the live Rust service settings to Railway
+Infrastructure as Code or equivalent dashboard settings before that cutoff.
+
 ## Setup Script
 
 Before each rush season, run the setup script to clear old data:
