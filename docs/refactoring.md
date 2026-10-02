@@ -90,6 +90,8 @@ and the client build on pushes and pull requests; its first GitHub run remains
 unverified.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
+`cargo fmt --manifest-path <service>/Cargo.toml -- --check` passes for the API,
+sorting, and voting crates and is enforced in regression CI.
 On this Mac, auth and route tests need normal system access: inside the
 filesystem sandbox, macOS Dynamic Store initialization panics before those
 tests run. The full suite passes with normal system access.

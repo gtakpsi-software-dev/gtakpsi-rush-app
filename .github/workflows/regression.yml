@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/api/Cargo.toml -- --check
       - run: scripts/testing/api-integration.sh
 
   sorting:
@@ -48,6 +49,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/websockets/sorting/Cargo.toml -- --check
       - run: cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 
   voting:
@@ -55,6 +57,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/websockets/voting/Cargo.toml -- --check
       - run: sudo apt-get update && sudo apt-get install -y redis-server
       - run: python3 scripts/testing/voting-integration.py
 
