@@ -3,10 +3,7 @@ use bson::DateTime;
 use serde_json::json;
 
 use super::fixtures::*;
-use crate::{
-    controllers::{db, rushee},
-    models::misc::RushNight,
-};
+use crate::{controllers::rushee, models::misc::RushNight, storage::db};
 
 pub async fn check_contracts() {
     reset().await;

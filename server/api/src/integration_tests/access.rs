@@ -4,9 +4,10 @@ use serde_json::{json, Value};
 
 use super::fixtures::reset;
 use crate::{
-    controllers::{admin, db},
+    controllers::admin,
     middlewares::auth::FirebaseUser,
     models::pis::{CheckAccessPayload, UpdateRushAppPayload},
+    storage::db,
 };
 
 mod failure_cases;

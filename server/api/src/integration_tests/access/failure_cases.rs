@@ -4,9 +4,8 @@ use serde_json::json;
 
 use super::check_access;
 use crate::{
-    controllers::{admin, db},
-    middlewares::auth::FirebaseUser,
-    models::pis::UpdateRushAppPayload,
+    controllers::admin, middlewares::auth::FirebaseUser, models::pis::UpdateRushAppPayload,
+    storage::db,
 };
 
 pub(super) async fn check_contracts() {

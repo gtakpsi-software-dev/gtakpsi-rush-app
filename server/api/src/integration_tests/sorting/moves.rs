@@ -1,6 +1,9 @@
 use super::super::fixtures::*;
 use super::brother;
-use crate::controllers::{admin, db, rushee};
+use crate::{
+    controllers::{admin, rushee},
+    storage::db,
+};
 use axum::Json;
 use serde_json::json;
 

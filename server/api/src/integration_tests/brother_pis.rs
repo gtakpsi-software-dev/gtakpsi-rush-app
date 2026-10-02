@@ -4,8 +4,9 @@ use serde_json::json;
 
 use super::fixtures::{path, register, reset, stored_rushee};
 use crate::{
-    controllers::{admin, db},
+    controllers::admin,
     models::{misc::IncomingBrotherName, pis::IncomingPISSignup},
+    storage::db,
 };
 
 fn brother(first: &str, last: &str) -> Json<IncomingPISSignup> {

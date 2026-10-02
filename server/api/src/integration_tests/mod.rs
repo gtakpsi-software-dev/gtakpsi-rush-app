@@ -15,7 +15,7 @@ mod rush_nights;
 mod sorting;
 mod timeslots;
 
-use crate::controllers::db;
+use crate::storage::db;
 use mongodb::{bson::doc, Client};
 use std::{env, sync::Arc};
 

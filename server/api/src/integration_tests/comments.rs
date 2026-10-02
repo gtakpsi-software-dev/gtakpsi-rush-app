@@ -6,8 +6,9 @@ use serde_json::json;
 
 use super::fixtures::*;
 use crate::{
-    controllers::{db, rushee},
+    controllers::rushee,
     models::{misc::RushNight, rushee::IncomingComment},
+    storage::db,
 };
 
 fn payload(name: &str, value: f32) -> IncomingComment {

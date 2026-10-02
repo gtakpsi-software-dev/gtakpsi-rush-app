@@ -2,7 +2,7 @@ use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::fixtures::*;
-use crate::controllers::{admin, db};
+use crate::{controllers::admin, storage::db};
 
 pub async fn check_contracts() {
     reset().await;

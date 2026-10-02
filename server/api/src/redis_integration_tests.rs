@@ -4,10 +4,7 @@ use redis::AsyncCommands;
 use serde_json::{json, Value};
 use std::{env, time::Duration};
 
-use crate::{
-    controllers::{db, voting},
-    models::rushee::IncomingRusheeVote,
-};
+use crate::{controllers::voting, models::rushee::IncomingRusheeVote, storage::db};
 
 #[tokio::test]
 async fn voting_redis_contracts() {

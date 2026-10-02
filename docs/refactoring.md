@@ -41,6 +41,10 @@ Rust socket executables use their package names,
 `rush-voting-websocket` and `rush-sorting-websocket`.
 Inbound socket handlers now use `src/handlers.rs` in both Rust services and
 `src/handlers/` in the PIS Socket.IO service.
+Inside the API, `controllers/` owns HTTP handlers, `services/` owns rush-domain
+operations, `storage/` owns MongoDB and Redis connection factories, and
+`middlewares/` owns request gates. These are internal module paths; HTTP and
+socket contracts remain unchanged.
 
 The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their

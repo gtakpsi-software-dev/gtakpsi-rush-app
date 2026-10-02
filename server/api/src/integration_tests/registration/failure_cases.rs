@@ -3,7 +3,7 @@ use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::super::fixtures::{add_slot, capacity, path, signup_payload, stored_rushee, GTID, SLOT};
-use crate::controllers::{db, rushee};
+use crate::{controllers::rushee, storage::db};
 
 pub(super) async fn check_reschedule_write_failure(old_slot: &str) {
     let new_slot = "2030-01-04T18:00:00Z";

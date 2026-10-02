@@ -4,8 +4,9 @@ use serde_json::json;
 
 use super::fixtures::{reset, SLOT};
 use crate::{
-    controllers::{admin, db},
+    controllers::admin,
     models::misc::{IncomingRushNight, RushNight},
+    storage::db,
 };
 
 pub async fn check_contracts() {

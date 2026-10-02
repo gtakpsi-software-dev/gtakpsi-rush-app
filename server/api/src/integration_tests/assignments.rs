@@ -2,10 +2,7 @@ use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::fixtures::{register, reset, stored_rushee, SLOT};
-use crate::{
-    controllers::{admin, db},
-    models::pis::BrotherPISAvailability,
-};
+use crate::{controllers::admin, models::pis::BrotherPISAvailability, storage::db};
 
 async fn add_availability_at(first: &str, last: &str, slot: &str) {
     db::get_brother_pis_availability_client()

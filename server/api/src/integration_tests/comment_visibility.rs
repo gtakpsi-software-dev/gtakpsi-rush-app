@@ -4,9 +4,8 @@ use serde_json::json;
 
 use super::fixtures::reset;
 use crate::{
-    controllers::{admin, db},
-    middlewares::auth::FirebaseUser,
-    models::pis::UpdateCommentVisibilityPayload,
+    controllers::admin, middlewares::auth::FirebaseUser,
+    models::pis::UpdateCommentVisibilityPayload, storage::db,
 };
 
 pub async fn check_contracts() {

@@ -3,10 +3,7 @@ use bson::doc;
 use serde_json::json;
 
 use super::fixtures::*;
-use crate::{
-    controllers::{db, rushee},
-    services::validation,
-};
+use crate::{controllers::rushee, services::validation, storage::db};
 
 mod failure_cases;
 

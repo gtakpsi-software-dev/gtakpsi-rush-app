@@ -3,10 +3,7 @@ use bson::doc;
 use serde_json::json;
 
 use super::SLOT;
-use crate::{
-    controllers::{admin, db},
-    models::pis::IncomingBrotherAvailability,
-};
+use crate::{controllers::admin, models::pis::IncomingBrotherAvailability, storage::db};
 
 pub(super) async fn check_contracts() {
     let submission = IncomingBrotherAvailability {

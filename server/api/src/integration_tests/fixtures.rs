@@ -2,10 +2,7 @@ use axum::{extract::Path, Json};
 use bson::{doc, DateTime};
 use serde_json::{json, Value};
 
-use crate::{
-    controllers::{db, rushee},
-    models::rushee::RusheeModel,
-};
+use crate::{controllers::rushee, models::rushee::RusheeModel, storage::db};
 
 pub const GTID: &str = "900000001";
 pub const SLOT: &str = "2030-01-01T18:00:00Z";

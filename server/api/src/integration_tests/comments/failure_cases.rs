@@ -1,6 +1,6 @@
 use super::super::fixtures::{path, stored_rushee};
 use super::payload;
-use crate::controllers::{db, rushee};
+use crate::{controllers::rushee, storage::db};
 use axum::Json;
 use bson::doc;
 use serde_json::json;
