@@ -1,6 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::valid;
 use crate::models::rushee::RusheeEdit;
+use crate::services::validation;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
@@ -37,7 +37,7 @@ pub async fn update_rushee(
 
     // Apply edits in order; a later invalid field leaves earlier writes committed.
     for edit in payload.iter() {
-        if valid::pis_signup_synced_fields().contains(&edit.field) {
+        if validation::pis_signup_synced_fields().contains(&edit.field) {
             let filter = doc! {"gtid": id.clone()};
             let update = doc! {
                 "$set": {
@@ -52,7 +52,7 @@ pub async fn update_rushee(
                     "message": err.to_string()
                 })));
             }
-        } else if valid::editable_rushee_fields().contains(&edit.field) {
+        } else if validation::editable_rushee_fields().contains(&edit.field) {
             let filter = doc! {"gtid": id.clone()};
             let update = doc! {"$set": doc! { edit.field.clone(): edit.new_value.clone() }};
 

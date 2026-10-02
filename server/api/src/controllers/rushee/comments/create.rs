@@ -1,11 +1,11 @@
 use super::rating_updates::update_global_ratings;
 use crate::controllers::db;
-use crate::middlewares::valid::check_valid_comment;
 use crate::models::{
     misc::RushNight,
     rushee::{Comment, IncomingComment},
 };
 use crate::services::rush_night_queries;
+use crate::services::validation::check_valid_comment;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};

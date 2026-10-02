@@ -1,9 +1,9 @@
 use super::registration_record::build_registration_record;
 use crate::controllers::db;
-use crate::middlewares::valid;
 use crate::models::rushee::{IncomingRushee, RusheeModel};
 use crate::services::pis_capacity;
 use crate::services::rush_time;
+use crate::services::validation;
 use axum::{http::StatusCode, response::Json};
 use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};
@@ -12,7 +12,7 @@ use serde_json::{json, Value};
 pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_client().await;
     let pis_timeslot = rush_time::string_to_bson_datetime(&payload.pis_timeslot.to_string());
-    let verify_attempt = valid::is_gtid_valid(&payload.gtid).await;
+    let verify_attempt = validation::is_gtid_valid(&payload.gtid).await;
 
     match verify_attempt {
         Ok(false) => {

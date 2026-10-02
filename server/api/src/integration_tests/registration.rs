@@ -5,16 +5,16 @@ use serde_json::json;
 use super::fixtures::*;
 use crate::{
     controllers::{db, rushee},
-    middlewares::valid,
+    services::validation,
 };
 
 mod failure_cases;
 
 pub async fn check_contracts() {
     reset().await;
-    assert!(!valid::is_gtid_valid("short").await.unwrap());
-    assert!(valid::is_gtid_valid("abcdefghi").await.unwrap());
-    assert!(valid::is_gtid_valid(GTID).await.unwrap());
+    assert!(!validation::is_gtid_valid("short").await.unwrap());
+    assert!(validation::is_gtid_valid("abcdefghi").await.unwrap());
+    assert!(validation::is_gtid_valid(GTID).await.unwrap());
     let unavailable = rushee::signup(Json(serde_json::from_value(signup_payload()).unwrap()))
         .await
         .unwrap()
@@ -33,7 +33,7 @@ pub async fn check_contracts() {
     assert_eq!(code.len(), 15);
     assert!(code.chars().all(|c| c.is_ascii_alphanumeric()));
     let registered = stored_rushee().await;
-    assert!(!valid::is_gtid_valid(GTID).await.unwrap());
+    assert!(!validation::is_gtid_valid(GTID).await.unwrap());
     assert_eq!(registered.access_code, code);
     assert_eq!(registered.pis_signup.rushee_gtid, GTID);
     assert_eq!(registered.pis_signup.rushee_first_name, "Test");
