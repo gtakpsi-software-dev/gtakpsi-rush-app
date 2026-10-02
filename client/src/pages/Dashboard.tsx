@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import axios from "axios";
-
 import { useNavigate } from "react-router-dom";
-
 import { useMidtermMode } from "../contexts/MidtermModeContext";
-
 import Fuse from "fuse.js";
-
 import { verifyUser } from "../features/auth/verifyUser";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -39,7 +35,6 @@ export default function Dashboard(props: DashboardProps) {
     useState("All");
     const [selectedSort, setSelectedSort] = useState("none");
 
-    // PIS Availability Modal state
     const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
     const [brotherData, setBrotherData] = useState<DashboardAvailabilityUser | null>(null);
 
@@ -71,14 +66,13 @@ export default function Dashboard(props: DashboardProps) {
 
     const fuse = new Fuse(rushees, {
         keys: ["name", "gtid", "major", "email"],
-        threshold: 0.3, // Less strict
-        minMatchCharLength: 1, // Minimum length of matching characters
+        threshold: 0.3,
+        minMatchCharLength: 1,
     });
-
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         const input = e.target.value;
-        console.log(input)
+        console.log(input);
         setQuery(input);
     };
 
@@ -89,7 +83,7 @@ export default function Dashboard(props: DashboardProps) {
             fuse
         );
 
-        console.log(filtered)
+        console.log(filtered);
         setFilteredRushees(filtered);
     };
 
