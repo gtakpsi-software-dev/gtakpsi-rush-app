@@ -13,7 +13,7 @@ import VotingPanel from "./VotingPanel";
 import { Brother, ConnectionStatus } from "../../features/voting/brother/types";
 import { useMidtermMode } from "../../contexts/MidtermModeContext";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
-import { useBrotherVotingSocket } from "./useBrotherVotingSocket";
+import { useBrotherVotingSocket } from "../../features/voting/brother/useBrotherVotingSocket";
 
 function Content() {
   const { setRushee, setQuestion } = useBrotherVotingContext();

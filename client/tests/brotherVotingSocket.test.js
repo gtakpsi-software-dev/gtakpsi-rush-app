@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { loadVotingSocketHook } from './helpers/loadVotingSocketHook.js';
 
-const hookPath = fileURLToPath(new URL('../src/pages/BrotherVotingPage/useBrotherVotingSocket.ts', import.meta.url));
+const hookPath = fileURLToPath(new URL('../src/features/voting/brother/useBrotherVotingSocket.ts', import.meta.url));
 
 async function loadHook() {
     return loadVotingSocketHook(hookPath, 'useBrotherVotingSocket');

@@ -39,7 +39,7 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         '../../features/voting/brother/BrotherVotingContextProvider': {
             BrotherVotingContextProvider: ({ children }) => children,
         },
-        './useBrotherVotingSocket': {
+        '../../features/voting/brother/useBrotherVotingSocket': {
             useBrotherVotingSocket: (options) => captured.set('socket', options),
         },
         './QuestionBanner': stub('question'),
