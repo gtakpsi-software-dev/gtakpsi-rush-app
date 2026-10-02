@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { formatRatingValue } from "../../../src/features/comments/ratingDisplay.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/ExistingCommentList.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomExistingCommentList.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/ExistingCommentList.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeZoomExistingCommentList.json", import.meta.url));
 const own = {
     brother_name: "Ari One", comment: "My note", night: { name: "Night 1" },
     ratings: [{ name: "Why AKPsi", value: 0 }, { name: "Professionalism", value: 4 }],

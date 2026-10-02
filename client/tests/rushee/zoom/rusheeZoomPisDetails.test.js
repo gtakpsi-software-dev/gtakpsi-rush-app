@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheePisDetails.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomPisDetails.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/RusheePisDetails.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeZoomPisDetails.json", import.meta.url));
 const rushee = {
     pis_timeslot: { $date: { $numberLong: "1712345678901" } },
     pis_signup: {

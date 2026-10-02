@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getRusheeNumber, isBidCommitteeMode } from "../src/features/rushee/zoom/routeContext.js";
+import { getRusheeNumber, isBidCommitteeMode } from "../../../src/features/rushee/zoom/routeContext.js";
 
 test("rushee number retains URL decoding, raw value, and the missing-number fallback", () => {
     assert.equal(getRusheeNumber("?rushee_num=007"), "007");

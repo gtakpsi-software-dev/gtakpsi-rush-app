@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../src/features/comments/commentVisibility.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../../../src/features/comments/commentVisibility.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const hookPath = fileURLToPath(new URL("../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
+const hookPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
 
 test("Rushee Zoom access stays restricted while loading and forwards the original fetch dependencies", async () => {
     const effects = [];

@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadRusheeZoomPage } from "./helpers/loadRusheeZoomPage.js";
+import { loadRusheeZoomPage } from "../../helpers/loadRusheeZoomPage.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomPageMarkup.json", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeZoomPageMarkup.json", import.meta.url));
 const rushee = {
     gtid: "123", access_code: "edit", comments: [{ brother_name: "Other Brother" }],
 };

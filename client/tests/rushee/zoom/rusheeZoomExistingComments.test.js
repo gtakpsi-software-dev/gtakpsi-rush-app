@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createExistingCommentActions } from "../src/features/rushee/zoom/existingCommentActions.js";
+import { createExistingCommentActions } from "../../../src/features/rushee/zoom/existingCommentActions.js";
 
 const rushee = { first_name: "Ada", last_name: "Example" };
 const comment = {

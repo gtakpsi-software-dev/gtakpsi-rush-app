@@ -99,7 +99,8 @@ The client test tree now groups admin cases under `client/tests/admin/`,
 sorting cases under `client/tests/sorting/`, registration cases under
 `client/tests/registration/`, account and access cases under
 `client/tests/auth/`, and collaboration cases under
-`client/tests/collaboration/`. Shared test loaders and fixtures remain under
+`client/tests/collaboration/`. Rushee zoom cases live under
+`client/tests/rushee/zoom/`. Shared test loaders and fixtures remain under
 `client/tests/helpers/` and `client/tests/fixtures/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.

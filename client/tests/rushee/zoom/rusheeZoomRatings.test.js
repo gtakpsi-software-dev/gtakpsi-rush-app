@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/RusheeRatings.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomRatings.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/RusheeRatings.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeZoomRatings.json", import.meta.url));
 const rushee = {
     ratings: [{ name: "Why AKPsi", value: 3.25 }, { name: "Professionalism", value: 4 }],
     interactions_by_night: [{ name: "Night 1" }],

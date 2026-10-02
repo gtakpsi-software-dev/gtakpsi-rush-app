@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadRusheeZoom } from "../src/features/rushee/zoom/loadRusheeZoom.js";
+import { loadRusheeZoom } from "../../../src/features/rushee/zoom/loadRusheeZoom.js";
 
 function setup({ verified = true, user = { email: "member@example.com" }, claims = { admin: true, bidcom: false }, rusheeResponse = { status: "success", payload: { gtid: "123" } }, visibilityResponse = { status: "success", require_comment_to_view: false }, tokenError } = {}) {
     const calls = [];

@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { formatRatingValue } from "../../../src/features/comments/ratingDisplay.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/rushee/zoom/ZoomModals.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/rusheeZoomModals.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/ZoomModals.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/rusheeZoomModals.json", import.meta.url));
 const comment = { brother_name: "Ada Example", comment: "Helpful & clear", ratings: [{ name: "Why AKPsi", value: 4.5 }] };
 const pis = { question: "Why join?", answer: "To learn & grow." };
 
