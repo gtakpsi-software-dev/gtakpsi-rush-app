@@ -48,7 +48,8 @@ socket contracts remain unchanged.
 Storage getters that return a MongoDB collection use `get_*_collection`;
 `get_mongo_client` is reserved for the actual MongoDB client.
 PIS auto-assignment planning, loading, execution, and persistence live in
-`services/`; its controller retains the existing HTTP response mapping.
+`services/pis_assignments/`; its controller retains the existing HTTP response
+mapping.
 API readers that intentionally skip malformed MongoDB documents share a small
 storage cursor reader: availability, PIS assignment, sorting board and column
 order, PIS schedule export, interview-question loading, and brother-comment
