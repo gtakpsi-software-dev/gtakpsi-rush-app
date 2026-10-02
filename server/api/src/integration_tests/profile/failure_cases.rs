@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{extract::Path, Json};
 use bson::{doc, DateTime};
 use serde_json::json;
 
@@ -98,6 +98,46 @@ pub(super) async fn check_profile_write_failures() {
     assert_eq!(stored.pis_signup.rushee_first_name, "Test");
     database
         .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
+}
+
+pub(super) async fn check_cloud_write_failure() {
+    reset().await;
+    let database = db::get_mongo_client().await.database("rush-app");
+    let collection = database.collection::<bson::Document>("rushees");
+    collection
+        .insert_one(doc! {"_id": "legacy-id", "cloud": "original"})
+        .await
+        .unwrap();
+
+    // Reject a matched cloud update; a no-match update reports success instead.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": {"cloud": "original"}
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        rushee::update_cloud(Path("legacy-id".to_string()), Json("changed".to_string()))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "error", "message": "did not update cloud"})
+    );
+    assert_eq!(
+        collection
+            .find_one(doc! {"_id": "legacy-id"})
+            .await
+            .unwrap()
+            .unwrap()
+            .get_str("cloud")
+            .unwrap(),
+        "original"
+    );
+    database
+        .run_command(doc! {"collMod": "rushees", "validator": {}})
         .await
         .unwrap();
 }

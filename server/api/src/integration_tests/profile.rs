@@ -48,6 +48,14 @@ pub async fn check_contracts() {
         json!({"status": "success", "message": "sucessfully updated rushee cloud"})
     );
     assert_eq!(
+        rushee::update_cloud(path(), Json("new-cloud".to_string()))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "success", "message": "sucessfully updated rushee cloud"})
+    );
+    assert_eq!(stored_rushee().await.cloud, "none");
+    assert_eq!(
         rushee::update_rushee(path(), Json(vec![])).await.unwrap().0,
         json!({"status": "success", "message": "Successfully updated all fields"})
     );
@@ -120,6 +128,7 @@ pub async fn check_contracts() {
     );
     failure_cases::check_attendance_write_failure().await;
     failure_cases::check_profile_write_failures().await;
+    failure_cases::check_cloud_write_failure().await;
     println!(
         "attendance, profile edits, partial-write ordering, and rushee lookup contracts passed"
     );
