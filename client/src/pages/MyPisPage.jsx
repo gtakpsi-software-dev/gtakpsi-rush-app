@@ -7,7 +7,7 @@ import { verifyUser } from "../features/auth/verifyUser";
 import { sortPisAppointments } from "../features/brotherPis/appointments";
 import { adminPost } from "../features/admin/api";
 
-export default function MyPISPage() {
+export default function MyPisPage() {
     const user = JSON.parse(localStorage.getItem("user"));
 
     const [rushees, setRushees] = useState([]);

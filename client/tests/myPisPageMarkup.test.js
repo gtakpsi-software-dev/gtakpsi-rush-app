@@ -12,7 +12,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/MyPISPage.jsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../src/pages/MyPisPage.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/brotherPis/MyPisPageView.tsx", import.meta.url));
 const cardPath = fileURLToPath(new URL("../src/features/brotherPis/PisAppointmentCard.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("./fixtures/myPisPageMarkup.json", import.meta.url));

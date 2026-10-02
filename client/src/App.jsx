@@ -21,7 +21,7 @@ import Admin from './pages/Admin';
 import Attendance from './pages/Attendance';
 import AddTimeslotPage from './pages/AddTimeslotPage';
 import AddPis from './pages/AddPis';
-import MyPISPage from './pages/MyPISPage';
+import MyPisPage from './pages/MyPisPage';
 import NotFound from './pages/NotFound';
 import Comments from './pages/Comments';
 
@@ -52,7 +52,7 @@ function AppInner() {
         <Route path='/pis/:gtid' element={<PIS/>} />
         <Route path='/attendance' element={<Attendance/>} />
         <Route path='/comments' element={<Comments />} />
-        <Route path='/my-pis' element={<MyPISPage/>} />
+        <Route path='/my-pis' element={<MyPisPage/>} />
         <Route path='*' element={<NotFound/>} />
         <Route path='/admin/addpis' element={<AddPis/>} />
         <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
