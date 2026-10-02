@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use bson::DateTime;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PISQuestion {
@@ -82,10 +82,10 @@ pub struct IncomingBrotherAvailability {
 /// Tracks whether the Rush App is disabled for specific user groups
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RushAppStatus {
-    pub disable_bidcom: bool,    // Disable for bid committee members
-    pub disable_regular: bool,   // Disable for regular brothers (non-admin, non-bidcom)
+    pub disable_bidcom: bool,  // Disable for bid committee members
+    pub disable_regular: bool, // Disable for regular brothers (non-admin, non-bidcom)
     #[serde(default)]
-    pub midterm_mode: bool,      // Strip UI to voting-only for brothers
+    pub midterm_mode: bool, // Strip UI to voting-only for brothers
     pub updated_at: Option<DateTime>,
     pub updated_by: Option<String>,
 }
@@ -113,7 +113,7 @@ pub struct CheckAccessPayload {
 /// When enabled, brothers only see their own comments on a rushee (not other brothers').
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct CommentVisibilitySettings {
-    pub require_comment_to_view: bool,  // If true, brothers only see their own comments
+    pub require_comment_to_view: bool, // If true, brothers only see their own comments
     pub updated_at: Option<DateTime>,
     pub updated_by: Option<String>,
 }

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use bson::DateTime;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RushNight {

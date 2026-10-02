@@ -1,7 +1,10 @@
 use bson::DateTime;
 use serde::{Deserialize, Serialize};
 
-use super::{misc::RushNight, pis::{PISQuestion, PISSignup}};
+use super::{
+    misc::RushNight,
+    pis::{PISQuestion, PISSignup},
+};
 
 pub use super::voting::{IncomingRusheeVote, RusheeVote, VoteOption};
 
@@ -17,7 +20,7 @@ pub struct RusheeEdit {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Rating {
     pub name: String,
-    pub value: f32
+    pub value: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -71,7 +74,7 @@ pub struct RusheeModel {
     pub email: String,
     pub gtid: String,
     pub major: String,
-    pub class: String, 
+    pub class: String,
     pub pronouns: String,
     pub image_url: String,
     pub exposure: String,
