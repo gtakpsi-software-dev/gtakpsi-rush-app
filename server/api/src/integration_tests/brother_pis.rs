@@ -164,6 +164,7 @@ pub async fn check_contracts() {
     assert_eq!(stored.pis_signup.second_brother_first_name, "Alex");
     assert_eq!(stored.pis_signup.second_brother_last_name, "Brother");
 
+    failure_cases::check_malformed_signup_target().await;
     failure_cases::check_signup_write_failures().await;
 
     println!("brother PIS signup and partial-slot contracts passed");

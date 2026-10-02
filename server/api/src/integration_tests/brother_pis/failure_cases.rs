@@ -1,5 +1,35 @@
 use super::*;
 
+pub(super) async fn check_malformed_signup_target() {
+    reset().await;
+    let collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("rushees");
+    let gtid = path().0;
+    collection
+        .insert_one(doc! {"gtid": &gtid, "first_name": "Incomplete"})
+        .await
+        .unwrap();
+
+    // A matching row that cannot decode must stop before choosing or writing a PIS slot.
+    assert_eq!(
+        admin::brother_pis_sign_up(path(), brother("Alex", "Brother"))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "error", "message": "Couldn't access the MongoDB database"})
+    );
+    let stored = collection
+        .find_one(doc! {"gtid": &gtid})
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(stored.get_str("first_name").unwrap(), "Incomplete");
+    assert!(!stored.contains_key("pis_signup"));
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+}
+
 pub(super) async fn check_signup_write_failures() {
     reset().await;
     register().await;
