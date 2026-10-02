@@ -10,7 +10,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 
-const pagePath = fileURLToPath(new URL('../src/pages/AddPIS.jsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/AddPis.jsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/admin/pis/AddPisQuestionForm.tsx', import.meta.url));
 
 async function loadPage() {

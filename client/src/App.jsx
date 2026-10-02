@@ -20,7 +20,7 @@ import MyError from './components/Error';
 import Admin from './pages/Admin';
 import Attendance from './pages/Attendance';
 import AddTimeslotPage from './pages/AddTimeslotPage';
-import AddPIS from './pages/AddPIS';
+import AddPis from './pages/AddPis';
 import MyPISPage from './pages/MyPISPage';
 import NotFound from './pages/NotFound';
 import Comments from './pages/Comments';
@@ -54,7 +54,7 @@ function AppInner() {
         <Route path='/comments' element={<Comments />} />
         <Route path='/my-pis' element={<MyPISPage/>} />
         <Route path='*' element={<NotFound/>} />
-        <Route path='/admin/addpis' element={<AddPIS/>} />
+        <Route path='/admin/addpis' element={<AddPis/>} />
         <Route path='/admin/voting' element={<AdminVotingDashboard/>} />
         <Route path='/admin/sorting' element={<AdminSorting/>} />
         <Route path='/bidcom/sorting' element={<BidCommitteeSorting/>} />

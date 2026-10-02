@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { verifyUser } from "../features/auth/verifyUser";
 import AddPisQuestionForm from "../features/admin/pis/AddPisQuestionForm";
 
-export default function AddPIS() {
+export default function AddPis() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
 
     const [question, setQuestion] = useState("");
