@@ -24,6 +24,7 @@ pub async fn reset() {
         "brother-pis-availability",
         "pis-availability-form-status",
         "rush-app-status",
+        "comment-visibility-settings",
     ] {
         client
             .database("rush-app")
