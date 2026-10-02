@@ -1,7 +1,7 @@
 import axios from "axios";
 
 function addApiKeyInterceptor(instance) {
-    // Both client variants must apply the same key gate when a request is sent.
+    // The dedicated instance needs its own key hook alongside global Axios defaults.
     instance.interceptors.request.use(
         (config) => {
             const apiKey = import.meta.env.VITE_API_KEY;
