@@ -1,9 +1,9 @@
 import Navbar from '../../components/Navbar';
-import QuestionDisplay from './QuestionDisplay';
+import QuestionDisplay from '../../features/voting/admin/QuestionDisplay';
 import RusheePreviewCard from '../../features/voting/admin/RusheePreviewCard';
-import RusheeComments from './RusheeComments';
+import RusheeComments from '../../features/voting/admin/RusheeComments';
 import VoteSummary from '../../features/voting/admin/VoteSummary';
-import BrotherList from './BrotherList';
+import BrotherList from '../../features/voting/admin/BrotherList';
 import type { ConnectionStatus } from '../../features/voting/admin/types';
 
 export default function AdminVotingDashboardView({ connectionStatus }: { connectionStatus: ConnectionStatus }) {

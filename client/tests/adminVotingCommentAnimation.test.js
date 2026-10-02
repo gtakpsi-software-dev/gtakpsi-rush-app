@@ -6,7 +6,7 @@ import React from "react";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/pages/AdminVotingDashboard/RusheeComments.tsx",
+    "../src/features/voting/admin/RusheeComments.tsx",
     import.meta.url,
 ));
 
@@ -19,10 +19,10 @@ async function renderComments(rushee) {
             useRef: (initial) => ({ current: initial }),
             useEffect: (callback, dependencies) => effects.push({ callback, dependencies }),
         },
-        "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
-        "../../components/Badge": () => null,
+        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "../../../components/Badge": () => null,
         gsap: { fromTo: (...args) => animations.push(args) },
-        "../../features/comments/ratingDisplay": { formatRatingValue: String },
+        "../../comments/ratingDisplay": { formatRatingValue: String },
     });
 
     RusheeComments();

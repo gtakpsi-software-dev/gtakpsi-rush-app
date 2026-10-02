@@ -8,7 +8,7 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { transformWithEsbuild } from "vite";
 
-const componentPath = fileURLToPath(new URL("../src/pages/AdminVotingDashboard/QuestionDisplay.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/voting/admin/QuestionDisplay.tsx", import.meta.url));
 
 async function loadQuestion({ question = "Current?", editing = true, inputValue = "New?" } = {}) {
     const updates = [];
@@ -36,8 +36,8 @@ async function loadQuestion({ question = "Current?", editing = true, inputValue 
                     },
                     useRef: () => ({ current: null }),
                 },
-                "../../features/voting/admin/AdminVotingContext": { useAdminVotingContext: () => ({ question }) },
-                "../../features/admin/api": {
+                "./AdminVotingContext": { useAdminVotingContext: () => ({ question }) },
+                "../../admin/api": {
                     adminPost: async (url, payload) => {
                         requests.push({ url, payload });
                     },

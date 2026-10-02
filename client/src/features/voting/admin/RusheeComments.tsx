@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
-import Badges from "../../components/Badge";
+import { useAdminVotingContext } from "./AdminVotingContext";
+import Badges from "../../../components/Badge";
 import gsap from "gsap";
-import { formatRatingValue } from "../../features/comments/ratingDisplay";
+import { formatRatingValue } from "../../comments/ratingDisplay";
 
 export default function RusheeComments() {
   const { rushee } = useAdminVotingContext();

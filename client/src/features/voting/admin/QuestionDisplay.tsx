@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
-import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
-import { adminPost } from "../../features/admin/api";
+import { useAdminVotingContext } from "./AdminVotingContext";
+import { adminPost } from "../../admin/api";
 import { toast } from "react-toastify";
 
 /**
