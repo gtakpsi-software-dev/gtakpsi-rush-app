@@ -7,7 +7,7 @@ import { runInNewContext } from 'node:vm';
 
 import { transformWithEsbuild } from 'vite';
 
-const hookPath = fileURLToPath(new URL('../src/features/pis/usePisAutosave.js', import.meta.url));
+const hookPath = fileURLToPath(new URL('../../../src/features/pis/usePisAutosave.js', import.meta.url));
 
 async function loadHook() {
     const effects = [];

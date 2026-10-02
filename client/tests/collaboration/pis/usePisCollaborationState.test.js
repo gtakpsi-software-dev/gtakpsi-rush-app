@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { loadTsxModule } from './helpers/loadTsxComponent.js';
+import { loadTsxModule } from '../../helpers/loadTsxComponent.js';
 
-const hookPath = fileURLToPath(new URL('../src/features/pis/usePisCollaborationState.js', import.meta.url));
+const hookPath = fileURLToPath(new URL('../../../src/features/pis/usePisCollaborationState.js', import.meta.url));
 
 test('PIS collaboration retains room identity, connection request, and update effect order', async () => {
     const calls = [];

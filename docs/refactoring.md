@@ -98,8 +98,8 @@ The client test tree now groups admin, viewer, and shared sorting cases under
 `client/tests/sorting/`, registration cases under `client/tests/registration/`,
 and account and access cases under `client/tests/auth/`. Shared test loaders
 and fixtures remain under `client/tests/helpers/` and
-`client/tests/fixtures/`; collaborative-field tests live under
-`client/tests/collaboration/fields/`.
+`client/tests/fixtures/`; collaborative-field and PIS collaboration tests
+live under `client/tests/collaboration/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,

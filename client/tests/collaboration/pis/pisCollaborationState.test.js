@@ -4,7 +4,7 @@ import test from "node:test";
 import {
     applyDocumentState,
     applyRemoteUpdates,
-} from "../src/features/pis/collaborationState.js";
+} from "../../../src/features/pis/collaborationState.js";
 
 function stateHarness(initial = {}) {
     const state = {

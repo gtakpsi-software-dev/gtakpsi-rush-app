@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { performPisAutosave } from "../src/features/pis/performPisAutosave.js";
-import { SAVE_STATUS } from "../src/features/pis/saveStatus.js";
+import { performPisAutosave } from "../../../src/features/pis/performPisAutosave.js";
+import { SAVE_STATUS } from "../../../src/features/pis/saveStatus.js";
 
 function setup(overrides = {}) {
     const calls = [];

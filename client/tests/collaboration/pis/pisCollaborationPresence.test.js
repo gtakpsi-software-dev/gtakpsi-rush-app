@@ -6,7 +6,7 @@ import {
     pruneTypingUsers,
     clearStaleCursors,
     getActiveCursors,
-} from "../src/features/pis/collaborationPresence.js";
+} from "../../../src/features/pis/collaborationPresence.js";
 
 test("cursor events update only the matching user and clear the field on blur", () => {
     const users = [{ id: "one", cursor: 2, field: "answer" }, { id: "two", cursor: 1 }];

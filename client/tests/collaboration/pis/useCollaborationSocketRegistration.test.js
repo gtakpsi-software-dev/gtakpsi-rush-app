@@ -6,11 +6,11 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 
 import { transformWithEsbuild } from 'vite';
-import { registerCollaborationConnectionEvents } from '../src/features/pis/registerCollaborationConnectionEvents.js';
-import { registerCollaborationFieldEvents } from '../src/features/pis/registerCollaborationFieldEvents.js';
-import { registerCollaborationTextEvents } from '../src/features/pis/registerCollaborationTextEvents.js';
+import { registerCollaborationConnectionEvents } from '../../../src/features/pis/registerCollaborationConnectionEvents.js';
+import { registerCollaborationFieldEvents } from '../../../src/features/pis/registerCollaborationFieldEvents.js';
+import { registerCollaborationTextEvents } from '../../../src/features/pis/registerCollaborationTextEvents.js';
 
-const hookPath = fileURLToPath(new URL('../src/features/pis/useCollaboration.js', import.meta.url));
+const hookPath = fileURLToPath(new URL('../../../src/features/pis/useCollaboration.js', import.meta.url));
 
 test('collaboration hook keeps socket listener order and cleanup', async () => {
     const source = await readFile(hookPath, 'utf8');

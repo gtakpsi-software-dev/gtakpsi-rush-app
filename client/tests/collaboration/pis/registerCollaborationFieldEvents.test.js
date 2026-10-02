@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { registerCollaborationFieldEvents } from '../src/features/pis/registerCollaborationFieldEvents.js';
+import { registerCollaborationFieldEvents } from '../../../src/features/pis/registerCollaborationFieldEvents.js';
 
 function setup() {
     const handlers = new Map();

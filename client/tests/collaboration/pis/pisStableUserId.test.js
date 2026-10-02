@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getStableUserId } from "../src/features/pis/stableUserId.js";
+import { getStableUserId } from "../../../src/features/pis/stableUserId.js";
 
 test("backend collaborator ID takes precedence without touching tab storage", () => {
     const previousStorage = globalThis.sessionStorage;

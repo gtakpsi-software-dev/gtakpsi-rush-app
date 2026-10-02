@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
-const hookPath = fileURLToPath(new URL("../src/features/pis/useCollaborationCommands.js", import.meta.url));
+const hookPath = fileURLToPath(new URL("../../../src/features/pis/useCollaborationCommands.js", import.meta.url));
 
 async function loadHook(connected) {
     const source = await readFile(hookPath, "utf8");

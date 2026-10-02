@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { SAVE_STATUS } from "../src/features/pis/saveStatus.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { SAVE_STATUS } from "../../../src/features/pis/saveStatus.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/pis/PisSaveStatus.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/pisSaveStatus.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/pis/PisSaveStatus.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../../fixtures/pisSaveStatus.json", import.meta.url));
 
 test("PIS save states retain the original status markup", async () => {
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));

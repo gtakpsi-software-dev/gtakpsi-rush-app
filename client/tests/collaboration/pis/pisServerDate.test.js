@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseServerDate } from "../src/features/pis/parseServerDate.js";
+import { parseServerDate } from "../../../src/features/pis/parseServerDate.js";
 
 test("PIS reveal time accepts BSON extended JSON milliseconds", () => {
     assert.equal(parseServerDate({ $date: { $numberLong: "1712345678901" } }).getTime(), 1712345678901);

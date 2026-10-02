@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createPisCollaborator } from "../src/features/pis/createPisCollaborator.js";
+import { createPisCollaborator } from "../../../src/features/pis/createPisCollaborator.js";
 
 test("Firebase display name and UID take precedence over stored identity", () => {
     const ids = [];

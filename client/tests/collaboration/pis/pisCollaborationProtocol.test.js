@@ -5,7 +5,7 @@ import {
     acknowledgeTextUpdate,
     rejectTextUpdate,
     normalizeDocumentState,
-} from "../src/features/pis/collaborationProtocol.js";
+} from "../../../src/features/pis/collaborationProtocol.js";
 
 test("remote text updates ignore self and stale versions but advance legacy versions", () => {
     const known = { answer: 2 };
