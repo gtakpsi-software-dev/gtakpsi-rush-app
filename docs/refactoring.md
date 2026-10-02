@@ -117,8 +117,8 @@ The verified atomic slices are archived by range:
   well as reconnect, malformed-message, and cleanup coverage.
 - Confirm which remaining manual maintenance commands are truly obsolete before
   removing them. The one-time Night 1 attendance migration, temporary
-  historical rating repair, Fall-2026 test-data cleanup, and fixed-GTID season
-  reset were removed.
+  historical rating repair, Fall-2026 test-data cleanup, fixed-GTID season
+  reset, and fixed-cohort headshot upload were removed.
   Remaining entrypoints and side effects are listed in
   `scripts/maintenance/README.md`; absence of app imports does not prove they
   are unused. Never validate a reset against real data.
@@ -191,7 +191,7 @@ require PyMongo or a database connection.
 Current verified totals: 549 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
-MongoDB integration-feature run, plus 53 maintenance-script tests. Current CSS
+MongoDB integration-feature run, plus 46 maintenance-script tests. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
 36 utility selectors that appeared only in three unrouted pages, an unused
 Button component, and a dormant recorder. No remaining client source uses those

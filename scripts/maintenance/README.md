@@ -16,7 +16,6 @@ python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 | `add_attendance.py` | Add one rushee attendance entry | Updates MongoDB |
 | `add_sorting_tag.py` | Add one rushee sorting tag | Updates MongoDB |
 | `set_admin_claim.py` | Set Firebase role claims | Updates Firebase Authentication |
-| `update_pledge_headshots.py` | Upload mapped headshots | Updates Firebase Storage and MongoDB |
 | `add_pis_question_order.py` | Replace PIS questions from `data/season_seed/` | Deletes and reinserts MongoDB questions |
 | `import_rushees.py` | Replace rushees from a root JSON export | Deletes and reinserts MongoDB rushees |
 
