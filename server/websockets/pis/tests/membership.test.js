@@ -80,3 +80,16 @@ test('joining a new room initializes independent text, version, and presence sta
         ['document-state', {}], ['document-state', {}],
     ]);
 });
+
+test('disconnect after joining another room removes only the latest membership', () => {
+    const state = setup();
+    state.handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother-1', userName: 'Brother One' });
+    state.handlers.get('join-room')({ roomId: 'pis-2', userId: 'brother-2', userName: 'Brother Two' });
+
+    state.handlers.get('disconnect')();
+
+    assert.deepEqual([...state.rooms.get('pis-1').users.keys()], ['brother-1']);
+    assert.deepEqual([...state.rooms.get('pis-2').users.keys()], []);
+    assert.equal(state.membershipsBySocket.has('socket-1'), false);
+    assert.deepEqual(state.broadcasts.at(-1), ['pis-2', 'users-updated', []]);
+});
