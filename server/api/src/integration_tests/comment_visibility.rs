@@ -98,5 +98,59 @@ pub async fn check_contracts() {
         json!({"status": "success", "require_comment_to_view": true})
     );
 
+    collection.delete_many(doc! {}).await.unwrap();
+    let user = Extension(FirebaseUser {
+        uid: "admin-3".to_string(),
+        email: None,
+        is_admin: true,
+        is_bidcom: false,
+    });
+    assert_eq!(
+        admin::update_comment_visibility_settings(
+            user.clone(),
+            Json(UpdateCommentVisibilityPayload {
+                require_comment_to_view: true,
+            }),
+        )
+        .await
+        .unwrap()
+        .0["status"],
+        "success"
+    );
+
+    // Reject insertion after deletion to pin the existing non-atomic replacement behavior.
+    let database = db::get_mongo_client().await.database("rush-app");
+    database
+        .run_command(doc! {
+            "collMod": "comment-visibility-settings",
+            "validator": { "$jsonSchema": {
+                "bsonType": "object",
+                "properties": { "require_comment_to_view": { "enum": [true] } }
+            } }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::update_comment_visibility_settings(
+            user,
+            Json(UpdateCommentVisibilityPayload {
+                require_comment_to_view: false,
+            }),
+        )
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "error", "message": "Failed to update comment visibility settings"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+    assert_eq!(
+        admin::get_comment_visibility_status().await.unwrap().0,
+        json!({"status": "success", "require_comment_to_view": true})
+    );
+    database
+        .run_command(doc! { "collMod": "comment-visibility-settings", "validator": {} })
+        .await
+        .unwrap();
+
     println!("comment visibility defaults, updates, attribution, and fallback contracts passed");
 }
