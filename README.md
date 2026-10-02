@@ -8,10 +8,26 @@ Refactoring progress, compatibility rules, and test commands are tracked in
 [docs/refactoring.md](docs/refactoring.md).
 
 - **Frontend**: React + Vite, hosted on Vercel
-- **Backend**: Rust + Axum, hosted on Railway
+- **API**: Rust + Axum, hosted on Railway
 - **Database**: MongoDB Atlas
 - **Image Storage**: Firebase Storage
-- **Real-time**: Redis (for voting)
+- **Real-time**: Rust WebSocket services for voting and sorting, a Node.js
+  Socket.IO service for PIS editing, and Redis for voting updates
+
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `client/` | React app, feature modules, and client tests |
+| `server/api/` | Main HTTP API, authentication, and database access |
+| `server/websockets/voting/` | Voting updates over WebSocket |
+| `server/websockets/sorting/` | Shared sorting board over WebSocket |
+| `server/websockets/pis/` | Collaborative PIS editing over Socket.IO |
+| `scripts/season_setup/` | Explicit start-of-season reset command |
+| `scripts/maintenance/` | Manual maintenance commands and offline tests |
+| `scripts/testing/` | Isolated API and voting integration runners |
+| `data/season_seed/` | Input records for the season setup command |
+| `docs/` | Refactoring contract and verified slice history |
 
 ## Environment Variables
 
