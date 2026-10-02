@@ -1,8 +1,8 @@
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 import Badges from "../../../components/Badge";
-import CommentWarning from "../../../components/CommentWarning";
-import type { CommentWarningItem } from "../../../components/CommentWarning";
+import CommentWarning from "../../comments/CommentWarning";
+import type { CommentWarningItem } from "../../comments/CommentWarning";
 import { formatRatingValue } from "../../comments/ratingDisplay";
 
 type Comment = {

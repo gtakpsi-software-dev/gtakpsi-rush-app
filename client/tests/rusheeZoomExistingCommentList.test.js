@@ -27,7 +27,7 @@ const FaTrash = () => React.createElement("i", { "data-stub": "trash" });
 async function loadList() {
     return loadTsxComponent(componentPath, {
         "../../../components/Badge": Badges,
-        "../../../components/CommentWarning": CommentWarning,
+        "../../comments/CommentWarning": CommentWarning,
         "../../comments/ratingDisplay": { formatRatingValue },
         "react-icons/fa": { FaEdit, FaTrash },
     });

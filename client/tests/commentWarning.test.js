@@ -7,7 +7,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/components/CommentWarning.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../src/features/comments/CommentWarning.tsx", import.meta.url));
 
 test("comment warnings retain empty, icon-type, and dismissible markup", async () => {
     const Warning = await loadTsxComponent(componentPath);

@@ -1,5 +1,5 @@
-import CommentWarning from "../../../components/CommentWarning";
-import type { CommentWarningItem } from "../../../components/CommentWarning";
+import CommentWarning from "../../comments/CommentWarning";
+import type { CommentWarningItem } from "../../comments/CommentWarning";
 import RatingSlider from "../../../components/RatingSlider";
 
 type NewCommentFormProps = {
