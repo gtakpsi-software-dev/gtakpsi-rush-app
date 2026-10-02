@@ -4,24 +4,9 @@ use serde_json::Value;
 
 use super::{incoming_time_filter, timeslot_message};
 use crate::models::pis::PISTimeslotIncoming;
+use crate::services::pis_timeslot_deletion::{plan_deletion, DeletionPlan};
 use crate::services::rush_time;
 use crate::storage::db;
-
-#[derive(Debug, PartialEq, Eq)]
-pub(super) enum DeletionPlan {
-    Delete,
-    Update(i32),
-}
-
-pub(super) fn plan_deletion(num_available: i32, change: i32) -> DeletionPlan {
-    // INVARIANT: the current API compares strictly, then adds the signed change.
-    // Altering this arithmetic changes stored capacity for legacy callers.
-    if num_available < change {
-        DeletionPlan::Delete
-    } else {
-        DeletionPlan::Update(num_available + change)
-    }
-}
 
 pub async fn delete_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
@@ -57,18 +42,5 @@ pub async fn delete_pis_timeslot(
                 Err(_) => Ok(timeslot_message("error", "some error occurred")),
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{plan_deletion, DeletionPlan};
-
-    #[test]
-    fn deletion_plan_retains_strict_comparison_and_signed_addition() {
-        assert_eq!(plan_deletion(2, 3), DeletionPlan::Delete);
-        assert_eq!(plan_deletion(2, 2), DeletionPlan::Update(4));
-        assert_eq!(plan_deletion(2, 1), DeletionPlan::Update(3));
-        assert_eq!(plan_deletion(2, -1), DeletionPlan::Update(1));
     }
 }
