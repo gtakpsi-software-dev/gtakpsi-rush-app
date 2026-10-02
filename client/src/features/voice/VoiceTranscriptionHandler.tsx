@@ -2,16 +2,12 @@ import VoiceRecorder from './VoiceRecorder';
 
 type Props = {
     onTranscription: (value: string) => void;
+    // Keep accepting this legacy prop while existing callers still pass it.
     questionKey?: string;
     currentValue?: string;
     disabled?: boolean;
 };
 
-/**
- * Voice Transcription Summary:
- * - Types the existing callback contract and retains the legacy questionKey prop.
- * - Keeps whitespace-aware appending and disabled presentation unchanged.
- */
 const VoiceTranscriptionHandler = ({
     onTranscription,
     currentValue = "",

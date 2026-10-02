@@ -13,12 +13,6 @@ type AdminPageViewProps = {
     availability: ComponentProps<typeof PisAvailabilitySection>;
 };
 
-/**
- * Admin View Summary:
- * - Keeps page layout separate from bootstrap, socket-free state, and request actions.
- * - Receives the same section and editor props without changing DOM structure.
- * - Admin page markup fixtures pin loading, ready, and editor render states.
- */
 export default function AdminPageView({
     editor,
     exportsAccess,

@@ -23,11 +23,6 @@ type Props = {
     navigate: (path: string) => void;
 };
 
-/**
- * PIS Dashboard View Summary:
- * - Keeps loading, error, and interview-card markup together outside the fetch page.
- * - Preserves the rating visibility gate and card navigation with the same classes.
- */
 export default function PisDashboardView({
     error, errorTitle, errorDescription, loading, rushees, showRatings, navigate,
 }: Props) {

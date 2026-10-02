@@ -1,10 +1,5 @@
 import { FaExclamationTriangle, FaUser, FaComment } from 'react-icons/fa';
 
-/**
- * Comment Warning Summary:
- * - Shares the warning shape with both comment forms so their contracts stay aligned.
- * - Keeps warning order, icon selection, and dismissal indices unchanged.
- */
 export type CommentWarningItem = { type: string; message: string };
 
 type Props = {

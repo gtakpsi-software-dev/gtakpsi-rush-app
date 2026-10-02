@@ -6,11 +6,6 @@ type Props = {
   disabled?: boolean;
 };
 
-/**
- * Voice Recorder Summary:
- * - Types the optional transcription callback and disabled flag.
- * - Keeps recording, processing, error, and button presentation unchanged.
- */
 const VoiceRecorder = ({ onTranscription, disabled = false }: Props) => {
   const { isRecording, isProcessing, startRecording, stopRecording, transcribeAudio } = useVoiceRecording();
   const [error, setError] = useState('');

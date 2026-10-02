@@ -2,13 +2,6 @@ import { Link } from "react-router-dom";
 import NavbarAdminItems from "./NavbarAdminItems";
 import NavbarMoreItems from "./NavbarMoreItems";
 
-/**
- * Navigation Menu Summary:
- * - Keeps role-gated dropdown links in focused components for easier access review.
- * - Leaves toggle order, link destinations, and rendered menu markup unchanged.
- * - Existing role and click-order fixtures verify those contracts.
- */
-
 type NavbarMenuProps = {
     stripped: boolean;
     isMidtermMode: boolean;

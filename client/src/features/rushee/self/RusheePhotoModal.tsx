@@ -1,11 +1,6 @@
 import Webcam from "react-webcam";
 import type { Ref } from "react";
 
-/**
- * Photo Modal Summary:
- * - Types the camera and action inputs used by the rushee self-service page.
- * - Keeps preview, capture settings, and action wiring unchanged.
- */
 type Props = {
     showPreview: boolean;
     image: string | null;

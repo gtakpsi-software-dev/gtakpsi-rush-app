@@ -5,12 +5,6 @@ import RusheeProfileContactFields, {
     type RusheeContactProfile,
 } from "./RusheeProfileContactFields";
 
-/**
- * Profile Form Summary:
- * - Types the stored profile fields and form callbacks consumed here.
- * - Keeps the rendered controls and phone-event mutation unchanged.
- * - Existing markup and event tests pin those behavior contracts.
- */
 type RusheeProfileFormProps = {
     rushee: RusheeContactProfile & {
         first_name: string;
