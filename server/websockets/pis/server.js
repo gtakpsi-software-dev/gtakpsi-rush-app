@@ -8,19 +8,13 @@ server.listen(PORT, () => {
     console.log(`📊 Health check available at http://localhost:${PORT}/health`);
 });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received, closing server...');
+function shutdownServer(signal) {
+    console.log(`${signal} received, closing server...`);
     server.close(() => {
         console.log('Server closed');
         process.exit(0);
     });
-});
+}
 
-process.on('SIGINT', () => {
-    console.log('SIGINT received, closing server...');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
-});
+process.on('SIGTERM', () => shutdownServer('SIGTERM'));
+process.on('SIGINT', () => shutdownServer('SIGINT'));
