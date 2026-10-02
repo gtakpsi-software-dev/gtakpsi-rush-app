@@ -5,6 +5,43 @@ use serde_json::json;
 use super::*;
 use crate::{controllers::rushee, storage::db};
 
+pub(super) async fn check_single_sorting_write_failure() {
+    reset().await;
+    register().await;
+    let before = stored_rushee().await;
+    let database = db::get_mongo_client().await.database("rush-app");
+
+    // Reject the status change so a failed write cannot leave a new order or attribution.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "sorting_status": before.sorting_status.clone() }
+        })
+        .await
+        .unwrap();
+    let payload = json!({ "sortingStatus": "IN_CLOUD", "sortingOrder": 4 });
+    assert_eq!(
+        admin::update_rushee_sorting(
+            path(),
+            brother(),
+            Json(serde_json::from_value(payload).unwrap()),
+        )
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "error", "message": "Failed to update sorting status"})
+    );
+    let after = stored_rushee().await;
+    assert_eq!(after.sorting_status, before.sorting_status);
+    assert_eq!(after.sorting_order, before.sorting_order);
+    assert_eq!(after.status_updated_at, before.status_updated_at);
+    assert_eq!(after.status_updated_by, before.status_updated_by);
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
+}
+
 pub(super) async fn check_bulk_reorder_failure() {
     reset().await;
     register().await;
