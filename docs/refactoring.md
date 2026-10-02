@@ -58,16 +58,20 @@ The verified atomic slices are archived by range:
 - Update the four deployed service roots to the paths in the table, then verify
   their health endpoints and the socket URL wiring without changing event
   payloads.
-- Finish dense client page and feature boundaries, including Admin, Rushee Zoom,
-  sorting, and collaboration code. Pin JSX, effect
-  timing, request order, and state ownership before each move.
-- Cover remaining API branches with isolated database tests, then simplify
-  controller and assignment logic under those tests.
-- Expand real-time failure, reconnect, and role-change coverage for all three
-  protocols, then standardize internal handler and lifecycle names.
-- Review the remaining one-off maintenance commands for actual use before
-  removing any. The commands now live under `scripts/maintenance/`; old
-  generated exports are untracked. Never validate a reset against real data.
+- Review the remaining page orchestrators (`Admin.jsx`, `RusheeZoom.jsx`,
+  `AdminSorting.jsx`, and `BidComSorting.jsx`) only where a smaller boundary
+  clarifies state ownership. Their supporting views and actions already live in
+  feature folders; pin effect timing and request order before moving more code.
+- Cover remaining API failure and partial-write branches with isolated data
+  before simplifying their controller logic. Firebase role-claim outcomes need
+  a separate safe test setup because they call the remote admin API.
+- Expand real-time failure and role-change coverage where the protocols have
+  observable behavior beyond the current reconnect, malformed-message, and
+  cleanup tests.
+- Confirm which manual maintenance commands are truly obsolete before removing
+  them. Their entrypoints and side effects are listed in
+  `scripts/maintenance/README.md`; absence of app imports does not prove they
+  are unused. Never validate a reset against real data.
 - Verify authenticated browser flows, later registration steps, database
   workflows, CI runs, and deployed service roots before claiming parity.
 - Rotate the formerly embedded MongoDB credential outside this repository and
