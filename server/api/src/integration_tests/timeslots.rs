@@ -3,7 +3,11 @@ use bson::doc;
 use serde_json::json;
 
 use super::fixtures::{capacity, reset, SLOT};
-use crate::{controllers::admin, models::pis::PISTimeslotIncoming, storage::db};
+use crate::{
+    controllers::{admin, rushee},
+    models::pis::PISTimeslotIncoming,
+    storage::db,
+};
 
 fn change(amount: i32) -> Json<PISTimeslotIncoming> {
     Json(PISTimeslotIncoming {
@@ -42,6 +46,10 @@ pub async fn check_contracts() {
     assert_eq!(listed["status"], "success");
     assert_eq!(listed["payload"].as_array().unwrap().len(), 1);
     assert_eq!(listed["payload"][0]["num_available"], 2);
+    let available = rushee::get_available_timeslots().await.unwrap().0;
+    assert_eq!(available["status"], "success");
+    assert_eq!(available["payload"].as_array().unwrap().len(), 1);
+    assert_eq!(available["payload"][0]["capacity"], 2);
 
     // A malformed row rejects the whole typed listing rather than returning the valid slot.
     let raw_collection = db::get_mongo_client()
@@ -55,6 +63,10 @@ pub async fn check_contracts() {
     assert_eq!(
         admin::get_pis_timeslots().await.unwrap().0,
         json!({"status": "error", "message": "some error occurred"})
+    );
+    assert_eq!(
+        rushee::get_available_timeslots().await.unwrap().0,
+        json!({"status": "error", "message": "Error reading timeslot data"})
     );
     raw_collection
         .delete_one(doc! {"_id": malformed.inserted_id})
