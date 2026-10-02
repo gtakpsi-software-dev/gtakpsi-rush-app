@@ -77,8 +77,9 @@ The verified atomic slices are archived by range:
 - Expand real-time failure and role-change coverage where the protocols have
   observable behavior beyond the current reconnect, malformed-message, and
   cleanup tests.
-- Confirm which manual maintenance commands are truly obsolete before removing
-  them. Their entrypoints and side effects are listed in
+- Confirm which remaining manual maintenance commands are truly obsolete before
+  removing them. The one-time Night 1 attendance migration was removed; the
+  remaining entrypoints and side effects are listed in
   `scripts/maintenance/README.md`; absence of app imports does not prove they
   are unused. Never validate a reset against real data.
 - Verify authenticated browser flows, later registration steps, database
@@ -140,7 +141,7 @@ require PyMongo or a database connection.
 Current verified totals: 588 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
-MongoDB integration-feature run, plus 69 maintenance-script tests. Current CSS
+MongoDB integration-feature run, plus 67 maintenance-script tests. Current CSS
 differs from baseline only by the unused
 `hover:bg-blue-600` rule from removed commented-out JSX. The JavaScript bundle
 changes when logic is refactored, so its hash alone cannot establish parity;

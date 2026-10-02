@@ -1,4 +1,3 @@
-import os
 import runpy
 import sys
 import types
@@ -13,7 +12,7 @@ from unittest.mock import MagicMock, patch
 SCRIPTS = Path(__file__).resolve().parents[1]
 
 
-class RemainingMongoScriptTests(unittest.TestCase):
+class PisExportTests(unittest.TestCase):
     def setUp(self):
         path_patch = patch.object(sys, "path", [str(SCRIPTS), *sys.path])
         path_patch.start()
@@ -79,59 +78,6 @@ class RemainingMongoScriptTests(unittest.TestCase):
         ])
         self.assertEqual(rows[0]["Second Brother Last Name"], "")
         self.assertEqual(rows[1]["Rushee First Name"], "")
-
-    def test_night_one_migration_keeps_lookup_update_and_count_output(self):
-        events = []
-        nights = MagicMock()
-        nights.find_one.return_value = {"name": "Night 1", "time": "tomorrow"}
-        rushees = MagicMock()
-        rushees.update_many.return_value = types.SimpleNamespace(matched_count=3, modified_count=2)
-        database = {"rush-nights": nights, "rushees": rushees}
-
-        class FakeClient:
-            def __getitem__(self, name):
-                events.append(("database", name))
-                return database
-
-        pymongo = types.ModuleType("pymongo")
-        pymongo.MongoClient = lambda uri: events.append(("connect", uri)) or FakeClient()
-        with patch.dict(sys.modules, {"pymongo": pymongo}), \
-             patch.dict(os.environ, {"MIGRATE_ATTENDANCE_NIGHT1_MONGO_URI": "mongodb://offline-test"}, clear=True):
-            namespace = runpy.run_path(str(SCRIPTS / "migrate_attendance_night1.py"))
-            self.assertEqual(events, [])
-            output = StringIO()
-            with redirect_stdout(output):
-                namespace["main"]()
-
-        self.assertEqual(events, [("connect", "mongodb://offline-test"), ("database", "rush-app")])
-        nights.find_one.assert_called_once_with({"name": "Night 1"})
-        rushees.update_many.assert_called_once_with(
-            {"attendance.0": {"$exists": True}},
-            {"$set": {"attendance": [{"name": "Night 1", "time": "tomorrow"}]}},
-        )
-        self.assertIn("Matched rushees: 3", output.getvalue())
-        self.assertIn("Modified rushees: 2", output.getvalue())
-
-    def test_night_one_lookup_rejects_missing_night_and_time_without_writing(self):
-        pymongo = types.ModuleType("pymongo")
-        pymongo.MongoClient = MagicMock()
-        with patch.dict(sys.modules, {"pymongo": pymongo}):
-            namespace = runpy.run_path(str(SCRIPTS / "migrate_attendance_night1.py"))
-
-        for night, expected_message in [
-            [None, "Night 1 not found in rush-nights collection."],
-            [{"name": "Night 1"}, "Night 1 entry missing time field."],
-        ]:
-            collection = MagicMock()
-            collection.find_one.return_value = night
-            output = StringIO()
-            with redirect_stdout(output), self.assertRaises(SystemExit) as raised:
-                namespace["get_night_one"](collection)
-
-            self.assertEqual(raised.exception.code, 1)
-            self.assertIn(expected_message, output.getvalue())
-            collection.find_one.assert_called_once_with({"name": "Night 1"})
-
 
 if __name__ == "__main__":
     unittest.main()
