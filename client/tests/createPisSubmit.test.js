@@ -127,3 +127,27 @@ test("missing selected slot throws after upload without completing submission", 
         "loading", "page", "ref", "blob", "upload", "url",
     ]);
 });
+
+test("request-start and success-callback failures retain distinct catch behavior", async () => {
+    const requestError = new Error("request setup failed");
+    const synchronous = harness({
+        post: () => { throw requestError; },
+    });
+    await createPisSubmit(synchronous.deps)();
+    assert.deepEqual(synchronous.events.slice(-4), [
+        ["log", requestError],
+        ["navigate", "/error/Original title/Original description"],
+        ["loading", false], ["error", false],
+    ]);
+
+    const callback = harness({
+        pageError: "captured-error",
+        setAccessCode: () => { throw new Error("setter failed"); },
+    });
+    await createPisSubmit(callback.deps)();
+    assert.deepEqual(callback.events.slice(-4), [
+        ["log", "captured-error"],
+        ["navigate", "/error/Original title/Original description"],
+        ["loading", false], ["error", false],
+    ]);
+});
