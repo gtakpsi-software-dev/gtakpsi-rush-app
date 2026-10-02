@@ -104,6 +104,7 @@ async fn voting_redis_contracts() {
         voting::get_rushee().await.unwrap_err(),
         StatusCode::NOT_FOUND
     );
+    failure_cases::assert_rushee_read_failures(&mut redis).await;
     let question = json!({"question": "Next question"});
     assert_eq!(
         voting::post_question(Json(serde_json::from_value(question).unwrap()))

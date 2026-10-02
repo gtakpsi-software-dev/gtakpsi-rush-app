@@ -63,6 +63,36 @@ pub(super) async fn assert_vote_write_failure(redis: &mut redis::aio::Connection
         .unwrap();
 }
 
+pub(super) async fn assert_rushee_read_failures(redis: &mut redis::aio::ConnectionManager) {
+    let _: () = redis.set("rushee", "not-json").await.unwrap();
+    assert_eq!(
+        voting::get_rushee().await.unwrap_err(),
+        StatusCode::INTERNAL_SERVER_ERROR
+    );
+    let _: () = redis.del("rushee").await.unwrap();
+
+    // Deny GET only in the guarded instance to distinguish a failed Redis
+    // read from the existing missing-key response.
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("-get")
+        .query_async(&mut *redis)
+        .await
+        .unwrap();
+    assert_eq!(
+        voting::get_rushee().await.unwrap_err(),
+        StatusCode::INTERNAL_SERVER_ERROR
+    );
+    let _: () = redis::cmd("ACL")
+        .arg("SETUSER")
+        .arg("default")
+        .arg("+get")
+        .query_async(&mut *redis)
+        .await
+        .unwrap();
+}
+
 pub(super) async fn assert_publish_failures(redis: &mut redis::aio::ConnectionManager) {
     // Deny publishing only in the guarded instance to characterize writes
     // that succeed before their notification fails.
