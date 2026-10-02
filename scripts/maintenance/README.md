@@ -19,7 +19,6 @@ python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 | `update_pledge_headshots.py` | Upload mapped headshots | Updates Firebase Storage and MongoDB |
 | `add_pis_question_order.py` | Replace PIS questions from `data/season_seed/` | Deletes and reinserts MongoDB questions |
 | `import_rushees.py` | Replace rushees from a root JSON export | Deletes and reinserts MongoDB rushees |
-| `reset_rushees_for_new_rush.py` | Keep listed rushees and reset their season data | Deletes and updates MongoDB rushees |
 
 Six commands use their own `<SCRIPT_NAME>_MONGO_URI` setting, either in the
 environment or the ignored root `.env.migrations` file. The other commands
