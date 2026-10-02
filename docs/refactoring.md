@@ -195,10 +195,13 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 549 client tests, 87 server unit tests, 31 collaboration
+Current verified totals: 549 client tests, 88 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
-feature, 1 API Redis integration test, and 88 server tests from the latest
-MongoDB integration-feature run, plus 46 maintenance-script tests. Current CSS
+feature, 1 API Redis integration test, and 89 server tests from the latest
+MongoDB integration-feature run, plus 46 maintenance-script tests. On October
+2, 2026, the current local branch passed those suites, client typecheck,
+scoped lint, and the production build. Full client lint still reports the eight
+Attendance errors described above. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
 36 utility selectors that appeared only in three unrouted pages, an unused
 Button component, and a dormant recorder. No remaining client source uses those
