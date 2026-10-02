@@ -1,3 +1,4 @@
+mod brother_queries;
 mod failure_cases;
 
 use axum::Json;
@@ -130,6 +131,7 @@ pub async fn check_contracts() {
     assert!(remaining.ratings.is_empty());
 
     failure_cases::check_contracts().await;
+    brother_queries::check_contracts().await;
     println!(
         "comment duplication, legacy ratings, text-only editing, and deletion contracts passed"
     );
