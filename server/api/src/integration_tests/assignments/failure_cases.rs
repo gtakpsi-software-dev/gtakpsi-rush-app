@@ -49,3 +49,30 @@ pub(super) async fn check_clear_failure() {
         .await
         .unwrap();
 }
+
+pub(super) async fn check_malformed_availability_is_skipped() {
+    reset().await;
+    register().await;
+
+    // Put the malformed row first so decoding it cannot hide a later valid brother.
+    db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("brother-pis-availability")
+        .insert_one(doc! { "brother_first_name": "Malformed" })
+        .await
+        .unwrap();
+    add_availability("Ada", "Lovelace").await;
+
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 1 PIS slots. 1 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let signup = stored_rushee().await.pis_signup;
+    assert_eq!(signup.first_brother_first_name, "Ada");
+    assert_eq!(signup.first_brother_last_name, "Lovelace");
+    assert_eq!(signup.second_brother_first_name, "none");
+}
