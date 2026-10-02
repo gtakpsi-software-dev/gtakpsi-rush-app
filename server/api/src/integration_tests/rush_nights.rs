@@ -48,4 +48,29 @@ pub async fn check_contracts() {
         json!({"status": "success", "message": "successfully deleted rush night"})
     );
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject the insert to pin the existing error response and unchanged collection.
+    database
+        .run_command(doc! {
+            "collMod": "rush-nights",
+            "validator": { "name": "Allowed" }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::add_rush_night(Json(IncomingRushNight {
+            time: SLOT.to_string(),
+            name: "Night 2".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "error", "message": "couldn't add rush night"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+    database
+        .run_command(doc! { "collMod": "rush-nights", "validator": {} })
+        .await
+        .unwrap();
 }
