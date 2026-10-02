@@ -10,7 +10,11 @@ async function setup({ splitError = false, emptyTargets = false } = {}) {
     const calls = [];
     const element = { style: {} };
     const refs = [{ current: element }, { current: false }, { current: null }];
-    const targets = [{ style: {} }, { style: {} }];
+    const targets = {
+        lines: [{ style: {} }],
+        words: [{ style: {} }],
+        chars: [{ style: {} }, { style: {} }],
+    };
     let effect;
     let timelineOptions;
     let splitterOptions;
@@ -19,9 +23,9 @@ async function setup({ splitError = false, emptyTargets = false } = {}) {
         constructor(_element, options) {
             if (splitError) throw new Error("split failed");
             splitterOptions = options;
-            this.lines = emptyTargets ? [] : targets;
-            this.words = emptyTargets ? [] : targets;
-            this.chars = emptyTargets ? [] : targets;
+            this.lines = emptyTargets ? [] : targets.lines;
+            this.words = emptyTargets ? [] : targets.words;
+            this.chars = emptyTargets ? [] : targets.chars;
         }
 
         revert() { calls.push("revert"); }
@@ -89,7 +93,8 @@ test("character animation retains scroll start, tween settings, callback, and cl
     assert.equal(state.calls[1][0], "timeline.to");
     assert.equal(state.calls[1][2].duration, 0.6);
     assert.equal(state.calls[1][2].stagger, 0.1);
-    assert.deepEqual(state.targets.map((target) => target.style.willChange), [
+    assert.equal(state.calls[0][1], state.targets.chars);
+    assert.deepEqual(state.targets.chars.map((target) => target.style.willChange), [
         "transform, opacity", "transform, opacity",
     ]);
 
@@ -110,7 +115,16 @@ test("line splitting keeps absolute positioning and numeric margin units", async
 
     assert.equal(state.element.style.position, "relative");
     assert.equal(state.splitterOptions.absolute, true);
+    assert.equal(state.calls[0][1], state.targets.lines);
     assert.equal(state.timelineOptions.scrollTrigger.start, "top 75%+=1.5em");
+
+    const words = await setup();
+    words.render({ text: "Two words", splitType: "words" });
+    assert.equal(words.calls[0][1], words.targets.words);
+
+    const wordsAndChars = await setup();
+    wordsAndChars.render({ text: "Two words", splitType: "words, chars" });
+    assert.equal(wordsAndChars.calls[0][1], wordsAndChars.targets.chars);
 });
 
 test("failed or empty splitting never creates a timeline", async () => {

@@ -20,6 +20,26 @@ export interface SplitTextProps {
   onLetterAnimationComplete?: () => void;
 }
 
+function getAnimationTargets(splitter: GSAPSplitText, splitType: SplitTextProps["splitType"]): Element[] {
+  switch (splitType) {
+    case "lines":
+      return splitter.lines;
+    case "words":
+      return splitter.words;
+    default:
+      return splitter.chars;
+  }
+}
+
+function getScrollStart(threshold: number, rootMargin: string): string {
+  const startPct = (1 - threshold) * 100;
+  const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
+  const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
+  const marginUnit = marginMatch ? (marginMatch[2] || "px") : "px";
+  const sign = marginValue < 0 ? `-=${Math.abs(marginValue)}${marginUnit}` : `+=${marginValue}${marginUnit}`;
+  return `top ${startPct}%${sign}`;
+}
+
 const SplitText: React.FC<SplitTextProps> = ({
   text,
   className = "",
@@ -60,20 +80,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       return;
     }
 
-    let targets: Element[];
-    switch (splitType) {
-      case "lines":
-        targets = splitter.lines;
-        break;
-      case "words":
-        targets = splitter.words;
-        break;
-      case "chars":
-        targets = splitter.chars;
-        break;
-      default:
-        targets = splitter.chars;
-    }
+    const targets = getAnimationTargets(splitter, splitType);
 
     if (!targets || targets.length === 0) {
       console.warn("No targets found for SplitText animation");
@@ -85,12 +92,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       (t as HTMLElement).style.willChange = "transform, opacity";
     });
 
-    const startPct = (1 - threshold) * 100;
-    const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
-    const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
-    const marginUnit = marginMatch ? (marginMatch[2] || "px") : "px";
-    const sign = marginValue < 0 ? `-=${Math.abs(marginValue)}${marginUnit}` : `+=${marginValue}${marginUnit}`;
-    const start = `top ${startPct}%${sign}`;
+    const start = getScrollStart(threshold, rootMargin);
 
     const tl = gsap.timeline({
       scrollTrigger: {
