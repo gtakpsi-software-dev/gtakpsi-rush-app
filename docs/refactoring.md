@@ -111,7 +111,8 @@ The verified atomic slices are archived by range:
   `scripts/maintenance/README.md`; absence of app imports does not prove they
   are unused. Never validate a reset against real data.
 - Verify authenticated browser flows, later registration steps, database
-  workflows, CI runs, and deployed service roots before claiming parity.
+  workflows, GitHub CI for current HEAD, and deployed service roots before
+  claiming parity.
 - Rotate the formerly embedded MongoDB credential outside this repository and
   verify the new URI in local/deployment configuration.
 - Resolve the remaining Attendance lint findings only where behavior can remain
@@ -129,8 +130,9 @@ and TS/TSX lint; the current state has 8 errors, so it is
 tracked debt, not a passing check.
 `npm --prefix client run lint:ci` gates the rest of the client with zero
 warnings. The regression workflow runs this scoped gate, the passing suites,
-and the client build on pushes and pull requests; its first GitHub run remains
-unverified.
+and the client build on pushes and pull requests. All six jobs passed for
+remote commit `77e45bd` in [GitHub Actions run 36956853486](https://github.com/gtakpsi-software-dev/gtakpsi-rush-app/actions/runs/36956853486).
+Later local commits still need their own GitHub CI run.
 
 Rust checks use `cargo test --locked --manifest-path <service>/Cargo.toml`.
 `cargo fmt --manifest-path <service>/Cargo.toml -- --check` passes for the API,
@@ -209,13 +211,15 @@ After slice 620, the full local regression set passed again: client tests,
 scoped lint, typecheck, and production build; guarded API integration; sorting
 and voting WebSocket tests; PIS Socket.IO tests; maintenance tests; and Rust
 formatting for all three crates. This verified that checkout locally,
-not the unrun GitHub workflow or deployed services.
+not GitHub CI or deployed services at that point.
 After slice 648, the same local regression set passed on the current branch:
 549 client tests, 88 guarded API tests, 15 sorting socket tests, 6 voting
 socket tests plus the API Redis contract, 31 PIS socket tests, and 64 offline
 maintenance tests. Client scoped lint, typecheck, build, and all three Rust
 format checks pass. Full client lint still reports only the eight pre-existing
 undefined Attendance setters; fixing them would change runtime behavior.
+GitHub CI passed for earlier remote commit `77e45bd`, but has not run against
+the later local changes.
 The PIS socket tests pin one existing reconnect quirk: when two sockets join
 with the same user ID, the older socket's disconnect removes that user's
 presence even while the replacement stays connected. Changing this needs a

@@ -135,7 +135,9 @@ format checks, scoped client lint, typecheck, and build on pushes and pull reque
 all client files except `Attendance.jsx` and rejects any warnings.
 Repository-wide lint remains tracked separately in
 [the refactoring ledger](docs/refactoring.md#slice-ledger) because Attendance has eight
-existing undefined-setter errors. The workflow has not run on GitHub yet.
+existing undefined-setter errors. All six jobs passed on remote commit
+`77e45bd` in [this GitHub Actions run](https://github.com/gtakpsi-software-dev/gtakpsi-rush-app/actions/runs/36956853486);
+later local commits have not run in GitHub CI.
 
 ## Deploy
 
