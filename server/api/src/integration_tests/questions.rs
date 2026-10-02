@@ -111,7 +111,10 @@ pub async fn check_contracts() {
         })
     );
 
-    let result = admin::delete_pis_question(Json(question)).await.unwrap().0;
+    let result = admin::delete_pis_question(Json(question.clone()))
+        .await
+        .unwrap()
+        .0;
     assert_eq!(
         result,
         json!({
@@ -119,6 +122,16 @@ pub async fn check_contracts() {
         })
     );
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+
+    // The endpoint acknowledges a repeated deletion even when no document matches.
+    assert_eq!(
+        admin::delete_pis_question(Json(question)).await.unwrap().0,
+        json!({
+            "status": "success", "message": "successfully deleted PIS question"
+        })
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+
     let remaining = admin::get_pis_questions().await.unwrap().0;
     assert_eq!(remaining["payload"][0]["question_type"], "personal");
 
