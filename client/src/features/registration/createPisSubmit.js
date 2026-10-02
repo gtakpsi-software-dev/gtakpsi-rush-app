@@ -62,22 +62,26 @@ export function createPisSubmit({
 
         const payload = buildSignupPayload(form, imageUrl);
 
+        const handleSignupResponse = (response) => {
+            if (response.data.status === "error") {
+                navigate(`/error/${errorTitle}/${errorDescription}`);
+            } else if (response.data.status === "success") {
+                setAccessCode(response.data.payload);
+            } else {
+                navigate(`/error/${errorTitle}/${errorDescription}`);
+            }
+        };
+
+        const handleRequestRejection = () => {
+            // Response-handler failures share the request rejection's captured page error.
+            logError(pageError);
+            navigate(`/error/${errorTitle}/${errorDescription}`);
+        };
+
         try {
             await post(`${api}/rushee/signup`, payload)
-                .then((response) => {
-                    if (response.data.status === "error") {
-                        navigate(`/error/${errorTitle}/${errorDescription}`);
-                    } else if (response.data.status === "success") {
-                        setAccessCode(response.data.payload);
-                    } else {
-                        navigate(`/error/${errorTitle}/${errorDescription}`);
-                    }
-                })
-                .catch(() => {
-                    // The existing request-rejection path logs the captured page error value.
-                    logError(pageError);
-                    navigate(`/error/${errorTitle}/${errorDescription}`);
-                });
+                .then(handleSignupResponse)
+                .catch(handleRequestRejection);
         } catch (error) {
             logError(error);
             navigate(`/error/${errorTitle}/${errorDescription}`);
