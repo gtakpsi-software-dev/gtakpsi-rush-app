@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import Error from "../../components/Error";
 import Loader from "../../components/Loader";
 import Navbar from "../../components/Navbar";
-import PISAvailabilityModal from "../../components/PISAvailabilityModal";
+import PISAvailabilityModal from "../brotherPisAvailability/PISAvailabilityModal";
 import DashboardFilters from "./DashboardFilters";
 import DashboardRusheeCard from "./DashboardRusheeCard";
 

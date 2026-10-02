@@ -5,9 +5,9 @@ import {
     groupTimeslots,
     selectAllTimeslots,
     sortTimeslots
-} from '../features/brotherPisAvailability/timeslots';
-import { submitAvailability } from '../features/brotherPisAvailability/submitAvailability';
-import PISAvailabilityView from '../features/brotherPisAvailability/PISAvailabilityView';
+} from './timeslots';
+import { submitAvailability } from './submitAvailability';
+import PISAvailabilityView from './PISAvailabilityView';
 
 type BrotherUser = {
     uid?: string;
