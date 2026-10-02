@@ -58,6 +58,33 @@ pub(super) async fn check_contracts() {
         .await
         .unwrap();
 
+    // Reject the comment pull before any rating recalculation can run.
+    database
+        .run_command(doc! {
+            "collMod": "rushees",
+            "validator": { "$jsonSchema": {
+                "bsonType": "object",
+                "properties": { "comments": { "bsonType": "array", "minItems": 1 } }
+            } }
+        })
+        .await
+        .unwrap();
+    let original_comment = stored_rushee().await.comments[0].clone();
+    assert_eq!(
+        rushee::delete_comment(path(), Json(original_comment))
+            .await
+            .unwrap()
+            .0,
+        json!({"status": "error", "message": "couldn't delete the comment from the database"})
+    );
+    let rejected_delete = stored_rushee().await;
+    assert_eq!(rejected_delete.comments.len(), 1);
+    assert_eq!(rejected_delete.ratings[0].value, 2.0);
+    database
+        .run_command(doc! { "collMod": "rushees", "validator": {} })
+        .await
+        .unwrap();
+
     // A rejected rating update must stop before the comment append.
     database
         .run_command(doc! {
