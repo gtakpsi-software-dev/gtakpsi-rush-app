@@ -58,7 +58,10 @@ async function loadPage(state = {}, captured = new Map()) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
-        useEffect: noop,
+        useEffect: (effect, deps) => {
+            if (!captured.has('effects')) captured.set('effects', []);
+            captured.get('effects').push({ effect, deps });
+        },
         useRef: (initial) => ({ current: initial }),
         useCallback: (callback) => callback,
     };
@@ -96,6 +99,9 @@ async function loadPage(state = {}, captured = new Map()) {
         },
         '../features/sorting/createSortingNotesHandlers': { createSortingNotesHandlers: actions },
         '../features/sorting/loadAdminSortingData': { loadAdminSortingData: noop },
+        '../features/sorting/subscribeToSortingAuth': {
+            subscribeToSortingAuth: (options) => captured.set('auth-subscription', options),
+        },
     };
 
     runInNewContext(code, {
@@ -159,4 +165,19 @@ test('admin sorting page passes board state and callbacks to its controls', asyn
     assert.equal(captured.get('notes').selectedRushee.id, 'r1');
     assert.equal(typeof captured.get('column').handleDrop, 'function');
     assert.equal(typeof captured.get('notes').onViewRushee, 'function');
+});
+
+test('admin sorting retains the auth effect after its drag-ref effect', async () => {
+    const captured = new Map();
+    const Page = await loadPage({ 1: false }, captured);
+    renderToStaticMarkup(React.createElement(Page));
+
+    const effects = captured.get('effects');
+    assert.equal(effects.length, 2);
+    assert.equal(effects[1].deps[1], false);
+    effects[1].effect();
+    const options = captured.get('auth-subscription');
+    assert.equal(options.authChecked, false);
+    assert.equal(typeof options.fetchData, 'function');
+    assert.equal(typeof options.navigate, 'function');
 });

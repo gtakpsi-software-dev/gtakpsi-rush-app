@@ -68,7 +68,10 @@ async function loadPage(name, state = {}, captured = new Map()) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
-        useEffect: noop,
+        useEffect: (effect, deps) => {
+            if (!captured.has('effects')) captured.set('effects', []);
+            captured.get('effects').push({ effect, deps });
+        },
         useRef: (initial) => ({ current: initial }),
         useCallback: (callback) => callback,
     };
@@ -116,6 +119,9 @@ async function loadPage(name, state = {}, captured = new Map()) {
             useSortingViewerConnection: (options) => captured.set("viewer-connection", options),
         },
         "../features/sorting/loadBidComSortingData": { loadBidComSortingData: noop },
+        "../features/sorting/subscribeToSortingAuth": {
+            subscribeToSortingAuth: (options) => captured.set("auth-subscription", options),
+        },
         "../features/sorting/loadBrotherSortingData": { loadBrotherSortingData: noop },
     };
     const source = (await readFile(pagePath, "utf8"))
@@ -215,4 +221,20 @@ test("brother sorting wires its notes request and details callbacks", async () =
     assert.equal(captured.get("axios-get"), "/api/brother/rushees/r1/notes");
     assert.equal(captured.get("board-view").onOpen, handlers.openDetails);
     assert.equal(captured.get("read-only-details").onClose, handlers.closeDetails);
+});
+
+test("bid-committee sorting wires its auth subscription and socket setup", async () => {
+    const captured = new Map();
+    const Page = await loadPage("BidComSorting", { 1: false }, captured);
+    renderToStaticMarkup(React.createElement(Page));
+
+    const effects = captured.get("effects");
+    assert.equal(effects.length, 1);
+    assert.equal(effects[0].deps[1], false);
+    effects[0].effect();
+    const options = captured.get("auth-subscription");
+    assert.equal(options.authChecked, false);
+    assert.equal(typeof options.fetchData, "function");
+    assert.equal(typeof options.navigate, "function");
+    assert.ok(captured.has("viewer-connection"));
 });

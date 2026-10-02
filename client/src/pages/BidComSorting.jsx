@@ -12,6 +12,7 @@ import { useSortingWheelListener } from "../features/sorting/useSortingWheelList
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBidComSortingData } from "../features/sorting/loadBidComSortingData";
+import { subscribeToSortingAuth } from "../features/sorting/subscribeToSortingAuth";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
@@ -63,18 +64,9 @@ export default function BidComSorting() {
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;
 
-    useEffect(() => {
-        if (authChecked) return;
-        
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                fetchData();
-            } else {
-                navigate("/login");
-            }
-        });
-        return () => unsubscribe();
-    }, [fetchData, authChecked, navigate]);
+    useEffect(() => subscribeToSortingAuth({
+        auth, authChecked, fetchData, navigate,
+    }), [fetchData, authChecked, navigate]);
 
     useSortingViewerConnection({
         auth, wsRef, ghostTimestampsRef, fetchDataRef,

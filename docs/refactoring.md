@@ -128,12 +128,13 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 583 client tests, 79 server unit tests, 30 collaboration
+Current verified totals: 587 client tests, 79 server unit tests, 30 collaboration
 tests, 14 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 80 server tests from the latest
 MongoDB integration-feature run, plus 69
-maintenance-script tests. The last client build differs from baseline CSS only
-by the unused `hover:bg-blue-600`
-rule from removed commented-out JSX. Authenticated browser flows, later
+maintenance-script tests. Current CSS differs from baseline only by the unused
+`hover:bg-blue-600` rule from removed commented-out JSX. The JavaScript bundle
+changes when logic is refactored, so its hash alone cannot establish parity;
+the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
 public-entry comparison does not establish full application parity.

@@ -13,6 +13,7 @@ import { useSortingViewport } from "../features/sorting/useSortingViewport";
 import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { createSortingNotesHandlers } from "../features/sorting/createSortingNotesHandlers";
 import { loadAdminSortingData } from "../features/sorting/loadAdminSortingData";
+import { subscribeToSortingAuth } from "../features/sorting/subscribeToSortingAuth";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
@@ -85,20 +86,9 @@ export default function AdminSorting() {
         draggingRef.current = dragging;
     }, [dragging]);
 
-    useEffect(() => {
-        // Only run once
-        if (authChecked) return;
-        
-        // Wait for auth to be ready
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                fetchData();
-            } else {
-                navigate("/login");
-            }
-        });
-        return () => unsubscribe();
-    }, [fetchData, authChecked, navigate]);
+    useEffect(() => subscribeToSortingAuth({
+        auth, authChecked, fetchData, navigate,
+    }), [fetchData, authChecked, navigate]);
 
     const {
         handleDragStart,
