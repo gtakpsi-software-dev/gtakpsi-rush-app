@@ -1,4 +1,4 @@
-import SplitText from "../../../components/ReactBitsComponents/SplitText";
+import SplitText from "./SplitText";
 
 const votingOptions = ["Yes", "No", "Abstain"];
 

@@ -30,7 +30,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
         exports: viewModule.exports,
         Math: { random: () => 0.5 },
         require(specifier) {
-            if (specifier === "../../../components/ReactBitsComponents/SplitText") {
+            if (specifier === "./SplitText") {
                 return SplitTextStub;
             }
             return requireFromView(specifier);
