@@ -12,6 +12,7 @@ import { useSortingViewport } from "../features/sorting/useSortingViewport";
 import { useSortingWheelListener } from "../features/sorting/useSortingWheelListener";
 import { useSortingViewerConnection } from "../features/sorting/useSortingViewerConnection";
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
+import { subscribeToSortingAuth } from "../features/sorting/subscribeToSortingAuth";
 
 export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
@@ -54,16 +55,9 @@ export default function BrotherSorting() {
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;
 
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                fetchData();
-            } else {
-                navigate("/login");
-            }
-        });
-        return () => unsubscribe();
-    }, [fetchData, navigate]);
+    useEffect(() => subscribeToSortingAuth({
+        auth, authChecked: false, fetchData, navigate,
+    }), [fetchData, navigate]);
 
     useSortingViewerConnection({
         auth, wsRef, ghostTimestampsRef, fetchDataRef,

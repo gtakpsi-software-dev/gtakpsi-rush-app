@@ -238,3 +238,18 @@ test("bid-committee sorting wires its auth subscription and socket setup", async
     assert.equal(typeof options.navigate, "function");
     assert.ok(captured.has("viewer-connection"));
 });
+
+test("brother sorting retains its two-dependency auth listener", async () => {
+    const captured = new Map();
+    const Page = await loadPage("BrotherSorting", {}, captured);
+    renderToStaticMarkup(React.createElement(Page));
+
+    const effects = captured.get("effects");
+    assert.equal(effects.length, 1);
+    assert.equal(effects[0].deps.length, 2);
+    effects[0].effect();
+    const options = captured.get("auth-subscription");
+    assert.equal(options.authChecked, false);
+    assert.equal(typeof options.fetchData, "function");
+    assert.equal(typeof options.navigate, "function");
+});
