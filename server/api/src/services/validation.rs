@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    io::{Error, ErrorKind},
-};
+use std::{collections::HashSet, io::Error};
 
 use bson::doc;
 
@@ -50,7 +47,7 @@ pub async fn is_gtid_valid(gtid: &str) -> Result<bool, Error> {
     match connection.find_one(doc! {"gtid": gtid}).await {
         Ok(Some(_)) => Ok(false),
         Ok(None) => Ok(true),
-        Err(_) => Err(Error::new(ErrorKind::Other, "couldn't verify gtid")),
+        Err(_) => Err(Error::other("couldn't verify gtid")),
     }
 }
 
@@ -63,7 +60,7 @@ pub async fn check_valid_comment(
     if comments.iter().any(|comment| {
         comment.brother_name == brother_name && same_day(&comment.night.time, &night.time)
     }) {
-        Err(Error::new(ErrorKind::Other, "already made a comment"))
+        Err(Error::other("already made a comment"))
     } else {
         Ok(true)
     }

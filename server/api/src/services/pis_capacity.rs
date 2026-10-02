@@ -28,10 +28,7 @@ async fn change_pis_timeslot_capacity(
     match find {
         Ok(Some(timeslot)) => {
             if matches!(change, CapacityChange::Take) && timeslot.num_available <= 0 {
-                return Err(Error::new(
-                    std::io::ErrorKind::Other,
-                    "All slots for this time are taken",
-                ));
+                return Err(Error::other("All slots for this time are taken"));
             }
 
             // Keep the read-then-set update to preserve existing reservation behavior.
@@ -45,19 +42,10 @@ async fn change_pis_timeslot_capacity(
 
             match connection.update_one(query, update).await {
                 Ok(_update_result) => Ok(true),
-                Err(_err) => Err(Error::new(
-                    std::io::ErrorKind::Other,
-                    "couldn't update PIS timeslot",
-                )),
+                Err(_err) => Err(Error::other("couldn't update PIS timeslot")),
             }
         }
-        Ok(None) => Err(Error::new(
-            std::io::ErrorKind::Other,
-            "PIS timeslot does not exist",
-        )),
-        Err(_err) => Err(Error::new(
-            std::io::ErrorKind::Other,
-            "some network occurred",
-        )),
+        Ok(None) => Err(Error::other("PIS timeslot does not exist")),
+        Err(_err) => Err(Error::other("some network occurred")),
     }
 }

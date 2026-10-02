@@ -17,16 +17,14 @@ pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {
             while let Some(night) = cursor.next().await {
                 match night {
                     Ok(x) => answer.push(x),
-                    Err(_err) => {
-                        return Err(Error::new(std::io::ErrorKind::Other, "some error occurred"))
-                    }
+                    Err(_err) => return Err(Error::other("some error occurred")),
                 }
             }
 
             return Ok(answer);
         }
 
-        Err(_err) => Err(Error::new(std::io::ErrorKind::Other, "some error occurred")),
+        Err(_err) => Err(Error::other("some error occurred")),
     }
 }
 
