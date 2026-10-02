@@ -164,8 +164,14 @@ containers were removed after verification; deployed Railway roots remain
 unverified.
 The PIS Socket.IO entrypoint also returned HTTP 200 from `/health` on a
 disposable local port and exited cleanly on `SIGTERM`.
-Tests must use isolated data and local services. Do not run season reset or
-migration commands as validation, or contact production services during tests.
+On October 2, 2026, the four public health endpoints named by the local client
+configuration returned HTTP 200. This confirms the currently deployed API,
+PIS, sorting, and voting services respond; it does not show that they run this
+local branch or use the new service roots. Railway CLI settings remain
+unavailable without a project login.
+Functional tests must use isolated data and local services. Do not run season
+reset or migration commands as validation, or contact production services
+during those tests.
 
 Run `scripts/testing/api-integration.sh` for the isolated database scenarios.
 This requires Docker and enables the test-only `integration-tests` Cargo feature.
