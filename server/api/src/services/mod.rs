@@ -1,3 +1,4 @@
+pub mod comment_ratings;
 pub mod pis_assignments;
 pub mod pis_capacity;
 pub mod pis_signup;

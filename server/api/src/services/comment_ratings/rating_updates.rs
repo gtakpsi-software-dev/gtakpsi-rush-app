@@ -2,7 +2,7 @@ use super::average_rating_value;
 use crate::models::rushee::{Rating, RusheeModel};
 use mongodb::bson::{doc, Document};
 
-pub(super) fn build_rating_update(
+pub(crate) fn build_rating_update(
     id: &str,
     rating: &Rating,
     value: f32,
@@ -21,7 +21,7 @@ pub(super) fn build_rating_update(
     }
 }
 
-pub(super) async fn update_global_ratings(
+pub(crate) async fn update_global_ratings(
     connection: &mongodb::Collection<RusheeModel>,
     id: &str,
     rushee: &RusheeModel,

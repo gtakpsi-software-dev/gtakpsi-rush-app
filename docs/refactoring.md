@@ -63,6 +63,7 @@ The verified atomic slices are archived by range:
 - [Slices 301–400](refactoring-history/301-400.md)
 - [Slices 401–500](refactoring-history/401-500.md)
 - [Slices 501–600](refactoring-history/501-600.md)
+- [Slices 601–700](refactoring-history/601-700.md)
 
 ## Remaining work
 

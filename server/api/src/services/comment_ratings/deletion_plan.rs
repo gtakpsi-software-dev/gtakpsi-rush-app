@@ -4,7 +4,7 @@ use crate::services::rush_time::same_day;
 use mongodb::bson::{doc, Document};
 use std::collections::HashSet;
 
-pub(super) fn rating_recalculations_after_deletion(
+pub(crate) fn rating_recalculations_after_deletion(
     comments: Vec<Comment>,
     deleted: &Comment,
 ) -> Vec<(String, Option<f32>)> {
@@ -33,7 +33,7 @@ pub(super) fn rating_recalculations_after_deletion(
         .collect()
 }
 
-pub(super) fn rating_update_for_deletion(
+pub(crate) fn rating_update_for_deletion(
     id: &str,
     category: &str,
     value: Option<f32>,
