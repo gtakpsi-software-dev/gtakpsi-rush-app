@@ -88,7 +88,7 @@ The test-only alternate API-client factory was removed; the default client's
 prefix, API-key interceptor, and error forwarding still have direct tests.
 Production asset hashes remained identical.
 The PIS Socket.IO entrypoint reaches all 14 source modules through static
-imports. Current Rust build/test dependency lists cover all 156 API source
+imports. Current Rust build/test dependency lists cover all 164 API source
 files, 16 sorting socket files, and 22 voting socket files; the API's Redis
 integration module is compiled only with its test feature. This source-level
 check does not establish that every handler or branch executes.
@@ -116,7 +116,7 @@ The remaining cross-cutting tests mirror their source folders under
 `client/tests/api/`, `config/`, `contexts/`, and `lib/`; no test files remain
 directly in `client/tests/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
-including tests, are under 200 lines; the largest is a 188-line client test.
+including tests, are under 200 lines; the largest is a 193-line API Redis test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency
 lockfiles and refactoring documentation. The size check does not judge whether
@@ -134,6 +134,7 @@ The verified atomic slices are archived by range:
 - [Slices 501–600](refactoring-history/501-600.md)
 - [Slices 601–700](refactoring-history/601-700.md)
 - [Slices 701–800](refactoring-history/701-800.md)
+- [Slices 801–900](refactoring-history/801-900.md)
 
 ## Remaining work
 
