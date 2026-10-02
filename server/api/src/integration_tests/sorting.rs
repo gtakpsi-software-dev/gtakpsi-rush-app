@@ -1,3 +1,4 @@
+mod failure_cases;
 mod moves;
 
 use axum::{Extension, Json};
@@ -87,4 +88,5 @@ pub async fn check_contracts() {
     println!("sorting status, note tags, and attribution contracts passed");
 
     moves::check_move_contracts().await;
+    failure_cases::check_bulk_reorder_failure().await;
 }
