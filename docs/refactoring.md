@@ -97,6 +97,11 @@ Collaboration tests use `npm --prefix server/websockets/pis test` and require pe
 to bind local ports; their pinned Socket.IO client is a development dependency.
 The two sorting WebSocket loopback tests also require local port access; the
 remaining eight sorting tests pass inside the filesystem sandbox.
+The API, sorting, and voting Docker images build from their new service roots.
+Disposable containers returned HTTP 200 from `/health`, `/health`, and `/`,
+respectively, using the renamed release executables. Their local images and
+containers were removed after verification; deployed Railway roots remain
+unverified.
 Tests must use isolated data and local services. Do not run season reset or
 migration commands as validation, or contact production services during tests.
 
