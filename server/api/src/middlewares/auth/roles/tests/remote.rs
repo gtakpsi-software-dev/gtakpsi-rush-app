@@ -1,4 +1,4 @@
-use crate::middlewares::auth::{FirebaseAuth, ServiceAccount};
+use crate::middlewares::auth::{AuthError, FirebaseAuth, ServiceAccount};
 use axum::{
     extract::{Form, State},
     http::{HeaderMap, StatusCode, Uri},
@@ -174,4 +174,55 @@ async fn role_updates_preserve_unrelated_claims_and_use_ordered_lookup_then_upda
         .iter()
         .filter(|request| request.action == "update")
         .all(|request| request.body["localId"] == "brother-1"));
+}
+
+#[tokio::test]
+async fn failed_lookup_still_updates_from_an_empty_claim_map() {
+    let server = MockServer::start(StatusCode::INTERNAL_SERVER_ERROR, json!({}), StatusCode::OK);
+    server
+        .auth()
+        .set_admin_claim("brother-2", true)
+        .await
+        .unwrap();
+
+    let requests = server.requests().await;
+    assert_eq!(
+        requests
+            .iter()
+            .map(|request| request.action)
+            .collect::<Vec<_>>(),
+        ["lookup", "update"]
+    );
+    assert_eq!(requests[1].body["localId"], "brother-2");
+    let attributes: Value =
+        serde_json::from_str(requests[1].body["customAttributes"].as_str().unwrap()).unwrap();
+    assert_eq!(attributes, json!({"admin": true}));
+}
+
+#[tokio::test]
+async fn failed_update_returns_internal_after_a_successful_lookup() {
+    let server = MockServer::start(
+        StatusCode::OK,
+        json!({"users": [{"customAttributes": "{\"admin\":true,\"theme\":\"dark\"}"}]}),
+        StatusCode::INTERNAL_SERVER_ERROR,
+    );
+    assert!(matches!(
+        server.auth().set_bidcom_claim("brother-3", false).await,
+        Err(AuthError::Internal)
+    ));
+
+    let requests = server.requests().await;
+    assert_eq!(
+        requests
+            .iter()
+            .map(|request| request.action)
+            .collect::<Vec<_>>(),
+        ["lookup", "update"]
+    );
+    let attributes: Value =
+        serde_json::from_str(requests[1].body["customAttributes"].as_str().unwrap()).unwrap();
+    assert_eq!(
+        attributes,
+        json!({"admin": true, "bidcom": false, "theme": "dark"})
+    );
 }
