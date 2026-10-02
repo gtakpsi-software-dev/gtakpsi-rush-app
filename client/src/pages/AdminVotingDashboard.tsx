@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
-import { AdminVotingContextProvider } from "../../features/voting/admin/AdminVotingContextProvider";
-import AdminVotingDashboardView from "../../features/voting/admin/AdminVotingDashboardView";
-import type { Brother, ConnectionStatus } from "../../features/voting/admin/types";
-import { auth } from "../../firebase";
-import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
-import { useAdminVotingSocket } from "../../features/voting/admin/useAdminVotingSocket";
-import { parseAdminAllowlist } from "../../features/auth/parseAdminAllowlist";
+import { useAdminVotingContext } from "../features/voting/admin/AdminVotingContext";
+import { AdminVotingContextProvider } from "../features/voting/admin/AdminVotingContextProvider";
+import AdminVotingDashboardView from "../features/voting/admin/AdminVotingDashboardView";
+import type { Brother, ConnectionStatus } from "../features/voting/admin/types";
+import { auth } from "../firebase";
+import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
+import { useAdminVotingSocket } from "../features/voting/admin/useAdminVotingSocket";
+import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 

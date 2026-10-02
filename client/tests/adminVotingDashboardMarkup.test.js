@@ -12,7 +12,7 @@ import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/index.tsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../src/features/voting/admin/AdminVotingDashboardView.tsx', import.meta.url));
 
 async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
@@ -48,29 +48,22 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     const dependencies = {
         react,
         'react-router-dom': { useNavigate: () => () => {} },
-        '../../components/Navbar': stub('navbar'),
-        '../../features/voting/admin/AdminVotingContext': {
+        '../features/voting/admin/AdminVotingContext': {
             useAdminVotingContext: () => ({
                 votes: [], rushee: null, question: null,
                 setVotes() {}, setRushee() {}, setQuestion() {},
             }),
         },
-        '../../features/voting/admin/AdminVotingContextProvider': {
+        '../features/voting/admin/AdminVotingContextProvider': {
             AdminVotingContextProvider: ({ children }) => children,
         },
-        '../../features/voting/admin/QuestionDisplay': stub('question'),
-        '../../features/voting/admin/RusheePreviewCard': stub('rushee'),
-        '../../features/voting/admin/RusheeComments': stub('comments'),
-        '../../features/voting/admin/VoteSummary': stub('votes'),
-        '../../features/voting/admin/BrotherList': stub('brothers'),
-        '../../features/voting/admin/AdminVotingDashboardView': ViewWithCapture,
-        '../../features/voting/admin/useAdminVotingSocket': {
+        '../features/voting/admin/AdminVotingDashboardView': ViewWithCapture,
+        '../features/voting/admin/useAdminVotingSocket': {
             useAdminVotingSocket: (props) => captured.set('socket', props),
         },
-        '../NotFound': stub('not-found'),
-        '../../firebase': { auth: {} },
-        '../../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://localhost' } },
-        '../../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
+        '../firebase': { auth: {} },
+        '../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://localhost' } },
+        '../features/auth/parseAdminAllowlist': { parseAdminAllowlist },
     };
     const source = (await readFile(pagePath, 'utf8'))
         .replace('import.meta.env.VITE_ADMIN_ALLOWLIST', '"admin@example.edu"');
