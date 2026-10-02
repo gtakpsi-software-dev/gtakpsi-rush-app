@@ -9,14 +9,11 @@ use std::env;
 const EXCLUDED_PATHS: &[&str] = &["/", "/health"];
 
 /// Middleware to validate API key from X-API-Key header
-/// 
+///
 /// This ensures only authorized clients (our frontend) can access the API.
 /// The API key should be set via the API_KEY environment variable on the server
 /// and VITE_API_KEY on the client.
-pub async fn require_api_key<B>(
-    req: Request<B>,
-    next: Next<B>,
-) -> Result<Response, StatusCode>
+pub async fn require_api_key<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode>
 where
     B: Send + 'static,
 {
