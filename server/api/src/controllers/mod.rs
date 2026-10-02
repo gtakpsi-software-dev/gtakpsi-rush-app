@@ -1,4 +1,4 @@
 pub mod admin;
-pub mod db;
+pub use crate::storage::db;
 pub mod rushee;
 pub mod voting;

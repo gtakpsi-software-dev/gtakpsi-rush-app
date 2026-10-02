@@ -6,8 +6,8 @@ use std::{
 use bson::doc;
 
 use crate::{
-    controllers::db,
     models::{misc::RushNight, rushee::Comment},
+    storage::db,
 };
 
 use crate::services::rush_time::same_day;

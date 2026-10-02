@@ -8,6 +8,7 @@ mod middlewares;
 mod models;
 mod routes;
 mod services;
+mod storage;
 
 #[cfg(all(test, feature = "integration-tests"))]
 mod integration_tests;

@@ -2,7 +2,7 @@ use std::io::Error;
 
 use bson::{doc, DateTime};
 
-use crate::controllers::db;
+use crate::storage::db;
 
 enum CapacityChange {
     Take,

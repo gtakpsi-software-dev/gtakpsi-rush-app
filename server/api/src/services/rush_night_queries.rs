@@ -2,8 +2,8 @@ use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use std::io::Error;
 
-use crate::controllers::db;
 use crate::models::misc::RushNight;
+use crate::storage::db;
 
 pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {
     let mut answer = Vec::<RushNight>::new();
