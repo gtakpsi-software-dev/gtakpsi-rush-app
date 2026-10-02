@@ -1,3 +1,23 @@
+function buildSignupPayload(form, imageUrl) {
+    return {
+        first_name: form.firstName,
+        last_name: form.lastName,
+        housing: form.housing,
+        phone_number: form.phone,
+        email: form.email,
+        gtid: form.gtid,
+        major: form.major,
+        class: form.year,
+        pronouns: form.pronouns,
+        image_url: imageUrl,
+        exposure: form.exposure,
+        pis_meeting_id: "meeting123",
+        pis_timeslot: form.selectedSlot.time,
+        pis_link: "https://example.com/pis_meeting",
+        flex_window: form.flexWindow,
+    };
+}
+
 export function createPisSubmit({
     api,
     form,
@@ -40,23 +60,7 @@ export function createPisSubmit({
             return;
         }
 
-        const payload = {
-            first_name: form.firstName,
-            last_name: form.lastName,
-            housing: form.housing,
-            phone_number: form.phone,
-            email: form.email,
-            gtid: form.gtid,
-            major: form.major,
-            class: form.year,
-            pronouns: form.pronouns,
-            image_url: imageUrl,
-            exposure: form.exposure,
-            pis_meeting_id: "meeting123",
-            pis_timeslot: form.selectedSlot.time,
-            pis_link: "https://example.com/pis_meeting",
-            flex_window: form.flexWindow,
-        };
+        const payload = buildSignupPayload(form, imageUrl);
 
         try {
             await post(`${api}/rushee/signup`, payload)
