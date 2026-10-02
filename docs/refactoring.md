@@ -116,7 +116,7 @@ The remaining cross-cutting tests mirror their source folders under
 `client/tests/api/`, `config/`, `contexts/`, and `lib/`; no test files remain
 directly in `client/tests/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
-including tests, are under 200 lines; the largest is a 193-line API Redis test.
+including tests, are under 200 lines; the largest are 188 lines.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency
 lockfiles and refactoring documentation. The size check does not judge whether
