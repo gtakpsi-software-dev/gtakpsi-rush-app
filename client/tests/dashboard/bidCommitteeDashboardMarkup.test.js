@@ -9,15 +9,15 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent } from '../helpers/loadTsxComponent.js';
 
-import { filterBidCommitteeRushees } from '../src/features/dashboard/bidCommitteeList.js';
+import { filterBidCommitteeRushees } from '../../src/features/dashboard/bidCommitteeList.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/BidCommitteeDashboard.tsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeDashboardView.tsx', import.meta.url));
-const cardPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeRusheeCard.tsx', import.meta.url));
-const filtersPath = fileURLToPath(new URL('../src/features/dashboard/BidCommitteeFilters.tsx', import.meta.url));
-const fixturePath = fileURLToPath(new URL('./fixtures/bidCommitteeDashboardMarkup.json', import.meta.url));
+const pagePath = fileURLToPath(new URL('../../src/pages/BidCommitteeDashboard.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../../src/features/dashboard/BidCommitteeDashboardView.tsx', import.meta.url));
+const cardPath = fileURLToPath(new URL('../../src/features/dashboard/BidCommitteeRusheeCard.tsx', import.meta.url));
+const filtersPath = fileURLToPath(new URL('../../src/features/dashboard/BidCommitteeFilters.tsx', import.meta.url));
+const fixturePath = fileURLToPath(new URL('../fixtures/bidCommitteeDashboardMarkup.json', import.meta.url));
 const rushee = {
     id: 'rushee-1',
     gtid: '900000001',

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadDashboardData } from "../src/features/dashboard/loadDashboardData.js";
+import { loadDashboardData } from "../../src/features/dashboard/loadDashboardData.js";
 
 function dependencies(overrides = {}) {
     const calls = [];

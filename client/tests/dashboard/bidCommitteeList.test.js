@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { filterBidCommitteeRushees } from '../src/features/dashboard/bidCommitteeList.js';
+import { filterBidCommitteeRushees } from '../../src/features/dashboard/bidCommitteeList.js';
 
 const rushees = [
     { name: 'Zoe Alpha', gtid: '900000001', major: 'Business', class: '2028', registration_order: 3 },

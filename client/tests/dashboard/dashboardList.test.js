@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { filterDashboardRushees, shuffleArray } from "../src/features/dashboard/list.js";
+import { filterDashboardRushees, shuffleArray } from "../../src/features/dashboard/list.js";
 
 const rushees = [
     { name: "Zoe Beta", major: "CS", class: "Junior", gtid: "123456789" },

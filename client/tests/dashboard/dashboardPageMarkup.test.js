@@ -9,13 +9,13 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent } from '../helpers/loadTsxComponent.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/Dashboard.tsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/features/dashboard/DashboardView.tsx', import.meta.url));
-const cardPath = fileURLToPath(new URL('../src/features/dashboard/DashboardRusheeCard.tsx', import.meta.url));
-const filtersPath = fileURLToPath(new URL('../src/features/dashboard/DashboardFilters.tsx', import.meta.url));
-const fixturePath = fileURLToPath(new URL('./fixtures/dashboardPageMarkup.json', import.meta.url));
+const pagePath = fileURLToPath(new URL('../../src/pages/Dashboard.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../../src/features/dashboard/DashboardView.tsx', import.meta.url));
+const cardPath = fileURLToPath(new URL('../../src/features/dashboard/DashboardRusheeCard.tsx', import.meta.url));
+const filtersPath = fileURLToPath(new URL('../../src/features/dashboard/DashboardFilters.tsx', import.meta.url));
+const fixturePath = fileURLToPath(new URL('../fixtures/dashboardPageMarkup.json', import.meta.url));
 const rushee = {
     id: 'rushee-1',
     gtid: '901234567',
