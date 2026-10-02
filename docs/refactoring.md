@@ -63,6 +63,9 @@ The unrendered shared Button component and its private tests were removed.
 The PIS voice recorder and transcription modules were also removed after
 confirming their only baseline UI was commented out. The PIS answer handler's
 voice-tagged update branch remains unchanged.
+The remaining 270 client JS/TS modules, including two type declarations, all
+have a static import path from `main.jsx`. This does not establish that every
+export or conditional branch is used.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
 
