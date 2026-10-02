@@ -116,9 +116,9 @@ The verified atomic slices are archived by range:
   characterized. The sorting socket already has a live role-change test as
   well as reconnect, malformed-message, and cleanup coverage.
 - Confirm which remaining manual maintenance commands are truly obsolete before
-  removing them. The one-time Night 1 attendance migration and temporary
-  historical rating repair were removed. Remaining entrypoints and side effects
-  are listed in
+  removing them. The one-time Night 1 attendance migration, temporary
+  historical rating repair, and Fall-2026 test-data cleanup were removed.
+  Remaining entrypoints and side effects are listed in
   `scripts/maintenance/README.md`; absence of app imports does not prove they
   are unused. Never validate a reset against real data.
 - Verify authenticated browser flows, later registration steps, database
@@ -190,7 +190,7 @@ require PyMongo or a database connection.
 Current verified totals: 549 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
-MongoDB integration-feature run, plus 64 maintenance-script tests. Current CSS
+MongoDB integration-feature run, plus 57 maintenance-script tests. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
 36 utility selectors that appeared only in three unrouted pages, an unused
 Button component, and a dormant recorder. No remaining client source uses those

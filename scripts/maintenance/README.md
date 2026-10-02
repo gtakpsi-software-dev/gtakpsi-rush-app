@@ -18,7 +18,6 @@ python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 | `set_admin_claim.py` | Set Firebase role claims | Updates Firebase Authentication |
 | `update_pledge_headshots.py` | Upload mapped headshots | Updates Firebase Storage and MongoDB |
 | `add_pis_question_order.py` | Replace PIS questions from `data/season_seed/` | Deletes and reinserts MongoDB questions |
-| `delete_test_data.py` | Remove listed test rushees and all database rush nights | Dry run by default; `--apply` deletes |
 | `import_rushees.py` | Replace rushees from a root JSON export | Deletes and reinserts MongoDB rushees |
 | `reset_rushees_for_new_rush.py` | Keep listed rushees and reset their season data | Deletes and updates MongoDB rushees |
 

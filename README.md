@@ -111,8 +111,6 @@ PIS questions. Its implementation lives in `scripts/maintenance/commands/`;
 the command still reads the root `.env` and
 `data/season_seed/pis_questions.json`, then performs the same delete, insert,
 and verification sequence.
-`scripts/maintenance/delete_test_data.py` retains its dry-run default,
-and `--apply` gate; its preview and deletion sequence lives in that same package.
 `scripts/maintenance/reset_rushees_for_new_rush.py` keeps its season-specific GTID
 list; the delete, reset, and report sequence lives in the same
 package.
