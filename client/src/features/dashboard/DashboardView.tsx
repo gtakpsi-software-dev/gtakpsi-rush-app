@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import Error from "../../components/Error";
 import Loader from "../../components/Loader";
 import Navbar from "../../components/Navbar";
-import PISAvailabilityModal from "../brotherPisAvailability/PISAvailabilityModal";
+import PisAvailabilityModal from "../brotherPisAvailability/PisAvailabilityModal";
 import DashboardFilters from "./DashboardFilters";
 import DashboardRusheeCard from "./DashboardRusheeCard";
 
@@ -11,7 +11,7 @@ export type DashboardCard = ComponentProps<typeof DashboardRusheeCard>["rushee"]
     id: string;
     class: string;
 };
-export type DashboardAvailabilityUser = ComponentProps<typeof PISAvailabilityModal>["user"];
+export type DashboardAvailabilityUser = ComponentProps<typeof PisAvailabilityModal>["user"];
 
 type Props = {
     status: {
@@ -38,7 +38,7 @@ export default function DashboardView({ status, availability, filters, cards }: 
     return (
         <div>
             {availability.open && availability.user && (
-                <PISAvailabilityModal user={availability.user} onSubmit={availability.onSubmit} />
+                <PisAvailabilityModal user={availability.user} onSubmit={availability.onSubmit} />
             )}
 
             {status.error ? (

@@ -4,7 +4,7 @@ type Timeslot = {
     time: { $date: { $numberLong: string } };
 };
 
-type PISAvailabilityViewProps = {
+type PisAvailabilityViewProps = {
     loading: boolean;
     timeslots: Timeslot[];
     selectedSlots: Set<string>;
@@ -16,7 +16,7 @@ type PISAvailabilityViewProps = {
     handleSubmit: () => void;
 };
 
-export default function PISAvailabilityView({
+export default function PisAvailabilityView({
     loading,
     timeslots,
     selectedSlots,
@@ -26,7 +26,7 @@ export default function PISAvailabilityView({
     clearAll,
     toggleSlot,
     handleSubmit,
-}: PISAvailabilityViewProps) {
+}: PisAvailabilityViewProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />

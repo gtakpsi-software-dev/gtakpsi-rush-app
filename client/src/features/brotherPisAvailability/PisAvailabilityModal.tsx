@@ -7,7 +7,7 @@ import {
     sortTimeslots
 } from './timeslots';
 import { submitAvailability } from './submitAvailability';
-import PISAvailabilityView from './PISAvailabilityView';
+import PisAvailabilityView from './PisAvailabilityView';
 
 type BrotherUser = {
     uid?: string;
@@ -19,7 +19,7 @@ type BrotherUser = {
     displayName?: string;
 };
 
-type PISAvailabilityModalProps = {
+type PisAvailabilityModalProps = {
     user: BrotherUser;
     onSubmit: () => void;
 };
@@ -29,7 +29,7 @@ type PISAvailabilityModalProps = {
  * Displays a blocking modal for brothers to select their available PIS timeslots.
  * Cannot be dismissed until the form is submitted.
  */
-export default function PISAvailabilityModal({ user, onSubmit }: PISAvailabilityModalProps) {
+export default function PisAvailabilityModal({ user, onSubmit }: PisAvailabilityModalProps) {
     const [timeslots, setTimeslots] = useState([]);
     const [selectedSlots, setSelectedSlots] = useState(new Set<string>());
     const [loading, setLoading] = useState(true);
@@ -87,7 +87,7 @@ export default function PISAvailabilityModal({ user, onSubmit }: PISAvailability
     const groupedSlots = groupTimeslots(timeslots);
 
     return (
-        <PISAvailabilityView
+        <PisAvailabilityView
             loading={loading}
             timeslots={timeslots}
             selectedSlots={selectedSlots}

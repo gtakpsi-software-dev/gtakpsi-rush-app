@@ -15,8 +15,8 @@ import * as timeslots from '../src/features/brotherPisAvailability/timeslots.js'
 import { submitAvailability } from '../src/features/brotherPisAvailability/submitAvailability.js';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const componentPath = fileURLToPath(new URL('../src/features/brotherPisAvailability/PISAvailabilityModal.tsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/features/brotherPisAvailability/PISAvailabilityView.tsx', import.meta.url));
+const componentPath = fileURLToPath(new URL('../src/features/brotherPisAvailability/PisAvailabilityModal.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/brotherPisAvailability/PisAvailabilityView.tsx', import.meta.url));
 const fixturePath = fileURLToPath(new URL('./fixtures/brotherPisAvailabilityModal.json', import.meta.url));
 const slot = { time: { $date: { $numberLong: String(new Date(2030, 0, 1, 13, 30).getTime()) } } };
 const slotIso = timeslots.timeslotIso(slot);
@@ -53,7 +53,7 @@ async function loadModal(states, options = {}) {
             if (specifier === 'react-toastify') return { toast: options.toast || {} };
             if (specifier === './timeslots') return timeslots;
             if (specifier === './submitAvailability') return { submitAvailability };
-            if (specifier === './PISAvailabilityView') return View;
+            if (specifier === './PisAvailabilityView') return View;
             return requireFromComponent(specifier);
         },
         console: options.console || console

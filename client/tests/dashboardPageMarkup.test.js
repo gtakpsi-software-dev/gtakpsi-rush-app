@@ -44,7 +44,7 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
         '../../components/Navbar': stub('navbar'),
         '../../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
         '../../components/Loader': stub('loader'),
-        '../brotherPisAvailability/PISAvailabilityModal': stub('availability'),
+        '../brotherPisAvailability/PisAvailabilityModal': stub('availability'),
         './DashboardRusheeCard': Card,
         './DashboardFilters': Filters
     });
