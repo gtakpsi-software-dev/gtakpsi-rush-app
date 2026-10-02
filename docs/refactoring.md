@@ -56,6 +56,9 @@ order, PIS schedule export, interview-question loading, and brother-comment
 queries. Sorting, export, and comment queries project rows as they arrive,
 preserving memory use and ordering. Other API readers retain their own
 read-error behavior.
+Interview response replacement and autosave are separate handlers under
+`controllers/rushee/interview/responses/`; they keep their existing write
+boundaries and response messages.
 
 The remaining admin, rushee-profile, and sorting page files were reviewed.
 They now assemble bounded feature hooks, actions, and views; moving their
@@ -91,7 +94,7 @@ in the page while its question form lives with the other admin PIS views.
 Frontend component and filename identifiers now use `Pis` in PascalCase.
 User-facing `PIS` text, routes, API fields, and socket events retain their
 existing spelling.
-All 738 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
+All 741 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency
