@@ -2,7 +2,7 @@ import Navbar from '../../components/Navbar';
 import QuestionDisplay from './QuestionDisplay';
 import RusheePreviewCard from './RusheePreviewCard';
 import RusheeComments from './RusheeComments';
-import VoteSummary from './VoteSummary';
+import VoteSummary from '../../features/voting/admin/VoteSummary';
 import BrotherList from './BrotherList';
 import type { ConnectionStatus } from '../../features/voting/admin/types';
 

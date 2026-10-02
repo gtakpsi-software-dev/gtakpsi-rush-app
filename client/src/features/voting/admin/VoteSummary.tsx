@@ -1,9 +1,9 @@
 import React from "react";
-import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
+import { useAdminVotingContext } from "./AdminVotingContext";
 import { FaSync } from "react-icons/fa";
-import { adminPost } from "../../features/admin/api";
+import { adminPost } from "../../admin/api";
 import { toast } from "react-toastify";
-import VotePieChart from "../../features/voting/admin/VotePieChart";
+import VotePieChart from "./VotePieChart";
 
 interface VoteSummaryProps {
   showBreakdown?: boolean;

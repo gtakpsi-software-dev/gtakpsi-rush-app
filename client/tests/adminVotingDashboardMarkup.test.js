@@ -38,7 +38,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         './QuestionDisplay': stub('question'),
         './RusheePreviewCard': stub('rushee'),
         './RusheeComments': stub('comments'),
-        './VoteSummary': stub('votes'),
+        '../../features/voting/admin/VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
     });
     const ViewWithCapture = (props) => {
@@ -61,7 +61,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         './QuestionDisplay': stub('question'),
         './RusheePreviewCard': stub('rushee'),
         './RusheeComments': stub('comments'),
-        './VoteSummary': stub('votes'),
+        '../../features/voting/admin/VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
         './AdminVotingDashboardView': ViewWithCapture,
         '../../features/voting/admin/useAdminVotingSocket': {

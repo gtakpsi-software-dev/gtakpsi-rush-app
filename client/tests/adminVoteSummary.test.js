@@ -11,27 +11,27 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 
-const summaryPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/VoteSummary.tsx', import.meta.url));
+const summaryPath = fileURLToPath(new URL('../src/features/voting/admin/VoteSummary.tsx', import.meta.url));
 const chartPath = fileURLToPath(new URL('../src/features/voting/admin/VotePieChart.tsx', import.meta.url));
 
 async function loadSummary(votes) {
     const posts = [];
     const VotePieChart = await loadTsxComponent(chartPath);
     const dependencies = {
-        '../../features/voting/admin/AdminVotingContext': {
+        './AdminVotingContext': {
             useAdminVotingContext: () => ({ votes, setVotes: () => {} }),
         },
         'react-icons/fa': {
             FaSync: () => React.createElement('span', { 'data-icon': 'sync' }),
         },
-        '../../features/admin/api': {
+        '../../admin/api': {
             adminPost: (url, payload) => {
                 posts.push({ url, payload });
                 return Promise.resolve({ status: 'success' });
             },
         },
         'react-toastify': { toast: { promise: (promise) => promise } },
-        '../../features/voting/admin/VotePieChart': VotePieChart,
+        './VotePieChart': VotePieChart,
     };
     const source = (await readFile(summaryPath, 'utf8'))
         .replaceAll('import.meta.env.VITE_API_PREFIX', '"/api"');
