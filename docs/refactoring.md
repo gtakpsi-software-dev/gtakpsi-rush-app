@@ -54,6 +54,8 @@ remaining state or props into another wrapper would obscure ownership without
 removing a distinct responsibility.
 The brother PIS slot page now keeps loading and selection behavior in the page
 and renders its feature-owned slot view separately.
+The admin Add PIS page similarly keeps authentication and request construction
+in the page while its question form lives with the other admin PIS views.
 
 ## Slice ledger
 

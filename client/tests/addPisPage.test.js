@@ -11,6 +11,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AddPIS.jsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/admin/pis/AddPisQuestionForm.tsx', import.meta.url));
 
 async function loadPage() {
     const values = [];
@@ -38,11 +39,22 @@ async function loadPage() {
     });
     const module = { exports: {} };
     const requireFromPage = createRequire(pagePath);
+    const viewSource = await readFile(viewPath, 'utf8');
+    const viewCode = await transformWithEsbuild(viewSource, viewPath, {
+        loader: 'tsx', format: 'cjs', jsx: 'automatic',
+    });
+    const viewModule = { exports: {} };
+    runInNewContext(viewCode.code, {
+        module: viewModule,
+        exports: viewModule.exports,
+        require: createRequire(viewPath),
+    }, { filename: viewPath });
     const dependencies = {
         react,
         axios,
         'react-router-dom': { useNavigate: () => () => {} },
         '../features/auth/verifyUser': { verifyUser: async () => true },
+        '../features/admin/pis/AddPisQuestionForm': viewModule.exports.default,
     };
     runInNewContext(code, {
         module,
@@ -66,6 +78,7 @@ async function loadPage() {
 function descendants(node) {
     if (Array.isArray(node)) return node.flatMap(descendants);
     if (!React.isValidElement(node)) return [];
+    if (typeof node.type === 'function') return [node, ...descendants(node.type(node.props))];
     return [node, ...descendants(node.props.children)];
 }
 
