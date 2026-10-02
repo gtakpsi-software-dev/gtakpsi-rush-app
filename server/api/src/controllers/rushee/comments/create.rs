@@ -23,7 +23,7 @@ pub async fn post_comment(
         Err(_) => return comment_error("there was some error while matching the rush night"),
     };
     let Some(active_night) =
-        crate::middlewares::rush_nights::current_rush_night(&rush_nights, bson::DateTime::now())
+        crate::services::rush_nights::current_rush_night(&rush_nights, bson::DateTime::now())
     else {
         return comment_error("no rush nights are configured");
     };

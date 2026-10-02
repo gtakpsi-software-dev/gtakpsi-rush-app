@@ -32,7 +32,7 @@ pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {
 
 pub async fn get_rush_nights_sorted() -> Result<Vec<RushNight>, Error> {
     let nights = get_rush_nights().await?;
-    Ok(crate::middlewares::rush_nights::merge_rush_nights(
+    Ok(crate::services::rush_nights::merge_rush_nights(
         &nights,
         &[],
     ))

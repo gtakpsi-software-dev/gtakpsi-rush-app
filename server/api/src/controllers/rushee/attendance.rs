@@ -24,7 +24,7 @@ pub async fn update_attendance(Path(id): Path<String>) -> Result<Json<Value>, St
 
     match fetch_rush_nights {
         Ok(rush_nights) => {
-            let active_night = crate::middlewares::rush_nights::current_rush_night(
+            let active_night = crate::services::rush_nights::current_rush_night(
                 &rush_nights,
                 bson::DateTime::now(),
             );

@@ -1,6 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::rush_nights::interactions_by_night;
 use crate::models::{misc::IncomingBrotherName, rushee::StrippedRushee};
+use crate::services::rush_nights::interactions_by_night;
 use axum::{http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;

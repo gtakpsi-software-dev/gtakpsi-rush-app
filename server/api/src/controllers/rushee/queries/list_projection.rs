@@ -1,6 +1,6 @@
-use crate::middlewares::rush_nights::interactions_by_night;
 use crate::models::misc::RushNight;
 use crate::models::rushee::{RusheeModel, StrippedRushee};
+use crate::services::rush_nights::interactions_by_night;
 
 pub(super) fn project_list_rushee(
     record: RusheeModel,
