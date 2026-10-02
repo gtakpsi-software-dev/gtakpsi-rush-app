@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { checkRushAppAccess } from "../src/features/auth/checkRushAppAccess.js";
+import { checkRushAppAccess } from "../../src/features/auth/checkRushAppAccess.js";
 
 function setup(accessData = { status: "success", allowed: true }) {
     const calls = [];

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadNavbarAuth } from "../src/features/navigation/loadNavbarAuth.js";
+import { loadNavbarAuth } from "../../src/features/navigation/loadNavbarAuth.js";
 
 function setup({ verified = true, user = { email: "ADA@EXAMPLE.ORG" }, claims = {},
     allowlist = [], failure } = {}) {

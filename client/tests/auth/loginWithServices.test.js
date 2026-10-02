@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loginWithServices } from "../src/features/auth/loginWithServices.js";
+import { loginWithServices } from "../../src/features/auth/loginWithServices.js";
 
 function services(overrides = {}) {
     const calls = [];

@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createdStoredUser, loginStoredUser } from "../src/features/auth/userSession.js";
+import { createdStoredUser, loginStoredUser } from "../../src/features/auth/userSession.js";
 import {
     accountErrorMessage,
     loginErrorMessage,
     resetErrorMessage,
-} from "../src/features/auth/errorMessages.js";
+} from "../../src/features/auth/errorMessages.js";
 
 test("login storage keeps legacy and current name fields and split behavior", () => {
     assert.deepEqual(loginStoredUser({

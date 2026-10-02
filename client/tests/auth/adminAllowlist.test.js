@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseAdminAllowlist } from "../src/features/auth/parseAdminAllowlist.js";
+import { parseAdminAllowlist } from "../../src/features/auth/parseAdminAllowlist.js";
 
 test("empty admin allowlist stays empty", () => {
     assert.deepEqual(parseAdminAllowlist(undefined), []);

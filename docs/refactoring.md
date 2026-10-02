@@ -95,9 +95,10 @@ Frontend component and filename identifiers now use `Pis` in PascalCase.
 User-facing `PIS` text, routes, API fields, and socket events retain their
 existing spelling.
 The client test tree now groups admin, viewer, and shared sorting cases under
-`client/tests/sorting/` and registration cases under
-`client/tests/registration/`. Shared test loaders and fixtures remain under
-`client/tests/helpers/` and `client/tests/fixtures/`.
+`client/tests/sorting/`, registration cases under `client/tests/registration/`,
+and account and access cases under `client/tests/auth/`. Shared test loaders
+and fixtures remain under `client/tests/helpers/` and
+`client/tests/fixtures/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,

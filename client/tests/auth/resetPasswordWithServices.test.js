@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { loadTsxModule } from "./helpers/loadTsxComponent.js";
-import { resetErrorMessage } from "../src/features/auth/errorMessages.js";
-import { resetPasswordWithServices } from "../src/features/auth/resetPasswordWithServices.js";
+import { loadTsxModule } from "../helpers/loadTsxComponent.js";
+import { resetErrorMessage } from "../../src/features/auth/errorMessages.js";
+import { resetPasswordWithServices } from "../../src/features/auth/resetPasswordWithServices.js";
 
-const accountPath = fileURLToPath(new URL("../src/features/auth/account.js", import.meta.url));
+const accountPath = fileURLToPath(new URL("../../src/features/auth/account.js", import.meta.url));
 
 function harness({ failure } = {}) {
     const calls = [];

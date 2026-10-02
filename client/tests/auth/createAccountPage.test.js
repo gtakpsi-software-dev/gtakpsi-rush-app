@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/CreateAccount.jsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/auth/CreateAccountView.tsx", import.meta.url));
-const emailFieldPath = fileURLToPath(new URL("../src/features/auth/AuthEmailField.tsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/pages/CreateAccount.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../src/features/auth/CreateAccountView.tsx", import.meta.url));
+const emailFieldPath = fileURLToPath(new URL("../../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
 async function loadPage(loading) {
     const refs = [];

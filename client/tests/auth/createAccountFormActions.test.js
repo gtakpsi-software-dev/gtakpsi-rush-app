@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createAccountFormActions } from "../src/features/auth/createAccountFormActions.js";
+import { createAccountFormActions } from "../../src/features/auth/createAccountFormActions.js";
 
 const valid = {
     firstName: "Ada", lastName: "Lovelace", email: "ada@example.edu",

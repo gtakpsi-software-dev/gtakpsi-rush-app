@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { loadTsxModule } from "./helpers/loadTsxComponent.js";
-import { logoutWithServices } from "../src/features/auth/logoutWithServices.js";
+import { loadTsxModule } from "../helpers/loadTsxComponent.js";
+import { logoutWithServices } from "../../src/features/auth/logoutWithServices.js";
 
-const accountPath = fileURLToPath(new URL("../src/features/auth/account.js", import.meta.url));
+const accountPath = fileURLToPath(new URL("../../src/features/auth/account.js", import.meta.url));
 
 function harness({ signOutError, storageError } = {}) {
     const calls = [];
