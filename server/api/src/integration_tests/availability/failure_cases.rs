@@ -60,7 +60,40 @@ pub(super) async fn check_contracts() {
         .await
         .unwrap();
 
+    check_rejected_form_send().await;
     check_rejected_submission_replacement().await;
+}
+
+async fn check_rejected_form_send() {
+    reset().await;
+    assert_eq!(
+        admin::send_pis_availability_form().await.unwrap().0["status"],
+        "success"
+    );
+
+    let collection = db::get_pis_availability_form_status_client().await;
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject the replacement insert after the previous form has been removed.
+    database
+        .run_command(doc! {
+            "collMod": "pis-availability-form-status",
+            "validator": { "is_active": false }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::send_pis_availability_form().await.unwrap().0,
+        json!({"status": "error", "message": "Failed to send form"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+    assert_eq!(
+        admin::get_pis_availability_form_status().await.unwrap().0,
+        json!({"status": "success", "is_active": false, "sent_at": null})
+    );
+    database
+        .run_command(doc! { "collMod": "pis-availability-form-status", "validator": {} })
+        .await
+        .unwrap();
 }
 
 async fn check_rejected_submission_replacement() {
