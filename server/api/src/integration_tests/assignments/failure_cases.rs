@@ -76,3 +76,31 @@ pub(super) async fn check_malformed_availability_is_skipped() {
     assert_eq!(signup.first_brother_last_name, "Lovelace");
     assert_eq!(signup.second_brother_first_name, "none");
 }
+
+pub(super) async fn check_malformed_rushee_is_skipped() {
+    reset().await;
+
+    // Decode failure in an earlier rushee must not prevent a later valid assignment.
+    let raw_rushees = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("rushees");
+    raw_rushees
+        .insert_one(doc! { "gtid": "malformed", "first_name": "Incomplete" })
+        .await
+        .unwrap();
+    register().await;
+    add_availability("Ada", "Lovelace").await;
+
+    assert_eq!(
+        admin::auto_assign_pis_brothers().await.unwrap().0,
+        json!({
+            "status": "success",
+            "message": "Assigned brothers to 1 PIS slots. 1 slots could not be fully assigned (all available brothers at that time were busy)."
+        })
+    );
+    let signup = stored_rushee().await.pis_signup;
+    assert_eq!(signup.first_brother_first_name, "Ada");
+    assert_eq!(signup.first_brother_last_name, "Lovelace");
+    assert_eq!(raw_rushees.count_documents(doc! {}).await.unwrap(), 2);
+}

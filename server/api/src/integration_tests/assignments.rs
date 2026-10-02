@@ -117,5 +117,6 @@ pub async fn check_contracts() {
         .unwrap();
     failure_cases::check_clear_failure().await;
     failure_cases::check_malformed_availability_is_skipped().await;
+    failure_cases::check_malformed_rushee_is_skipped().await;
     println!("PIS auto-assignment and clearing contracts passed");
 }
