@@ -1,7 +1,8 @@
 use super::registration_record::build_registration_record;
 use crate::controllers::db;
-use crate::middlewares::{pis, time_helpers, valid};
+use crate::middlewares::{time_helpers, valid};
 use crate::models::rushee::{IncomingRushee, RusheeModel};
+use crate::services::pis_capacity;
 use axum::{http::StatusCode, response::Json};
 use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};
@@ -29,7 +30,7 @@ pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, 
     }
 
     // INVARIANT: Reserve the PIS slot before insertion to preserve the existing capacity and failure behavior.
-    let take_timeslot_result = pis::take_pis_timeslot(pis_timeslot).await;
+    let take_timeslot_result = pis_capacity::take_pis_timeslot(pis_timeslot).await;
     if let Err(err) = take_timeslot_result {
         return Ok(Json(json!({
             "status": "error",

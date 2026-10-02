@@ -7,6 +7,7 @@ mod controllers;
 mod middlewares;
 mod models;
 mod routes;
+mod services;
 
 #[cfg(all(test, feature = "integration-tests"))]
 mod integration_tests;

@@ -1,5 +1,6 @@
 use crate::controllers::db;
-use crate::middlewares::{pis, time_helpers};
+use crate::middlewares::time_helpers;
+use crate::services::pis_capacity;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
@@ -30,7 +31,7 @@ pub async fn reschedule_pis(
     };
 
     // Release old capacity first; restore it if the replacement cannot be claimed.
-    let vacate_result = pis::vacate_pis_timeslot(old_time).await;
+    let vacate_result = pis_capacity::vacate_pis_timeslot(old_time).await;
     match vacate_result {
         Ok(_) => {}
         Err(err) => {
@@ -41,11 +42,11 @@ pub async fn reschedule_pis(
         }
     }
 
-    let take_result = pis::take_pis_timeslot(new_time).await;
+    let take_result = pis_capacity::take_pis_timeslot(new_time).await;
     match take_result {
         Ok(_) => {}
         Err(err) => {
-            let _ = pis::take_pis_timeslot(old_time).await;
+            let _ = pis_capacity::take_pis_timeslot(old_time).await;
             return Ok(Json(json!({
                 "status": "error",
                 "message": format!("Failed to take new timeslot: {}", err)
