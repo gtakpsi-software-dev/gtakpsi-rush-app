@@ -105,7 +105,8 @@ sorting cases under `client/tests/sorting/`, registration cases under
 live under `client/tests/voting/brother/`, and PIS page tests under
 `client/tests/pis/`. Brother PIS availability and appointment tests live under
 `client/tests/brother-pis/`, and shared comment tests under
-`client/tests/comments/`.
+`client/tests/comments/`. Attendance tests live under
+`client/tests/attendance/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,

@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/features/attendance/DisplayInfo.tsx", import.meta.url,
+    "../../src/features/attendance/DisplayInfo.tsx", import.meta.url,
 ));
 
 test("attendance confirmation keeps its profile and action markup", async () => {

@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const splashPath = fileURLToPath(new URL("../src/features/attendance/SplashPage.tsx", import.meta.url));
-const successPath = fileURLToPath(new URL("../src/features/attendance/SuccessPage.tsx", import.meta.url));
+const splashPath = fileURLToPath(new URL("../../src/features/attendance/SplashPage.tsx", import.meta.url));
+const successPath = fileURLToPath(new URL("../../src/features/attendance/SuccessPage.tsx", import.meta.url));
 
 async function loadSplash(state = {}, calls = []) {
     let stateIndex = 0;

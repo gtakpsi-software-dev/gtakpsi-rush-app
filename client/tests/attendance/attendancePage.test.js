@@ -8,11 +8,11 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { createAttendanceActions } from "../src/features/attendance/createAttendanceActions.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { createAttendanceActions } from "../../src/features/attendance/createAttendanceActions.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/Attendance.jsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/attendance/AttendanceView.tsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/pages/Attendance.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../src/features/attendance/AttendanceView.tsx", import.meta.url));
 
 async function loadPage({ state = {}, getResponse, postResponse, getFailure = false, postFailure = false } = {}) {
     const updates = [];
