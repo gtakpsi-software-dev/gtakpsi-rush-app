@@ -93,3 +93,16 @@ test('disconnect after joining another room removes only the latest membership',
     assert.equal(state.membershipsBySocket.has('socket-1'), false);
     assert.deepEqual(state.broadcasts.at(-1), ['pis-2', 'users-updated', []]);
 });
+
+test('disconnect clears stale membership after its room has already expired', () => {
+    const state = setup();
+    state.membershipsBySocket.set('socket-1', {
+        roomId: 'expired',
+        userInfo: { id: 'brother-1', name: 'Brother One' },
+    });
+
+    state.handlers.get('disconnect')();
+
+    assert.equal(state.membershipsBySocket.has('socket-1'), false);
+    assert.deepEqual(state.broadcasts, []);
+});
