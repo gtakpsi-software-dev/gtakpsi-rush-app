@@ -112,6 +112,7 @@ pub async fn check_contracts() {
     );
     failure_cases::check_reschedule_write_failure(successful_slot).await;
     failure_cases::check_reschedule_old_slot_write_failure(successful_slot).await;
+    failure_cases::check_reschedule_new_slot_write_failure(successful_slot).await;
     failure_cases::check_reschedule_missing_rushee_and_old_slot(successful_slot).await;
     failure_cases::check_signup_insert_failure().await;
     println!("registration, self-service privacy, and rescheduling contracts passed");
