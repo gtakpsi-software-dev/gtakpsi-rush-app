@@ -149,7 +149,9 @@ The verified atomic slices are archived by range:
   unverified.
 - Expand real-time failure coverage for protocol branches that are not yet
   characterized. The sorting socket already has a live role-change test as
-  well as reconnect, malformed-message, and cleanup coverage.
+  well as reconnect, malformed-message, and cleanup coverage. Voting socket
+  integration now covers denied Redis snapshot reads for both roles and live
+  delivery after permissions recover.
 - Confirm which remaining manual maintenance commands are truly obsolete before
   removing them. The one-time Night 1 attendance migration, temporary
   historical rating repair, Fall-2026 test-data cleanup, fixed-GTID season

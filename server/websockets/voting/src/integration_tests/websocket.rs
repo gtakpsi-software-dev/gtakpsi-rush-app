@@ -5,6 +5,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 mod duplicate_id;
 mod reconnect;
+mod snapshot_failures;
 
 #[tokio::test]
 async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
@@ -163,4 +164,5 @@ async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     later_voter.close(None).await.unwrap();
     reconnect::assert_reconnects(&server, &mut conn).await;
     duplicate_id::assert_duplicate_id_behavior(&server).await;
+    snapshot_failures::assert_failed_reads_keep_sockets_live(&server, &mut conn).await;
 }
