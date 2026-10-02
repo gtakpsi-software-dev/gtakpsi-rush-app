@@ -42,6 +42,7 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
+VITE_ADMIN_ALLOWLIST=admin@example.com,bidcom@example.com
 ```
 
 The three real-time services retain their deployment variable names:
@@ -54,13 +55,31 @@ The three real-time services retain their deployment variable names:
 
 Client code reads them through `client/src/config/realtimeBaseUrls.js`. Existing
 deployment variable names stay unchanged.
+Set `VITE_BROADCASTER_API_PREFIX` to the deployed voting WebSocket URL when
+using voting updates; that variable has no local fallback. The admin allowlist
+is comma-separated. Vite embeds every `VITE_*` value in browser code, so these
+values must not contain service-account keys or other server-only secrets.
 
 ### API (.env in /server/api)
 
 ```env
 MONGO_URL=mongodb+srv://...
 REDIS_URL=rediss://...
+API_KEY=your-client-api-key
+FIREBASE_PROJECT_ID=your-project-id
+ADMIN_ALLOWLIST_EMAILS=admin@example.com,bidcom@example.com
+FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
+RUSH_TIMEZONE=America/New_York
 ```
+
+`FIREBASE_PROJECT_ID` is required at startup. `ADMIN_ALLOWLIST_EMAILS` and
+`RUSH_TIMEZONE` are optional; the latter defaults to `America/New_York`.
+Admin role-claim operations need a backend-only Firebase service account. Set
+either `FIREBASE_SERVICE_ACCOUNT_PATH` as shown or
+`FIREBASE_SERVICE_ACCOUNT_JSON` to the credential JSON; valid inline JSON takes
+precedence. Railway supplies `PORT` automatically, while local defaults are
+3000 for the API, 4000 for voting, 4001 for sorting, and 3001 for PIS editing.
+The voting socket reads `REDIS_URL` and otherwise uses `redis://localhost:6379`.
 
 ### Setup Script (.env in root)
 
@@ -73,6 +92,10 @@ API_KEY=your-client-api-key
 FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
+
+The root `.env.example` belongs to season setup and some manual commands. The
+client and API read configuration from their own service directories or
+deployment environment.
 
 Six remaining maintenance commands use dedicated script-specific MongoDB URI
 settings, such as `DATA_PULL_MONGO_URI` for `data_pull.py`.
