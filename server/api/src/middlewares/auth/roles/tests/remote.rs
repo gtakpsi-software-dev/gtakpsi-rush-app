@@ -80,6 +80,20 @@ async fn failed_lookup_still_updates_from_an_empty_claim_map() {
 }
 
 #[tokio::test]
+async fn failed_lookup_returns_internal_for_a_direct_role_read() {
+    let server = MockServer::start(StatusCode::INTERNAL_SERVER_ERROR, json!({}), StatusCode::OK);
+    assert!(matches!(
+        server.auth().get_user_roles("brother-4").await,
+        Err(AuthError::Internal)
+    ));
+
+    let requests = server.requests().await;
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].action, "lookup");
+    assert_eq!(requests[0].body, json!({"localId": ["brother-4"]}));
+}
+
+#[tokio::test]
 async fn failed_update_returns_internal_after_a_successful_lookup() {
     let server = MockServer::start(
         StatusCode::OK,
