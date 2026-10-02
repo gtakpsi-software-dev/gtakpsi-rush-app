@@ -118,6 +118,7 @@ cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 scripts/testing/api-integration.sh
 python3 scripts/testing/voting-integration.py
+RUSH_TEST_CROSS_STORE=1 python3 scripts/testing/voting-integration.py
 python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 ```
 
@@ -130,6 +131,8 @@ requirements and remaining coverage.
 The voting integration command requires `redis-server` and `redis-cli`. It starts
 a separate local Redis instance, checks its run marker, and stops that instance
 after the voting WebSocket and API voting tests.
+The optional cross-store mode also requires Docker. It runs the selected-rushee
+MongoDB and Redis contract against fresh, marked instances; CI enables this mode.
 
 [Regression checks](.github/workflows/regression.yml) run these suites, Rust
 format and strict Clippy checks, scoped client lint, typecheck, and build on

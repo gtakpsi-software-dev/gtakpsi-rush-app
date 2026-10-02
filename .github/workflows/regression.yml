@@ -65,7 +65,7 @@ jobs:
       - run: rustup toolchain install 1.88.0 --component clippy
       - run: cargo +1.88.0 clippy --locked --manifest-path server/websockets/voting/Cargo.toml --all-targets -- -D warnings
       - run: sudo apt-get update && sudo apt-get install -y redis-server
-      - run: python3 scripts/testing/voting-integration.py
+      - run: RUSH_TEST_CROSS_STORE=1 python3 scripts/testing/voting-integration.py
 
   maintenance:
     runs-on: ubuntu-24.04

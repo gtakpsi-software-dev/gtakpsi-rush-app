@@ -74,11 +74,19 @@ def main():
             )
             if voting_status:
                 return voting_status
-            return subprocess.call(
+            api_status = subprocess.call(
                 ["cargo", "test", "--locked", "--manifest-path", str(ROOT / "server/api/Cargo.toml"),
                  "--features", "redis-integration-tests", "voting_redis_contracts", "--", "--nocapture"],
                 cwd=ROOT,
                 env=env,
+            )
+            if api_status or os.getenv("RUSH_TEST_CROSS_STORE") != "1":
+                return api_status
+            # The earlier Redis test restores its ACL before MongoDB joins this run.
+            return subprocess.call(
+                ["bash", str(ROOT / "scripts/testing/api-integration.sh")],
+                cwd=ROOT,
+                env={**env, "RUSH_TEST_CROSS_STORE": "1"},
             )
         finally:
             server.terminate()

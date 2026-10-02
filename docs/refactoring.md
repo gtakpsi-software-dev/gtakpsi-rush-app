@@ -220,6 +220,11 @@ fixture resets unless the newly created container's marker is present.
 Run `python3 scripts/testing/voting-integration.py` for voting WebSocket and
 API Redis contracts. It launches a disposable loopback Redis server; the API
 test checks that server's run marker before clearing any voting keys.
+Set `RUSH_TEST_CROSS_STORE=1` for an additional selected-rushee contract that
+starts a marked disposable MongoDB container while Redis is running. It checks
+the stored JSON, published payload, and the existing internal-error response
+from `get_rushee` after `change_rushee` stores a bare rushee. The normal
+commands keep their original test scope; regression CI enables combined mode.
 
 Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not

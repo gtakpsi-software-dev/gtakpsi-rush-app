@@ -6,9 +6,12 @@ run_id="rush-api-test-$$-${RANDOM}"
 container_id=""
 
 cleanup() {
+    local status=$?
+    # Keep the test result even when container cleanup succeeds or fails.
     if [[ -n "$container_id" ]]; then
-        docker rm --force "$container_id" >/dev/null
+        docker rm --force "$container_id" >/dev/null || true
     fi
+    exit "$status"
 }
 trap cleanup EXIT
 
@@ -42,5 +45,11 @@ export RUSH_TEST_RUN_ID="$run_id"
 export RUSH_TIMEZONE=America/New_York
 export API_KEY=rush-integration-test-key
 
-cargo test --locked --manifest-path "$repo_root/server/api/Cargo.toml" \
-    --features integration-tests -- --nocapture
+if [[ ${RUSH_TEST_CROSS_STORE:-} == 1 ]]; then
+    # The separate Redis contract changes ACLs, so run this shared-store test alone.
+    cargo test --locked --manifest-path "$repo_root/server/api/Cargo.toml" \
+        --features integration-tests,redis-integration-tests database_contracts -- --nocapture
+else
+    cargo test --locked --manifest-path "$repo_root/server/api/Cargo.toml" \
+        --features integration-tests -- --nocapture
+fi

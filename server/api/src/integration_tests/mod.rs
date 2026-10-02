@@ -57,4 +57,8 @@ async fn database_contracts() {
     rush_nights::check_contracts().await;
     exports::check_contracts().await;
     voting::check_missing_rushee_contracts().await;
+    #[cfg(feature = "redis-integration-tests")]
+    if env::var("RUSH_TEST_CROSS_STORE").ok().as_deref() == Some("1") {
+        voting::check_selected_rushee_contract().await;
+    }
 }
