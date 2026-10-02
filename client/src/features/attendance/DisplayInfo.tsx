@@ -1,9 +1,3 @@
-/**
- * Attendance Confirmation Summary:
- * - Types the profile and callbacks consumed by the confirmation view.
- * - Removes an unused import and descriptive comments without changing markup.
- * - An SSR fixture pins the original rendered output.
- */
 type AttendanceRushee = {
     image_url: string;
     first_name: string;

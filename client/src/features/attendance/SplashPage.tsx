@@ -3,11 +3,6 @@ import type { ChangeEvent } from "react";
 import { verifyGTID } from "../registration/registrationVerification";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Attendance Splash Summary:
- * - Types the GTID input and submit callbacks without changing validation.
- * - Preserves the existing button-disabled value and rendered form states.
- */
 type Props = {
     setGtid: (gtid: string) => void;
     func: () => void;
@@ -27,7 +22,7 @@ export default function SplashPage(props: Props) {
         if (e.target.value.trim() === "" || !verifyGTID(e.target.value.trim())) {
             setError("Invalid GTID");
         } else {
-            setError(""); // Clear the error if input is valid
+            setError("");
         }
         console.log(error)
     };

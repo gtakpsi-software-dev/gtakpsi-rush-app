@@ -1,9 +1,4 @@
 
-/**
- * Attendance Success Summary:
- * - Types the optional Back action used by the check-in page.
- * - Keeps the confirmation message and button placement unchanged.
- */
 type Props = { goBack?: () => void };
 
 export default function SuccessPage(props: Props) {
