@@ -1,7 +1,6 @@
 use crate::services::pis_timeslot_sort::sort_available_timeslots;
-use crate::storage::db;
+use crate::storage::{cursor_rows::for_each_strict_row, db};
 use axum::{http::StatusCode, response::Json};
-use futures::stream::StreamExt;
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
@@ -25,25 +24,22 @@ pub async fn get_available_timeslots() -> Result<Json<Value>, StatusCode> {
         .await;
 
     match result {
-        Ok(mut cursor) => {
+        Ok(cursor) => {
             let mut available_timeslots = Vec::<serde_json::Value>::new();
 
-            while let Some(timeslot) = cursor.next().await {
-                match timeslot {
-                    Ok(doc) => {
-                        available_timeslots.push(json!({
-                            "time": doc.time,
-                            "capacity": doc.num_available
-                        }));
-                    }
-                    Err(err) => {
-                        eprintln!("Error reading timeslot: {err:?}");
-                        return Ok(Json(json!({
-                            "status": "error",
-                            "message": "Error reading timeslot data"
-                        })));
-                    }
-                }
+            if let Err(err) = for_each_strict_row(cursor, |doc| {
+                available_timeslots.push(json!({
+                    "time": doc.time,
+                    "capacity": doc.num_available
+                }));
+            })
+            .await
+            {
+                eprintln!("Error reading timeslot: {err:?}");
+                return Ok(Json(json!({
+                    "status": "error",
+                    "message": "Error reading timeslot data"
+                })));
             }
 
             sort_available_timeslots(&mut available_timeslots);
