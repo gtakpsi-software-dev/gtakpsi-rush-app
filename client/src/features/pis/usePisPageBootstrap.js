@@ -5,12 +5,6 @@ import { verifyUser } from '../auth/verifyUser';
 import { auth } from '../../firebase';
 import { loadPisPageData } from './loadPisPageData';
 
-/**
- * PIS Bootstrap Summary:
- * - Keeps the initial authorization and data request outside the page view.
- * - Preserves the loading gate, request inputs, and original effect dependencies.
- * - Assumes collaborator identity changes must not restart the initial fetch.
- */
 export function usePisPageBootstrap({
     loading,
     navigate,

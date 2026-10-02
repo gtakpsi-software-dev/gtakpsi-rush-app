@@ -3,12 +3,6 @@ import { useEffect } from 'react';
 import { useCollaboration } from './useCollaboration';
 import { applyDocumentState, applyRemoteUpdates } from './collaborationState';
 
-/**
- * PIS Collaboration Summary:
- * - Groups the interview room connection and its state-sync effects.
- * - Preserves the existing effect order and connection-only document request.
- * - Keeps collaborator updates from restarting the document request.
- */
 export function usePisCollaborationState({
     gtid,
     currentUser,

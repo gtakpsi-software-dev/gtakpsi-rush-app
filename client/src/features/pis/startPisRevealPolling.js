@@ -13,6 +13,7 @@ export function startPisRevealPolling({
     clearScheduledInterval,
 }) {
     const tick = () => {
+        // The response adapter normalizes revealAt to a Date before polling starts.
         const secondsLeft = Math.max(0, Math.round((revealAt.getTime() - now()) / 1000));
 
         if (secondsLeft <= 0) {

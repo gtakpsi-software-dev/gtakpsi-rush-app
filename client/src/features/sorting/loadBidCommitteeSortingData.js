@@ -1,10 +1,5 @@
 import { groupSortingRows } from "./board.js";
 
-/**
- * Bid Committee Sorting Summary:
- * - Separates the existing access and fetch sequence from page rendering.
- * - Retains forced claim refresh, claim/allowlist access, and final state order.
- */
 export async function loadBidCommitteeSortingData({
     auth, navigate, allowlist, apiBase, getSorting,
     setColumns, setLoading, setAuthChecked, showError,

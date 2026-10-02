@@ -1,8 +1,3 @@
-/**
- * PIS Dashboard Load Summary:
- * - Moves the existing verification and PIS request sequence out of the page.
- * - Retains navigation, error classification, logging, and state-update order.
- */
 export async function loadPisDashboardData({
     verifyUser, navigate, user, api, post, setRushees,
     setLoading, setErrorDescription, setError, log,

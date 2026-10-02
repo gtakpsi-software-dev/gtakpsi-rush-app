@@ -1,9 +1,3 @@
-/**
- * Voting Socket Summary:
- * - Shares connection and retry handling across admin and voter pages.
- * - Keeps role-specific paths and vote handling; existing retry delays are retained.
- * - Relies on the page-owned refs and React setters staying stable across renders.
- */
 import { useCallback, useEffect } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 

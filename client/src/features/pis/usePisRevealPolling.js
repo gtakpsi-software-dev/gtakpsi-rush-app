@@ -3,12 +3,6 @@ import axios from 'axios';
 
 import { startPisRevealPolling } from './startPisRevealPolling';
 
-/**
- * PIS Reveal Polling Summary:
- * - Keeps the timed reveal gate and one-second polling service outside the page.
- * - Preserves the original effect dependencies and timer cleanup.
- * - Assumes revealAt remains a Date when the pending state is active.
- */
 export function usePisRevealPolling({
     loading,
     questionsAvailable,

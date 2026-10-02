@@ -10,11 +10,6 @@ interface Props {
     midtermMode?: boolean;
 }
 
-/**
- * Question Banner Summary:
- * - Registers the vote reset effect on every render to keep hook order stable.
- * - Keeps the missing-user gate, vote flow, and both layouts unchanged.
- */
 export default function QuestionBanner({ midtermMode = false }: Props) {
     const { question } = useBrotherVotingContext();
     const [hasVoted, setHasVoted] = useState(false);

@@ -1,10 +1,5 @@
 import { groupSortingRows } from "./board.js";
 
-/**
- * Brother Sorting Summary:
- * - Separates the existing viewer fetch from board rendering.
- * - Retains the current-user gate, request URL, and loading completion order.
- */
 export async function loadBrotherSortingData({
     auth, navigate, apiBase, getSorting, setColumns, setLoading, showError,
 }) {

@@ -6,12 +6,6 @@ import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../../
 import { verifyUser } from "../../auth/verifyUser";
 import { loadRusheeZoom } from "./loadRusheeZoom";
 
-/**
- * Rushee Zoom Access Summary:
- * - Keeps access defaults and the profile fetch in one lifecycle owner.
- * - Restricts comments until the server's access settings finish loading.
- * - Preserves the original visibility and fetch conditions.
- */
 export default function useRusheeZoomAccess({
     loading,
     navigate,
