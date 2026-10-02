@@ -10,7 +10,7 @@ const TAGS: { [key: string]: { label: string; color: string } } = {
     hard_no: { label: "Hard No", color: "bg-red-100 text-red-600 border-red-200" },
 };
 
-export default function RusheeBidCommNotes() {
+export default function RusheeBidCommitteeNotes() {
     const { rushee } = useBrotherVotingContext();
 
     if (!rushee) {
@@ -34,7 +34,6 @@ export default function RusheeBidCommNotes() {
 
     return (
         <div className="space-y-5">
-            {/* Tags */}
             {hasTags && (
                 <div className="space-y-3">
                     <p className="text-base text-apple-gray-600 font-semibold uppercase tracking-wide">
@@ -57,7 +56,6 @@ export default function RusheeBidCommNotes() {
                 </div>
             )}
 
-            {/* Notes */}
             {hasNotes && (
                 <div className="space-y-3">
                     <p className="text-base text-apple-gray-600 font-semibold uppercase tracking-wide">

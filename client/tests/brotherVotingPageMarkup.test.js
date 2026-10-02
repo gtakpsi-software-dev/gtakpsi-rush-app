@@ -47,7 +47,7 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         '../features/voting/brother/RusheeComments': stub('comments'),
         '../features/voting/brother/RusheePISInfo': stub('pis'),
         '../features/voting/brother/RusheeScores': stub('scores'),
-        '../features/voting/brother/RusheeBidCommNotes': stub('notes'),
+        '../features/voting/brother/RusheeBidCommitteeNotes': stub('notes'),
         '../features/voting/brother/VotingPanel': VotingPanel,
         '../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
         '../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },

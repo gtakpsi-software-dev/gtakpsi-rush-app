@@ -8,7 +8,7 @@ import RusheePreviewCard from "../features/voting/brother/RusheePreviewCard";
 import RusheeComments from "../features/voting/brother/RusheeComments";
 import RusheePISInfo from "../features/voting/brother/RusheePISInfo";
 import RusheeScores from "../features/voting/brother/RusheeScores";
-import RusheeBidCommNotes from "../features/voting/brother/RusheeBidCommNotes";
+import RusheeBidCommitteeNotes from "../features/voting/brother/RusheeBidCommitteeNotes";
 import VotingPanel from "../features/voting/brother/VotingPanel";
 import { Brother, ConnectionStatus } from "../features/voting/brother/types";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
@@ -121,7 +121,7 @@ function Content() {
             </VotingPanel>
             
             <VotingPanel title="Bid Committee Notes">
-              <RusheeBidCommNotes />
+              <RusheeBidCommitteeNotes />
             </VotingPanel>
             
             <VotingPanel title="Comments">
