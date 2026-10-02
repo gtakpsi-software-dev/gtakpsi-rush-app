@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
-import { shouldShowAllComments } from "../src/features/comments/commentVisibility.js";
+import { shouldShowAllComments } from "../../src/features/comments/commentVisibility.js";
 
-const hookPath = fileURLToPath(new URL("../src/features/comments/useCommentVisibility.js", import.meta.url));
+const hookPath = fileURLToPath(new URL("../../src/features/comments/useCommentVisibility.js", import.meta.url));
 
 async function loadHook({ status, user, requestError } = {}) {
     const source = (await readFile(hookPath, "utf8"))

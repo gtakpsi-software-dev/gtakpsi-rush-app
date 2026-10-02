@@ -10,11 +10,11 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { formatRatingValue } from "../src/features/comments/ratingDisplay.js";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { formatRatingValue } from "../../src/features/comments/ratingDisplay.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/Comments.jsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/comments/CommentsView.tsx", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/pages/Comments.jsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../src/features/comments/CommentsView.tsx", import.meta.url));
 const requireFromPage = createRequire(pagePath);
 const entry = {
     rushee: { image_url: "/ada.jpg", first_name: "Ada", last_name: "Example", gtid: "123" },
