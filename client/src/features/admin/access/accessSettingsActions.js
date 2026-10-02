@@ -10,6 +10,37 @@ export function createAccessSettingsActions({
     toast,
     auth,
 }) {
+    async function submitSetting({
+        endpoint, payload, onSuccess, successMessage, fallbackMessage, errorMessage, setLoading,
+    }) {
+        try {
+            const response = await axios.post(endpoint(), payload);
+            if (response.data.status === "success") {
+                onSuccess();
+                toast.success(successMessage(), {
+                    position: "top-center",
+                    autoClose: 2000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || fallbackMessage, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch {
+            // State setters and toast callbacks retain the same caught error path as the request.
+            toast.error(errorMessage, {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }
+
     // The update endpoint replaces all rush-app flags, so preserve the other settings on each toggle.
     const handleToggleRushAppAccess = async (field, newValue) => {
         setRushAppLoading(true);
@@ -20,36 +51,23 @@ export function createAccessSettingsActions({
             midterm_mode: Boolean(rushAppStatus.midterm_mode),
         };
 
-        try {
-            const response = await axios.post(`${apiBase}/rush-app/update`, newStatus);
-            if (response.data.status === "success") {
+        await submitSetting({
+            endpoint: () => `${apiBase}/rush-app/update`,
+            payload: newStatus,
+            onSuccess: () => {
                 setRushAppStatus({
                     ...newStatus,
                     updated_by: auth.currentUser?.email || "admin"
                 });
-
+            },
+            successMessage: () => {
                 const targetText = field === 'disable_bidcom' ? 'Bid Committee' : 'Regular Brothers';
-                toast.success(`${targetText} access ${newValue ? 'disabled' : 'enabled'}`, {
-                    position: "top-center",
-                    autoClose: 2000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to update settings", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch {
-            toast.error("Failed to update Rush App settings", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setRushAppLoading(false);
-        }
+                return `${targetText} access ${newValue ? 'disabled' : 'enabled'}`;
+            },
+            fallbackMessage: "Failed to update settings",
+            errorMessage: "Failed to update Rush App settings",
+            setLoading: setRushAppLoading,
+        });
     };
 
     const handleToggleMidtermMode = async (newValue) => {
@@ -61,73 +79,41 @@ export function createAccessSettingsActions({
             midterm_mode: Boolean(newValue),
         };
 
-        try {
-            const response = await axios.post(`${apiBase}/rush-app/update`, newStatus);
-            if (response.data.status === "success") {
+        await submitSetting({
+            endpoint: () => `${apiBase}/rush-app/update`,
+            payload: newStatus,
+            onSuccess: () => {
                 setRushAppStatus({
                     ...newStatus,
                     updated_by: auth.currentUser?.email || "admin"
                 });
-                toast.success(`Midterm Mode ${newValue ? 'enabled' : 'disabled'}`, {
-                    position: "top-center",
-                    autoClose: 2000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to update Midterm Mode", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch {
-            toast.error("Failed to update Midterm Mode", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setMidtermLoading(false);
-        }
+            },
+            successMessage: () => `Midterm Mode ${newValue ? 'enabled' : 'disabled'}`,
+            fallbackMessage: "Failed to update Midterm Mode",
+            errorMessage: "Failed to update Midterm Mode",
+            setLoading: setMidtermLoading,
+        });
     };
 
     const handleToggleCommentVisibility = async (newValue) => {
         setCommentVisibilityLoading(true);
 
-        try {
-            const response = await axios.post(`${apiBase}/comment-visibility/update`, {
-                require_comment_to_view: newValue
-            });
-            if (response.data.status === "success") {
+        await submitSetting({
+            endpoint: () => `${apiBase}/comment-visibility/update`,
+            payload: { require_comment_to_view: newValue },
+            onSuccess: () => {
                 setCommentVisibilityStatus({
                     require_comment_to_view: newValue,
                     updated_by: auth.currentUser?.email || "admin"
                 });
-
-                toast.success(newValue
-                    ? 'Comment viewing restricted — brothers only see their own comments'
-                    : 'Comment viewing open — all brothers can read every comment',
-                {
-                    position: "top-center",
-                    autoClose: 2000,
-                    theme: "dark",
-                });
-            } else {
-                toast.error(response.data.message || "Failed to update settings", {
-                    position: "top-center",
-                    autoClose: 3000,
-                    theme: "dark",
-                });
-            }
-        } catch {
-            toast.error("Failed to update comment visibility settings", {
-                position: "top-center",
-                autoClose: 3000,
-                theme: "dark",
-            });
-        } finally {
-            setCommentVisibilityLoading(false);
-        }
+            },
+            successMessage: () => newValue
+                ? 'Comment viewing restricted — brothers only see their own comments'
+                : 'Comment viewing open — all brothers can read every comment',
+            fallbackMessage: "Failed to update settings",
+            errorMessage: "Failed to update comment visibility settings",
+            setLoading: setCommentVisibilityLoading,
+        });
     };
 
     return {
