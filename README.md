@@ -136,6 +136,9 @@ npm --prefix server/websockets/pis test
 cargo fmt --manifest-path server/api/Cargo.toml -- --check
 cargo fmt --manifest-path server/websockets/sorting/Cargo.toml -- --check
 cargo fmt --manifest-path server/websockets/voting/Cargo.toml -- --check
+cargo +1.88.0 clippy --locked --manifest-path server/api/Cargo.toml --all-targets -- -D warnings
+cargo +1.88.0 clippy --locked --manifest-path server/websockets/sorting/Cargo.toml --all-targets -- -D warnings
+cargo +1.88.0 clippy --locked --manifest-path server/websockets/voting/Cargo.toml --all-targets -- -D warnings
 cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
 scripts/testing/api-integration.sh
@@ -154,8 +157,9 @@ a separate local Redis instance, checks its run marker, and stops that instance
 after the voting WebSocket and API voting tests.
 
 [Regression checks](.github/workflows/regression.yml) run these suites, Rust
-format checks, scoped client lint, typecheck, and build on pushes and pull requests. Scoped lint checks
-all client files except `Attendance.jsx` and rejects any warnings.
+format and strict Clippy checks, scoped client lint, typecheck, and build on
+pushes and pull requests. Scoped lint checks all client files except
+`Attendance.jsx` and rejects any warnings.
 Repository-wide lint remains tracked separately in
 [the refactoring ledger](docs/refactoring.md#slice-ledger) because Attendance has eight
 existing undefined-setter errors. All six jobs passed on remote commit
