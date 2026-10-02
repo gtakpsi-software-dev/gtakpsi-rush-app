@@ -29,9 +29,10 @@ class FakeCursor:
 
 
 class FakeCollection:
-    def __init__(self, events):
+    def __init__(self, events, fail_at=None):
         self.events = events
         self.inserted = []
+        self.fail_at = fail_at
 
     def count_documents(self, query):
         self.events.append(("count", query))
@@ -42,6 +43,9 @@ class FakeCollection:
         return types.SimpleNamespace(deleted_count=2)
 
     def insert_one(self, question):
+        if len(self.inserted) == self.fail_at:
+            self.events.append(("insert_failed", question))
+            raise RuntimeError("insert rejected")
         self.events.append(("insert", question))
         self.inserted.append(question)
 
@@ -66,9 +70,9 @@ class FakeClient:
         self.events.append(("close",))
 
 
-def run_script(execute=True, mongo_uri="mongodb://offline-test"):
-    events = []
-    collection = FakeCollection(events)
+def run_script(execute=True, mongo_uri="mongodb://offline-test", fail_at=None, events=None):
+    events = [] if events is None else events
+    collection = FakeCollection(events, fail_at=fail_at)
     client = FakeClient(events, collection)
     pymongo = types.ModuleType("pymongo")
     pymongo.MongoClient = lambda uri: events.append(("connect", uri)) or client
@@ -128,6 +132,18 @@ class AddPisQuestionOrderTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as failure:
             run_script(mongo_uri=None)
         self.assertEqual(failure.exception.code, 1)
+
+    def test_failed_second_insert_keeps_the_first_after_deletion(self):
+        events = []
+        with self.assertRaisesRegex(RuntimeError, "insert rejected"):
+            run_script(fail_at=1, events=events)
+
+        self.assertEqual(events[-3:], [
+            ("delete", {}),
+            ("insert", QUESTIONS[0]),
+            ("insert_failed", QUESTIONS[1]),
+        ])
+        self.assertNotIn(("close",), events)
 
 
 if __name__ == "__main__":
