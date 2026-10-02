@@ -1,10 +1,3 @@
-"""Closed Night Report Summary:
-
-Keep the projection, first-match attendance rule, and status grouping together.
-The original entrypoint still resolves its own read-only MongoDB collection.
-"""
-
-
 def print_closed_night_report(rushee_collection):
     print("=" * 60)
     print("Closed Night Attendance")

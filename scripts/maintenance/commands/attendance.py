@@ -1,9 +1,3 @@
-"""Attendance Command Summary:
-
-Keep the lookup, duplicate gate, database update, and CLI messages together.
-The entrypoint still owns connection setup and its original command path.
-"""
-
 import sys
 
 

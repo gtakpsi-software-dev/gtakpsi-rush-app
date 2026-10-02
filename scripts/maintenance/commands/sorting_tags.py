@@ -1,9 +1,3 @@
-"""Sorting Tag Command Summary:
-
-Keep rushee lookup, duplicate prevention, and the full-array tag update together.
-The original entrypoint still validates allowed tags and owns MongoDB setup.
-"""
-
 import sys
 
 
