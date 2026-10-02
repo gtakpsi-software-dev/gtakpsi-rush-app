@@ -60,6 +60,9 @@ The unrouted face-attendance page and its private camera and submission modules
 were also removed. The active registration and rushee photo flows still use
 `lib/imageProcessing.js` and `react-webcam`.
 The unrendered shared Button component and its private tests were removed.
+The PIS voice recorder and transcription modules were also removed after
+confirming their only baseline UI was commented out. The PIS answer handler's
+voice-tagged update branch remains unchanged.
 The admin Add PIS page similarly keeps authentication and request construction
 in the page while its question form lives with the other admin PIS views.
 
@@ -149,14 +152,14 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 569 client tests, 87 server unit tests, 31 collaboration
+Current verified totals: 553 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
 MongoDB integration-feature run, plus 64 maintenance-script tests. Current CSS
 omits the unused `hover:bg-blue-600` rule from removed commented-out JSX and
-29 utility selectors that appeared only in three unrouted pages and an unused
-Button component. No remaining client source uses those exact class names. The
-JavaScript bundle
+36 utility selectors that appeared only in three unrouted pages, an unused
+Button component, and a dormant recorder. No remaining client source uses those
+exact class names. The JavaScript bundle
 changes when logic is refactored, so its hash alone cannot establish parity;
 the targeted behavior tests cover those paths. Authenticated browser flows, later
 registration steps, and end-to-end database flows are still pending; the
