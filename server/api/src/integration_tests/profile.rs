@@ -5,6 +5,8 @@ use serde_json::json;
 use super::fixtures::*;
 use crate::{controllers::rushee, models::misc::RushNight, storage::db};
 
+mod failure_cases;
+
 pub async fn check_contracts() {
     reset().await;
     register().await;
@@ -116,6 +118,7 @@ pub async fn check_contracts() {
             "message": "Rushee with GTID missing-rushee does not exist"
         })
     );
+    failure_cases::check_attendance_write_failure().await;
     println!(
         "attendance, profile edits, partial-write ordering, and rushee lookup contracts passed"
     );
