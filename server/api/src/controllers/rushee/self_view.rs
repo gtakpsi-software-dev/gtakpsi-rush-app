@@ -1,5 +1,5 @@
-use crate::controllers::db;
 use crate::models::rushee::RusheeSelfView;
+use crate::storage::db;
 use axum::extract::{Path, Query};
 use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;

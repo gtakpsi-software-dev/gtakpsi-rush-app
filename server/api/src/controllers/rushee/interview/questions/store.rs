@@ -2,9 +2,9 @@ use futures::stream::StreamExt;
 use mongodb::bson::{doc, to_bson};
 use mongodb::Collection;
 
-use crate::controllers::db;
 use crate::models::pis::PISQuestion;
 use crate::models::rushee::RusheeModel;
+use crate::storage::db;
 
 pub(super) async fn load_questions() -> Result<Vec<PISQuestion>, &'static str> {
     let connection = db::get_pis_questions_client().await;

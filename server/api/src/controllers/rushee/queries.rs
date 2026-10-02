@@ -1,7 +1,7 @@
-use crate::controllers::db;
 use crate::models::rushee::{RusheeModel, StrippedRushee};
 use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;

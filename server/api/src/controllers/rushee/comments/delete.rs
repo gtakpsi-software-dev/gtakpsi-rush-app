@@ -1,6 +1,6 @@
 use super::deletion_plan::{rating_recalculations_after_deletion, rating_update_for_deletion};
-use crate::controllers::db;
 use crate::models::rushee::Comment;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};

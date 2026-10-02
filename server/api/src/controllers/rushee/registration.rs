@@ -1,9 +1,9 @@
 use super::registration_record::build_registration_record;
-use crate::controllers::db;
 use crate::models::rushee::{IncomingRushee, RusheeModel};
 use crate::services::pis_capacity;
 use crate::services::rush_time;
 use crate::services::validation;
+use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
 use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};

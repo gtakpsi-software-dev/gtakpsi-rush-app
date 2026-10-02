@@ -1,6 +1,6 @@
-use crate::controllers::db;
 use crate::models::rushee::RusheeEdit;
 use crate::services::validation;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};

@@ -1,4 +1,4 @@
-use crate::controllers::db;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use futures::stream::StreamExt;
 use mongodb::bson::doc;

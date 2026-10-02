@@ -1,5 +1,5 @@
-use crate::controllers::db;
 use crate::models::rushee::Comment;
+use crate::storage::db;
 use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
