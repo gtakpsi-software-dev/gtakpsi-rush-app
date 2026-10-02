@@ -13,7 +13,7 @@ import { loadTsxComponent } from './helpers/loadTsxComponent.js';
 import { parseAdminAllowlist } from '../src/features/auth/parseAdminAllowlist.js';
 
 const pagePath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/index.tsx', import.meta.url));
-const viewPath = fileURLToPath(new URL('../src/pages/AdminVotingDashboard/AdminVotingDashboardView.tsx', import.meta.url));
+const viewPath = fileURLToPath(new URL('../src/features/voting/admin/AdminVotingDashboardView.tsx', import.meta.url));
 
 async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     const captured = new Map();
@@ -34,12 +34,12 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         useCallback: (callback) => callback,
     };
     const View = await loadTsxComponent(viewPath, {
-        '../../components/Navbar': stub('navbar'),
-        '../../features/voting/admin/QuestionDisplay': stub('question'),
-        '../../features/voting/admin/RusheePreviewCard': stub('rushee'),
-        '../../features/voting/admin/RusheeComments': stub('comments'),
-        '../../features/voting/admin/VoteSummary': stub('votes'),
-        '../../features/voting/admin/BrotherList': stub('brothers'),
+        '../../../components/Navbar': stub('navbar'),
+        './QuestionDisplay': stub('question'),
+        './RusheePreviewCard': stub('rushee'),
+        './RusheeComments': stub('comments'),
+        './VoteSummary': stub('votes'),
+        './BrotherList': stub('brothers'),
     });
     const ViewWithCapture = (props) => {
         captured.set('view', props);
@@ -63,7 +63,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         '../../features/voting/admin/RusheeComments': stub('comments'),
         '../../features/voting/admin/VoteSummary': stub('votes'),
         '../../features/voting/admin/BrotherList': stub('brothers'),
-        './AdminVotingDashboardView': ViewWithCapture,
+        '../../features/voting/admin/AdminVotingDashboardView': ViewWithCapture,
         '../../features/voting/admin/useAdminVotingSocket': {
             useAdminVotingSocket: (props) => captured.set('socket', props),
         },

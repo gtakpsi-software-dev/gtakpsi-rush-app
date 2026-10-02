@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminVotingContext } from "../../features/voting/admin/AdminVotingContext";
 import { AdminVotingContextProvider } from "../../features/voting/admin/AdminVotingContextProvider";
-import AdminVotingDashboardView from "./AdminVotingDashboardView";
+import AdminVotingDashboardView from "../../features/voting/admin/AdminVotingDashboardView";
 import type { Brother, ConnectionStatus } from "../../features/voting/admin/types";
 import { auth } from "../../firebase";
 import { realtimeBaseUrls } from "../../config/realtimeBaseUrls";
