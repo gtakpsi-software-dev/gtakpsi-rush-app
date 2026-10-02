@@ -7,19 +7,19 @@ use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
 mod admin;
-mod bidcom;
+mod bid_committee;
 mod brother;
 mod public;
 
 pub fn create_router(firebase_auth: Arc<FirebaseAuth>) -> Router {
     let public_routes = public::routes();
     let brother_routes = brother::routes(firebase_auth.clone());
-    let bidcom_routes = bidcom::routes(firebase_auth.clone());
+    let bid_committee_routes = bid_committee::routes(firebase_auth.clone());
     let admin_routes = admin::routes(firebase_auth);
 
     public_routes
         .merge(brother_routes)
-        .merge(bidcom_routes)
+        .merge(bid_committee_routes)
         .merge(admin_routes)
         // Keep CORS outermost so browser preflight bypasses API-key and role gates.
         .layer(middleware::from_fn(middlewares::api_key::require_api_key))
