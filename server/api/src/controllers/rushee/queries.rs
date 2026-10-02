@@ -11,7 +11,7 @@ mod list_projection;
 use list_projection::project_list_rushee;
 
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     let rush_nights = rush_night_queries::get_rush_nights_sorted()
         .await
         .unwrap_or_default();
@@ -31,7 +31,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
 }
 
 pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     match connection.find_one(doc! { "gtid": id.clone() }).await {
         Ok(Some(mut rushee)) => {
@@ -55,7 +55,7 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
 }
 
 pub async fn does_rushee_exist(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     match connection.find_one(doc! { "gtid": id.clone() }).await {
         Ok(Some(_)) => Ok(Json(json!({

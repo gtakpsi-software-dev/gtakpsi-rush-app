@@ -22,7 +22,7 @@ fn timeslot_message(status: &str, message: &str) -> Json<Value> {
 pub async fn add_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_timeslots_client().await;
+    let connection = db::get_pis_timeslots_collection().await;
     let time = rush_time::string_to_bson_datetime(&payload.time);
 
     let existing = match connection.find_one(doc! {"time": time}).await {
@@ -64,7 +64,7 @@ pub async fn add_pis_timeslot(
 }
 
 pub async fn get_pis_timeslots() -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_timeslots_client().await;
+    let connection = db::get_pis_timeslots_collection().await;
     let cursor = match connection.find(doc! {}).await {
         Ok(cursor) => cursor,
         Err(_) => {

@@ -52,7 +52,7 @@ pub async fn move_rushee(
     };
 
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
-        db::get_rushee_client().await;
+        db::get_rushee_collection().await;
 
     if from_column == to_column {
         let ids = fetch_ids(&collection, &from_column).await?;

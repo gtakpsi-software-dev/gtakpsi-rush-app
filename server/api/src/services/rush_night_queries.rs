@@ -5,7 +5,7 @@ use crate::models::misc::RushNight;
 use crate::storage::{cursor_rows::collect_strict_rows, db};
 
 pub async fn get_rush_nights() -> Result<Vec<RushNight>, Error> {
-    let connection = db::get_rush_nights_client().await;
+    let connection = db::get_rush_nights_collection().await;
     let cursor = connection
         .find(doc! {})
         .await

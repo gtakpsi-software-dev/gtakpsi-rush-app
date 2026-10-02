@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 pub async fn get_brother_comments(
     Path(brother_name): Path<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     let result = collection.find(doc! {}).await;
 
     match result {

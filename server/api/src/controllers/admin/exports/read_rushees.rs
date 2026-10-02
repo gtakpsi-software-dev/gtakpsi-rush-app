@@ -10,7 +10,7 @@ use crate::{
 pub(super) async fn map_rushees(
     mut map: impl FnMut(RusheeModel) -> Value,
 ) -> Result<Vec<Value>, Json<Value>> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     let cursor = match collection.find(doc! {}).await {
         Ok(cursor) => cursor,
         Err(_) => {

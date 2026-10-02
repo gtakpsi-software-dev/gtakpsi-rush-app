@@ -7,7 +7,7 @@ use super::*;
 pub(super) async fn check_attendance_write_failure() {
     reset().await;
     register().await;
-    db::get_rush_nights_client()
+    db::get_rush_nights_collection()
         .await
         .insert_one(RushNight {
             name: "Night 1".to_string(),

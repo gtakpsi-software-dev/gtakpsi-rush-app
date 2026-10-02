@@ -18,7 +18,7 @@ pub async fn check_rush_app_access(
         })));
     }
 
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
 
     match collection.find_one(doc! {}).await {
         Ok(Some(status)) => {

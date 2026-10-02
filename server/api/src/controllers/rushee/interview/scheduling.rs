@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use super::super::read_rows::map_rushee_rows;
 
 pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
     match map_rushee_rows(connection, |rushee| rushee.pis_signup).await {
         Ok(payload) => Ok(Json(json!({"status": "success", "payload": payload}))),
         Err(response) => Ok(response),
@@ -16,7 +16,7 @@ pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
 
 /// Returns all PIS timeslots that have availability (num_available > 0)
 pub async fn get_available_timeslots() -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_timeslots_client().await;
+    let connection = db::get_pis_timeslots_collection().await;
 
     // Filter for timeslots with num_available > 0
     let result = connection

@@ -93,7 +93,7 @@ async fn check_rejected_creation() {
         json!({"status": "error", "message": "some error occurred while creating the PIS timeslot"})
     );
     assert_eq!(
-        db::get_pis_timeslots_client()
+        db::get_pis_timeslots_collection()
             .await
             .count_documents(doc! {})
             .await

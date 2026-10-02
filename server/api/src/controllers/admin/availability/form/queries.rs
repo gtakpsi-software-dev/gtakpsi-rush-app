@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 
 pub async fn get_pis_availability_form_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_pis_availability_form_status_client().await;
+    let collection = db::get_pis_availability_form_status_collection().await;
 
     match collection.find_one(doc! {}).await {
         Ok(Some(status)) => Ok(Json(json!({
@@ -34,7 +34,7 @@ pub async fn check_brother_needs_availability_form(
     Json(payload): Json<CheckBrotherAvailabilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
     // Missing or inactive forms never require a submission, so skip the brother lookup.
-    let form_collection = db::get_pis_availability_form_status_client().await;
+    let form_collection = db::get_pis_availability_form_status_collection().await;
     let form_status = match form_collection.find_one(doc! {}).await {
         Ok(Some(status)) => status,
         Ok(None) => {
@@ -58,7 +58,7 @@ pub async fn check_brother_needs_availability_form(
         })));
     }
 
-    let availability_collection = db::get_brother_pis_availability_client().await;
+    let availability_collection = db::get_brother_pis_availability_collection().await;
     match availability_collection
         .find_one(doc! { "brother_uid": &payload.brother_uid })
         .await

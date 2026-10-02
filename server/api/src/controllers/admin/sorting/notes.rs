@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 /// Get notes for rushee
 pub async fn get_rushee_notes(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
-        db::get_rushee_client().await;
+        db::get_rushee_collection().await;
     let filter = doc! { "gtid": id.clone() };
     match collection.find_one(filter).await {
         Ok(Some(doc)) => Ok(Json(json!({
@@ -37,7 +37,7 @@ pub async fn update_rushee_notes(
     Json(payload): Json<NotesPayload>,
 ) -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
-        db::get_rushee_client().await;
+        db::get_rushee_collection().await;
     let filter = doc! { "gtid": id.clone() };
 
     // Bound stored notes to the existing 5,000-byte contract; reject oversized

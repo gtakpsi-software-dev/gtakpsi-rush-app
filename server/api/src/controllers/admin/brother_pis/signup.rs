@@ -52,7 +52,7 @@ pub async fn brother_pis_sign_up(
     Path(id): Path<String>,
     Json(payload): Json<IncomingPISSignup>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     let rushee = match collection.find_one(doc! { "gtid": id.clone() }).await {
         Ok(Some(rushee)) => rushee,
         Ok(None) => {

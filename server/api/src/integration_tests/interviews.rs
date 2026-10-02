@@ -26,7 +26,7 @@ pub async fn check_contracts() {
         ("A2", Some("A"), 1),
         ("B1", Some("B"), 2),
     ] {
-        db::get_pis_questions_client()
+        db::get_pis_questions_collection()
             .await
             .insert_one(PISQuestion {
                 question: question.to_string(),
@@ -48,7 +48,7 @@ pub async fn check_contracts() {
         .await
         .unwrap();
     let future = DateTime::from_millis(DateTime::now().timestamp_millis() + 3_600_000);
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .update_one(doc! {"gtid": GTID}, doc! {"$set": {"pis_timeslot": future}})
         .await
@@ -63,7 +63,7 @@ pub async fn check_contracts() {
     );
     assert!(stored_rushee().await.assigned_pis_questions.is_none());
 
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .update_one(
             doc! {"gtid": GTID},
@@ -93,7 +93,7 @@ pub async fn check_contracts() {
         order: Some(-1),
         category: Some("A".to_string()),
     };
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .update_one(
             doc! {"gtid": GTID},

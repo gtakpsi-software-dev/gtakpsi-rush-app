@@ -11,7 +11,7 @@ use crate::storage::db;
 pub async fn delete_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_timeslots_client().await;
+    let connection = db::get_pis_timeslots_collection().await;
     let time = rush_time::string_to_bson_datetime(&payload.time);
 
     let existing = match connection

@@ -13,7 +13,7 @@ pub async fn update_comment_visibility_settings(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<UpdateCommentVisibilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
+    let collection = db::get_comment_visibility_settings_collection().await;
 
     // Readers take the first document, so replacement clears old settings first.
     // A failed insert leaves the public read on its enabled default.
@@ -39,7 +39,7 @@ pub async fn update_comment_visibility_settings(
 
 /// Get current comment visibility settings (admin only)
 pub async fn get_comment_visibility_settings() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
+    let collection = db::get_comment_visibility_settings_collection().await;
 
     match collection.find_one(doc! {}).await {
         Ok(Some(settings)) => Ok(Json(json!({
@@ -63,7 +63,7 @@ pub async fn get_comment_visibility_settings() -> Result<Json<Value>, StatusCode
 
 /// Public endpoint to check if comment visibility restriction is enabled
 pub async fn get_comment_visibility_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_comment_visibility_settings_client().await;
+    let collection = db::get_comment_visibility_settings_collection().await;
 
     // Keep comment visibility restricted when settings are absent or unreadable.
     let require_comment_to_view = match collection.find_one(doc! {}).await {

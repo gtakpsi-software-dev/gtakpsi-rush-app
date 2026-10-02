@@ -142,7 +142,7 @@ pub async fn check_contracts() {
 
     reset().await;
     register().await;
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .update_one(
             doc! { "gtid": super::fixtures::GTID },

@@ -28,7 +28,7 @@ pub(super) async fn check_move_contracts() {
         .0;
     assert_eq!(registration["status"], "success");
 
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     for (id, order) in [(GTID, 1), (second_id, 2)] {
         collection
             .update_one(

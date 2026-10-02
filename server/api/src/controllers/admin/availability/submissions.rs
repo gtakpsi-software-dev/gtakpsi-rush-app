@@ -9,7 +9,7 @@ use serde_json::{json, Value};
 pub async fn submit_brother_availability(
     Json(payload): Json<IncomingBrotherAvailability>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_brother_pis_availability_client().await;
+    let collection = db::get_brother_pis_availability_collection().await;
 
     let timeslots: Vec<DateTime> = payload
         .available_timeslots
@@ -45,7 +45,7 @@ pub async fn submit_brother_availability(
 
 /// Get all brother availabilities (admin view)
 pub async fn get_all_brother_availabilities() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_brother_pis_availability_client().await;
+    let collection = db::get_brother_pis_availability_collection().await;
 
     match collection.find(doc! {}).await {
         Ok(cursor) => {

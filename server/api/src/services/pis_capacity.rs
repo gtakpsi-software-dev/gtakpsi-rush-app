@@ -21,7 +21,7 @@ async fn change_pis_timeslot_capacity(
     time: DateTime,
     change: CapacityChange,
 ) -> Result<bool, Error> {
-    let connection = db::get_pis_timeslots_client().await;
+    let connection = db::get_pis_timeslots_collection().await;
     let find_query = doc! {"time": time};
     let find = connection.find_one(find_query).await;
 

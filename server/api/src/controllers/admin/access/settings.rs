@@ -10,7 +10,7 @@ pub async fn update_rush_app_settings(
     Extension(user): Extension<crate::middlewares::auth::FirebaseUser>,
     Json(payload): Json<UpdateRushAppPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
 
     // Readers use the first status document, so clear old settings before insertion.
     // If clearing succeeds but insertion fails, readers see the default-open state.
@@ -38,7 +38,7 @@ pub async fn update_rush_app_settings(
 
 /// Get current Rush App status (admin only)
 pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
 
     match collection.find_one(doc! {}).await {
         Ok(Some(status)) => Ok(Json(json!({
@@ -66,7 +66,7 @@ pub async fn get_rush_app_status() -> Result<Json<Value>, StatusCode> {
 
 /// Get midterm mode status (public endpoint, no auth required)
 pub async fn get_midterm_mode_status() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
 
     // Keep the public status available when settings are absent or unreadable.
     let midterm_mode = match collection.find_one(doc! {}).await {

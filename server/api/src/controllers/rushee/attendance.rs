@@ -20,7 +20,7 @@ pub async fn get_rush_nights() -> Result<Json<Value>, StatusCode> {
 
 pub async fn update_attendance(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let fetch_rush_nights = rush_night_queries::get_rush_nights().await;
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let rush_nights = match fetch_rush_nights {
         Ok(nights) => nights,

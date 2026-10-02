@@ -18,7 +18,7 @@ pub async fn post_comment(
     Path(id): Path<String>,
     Json(payload): Json<IncomingComment>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
     let rush_nights = match rush_night_queries::get_rush_nights().await {
         Ok(nights) => nights,
         Err(_) => return comment_error("there was some error while matching the rush night"),

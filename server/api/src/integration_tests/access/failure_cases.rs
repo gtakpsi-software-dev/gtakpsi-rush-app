@@ -9,7 +9,7 @@ use crate::{
 };
 
 pub(super) async fn check_contracts() {
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
     let stored = collection.find_one(doc! {}).await.unwrap().unwrap();
     assert!(stored.disable_regular);
 

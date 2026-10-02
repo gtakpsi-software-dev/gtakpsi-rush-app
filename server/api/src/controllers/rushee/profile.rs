@@ -9,7 +9,7 @@ pub async fn update_cloud(
     Path(id): Path<String>,
     Json(payload): Json<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     // Keep the original `_id` lookup and success-on-no-match contract during this refactor.
     // Registered rushees are normally addressed elsewhere by GTID.
@@ -35,7 +35,7 @@ pub async fn update_rushee(
     Path(id): Path<String>,
     Json(payload): Json<Vec<RusheeEdit>>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     // Apply edits in order; a later invalid field leaves earlier writes committed.
     for edit in payload.iter() {

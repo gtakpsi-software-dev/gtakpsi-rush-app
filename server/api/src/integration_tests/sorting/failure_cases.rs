@@ -96,7 +96,7 @@ pub(super) async fn check_bulk_reorder_failure() {
         "success"
     );
 
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
     let second_before = collection
         .find_one(doc! { "gtid": second_id })
         .await

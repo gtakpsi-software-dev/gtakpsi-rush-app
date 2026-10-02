@@ -44,7 +44,7 @@ pub async fn check_contracts() {
         json!({"status": "success", "message": "Comment visibility settings updated"})
     );
 
-    let collection = db::get_comment_visibility_settings_client().await;
+    let collection = db::get_comment_visibility_settings_collection().await;
     let stored = collection.find_one(doc! {}).await.unwrap().unwrap();
     assert!(!stored.require_comment_to_view);
     assert!(stored.updated_at.is_some());

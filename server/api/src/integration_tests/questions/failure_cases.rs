@@ -7,7 +7,7 @@ use super::*;
 pub(super) async fn check_write_failures() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");
-    let collection = db::get_pis_questions_client().await;
+    let collection = db::get_pis_questions_collection().await;
     let question = PISQuestion {
         question: "Write failure".to_string(),
         question_type: "professional".to_string(),
@@ -73,7 +73,7 @@ pub(super) async fn check_write_failures() {
 async fn check_delete_failure() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");
-    let collection = db::get_pis_questions_client().await;
+    let collection = db::get_pis_questions_collection().await;
     collection.drop().await.unwrap();
 
     // A view rejects writes, allowing the endpoint's delete error to be tested without live data.

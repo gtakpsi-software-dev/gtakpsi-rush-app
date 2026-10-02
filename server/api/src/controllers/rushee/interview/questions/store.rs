@@ -6,7 +6,7 @@ use crate::models::rushee::RusheeModel;
 use crate::storage::{cursor_rows::collect_valid_rows, db};
 
 pub(super) async fn load_questions() -> Result<Vec<PISQuestion>, &'static str> {
-    let connection = db::get_pis_questions_client().await;
+    let connection = db::get_pis_questions_collection().await;
     let cursor = connection
         .find(doc! {})
         .await

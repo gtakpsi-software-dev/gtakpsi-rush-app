@@ -9,7 +9,7 @@ use crate::storage::db;
 pub async fn add_rush_night(
     Json(payload): Json<IncomingRushNight>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rush_nights_client().await;
+    let connection = db::get_rush_nights_collection().await;
 
     let new_rush_night = RushNight {
         time: string_to_bson_datetime(&payload.time),
@@ -30,7 +30,7 @@ pub async fn add_rush_night(
 }
 
 pub async fn delete_rush_night(Json(payload): Json<RushNight>) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rush_nights_client().await;
+    let connection = db::get_rush_nights_collection().await;
 
     // Match the full stored timestamp; the name does not affect this endpoint's lookup.
     match connection.delete_one(doc! {"time": payload.time}).await {

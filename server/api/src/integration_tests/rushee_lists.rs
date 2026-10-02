@@ -22,7 +22,7 @@ pub async fn check_malformed_row_responses() {
     assert_eq!(rushee::get_rushees().await.unwrap().0, expected);
     assert_eq!(rushee::get_signup_timeslots().await.unwrap().0, expected);
     assert_eq!(
-        db::get_rushee_client()
+        db::get_rushee_collection()
             .await
             .count_documents(doc! { "gtid": GTID })
             .await

@@ -45,46 +45,47 @@ pub async fn get_redis_conn() -> Arc<ConnectionManager> {
         .clone()
 }
 
-pub async fn get_rushee_client() -> Collection<RusheeModel> {
+pub async fn get_rushee_collection() -> Collection<RusheeModel> {
     let client = get_mongo_client().await;
     client.database(DATABASE_NAME).collection("rushees")
 }
 
-pub async fn get_pis_questions_client() -> Collection<PISQuestion> {
+pub async fn get_pis_questions_collection() -> Collection<PISQuestion> {
     let client = get_mongo_client().await;
     client.database(DATABASE_NAME).collection("pis-questions")
 }
 
-pub async fn get_pis_timeslots_client() -> Collection<PISTimeslot> {
+pub async fn get_pis_timeslots_collection() -> Collection<PISTimeslot> {
     let client = get_mongo_client().await;
     client.database(DATABASE_NAME).collection("pis-timeslots")
 }
 
-pub async fn get_rush_nights_client() -> Collection<RushNight> {
+pub async fn get_rush_nights_collection() -> Collection<RushNight> {
     let client = get_mongo_client().await;
     client.database(DATABASE_NAME).collection("rush-nights")
 }
 
-pub async fn get_pis_availability_form_status_client() -> Collection<PISAvailabilityFormStatus> {
+pub async fn get_pis_availability_form_status_collection() -> Collection<PISAvailabilityFormStatus>
+{
     let client = get_mongo_client().await;
     client
         .database(DATABASE_NAME)
         .collection("pis-availability-form-status")
 }
 
-pub async fn get_brother_pis_availability_client() -> Collection<BrotherPISAvailability> {
+pub async fn get_brother_pis_availability_collection() -> Collection<BrotherPISAvailability> {
     let client = get_mongo_client().await;
     client
         .database(DATABASE_NAME)
         .collection("brother-pis-availability")
 }
 
-pub async fn get_rush_app_status_client() -> Collection<RushAppStatus> {
+pub async fn get_rush_app_status_collection() -> Collection<RushAppStatus> {
     let client = get_mongo_client().await;
     client.database(DATABASE_NAME).collection("rush-app-status")
 }
 
-pub async fn get_comment_visibility_settings_client() -> Collection<CommentVisibilitySettings> {
+pub async fn get_comment_visibility_settings_collection() -> Collection<CommentVisibilitySettings> {
     let client = get_mongo_client().await;
     client
         .database(DATABASE_NAME)

@@ -38,7 +38,7 @@ fn question_response(
 pub async fn get_pis_interview_questions(
     Path(id): Path<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let rushee_connection = db::get_rushee_client().await;
+    let rushee_connection = db::get_rushee_collection().await;
 
     let rushee = match rushee_connection.find_one(doc! {"gtid": id.clone()}).await {
         Ok(Some(rushee)) => rushee,

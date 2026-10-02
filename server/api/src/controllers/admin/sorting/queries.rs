@@ -62,7 +62,7 @@ fn sort_sorting_rushees(list: &mut [SortingRushee]) {
 }
 
 async fn load_sorting_rushees(audience: SortingAudience) -> Result<Json<Value>, StatusCode> {
-    let collection: mongodb::Collection<RusheeModel> = db::get_rushee_client().await;
+    let collection: mongodb::Collection<RusheeModel> = db::get_rushee_collection().await;
 
     let cursor_result = collection.find(doc! {}).await;
     match cursor_result {

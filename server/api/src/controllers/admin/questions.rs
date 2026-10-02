@@ -19,7 +19,7 @@ fn question_message(status: &str, message: &str) -> Json<Value> {
 }
 
 pub async fn add_pis_question(Json(payload): Json<PISQuestion>) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_questions_client().await;
+    let connection = db::get_pis_questions_collection().await;
     let result = connection.insert_one(payload).await;
 
     match result {
@@ -41,7 +41,7 @@ pub struct UpdatePisQuestionCategoryPayload {
 pub async fn update_pis_question_category(
     Json(payload): Json<UpdatePisQuestionCategoryPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_questions_client().await;
+    let connection = db::get_pis_questions_collection().await;
 
     let filter = question_identity_filter(&payload.question, &payload.question_type);
 
@@ -69,7 +69,7 @@ pub async fn update_pis_question_category(
 pub async fn delete_pis_question(
     Json(payload): Json<PISQuestion>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_questions_client().await;
+    let connection = db::get_pis_questions_collection().await;
 
     let filter = question_identity_filter(&payload.question, &payload.question_type);
 
@@ -85,7 +85,7 @@ pub async fn delete_pis_question(
 }
 
 pub async fn get_pis_questions() -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_pis_questions_client().await;
+    let connection = db::get_pis_questions_collection().await;
     let cursor = match connection.find(doc! {}).await {
         Ok(cursor) => cursor,
         Err(_) => {

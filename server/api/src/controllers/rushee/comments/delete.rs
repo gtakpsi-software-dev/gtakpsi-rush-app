@@ -15,7 +15,7 @@ pub async fn delete_comment(
     Path(id): Path<String>,
     Json(payload): Json<Comment>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let rushee = match connection.find_one(doc! { "gtid": id.clone() }).await {
         Ok(Some(rushee)) => rushee,

@@ -5,7 +5,7 @@ use mongodb::bson::{doc, DateTime};
 use serde_json::{json, Value};
 
 pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_pis_availability_form_status_client().await;
+    let collection = db::get_pis_availability_form_status_collection().await;
 
     // Preserve the existing replacement order and ignored deletion error before inserting the active form.
     let _ = collection.delete_many(doc! {}).await;
@@ -29,7 +29,7 @@ pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
 
 pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     // A failed submission clear must stop before the form status is replaced.
-    let availability_collection = db::get_brother_pis_availability_client().await;
+    let availability_collection = db::get_brother_pis_availability_collection().await;
     // Preserve the existing temporary drop order at this early return.
     #[allow(clippy::redundant_pattern_matching)]
     if let Err(_) = availability_collection.delete_many(doc! {}).await {
@@ -40,7 +40,7 @@ pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, Sta
     }
 
     // Keep status replacement after submission clearing; this deletion's error remains ignored.
-    let form_collection = db::get_pis_availability_form_status_client().await;
+    let form_collection = db::get_pis_availability_form_status_collection().await;
     let _ = form_collection.delete_many(doc! {}).await;
 
     let status = PISAvailabilityFormStatus {
@@ -61,7 +61,7 @@ pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, Sta
 }
 
 pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_pis_availability_form_status_client().await;
+    let collection = db::get_pis_availability_form_status_collection().await;
 
     let update = doc! { "$set": { "is_active": false } };
 

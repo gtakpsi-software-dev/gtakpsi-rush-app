@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use serde_json::{json, Value};
 
 pub async fn export_pis_with_brothers() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
 
     match collection.find(doc! {}).await {
         Ok(cursor) => {

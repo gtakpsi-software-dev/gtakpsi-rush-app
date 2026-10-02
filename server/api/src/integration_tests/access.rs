@@ -69,7 +69,7 @@ pub async fn check_contracts() {
         json!({"status": "success", "message": "Rush App settings updated"})
     );
 
-    let stored = db::get_rush_app_status_client()
+    let stored = db::get_rush_app_status_collection()
         .await
         .find_one(doc! {})
         .await
@@ -125,7 +125,7 @@ pub async fn check_contracts() {
     .await
     .unwrap();
     assert_eq!(response.0["status"], "success");
-    let collection = db::get_rush_app_status_client().await;
+    let collection = db::get_rush_app_status_collection().await;
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
     assert_eq!(
         collection

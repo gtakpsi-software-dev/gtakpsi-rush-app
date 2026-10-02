@@ -11,7 +11,7 @@ use crate::{
 
 pub async fn check_contracts() {
     reset().await;
-    let collection = db::get_rush_nights_client().await;
+    let collection = db::get_rush_nights_collection().await;
     let time = DateTime::parse_rfc3339_str(SLOT).unwrap();
 
     assert_eq!(
@@ -105,7 +105,7 @@ pub async fn check_contracts() {
 
 async fn check_delete_failure() {
     let database = db::get_mongo_client().await.database("rush-app");
-    let collection = db::get_rush_nights_client().await;
+    let collection = db::get_rush_nights_collection().await;
     collection.drop().await.unwrap();
 
     // A read-only view makes deletion fail without changing live or shared data.

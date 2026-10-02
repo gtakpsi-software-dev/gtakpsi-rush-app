@@ -20,7 +20,7 @@ pub(super) async fn check_contracts() {
             .0["status"],
         "success"
     );
-    let form_collection = db::get_pis_availability_form_status_client().await;
+    let form_collection = db::get_pis_availability_form_status_collection().await;
     assert_eq!(form_collection.count_documents(doc! {}).await.unwrap(), 1);
 
     // Reject the new form record after submission and old-status deletion.
@@ -43,7 +43,7 @@ pub(super) async fn check_contracts() {
         json!({"status": "error", "message": "Failed to resend form"})
     );
     assert_eq!(
-        db::get_brother_pis_availability_client()
+        db::get_brother_pis_availability_collection()
             .await
             .count_documents(doc! {})
             .await
@@ -72,7 +72,7 @@ async fn check_rejected_form_send() {
         "success"
     );
 
-    let collection = db::get_pis_availability_form_status_client().await;
+    let collection = db::get_pis_availability_form_status_collection().await;
     let database = db::get_mongo_client().await.database("rush-app");
     // Reject the replacement insert after the previous form has been removed.
     database
@@ -144,7 +144,7 @@ async fn check_rejected_submission_replacement() {
         "success"
     );
 
-    let collection = db::get_brother_pis_availability_client().await;
+    let collection = db::get_brother_pis_availability_collection().await;
     let database = db::get_mongo_client().await.database("rush-app");
     // Reject the replacement insert to pin the existing delete-then-insert outcome.
     database

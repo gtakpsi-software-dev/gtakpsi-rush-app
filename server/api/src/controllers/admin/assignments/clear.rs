@@ -6,7 +6,7 @@ use crate::storage::db;
 
 /// Clear all brother assignments from PIS slots
 pub async fn clear_pis_assignments() -> Result<Json<Value>, StatusCode> {
-    let collection = db::get_rushee_client().await;
+    let collection = db::get_rushee_collection().await;
 
     // INVARIANT: clear both slots' first and last names together; a partial
     // reset would leave later assignment runs with inconsistent occupancy.

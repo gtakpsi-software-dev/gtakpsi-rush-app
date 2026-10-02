@@ -10,7 +10,7 @@ pub async fn reschedule_pis(
     Json(payload): Json<String>,
 ) -> Result<Json<Value>, StatusCode> {
     let new_time = rush_time::string_to_bson_datetime(&payload);
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let fetch_result = connection.find_one(doc! {"gtid": id.clone()}).await;
 

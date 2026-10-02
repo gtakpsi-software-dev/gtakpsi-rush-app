@@ -18,7 +18,7 @@ pub async fn check_contracts() {
         .0;
     assert_eq!(unavailable["message"], "PIS timeslot does not exist");
     assert_eq!(
-        db::get_rushee_client()
+        db::get_rushee_collection()
             .await
             .count_documents(doc! {})
             .await

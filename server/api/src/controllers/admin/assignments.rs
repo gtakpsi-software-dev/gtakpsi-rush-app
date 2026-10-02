@@ -29,7 +29,7 @@ pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {
 
     let timeslot_to_brothers = index_availability(&brother_availabilities);
 
-    let rushee_collection = db::get_rushee_client().await;
+    let rushee_collection = db::get_rushee_collection().await;
     let rushees = match load_rushees(&rushee_collection).await {
         Ok(rushees) => rushees,
         Err(_) => {

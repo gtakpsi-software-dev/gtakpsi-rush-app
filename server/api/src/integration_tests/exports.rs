@@ -17,7 +17,7 @@ pub async fn check_contracts() {
     earlier.pis_timeslot = DateTime::parse_rfc3339_str("2029-01-01T18:00:00Z").unwrap();
     earlier.pis_signup.first_brother_first_name = "First".to_string();
     earlier.pis_signup.first_brother_last_name = "Brother".to_string();
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .insert_one(earlier)
         .await
@@ -63,7 +63,7 @@ pub async fn check_contracts() {
         json!(DateTime::parse_rfc3339_str("2029-01-01T18:00:00Z").unwrap())
     );
     assert_eq!(
-        db::get_rushee_client()
+        db::get_rushee_collection()
             .await
             .count_documents(doc! {})
             .await

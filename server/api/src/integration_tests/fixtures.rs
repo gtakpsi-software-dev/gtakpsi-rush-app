@@ -44,7 +44,7 @@ pub fn signup_payload() -> Value {
 }
 
 pub async fn add_slot(time: &str, capacity: i32) {
-    db::get_pis_timeslots_client()
+    db::get_pis_timeslots_collection()
         .await
         .insert_one(crate::models::pis::PISTimeslot {
             time: DateTime::parse_rfc3339_str(time).unwrap(),
@@ -65,7 +65,7 @@ pub async fn register() -> String {
 }
 
 pub async fn stored_rushee() -> RusheeModel {
-    db::get_rushee_client()
+    db::get_rushee_collection()
         .await
         .find_one(doc! {"gtid": GTID})
         .await
@@ -74,7 +74,7 @@ pub async fn stored_rushee() -> RusheeModel {
 }
 
 pub async fn capacity(time: &str) -> i32 {
-    db::get_pis_timeslots_client()
+    db::get_pis_timeslots_collection()
         .await
         .find_one(doc! {
             "time": DateTime::parse_rfc3339_str(time).unwrap()

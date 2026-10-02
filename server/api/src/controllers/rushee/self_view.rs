@@ -20,7 +20,7 @@ pub async fn get_rushee_self(
     Path(id): Path<String>,
     Query(params): Query<SelfViewParams>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let result = connection.find_one(doc! {"gtid": id.clone()}).await;
 

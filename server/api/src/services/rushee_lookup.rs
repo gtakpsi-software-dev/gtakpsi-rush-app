@@ -17,7 +17,7 @@ impl fmt::Display for RusheeError {
 impl std::error::Error for RusheeError {}
 
 pub async fn fetch_rushee(gtid: String) -> Result<RusheeModel, RusheeError> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let filter = doc! {"gtid": gtid};
     let result = connection.find_one(filter).await;

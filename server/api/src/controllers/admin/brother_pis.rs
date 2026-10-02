@@ -18,7 +18,7 @@ fn signed_up_with(signup: &PISSignup, brother: &IncomingBrotherName) -> bool {
 pub async fn get_brother_pis(
     Json(payload): Json<IncomingBrotherName>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
     let rush_nights = crate::services::rush_night_queries::get_rush_nights_sorted()
         .await
         .unwrap_or_default();

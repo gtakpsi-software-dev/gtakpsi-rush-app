@@ -27,7 +27,7 @@ pub(in crate::integration_tests::registration) async fn check_signup_insert_fail
     );
     assert_eq!(capacity(SLOT).await, before - 1);
     assert_eq!(
-        db::get_rushee_client()
+        db::get_rushee_collection()
             .await
             .count_documents(doc! {"gtid": new_gtid})
             .await

@@ -19,7 +19,7 @@ pub async fn update_rushee_sorting(
     }
 
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
-        db::get_rushee_client().await;
+        db::get_rushee_collection().await;
     let filter = doc! { "gtid": id.clone() };
 
     let update = doc! {
@@ -57,7 +57,7 @@ pub async fn bulk_reorder(
     }
 
     let collection: mongodb::Collection<crate::models::rushee::RusheeModel> =
-        db::get_rushee_client().await;
+        db::get_rushee_collection().await;
 
     for (idx, id_str) in payload.ordered_rushee_ids.iter().enumerate() {
         let filter = doc! { "gtid": id_str };

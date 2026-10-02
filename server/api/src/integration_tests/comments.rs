@@ -30,7 +30,7 @@ pub async fn check_contracts() {
             .0["message"],
         "no rush nights are configured"
     );
-    db::get_rush_nights_client()
+    db::get_rush_nights_collection()
         .await
         .insert_one(RushNight {
             name: "Night 1".to_string(),

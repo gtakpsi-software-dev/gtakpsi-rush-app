@@ -7,7 +7,7 @@ use crate::{controllers::admin, models::pis::BrotherPISAvailability, storage::db
 mod failure_cases;
 
 async fn add_availability_at(first: &str, last: &str, slot: &str) {
-    db::get_brother_pis_availability_client()
+    db::get_brother_pis_availability_collection()
         .await
         .insert_one(BrotherPISAvailability {
             brother_uid: format!("{first}-{last}"),

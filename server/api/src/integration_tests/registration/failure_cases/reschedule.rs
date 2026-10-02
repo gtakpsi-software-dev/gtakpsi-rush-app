@@ -59,7 +59,7 @@ pub(in crate::integration_tests::registration) async fn check_reschedule_missing
     assert_eq!(capacity(new_slot).await, 1);
 
     // Removing the old slot isolates the release failure before the new slot can be claimed.
-    db::get_pis_timeslots_client()
+    db::get_pis_timeslots_collection()
         .await
         .delete_one(bson::doc! {"time": DateTime::parse_rfc3339_str(old_slot).unwrap()})
         .await

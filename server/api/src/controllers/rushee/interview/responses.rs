@@ -9,7 +9,7 @@ pub async fn post_pis(
     Path(id): Path<String>,
     Json(payload): Json<Vec<PisResponse>>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     // INVARIANT: keep clear and pushes as separate writes; later failures retain earlier pushes.
     let filter = doc! {"gtid": id.clone()};
@@ -75,7 +75,7 @@ pub async fn autosave_pis(
     Path(id): Path<String>,
     Json(payload): Json<PISAutosavePayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let pis_bson = match to_bson(&payload.pis_responses) {
         Ok(b) => b,

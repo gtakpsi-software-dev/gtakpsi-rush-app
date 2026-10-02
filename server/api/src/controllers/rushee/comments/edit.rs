@@ -8,7 +8,7 @@ pub async fn edit_comment(
     Path(id): Path<String>,
     Json(payload): Json<Comment>,
 ) -> Result<Json<Value>, StatusCode> {
-    let connection = db::get_rushee_client().await;
+    let connection = db::get_rushee_collection().await;
 
     let bson_night = match to_bson(&payload.night) {
         Ok(night) => night,
