@@ -10,6 +10,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/ForgotPassword.tsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/auth/ForgotPasswordView.tsx", import.meta.url));
+const emailFieldPath = fileURLToPath(new URL("../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
 async function loadPage({ state = {}, email = "sam@example.edu", success = true } = {}) {
     const updates = [];
@@ -21,9 +22,11 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
     function NavbarStub() {
         return React.createElement("span", { "data-stub": "navbar" });
     }
+    const EmailField = await loadTsxComponent(emailFieldPath);
     const View = await loadTsxComponent(viewPath, {
         "react-router-dom": { Link: LinkStub },
         "../../components/Navbar": NavbarStub,
+        "./AuthEmailField": EmailField,
     });
     const Page = await loadTsxComponent(pagePath, {
         react: {

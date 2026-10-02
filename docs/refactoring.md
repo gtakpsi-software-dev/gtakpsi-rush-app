@@ -63,7 +63,7 @@ The unrendered shared Button component and its private tests were removed.
 The PIS voice recorder and transcription modules were also removed after
 confirming their only baseline UI was commented out. The PIS answer handler's
 voice-tagged update branch remains unchanged.
-The remaining 269 client JS/TS modules, including two type declarations, all
+The remaining 270 client JS/TS modules, including two type declarations, all
 have a static import path from `main.jsx`. This does not establish that every
 export or conditional branch is used.
 The collaboration hook's unused legacy operation exports and private helper
@@ -82,7 +82,7 @@ in the page while its question form lives with the other admin PIS views.
 Frontend component and filename identifiers now use `Pis` in PascalCase.
 User-facing `PIS` text, routes, API fields, and socket events retain their
 existing spelling.
-All 732 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
+All 733 tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
 and HTML files are at most 97 lines. Longer tracked text files are dependency

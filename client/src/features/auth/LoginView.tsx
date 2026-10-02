@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import Loader from "../../components/Loader";
 import Navbar from "../../components/Navbar";
+import AuthEmailField from "./AuthEmailField";
 
 type LoginViewProps = {
     loading: boolean;
@@ -36,24 +37,10 @@ export default function LoginView(props: LoginViewProps) {
                                         </p>
                                     </div>
                                     <div className="space-y-5">
-                                        <div>
-                                            <label
-                                                htmlFor="email"
-                                                className="block mb-2 text-apple-footnote font-normal text-apple-gray-700"
-                                            >
-                                                Email Address
-                                            </label>
-                                            <input
-                                                ref={props.email}
-                                                type="email"
-                                                name="email"
-                                                id="email"
-                                                className="input-apple"
-                                                placeholder="name@example.com"
-                                                onKeyPress={props.handleKeyPress}
-                                                required
-                                            />
-                                        </div>
+                                        <AuthEmailField
+                                            email={props.email}
+                                            handleKeyPress={props.handleKeyPress}
+                                        />
                                         <div>
                                             <label
                                                 htmlFor="password"

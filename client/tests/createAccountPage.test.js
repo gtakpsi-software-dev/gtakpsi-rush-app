@@ -9,6 +9,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/CreateAccount.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/auth/CreateAccountView.tsx", import.meta.url));
+const emailFieldPath = fileURLToPath(new URL("../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
 async function loadPage(loading) {
     const refs = [];
@@ -27,9 +28,11 @@ async function loadPage(loading) {
     function Navbar() {
         return React.createElement("span", { "data-stub": "navbar" });
     }
+    const EmailField = await loadTsxComponent(emailFieldPath);
     const View = await loadTsxComponent(viewPath, {
         "react-router-dom": { Link },
         "../../components/Navbar": Navbar,
+        "./AuthEmailField": EmailField,
     });
 
     const dependencies = {

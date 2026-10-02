@@ -2,6 +2,7 @@ import type { KeyboardEventHandler, MouseEventHandler, RefObject } from "react";
 import { Link } from "react-router-dom";
 
 import Navbar from "../../components/Navbar";
+import AuthEmailField from "./AuthEmailField";
 
 type ForgotPasswordViewProps = {
     loading: boolean;
@@ -75,24 +76,10 @@ export default function ForgotPasswordView(props: ForgotPasswordViewProps) {
                                             </p>
                                         </div>
                                         <div className="space-y-5">
-                                            <div>
-                                                <label
-                                                    htmlFor="email"
-                                                    className="block mb-2 text-apple-footnote font-normal text-apple-gray-700"
-                                                >
-                                                    Email Address
-                                                </label>
-                                                <input
-                                                    ref={props.email}
-                                                    type="email"
-                                                    name="email"
-                                                    id="email"
-                                                    className="input-apple"
-                                                    placeholder="name@example.com"
-                                                    onKeyPress={props.handleKeyPress}
-                                                    required
-                                                />
-                                            </div>
+                                            <AuthEmailField
+                                                email={props.email}
+                                                handleKeyPress={props.handleKeyPress}
+                                            />
                                             <button
                                                 onClick={props.handleResetPassword}
                                                 disabled={props.loading}

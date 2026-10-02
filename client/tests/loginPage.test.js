@@ -10,6 +10,7 @@ import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../src/pages/Login.tsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../src/features/auth/LoginView.tsx", import.meta.url));
+const emailFieldPath = fileURLToPath(new URL("../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
 async function loadPage({ loading = false, loginSuccess = true, verify = async () => false } = {}) {
     const updates = [];
@@ -28,10 +29,12 @@ async function loadPage({ loading = false, loginSuccess = true, verify = async (
     function LoaderStub() {
         return React.createElement("span", { "data-stub": "loader" });
     }
+    const EmailField = await loadTsxComponent(emailFieldPath);
     const View = await loadTsxComponent(viewPath, {
         "react-router-dom": { Link: LinkStub },
         "../../components/Loader": LoaderStub,
         "../../components/Navbar": NavbarStub,
+        "./AuthEmailField": EmailField,
     });
 
     const Page = await loadTsxComponent(pagePath, {
