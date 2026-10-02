@@ -8,7 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/components/AttendanceComponents/DisplayInfo.tsx", import.meta.url,
+    "../src/features/attendance/DisplayInfo.tsx", import.meta.url,
 ));
 
 test("attendance confirmation keeps its profile and action markup", async () => {

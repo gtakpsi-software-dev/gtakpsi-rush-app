@@ -39,9 +39,9 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
     };
     const AttendanceView = await loadTsxComponent(viewPath, {
         "../../components/Loader": stub("loader"),
-        "../../components/AttendanceComponents/SplashPage": stub("splash"),
-        "../../components/AttendanceComponents/DisplayInfo": stub("info"),
-        "../../components/AttendanceComponents/SuccessPage": stub("success"),
+        "./SplashPage": stub("splash"),
+        "./DisplayInfo": stub("info"),
+        "./SuccessPage": stub("success"),
     });
 
     runInNewContext(code, {

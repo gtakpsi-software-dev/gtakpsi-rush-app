@@ -7,8 +7,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
 
-const splashPath = fileURLToPath(new URL("../src/components/AttendanceComponents/SplashPage.tsx", import.meta.url));
-const successPath = fileURLToPath(new URL("../src/components/AttendanceComponents/SuccessPage.tsx", import.meta.url));
+const splashPath = fileURLToPath(new URL("../src/features/attendance/SplashPage.tsx", import.meta.url));
+const successPath = fileURLToPath(new URL("../src/features/attendance/SuccessPage.tsx", import.meta.url));
 
 async function loadSplash(state = {}, calls = []) {
     let stateIndex = 0;
@@ -21,7 +21,7 @@ async function loadSplash(state = {}, calls = []) {
                     (value) => calls.push([index, value])];
             },
         },
-        "../../features/registration/registrationVerification": {
+        "../registration/registrationVerification": {
             verifyGTID: (value) => {
                 calls.push(["verify", value]);
                 return true;

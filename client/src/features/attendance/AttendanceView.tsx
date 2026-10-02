@@ -1,9 +1,9 @@
 import type { ComponentProps } from "react";
 
 import Loader from "../../components/Loader";
-import SplashPage from "../../components/AttendanceComponents/SplashPage";
-import DisplayInfo from "../../components/AttendanceComponents/DisplayInfo";
-import SuccessPage from "../../components/AttendanceComponents/SuccessPage";
+import SplashPage from "./SplashPage";
+import DisplayInfo from "./DisplayInfo";
+import SuccessPage from "./SuccessPage";
 
 type AttendanceViewProps = {
     loading: boolean | undefined;

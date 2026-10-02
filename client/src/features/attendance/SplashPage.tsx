@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
-import { verifyGTID } from "../../features/registration/registrationVerification";
+import { verifyGTID } from "../registration/registrationVerification";
 import { useNavigate } from "react-router-dom";
 
 /**
