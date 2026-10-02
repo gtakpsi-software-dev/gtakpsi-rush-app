@@ -69,6 +69,8 @@ pub async fn bulk_reorder(
                 "status_updated_by": user.email.clone().unwrap_or(user.uid.clone()),
             }
         };
+        // Preserve result and temporary drop order before a failed reorder exits.
+        #[allow(clippy::redundant_pattern_matching)]
         if let Err(_) = collection.update_one(filter, update).await {
             return Ok(Json(json!({
                 "status": "error",

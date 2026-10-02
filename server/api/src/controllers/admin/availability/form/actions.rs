@@ -30,6 +30,8 @@ pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
 pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     // A failed submission clear must stop before the form status is replaced.
     let availability_collection = db::get_brother_pis_availability_client().await;
+    // Preserve the existing temporary drop order at this early return.
+    #[allow(clippy::redundant_pattern_matching)]
     if let Err(_) = availability_collection.delete_many(doc! {}).await {
         return Ok(Json(json!({
             "status": "error",
