@@ -5,13 +5,13 @@ use crate::models::pis::BrotherPISAvailability;
 use crate::models::rushee::RusheeModel;
 use crate::storage::db;
 
-pub(super) async fn load_brother_availabilities() -> Result<Vec<BrotherPISAvailability>, ()> {
+pub(crate) async fn load_brother_availabilities() -> Result<Vec<BrotherPISAvailability>, ()> {
     let collection = db::get_brother_pis_availability_client().await;
     let cursor = collection.find(doc! {}).await.map_err(|_| ())?;
     Ok(collect_valid(cursor).await)
 }
 
-pub(super) async fn load_rushees(
+pub(crate) async fn load_rushees(
     collection: &Collection<RusheeModel>,
 ) -> Result<Vec<RusheeModel>, ()> {
     let cursor = collection.find(doc! {}).await.map_err(|_| ())?;

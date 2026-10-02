@@ -1,7 +1,7 @@
 use mongodb::{bson::doc, Collection};
 
+use super::AssignmentPlan;
 use crate::models::rushee::RusheeModel;
-use crate::services::pis_assignments::AssignmentPlan;
 
 pub(super) async fn persist_assignment(
     collection: &Collection<RusheeModel>,

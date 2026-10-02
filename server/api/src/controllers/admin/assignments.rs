@@ -1,15 +1,12 @@
+use crate::services::pis_assignments::{
+    assign_rushees, index_availability, load_brother_availabilities, load_rushees,
+};
 use crate::storage::db;
 use axum::{http::StatusCode, response::Json};
 use serde_json::{json, Value};
 
 mod clear;
-mod execution;
-mod loading;
-mod persistence;
-use crate::services::pis_assignments::index_availability;
 pub use clear::clear_pis_assignments;
-use execution::assign_rushees;
-use loading::{load_brother_availabilities, load_rushees};
 
 /// Auto-assign brothers to PIS slots based on availability
 pub async fn auto_assign_pis_brothers() -> Result<Json<Value>, StatusCode> {

@@ -1,15 +1,15 @@
 use mongodb::Collection;
 
 use super::persistence::persist_assignment;
+use super::{AssignmentPlanner, AvailabilityByTimeslot};
 use crate::models::rushee::RusheeModel;
-use crate::services::pis_assignments::{AssignmentPlanner, AvailabilityByTimeslot};
 
-pub(super) struct AssignmentCounts {
+pub(crate) struct AssignmentCounts {
     pub assignments_made: i32,
     pub assignment_failures: i32,
 }
 
-pub(super) async fn assign_rushees(
+pub(crate) async fn assign_rushees(
     collection: &Collection<RusheeModel>,
     rushees: &[RusheeModel],
     timeslot_to_brothers: &AvailabilityByTimeslot,
