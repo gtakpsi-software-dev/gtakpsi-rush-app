@@ -60,6 +60,10 @@ async fn protected_routes_reject_missing_bearer_tokens_before_database_access() 
         (Method::GET, "/admin/rushees/sorting"),
         (Method::PUT, "/admin/rushees/move"),
         (Method::POST, "/admin/make-admin"),
+        (Method::POST, "/admin/make-bidcom"),
+        (Method::POST, "/admin/get-admin-status"),
+        (Method::POST, "/admin/comment-visibility/update"),
+        (Method::GET, "/admin/comment-visibility/status"),
         (Method::POST, "/admin/voting/post-question"),
     ] {
         let response = app()
@@ -68,6 +72,22 @@ async fn protected_routes_reject_missing_bearer_tokens_before_database_access() 
             .unwrap();
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED, "{path}");
     }
+}
+
+#[tokio::test]
+async fn public_comment_visibility_status_keeps_get_and_preflight_methods() {
+    let path = "/brother/comment-visibility/status";
+    let wrong = public::routes()
+        .oneshot(request(Method::POST, path, "", false))
+        .await
+        .unwrap();
+    assert_eq!(wrong.status(), StatusCode::METHOD_NOT_ALLOWED);
+
+    let preflight = public::routes()
+        .oneshot(request(Method::OPTIONS, path, "", false))
+        .await
+        .unwrap();
+    assert_eq!(preflight.status(), StatusCode::OK);
 }
 
 #[tokio::test]
