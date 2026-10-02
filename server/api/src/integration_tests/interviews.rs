@@ -165,6 +165,7 @@ pub async fn check_contracts() {
     assert!(stored_rushee().await.pis.is_empty());
     failure_cases::check_second_response_write_failure().await;
     failure_cases::check_response_clear_failure().await;
+    failure_cases::check_autosave_write_failure().await;
     println!(
         "PIS reveal, persisted assignment, autosave, and response replacement contracts passed"
     );
