@@ -8,6 +8,8 @@ use crate::{
     middlewares::valid,
 };
 
+mod failure_cases;
+
 pub async fn check_contracts() {
     reset().await;
     assert!(!valid::is_gtid_valid("short").await.unwrap());
@@ -111,5 +113,6 @@ pub async fn check_contracts() {
         stored.pis_timeslot,
         bson::DateTime::parse_rfc3339_str(successful_slot).unwrap()
     );
+    failure_cases::check_reschedule_write_failure(successful_slot).await;
     println!("registration, self-service privacy, and rescheduling contracts passed");
 }
