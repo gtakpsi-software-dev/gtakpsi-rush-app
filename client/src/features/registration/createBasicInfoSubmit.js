@@ -31,21 +31,26 @@ export function createBasicInfoSubmit({
             }
         }
 
-        await verifyInfo(gtid.current?.value, email.current?.value, phone.current?.value, true)
-            .then((response) => {
-                if (response.status === "success") {
-                    for (const [input, setValue] of fields) {
-                        setValue(input.current?.value);
-                    }
-                    setPage(1);
-                } else {
-                    toast.warn(`${response.message}`, warningOptions());
+        const handleVerificationResponse = (response) => {
+            if (response.status === "success") {
+                for (const [input, setValue] of fields) {
+                    setValue(input.current?.value);
                 }
-            })
-            .catch((error) => {
-                logError(error);
-                toast.warn(`Some internal error occurred`, warningOptions());
-            });
+                setPage(1);
+            } else {
+                toast.warn(`${response.message}`, warningOptions());
+            }
+        };
+
+        const handleVerificationFailure = (error) => {
+            // Field-setter failures use the same warning path as rejected verification.
+            logError(error);
+            toast.warn(`Some internal error occurred`, warningOptions());
+        };
+
+        await verifyInfo(gtid.current?.value, email.current?.value, phone.current?.value, true)
+            .then(handleVerificationResponse)
+            .catch(handleVerificationFailure);
 
         setCurrLoading(false);
     };
