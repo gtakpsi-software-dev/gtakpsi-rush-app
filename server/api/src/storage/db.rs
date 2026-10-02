@@ -31,7 +31,7 @@ pub async fn get_mongo_client() -> Arc<Client> {
         .clone()
 }
 
-pub async fn get_redis_conn() -> Arc<ConnectionManager> {
+pub async fn get_redis_manager() -> Arc<ConnectionManager> {
     REDIS_CLIENT
         .get_or_init(|| async {
             let url = env::var("REDIS_URL").expect("REDIS_URL must be set");

@@ -1,4 +1,4 @@
-use crate::storage::db::get_redis_conn;
+use crate::storage::db::get_redis_manager;
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::Deserialize;
@@ -14,7 +14,7 @@ pub(super) const INELIGIBLE_BROTHERS: &str = "ineligible_brothers";
 pub async fn make_eligible(
     Json(payload): Json<ChangeEligibilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let mut conn = get_redis_conn().await.as_ref().clone();
+    let mut conn = get_redis_manager().await.as_ref().clone();
 
     let _: i32 = conn
         .srem(INELIGIBLE_BROTHERS, &payload.gtid)
@@ -33,7 +33,7 @@ pub async fn make_eligible(
 pub async fn make_ineligible(
     Json(payload): Json<ChangeEligibilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let mut conn = get_redis_conn().await.as_ref().clone();
+    let mut conn = get_redis_manager().await.as_ref().clone();
 
     println!("made Ineligible");
 
@@ -52,7 +52,7 @@ pub async fn make_ineligible(
 }
 
 pub async fn get_eligibility() -> Result<Json<Value>, StatusCode> {
-    let mut conn = get_redis_conn().await.as_ref().clone();
+    let mut conn = get_redis_manager().await.as_ref().clone();
 
     let ineligible_ids: Vec<String> = conn.smembers(INELIGIBLE_BROTHERS).await.map_err(|e| {
         println!("Redis SMEMBERS error: {e}");

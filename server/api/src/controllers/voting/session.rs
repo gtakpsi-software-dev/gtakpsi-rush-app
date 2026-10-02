@@ -2,7 +2,7 @@ use crate::models::rushee::RusheeModel;
 use crate::services::rush_night_queries;
 use crate::services::rush_nights::enrich_interactions_by_night;
 use crate::services::rushee_lookup::fetch_rushee;
-use crate::storage::db::get_redis_conn;
+use crate::storage::db::get_redis_manager;
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,7 @@ pub async fn change_rushee(
             if let Ok(rush_nights) = rush_night_queries::get_rush_nights_sorted().await {
                 enrich_interactions_by_night(&mut rushee, &rush_nights);
             }
-            let mut redis = get_redis_conn().await.as_ref().clone();
+            let mut redis = get_redis_manager().await.as_ref().clone();
 
             let serialized_rushee = to_string(&rushee).map_err(|e| {
                 println!("Failed to serialize rushee: {e:?}");
@@ -69,7 +69,7 @@ pub async fn change_rushee(
 }
 
 pub async fn get_rushee() -> Result<Json<Value>, StatusCode> {
-    let redis_conn = get_redis_conn().await;
+    let redis_conn = get_redis_manager().await;
     let mut redis = redis_conn.as_ref().clone();
 
     let raw: Option<String> = redis
@@ -94,7 +94,7 @@ pub async fn get_rushee() -> Result<Json<Value>, StatusCode> {
 pub async fn post_question(
     Json(payload): Json<PostQuestionPayload>,
 ) -> Result<Json<Value>, StatusCode> {
-    let mut redis = get_redis_conn().await.as_ref().clone();
+    let mut redis = get_redis_manager().await.as_ref().clone();
 
     let _: () = redis
         .set("question", &payload.question)

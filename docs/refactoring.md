@@ -47,6 +47,7 @@ operations, `storage/` owns MongoDB and Redis connection factories, and
 socket contracts remain unchanged.
 Storage getters that return a MongoDB collection use `get_*_collection`;
 `get_mongo_client` is reserved for the actual MongoDB client.
+`get_redis_manager` returns the shared Redis connection manager.
 PIS auto-assignment planning, loading, execution, and persistence live in
 `services/pis_assignments/`; its controller retains the existing HTTP response
 mapping.

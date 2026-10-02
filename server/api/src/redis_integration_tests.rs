@@ -15,7 +15,7 @@ async fn voting_redis_contracts() {
         format!("redis://127.0.0.1:{port}")
     );
 
-    let connection = db::get_redis_conn().await;
+    let connection = db::get_redis_manager().await;
     let mut redis = connection.as_ref().clone();
     let guard: Option<String> = redis.get("_rush_voting_integration_guard").await.unwrap();
     // INVARIANT: clear voting keys only in the marked disposable Redis instance.

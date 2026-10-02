@@ -1,6 +1,6 @@
 use super::eligibility::INELIGIBLE_BROTHERS;
 use crate::models::rushee::{IncomingRusheeVote, RusheeVote, VoteOption};
-use crate::storage::db::get_redis_conn;
+use crate::storage::db::get_redis_manager;
 use anyhow::{Error, Result};
 use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
@@ -30,7 +30,7 @@ pub async fn handle_rushee_vote(
     let serialized_rushee_vote: String =
         to_string(&rushee_vote).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let mut conn = get_redis_conn().await.as_ref().clone();
+    let mut conn = get_redis_manager().await.as_ref().clone();
 
     let key = "vote_log";
     let is_ineligible: bool = conn
@@ -71,7 +71,7 @@ pub async fn handle_rushee_vote(
 }
 
 pub async fn clear_votes() -> Result<Json<Value>, StatusCode> {
-    let conn_arc = get_redis_conn().await;
+    let conn_arc = get_redis_manager().await;
     let mut conn = conn_arc.as_ref().clone();
 
     let _: () = conn.del("vote_log").await.map_err(|e| {
