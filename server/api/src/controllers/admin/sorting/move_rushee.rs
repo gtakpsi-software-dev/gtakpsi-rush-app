@@ -1,7 +1,8 @@
 use super::{
-    column_order::{fetch_ids, move_between_columns, move_within_column, write_column_order},
+    column_order::{fetch_ids, write_column_order},
     validate_status, MoveRusheePayload, SORTING_COLUMN_LOCKS,
 };
+use crate::services::sorting_order::{move_between_columns, move_within_column};
 use crate::storage::db;
 use axum::extract::Extension;
 use axum::{http::StatusCode, response::Json};
