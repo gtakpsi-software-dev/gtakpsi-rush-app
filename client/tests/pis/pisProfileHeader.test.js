@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/pis/PisProfileHeader.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/pisProfileHeader.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/pis/PisProfileHeader.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/pisProfileHeader.json", import.meta.url));
 const rushee = {
     image_url: "/photo.png", first_name: "Ada", last_name: "Example",
     pronouns: "she/her", major: "CS", email: "ada@example.com",

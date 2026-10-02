@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/pis/PisBrotherFields.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/pisBrotherFields.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/pis/PisBrotherFields.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/pisBrotherFields.json", import.meta.url));
 const CollaborativeInput = () => React.createElement("input", { "data-stub": "collaborative" });
 const signup = {
     first_brother_first_name: "Ari", first_brother_last_name: "One",

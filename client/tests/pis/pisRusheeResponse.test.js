@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applyPisRusheeResponse } from "../src/features/pis/applyPisRusheeResponse.js";
+import { applyPisRusheeResponse } from "../../src/features/pis/applyPisRusheeResponse.js";
 
 function harness(initialAnswers = { live: "live answer", shared: "live value" }) {
     const calls = [];

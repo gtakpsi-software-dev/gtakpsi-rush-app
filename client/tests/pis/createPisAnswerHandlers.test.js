@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createPisAnswerHandlers } from "../src/features/pis/createPisAnswerHandlers.js";
+import { createPisAnswerHandlers } from "../../src/features/pis/createPisAnswerHandlers.js";
 
 function harness(isConnected) {
     let answers = { existing: "kept" };

@@ -9,12 +9,12 @@ import { runInNewContext } from "node:vm";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const pagePath = fileURLToPath(new URL("../src/pages/Pis.jsx", import.meta.url));
-const cardPath = fileURLToPath(new URL("../src/features/pis/PisQuestionsCard.tsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/pis/PisInterviewView.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/pisPageMarkup.json", import.meta.url));
+const pagePath = fileURLToPath(new URL("../../src/pages/Pis.jsx", import.meta.url));
+const cardPath = fileURLToPath(new URL("../../src/features/pis/PisQuestionsCard.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../src/features/pis/PisInterviewView.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/pisPageMarkup.json", import.meta.url));
 
 async function loadPage(state = {}, connected = true, captured = new Map()) {
     const stub = (name) => function Stub(props) {

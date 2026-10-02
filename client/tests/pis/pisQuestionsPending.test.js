@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/pis/PisQuestionsPending.tsx", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/pisQuestionsPending.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/pis/PisQuestionsPending.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/pisQuestionsPending.json", import.meta.url));
 const Navbar = () => React.createElement("nav", { "data-stub": "navbar" });
 
 test("pending PIS screen retains unlock and fixed-question states", async () => {

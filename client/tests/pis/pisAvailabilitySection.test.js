@@ -6,12 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
-const fixturePath = fileURLToPath(new URL("./fixtures/pisAvailabilitySection.json", import.meta.url));
-const componentPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySection.tsx", import.meta.url));
-const formCardPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilityFormCard.tsx", import.meta.url));
-const submissionsCardPath = fileURLToPath(new URL("../src/features/admin/availability/PisAvailabilitySubmissionsCard.tsx", import.meta.url));
+const fixturePath = fileURLToPath(new URL("../fixtures/pisAvailabilitySection.json", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../src/features/admin/availability/PisAvailabilitySection.tsx", import.meta.url));
+const formCardPath = fileURLToPath(new URL("../../src/features/admin/availability/PisAvailabilityFormCard.tsx", import.meta.url));
+const submissionsCardPath = fileURLToPath(new URL("../../src/features/admin/availability/PisAvailabilitySubmissionsCard.tsx", import.meta.url));
 const submissions = [
     { brother_first_name: "Ada", brother_last_name: "Example", available_timeslots: [{}, {}] },
     { brother_first_name: "Bob", brother_last_name: "Example", available_timeslots: [] },

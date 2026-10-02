@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { loadPisPageData } from "../src/features/pis/loadPisPageData.js";
+import { loadPisPageData } from "../../src/features/pis/loadPisPageData.js";
 
 function harness(overrides = {}) {
     const events = [];

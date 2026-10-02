@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { loadTsxModule } from './helpers/loadTsxComponent.js';
+import { loadTsxModule } from '../helpers/loadTsxComponent.js';
 
-const hookPath = fileURLToPath(new URL('../src/features/pis/usePisPageBootstrap.js', import.meta.url));
+const hookPath = fileURLToPath(new URL('../../src/features/pis/usePisPageBootstrap.js', import.meta.url));
 
 test('PIS bootstrap retains its loading gate, request inputs, and effect dependencies', async () => {
     const effects = [];

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { startPisRevealPolling } from "../src/features/pis/startPisRevealPolling.js";
+import { startPisRevealPolling } from "../../src/features/pis/startPisRevealPolling.js";
 
 function harness(overrides = {}) {
     const events = [];
