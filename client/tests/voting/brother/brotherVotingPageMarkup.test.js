@@ -9,10 +9,10 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { transformWithEsbuild } from 'vite';
-import { loadTsxComponent } from './helpers/loadTsxComponent.js';
+import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 
-const pagePath = fileURLToPath(new URL('../src/pages/BrotherVotingPage.tsx', import.meta.url));
-const panelPath = fileURLToPath(new URL('../src/features/voting/brother/VotingPanel.tsx', import.meta.url));
+const pagePath = fileURLToPath(new URL('../../../src/pages/BrotherVotingPage.tsx', import.meta.url));
+const panelPath = fileURLToPath(new URL('../../../src/features/voting/brother/VotingPanel.tsx', import.meta.url));
 
 async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMode = false, status = 'connecting' } = {}) {
     const VotingPanel = await loadTsxComponent(panelPath);

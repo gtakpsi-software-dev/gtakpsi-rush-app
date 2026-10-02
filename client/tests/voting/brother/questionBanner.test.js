@@ -10,8 +10,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformWithEsbuild } from "vite";
 
-const bannerPath = fileURLToPath(new URL("../src/features/voting/brother/QuestionBanner.tsx", import.meta.url));
-const viewPath = fileURLToPath(new URL("../src/features/voting/brother/QuestionBannerView.tsx", import.meta.url));
+const bannerPath = fileURLToPath(new URL("../../../src/features/voting/brother/QuestionBanner.tsx", import.meta.url));
+const viewPath = fileURLToPath(new URL("../../../src/features/voting/brother/QuestionBannerView.tsx", import.meta.url));
 const requireFromBanner = createRequire(bannerPath);
 const requireFromView = createRequire(viewPath);
 const storedUser = '{"_id":"b1","firstname":"Sam","lastname":"Brother"}';

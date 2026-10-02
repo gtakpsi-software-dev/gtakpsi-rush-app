@@ -5,13 +5,13 @@ import { fileURLToPath } from "node:url";
 
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
 const previewPath = fileURLToPath(new URL(
-    "../src/features/voting/brother/RusheePreviewCard.tsx", import.meta.url,
+    "../../../src/features/voting/brother/RusheePreviewCard.tsx", import.meta.url,
 ));
 const pisPath = fileURLToPath(new URL(
-    "../src/features/voting/brother/RusheePisInfo.tsx", import.meta.url,
+    "../../../src/features/voting/brother/RusheePisInfo.tsx", import.meta.url,
 ));
 
 const rushee = {

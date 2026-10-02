@@ -9,7 +9,7 @@ import React from "react";
 import { transformWithEsbuild } from "vite";
 
 const componentPath = fileURLToPath(new URL(
-    "../src/features/voting/brother/RusheeComments.tsx",
+    "../../../src/features/voting/brother/RusheeComments.tsx",
     import.meta.url,
 ));
 

@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { loadTsxComponent } from "./helpers/loadTsxComponent.js";
+import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
-const componentPath = fileURLToPath(new URL("../src/features/voting/brother/SplitText.tsx", import.meta.url));
+const componentPath = fileURLToPath(new URL("../../../src/features/voting/brother/SplitText.tsx", import.meta.url));
 
 async function setup({ splitError = false, emptyTargets = false } = {}) {
     const calls = [];

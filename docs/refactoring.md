@@ -101,7 +101,8 @@ sorting cases under `client/tests/sorting/`, registration cases under
 `client/tests/auth/`, and collaboration cases under
 `client/tests/collaboration/`. Rushee zoom and self-service cases live under
 `client/tests/rushee/`. Shared test loaders and fixtures remain under
-`client/tests/helpers/` and `client/tests/fixtures/`.
+`client/tests/helpers/` and `client/tests/fixtures/`; brother voting tests
+live under `client/tests/voting/brother/`.
 All tracked Python, Rust, JavaScript, JSX, TypeScript, and TSX files,
 including tests, are under 200 lines; the largest is a 188-line client test.
 The remaining tracked stylesheet is 115 lines; non-lock JSON, TOML, YAML,
