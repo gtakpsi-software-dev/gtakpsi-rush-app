@@ -2,9 +2,9 @@ use axum::Json;
 use bson::{doc, DateTime};
 use serde_json::json;
 
-use super::fixtures::{reset, SLOT};
+use super::fixtures::{path, reset, SLOT};
 use crate::{
-    controllers::admin,
+    controllers::{admin, rushee},
     models::misc::{IncomingRushNight, RushNight},
     storage::db,
 };
@@ -73,4 +73,20 @@ pub async fn check_contracts() {
         .run_command(doc! { "collMod": "rush-nights", "validator": {} })
         .await
         .unwrap();
+
+    // A malformed stored night must fail the whole typed read, not return a partial schedule.
+    database
+        .collection::<bson::Document>("rush-nights")
+        .insert_one(doc! { "name": "Malformed", "time": "not-a-date" })
+        .await
+        .unwrap();
+    assert_eq!(
+        rushee::get_rush_nights().await.unwrap().0,
+        json!({"status": "error", "message": "could not load rush nights"})
+    );
+    assert_eq!(
+        rushee::update_attendance(path()).await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    reset().await;
 }
