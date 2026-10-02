@@ -12,7 +12,7 @@ pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Me
             initial_messages.push(Message::Text(vote_update(values)));
         }
         Ok(Err(e)) => {
-            println!("❌ Redis error while fetching vote_log: {}", e);
+            println!("❌ Redis error while fetching vote_log: {e}");
         }
         Err(_) => {
             println!("❌ Redis timed out while fetching vote_log, resetting connection");

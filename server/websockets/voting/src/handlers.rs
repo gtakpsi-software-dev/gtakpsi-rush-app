@@ -27,15 +27,15 @@ pub(crate) async fn handle_incoming_frames(
         match msg {
             Ok(Message::Close(_)) => {
                 match role {
-                    SocketRole::Admin => println!("Client {} sent close", id),
-                    SocketRole::Voter => println!("🔒 Client {} sent close message", id),
+                    SocketRole::Admin => println!("Client {id} sent close"),
+                    SocketRole::Voter => println!("🔒 Client {id} sent close message"),
                 }
                 break;
             }
             Ok(Message::Ping(data)) => {
                 // INVARIANT: clients currently receive two Pong frames per Ping.
                 if tx.send(Message::Pong(data)).is_err() {
-                    println!("Failed to send pong to client {}", id);
+                    println!("Failed to send pong to client {id}");
                     break;
                 }
             }
@@ -43,9 +43,9 @@ pub(crate) async fn handle_incoming_frames(
             Ok(Message::Pong(_)) => {}
             Err(error) => {
                 match role {
-                    SocketRole::Admin => println!("WebSocket error for client {}: {}", id, error),
+                    SocketRole::Admin => println!("WebSocket error for client {id}: {error}"),
                     SocketRole::Voter => {
-                        println!("❌ WebSocket error for client {}: {}", id, error)
+                        println!("❌ WebSocket error for client {id}: {error}")
                     }
                 }
                 break;

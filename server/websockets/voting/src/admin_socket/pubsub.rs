@@ -41,7 +41,7 @@ async fn run_admin_pubsub_listener(
                             broadcast_to_clients(&clients, vote_update(values));
                         }
                         Ok(Err(e)) => {
-                            println!("❌ Failed to fetch vote_log hash: {}", e);
+                            println!("❌ Failed to fetch vote_log hash: {e}");
                         }
                         Err(_) => {
                             println!("❌ Redis timed out fetching vote_log, resetting connection");

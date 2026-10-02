@@ -16,6 +16,6 @@ pub fn broadcast_to_clients(clients: &ClientMap, msg_str: String) {
 
     for id in to_remove {
         clients.remove(&id);
-        println!("🗑️ Removed disconnected client {}", id);
+        println!("🗑️ Removed disconnected client {id}");
     }
 }

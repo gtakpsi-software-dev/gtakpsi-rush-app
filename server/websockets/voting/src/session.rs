@@ -23,7 +23,7 @@ pub(crate) async fn handle_socket<F, Fut>(
     F: FnOnce(ConnectionManager) -> Fut + Send,
     Fut: Future<Output = Vec<Message>> + Send,
 {
-    println!("🔌 {} client connected from {}", role.label(), addr);
+    println!("🔌 {} client connected from {addr}", role.label());
 
     let (mut ws_sender, ws_receiver) = socket.split();
     let (tx, mut rx) = mpsc::unbounded_channel::<Message>();
@@ -38,10 +38,7 @@ pub(crate) async fn handle_socket<F, Fut>(
 
     for msg in initial_messages {
         if ws_sender.send(msg).await.is_err() {
-            println!(
-                "❌ Failed to send initial snapshot to client {}, aborting",
-                id
-            );
+            println!("❌ Failed to send initial snapshot to client {id}, aborting");
             return;
         }
     }
@@ -58,13 +55,10 @@ pub(crate) async fn handle_socket<F, Fut>(
             if ws_sender.send(msg).await.is_err() {
                 match role {
                     SocketRole::Admin => {
-                        println!("Failed to send to client {}, connection likely closed", id)
+                        println!("Failed to send to client {id}, connection likely closed")
                     }
                     SocketRole::Voter => {
-                        println!(
-                            "❌ Failed to send to client {}, connection likely closed",
-                            id
-                        )
+                        println!("❌ Failed to send to client {id}, connection likely closed")
                     }
                 }
                 break;
@@ -76,12 +70,12 @@ pub(crate) async fn handle_socket<F, Fut>(
 
     tokio::select! {
         _ = send_task => match role {
-            SocketRole::Admin => println!("Send task completed for client {}", id),
-            SocketRole::Voter => println!("📤 Send task completed for client {}", id),
+            SocketRole::Admin => println!("Send task completed for client {id}"),
+            SocketRole::Voter => println!("📤 Send task completed for client {id}"),
         },
         _ = recv_task => match role {
-            SocketRole::Admin => println!("Recv task completed for client {}", id),
-            SocketRole::Voter => println!("📥 Connection monitoring completed for client {}", id),
+            SocketRole::Admin => println!("Recv task completed for client {id}"),
+            SocketRole::Voter => println!("📥 Connection monitoring completed for client {id}"),
         },
     }
 
