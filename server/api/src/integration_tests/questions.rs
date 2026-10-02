@@ -5,6 +5,8 @@ use serde_json::json;
 use super::fixtures::reset;
 use crate::{controllers::admin, models::pis::PISQuestion, storage::db};
 
+mod failure_cases;
+
 pub async fn check_contracts() {
     reset().await;
 
@@ -119,4 +121,6 @@ pub async fn check_contracts() {
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
     let remaining = admin::get_pis_questions().await.unwrap().0;
     assert_eq!(remaining["payload"][0]["question_type"], "personal");
+
+    failure_cases::check_write_failures().await;
 }
