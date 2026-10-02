@@ -79,3 +79,45 @@ pub(super) async fn check_signup_insert_failure() {
         .await
         .unwrap();
 }
+
+pub(super) async fn check_reschedule_missing_rushee_and_old_slot(old_slot: &str) {
+    let new_slot = "2030-01-05T18:00:00Z";
+    add_slot(new_slot, 1).await;
+    let old_capacity = capacity(old_slot).await;
+
+    let missing = rushee::reschedule_pis(
+        axum::extract::Path("not-registered".to_string()),
+        Json(new_slot.to_string()),
+    )
+    .await
+    .unwrap()
+    .0;
+    assert_eq!(
+        missing,
+        json!({"status": "error", "message": "Rushee not found"})
+    );
+    assert_eq!(capacity(old_slot).await, old_capacity);
+    assert_eq!(capacity(new_slot).await, 1);
+
+    // Removing the old slot isolates the release failure before the new slot can be claimed.
+    db::get_pis_timeslots_client()
+        .await
+        .delete_one(bson::doc! {"time": DateTime::parse_rfc3339_str(old_slot).unwrap()})
+        .await
+        .unwrap();
+    let failed = rushee::reschedule_pis(path(), Json(new_slot.to_string()))
+        .await
+        .unwrap()
+        .0;
+    assert_eq!(
+        failed,
+        json!({"status": "error", "message": "Failed to vacate old timeslot: PIS timeslot does not exist"})
+    );
+    assert_eq!(capacity(new_slot).await, 1);
+    let stored = stored_rushee().await;
+    assert_eq!(
+        stored.pis_timeslot,
+        DateTime::parse_rfc3339_str(old_slot).unwrap()
+    );
+    assert_eq!(stored.pis_signup.time, stored.pis_timeslot);
+}

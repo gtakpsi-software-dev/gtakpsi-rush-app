@@ -111,6 +111,7 @@ pub async fn check_contracts() {
         bson::DateTime::parse_rfc3339_str(successful_slot).unwrap()
     );
     failure_cases::check_reschedule_write_failure(successful_slot).await;
+    failure_cases::check_reschedule_missing_rushee_and_old_slot(successful_slot).await;
     failure_cases::check_signup_insert_failure().await;
     println!("registration, self-service privacy, and rescheduling contracts passed");
 }
