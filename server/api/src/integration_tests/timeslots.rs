@@ -1,5 +1,5 @@
 use axum::Json;
-use bson::doc;
+use bson::{doc, DateTime};
 use serde_json::json;
 
 use super::fixtures::{capacity, reset, SLOT};
@@ -73,8 +73,29 @@ pub async fn check_contracts() {
         .await
         .unwrap();
 
+    check_malformed_existing_slot().await;
     check_rejected_creation().await;
     println!("PIS timeslot create, update, delete, and list contracts passed");
+}
+
+async fn check_malformed_existing_slot() {
+    reset().await;
+    let collection = db::get_mongo_client()
+        .await
+        .database("rush-app")
+        .collection::<bson::Document>("pis-timeslots");
+    let time = DateTime::parse_rfc3339_str(SLOT).unwrap();
+    collection.insert_one(doc! {"time": time}).await.unwrap();
+
+    // A matching row that cannot decode must stop before either write path.
+    assert_eq!(
+        admin::add_pis_timeslot(change(3)).await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+    let stored = collection.find_one(doc! {}).await.unwrap().unwrap();
+    assert_eq!(stored.get("time"), Some(&bson::Bson::DateTime(time)));
+    assert!(!stored.contains_key("num_available"));
 }
 
 async fn check_rejected_creation() {
