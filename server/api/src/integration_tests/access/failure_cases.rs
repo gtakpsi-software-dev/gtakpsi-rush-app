@@ -57,4 +57,24 @@ pub(super) async fn check_contracts() {
         .run_command(doc! { "collMod": "rush-app-status", "validator": {} })
         .await
         .unwrap();
+
+    // A malformed record fails the admin read but keeps the public midterm default off.
+    database
+        .collection::<bson::Document>("rush-app-status")
+        .insert_one(doc! {"midterm_mode": "invalid"})
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::get_rush_app_status().await.unwrap().0,
+        json!({"status": "error", "message": "Failed to fetch Rush App status"})
+    );
+    assert_eq!(
+        admin::get_midterm_mode_status().await.unwrap().0,
+        json!({"status": "success", "midterm_mode": false})
+    );
+    database
+        .collection::<bson::Document>("rush-app-status")
+        .delete_many(doc! {})
+        .await
+        .unwrap();
 }
