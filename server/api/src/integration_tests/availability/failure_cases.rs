@@ -61,6 +61,7 @@ pub(super) async fn check_contracts() {
         .unwrap();
 
     check_rejected_form_send().await;
+    check_rejected_deactivation().await;
     check_rejected_submission_replacement().await;
 }
 
@@ -90,6 +91,36 @@ async fn check_rejected_form_send() {
         admin::get_pis_availability_form_status().await.unwrap().0,
         json!({"status": "success", "is_active": false, "sent_at": null})
     );
+    database
+        .run_command(doc! { "collMod": "pis-availability-form-status", "validator": {} })
+        .await
+        .unwrap();
+}
+
+async fn check_rejected_deactivation() {
+    reset().await;
+    assert_eq!(
+        admin::send_pis_availability_form().await.unwrap().0["status"],
+        "success"
+    );
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject the inactive replacement so the form remains open after a failed update.
+    database
+        .run_command(doc! {
+            "collMod": "pis-availability-form-status",
+            "validator": { "is_active": true }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::deactivate_pis_availability_form().await.unwrap().0,
+        json!({"status": "error", "message": "Failed to deactivate form"})
+    );
+    let current = admin::get_pis_availability_form_status().await.unwrap().0;
+    assert_eq!(current["status"], "success");
+    assert_eq!(current["is_active"], true);
+    assert!(!current["sent_at"].is_null());
     database
         .run_command(doc! { "collMod": "pis-availability-form-status", "validator": {} })
         .await
