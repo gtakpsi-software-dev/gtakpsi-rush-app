@@ -18,7 +18,6 @@ mod redis_integration_tests;
 
 #[tokio::main]
 async fn main() {
-    // Initialize tracing for logging
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -27,14 +26,13 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    // Start crypto runtime, required to connect to redis instance
+    // Install the crypto provider before Redis opens a TLS connection.
     rustls::crypto::ring::default_provider()
         .install_default()
         .expect("install rustls crypto provider");
 
     dotenv().ok();
 
-    // Get port from environment variable (Railway sets PORT automatically)
     let port: u16 = env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse()
@@ -42,7 +40,8 @@ async fn main() {
 
     let project_id = env::var("FIREBASE_PROJECT_ID").expect("FIREBASE_PROJECT_ID not set");
     let allowlist = env::var("ADMIN_ALLOWLIST_EMAILS").ok();
-    // Prefer inline JSON env, fallback to file path if provided.
+    // INVARIANT: service-account credentials stay in backend-only configuration.
+    // Valid inline JSON takes precedence so deployment does not need a credential file.
     let service_account = env::var("FIREBASE_SERVICE_ACCOUNT_JSON")
         .ok()
         .and_then(|inline| serde_json::from_str::<middlewares::auth::ServiceAccount>(&inline).ok())
