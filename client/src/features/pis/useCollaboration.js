@@ -144,5 +144,3 @@ export const useCollaboration = (roomId, currentUser) => {
         getActiveCursorsForField,
     };
 };
-
-export { applyOperation, createOperation, createOperationsFromDiff } from "./operations.js";

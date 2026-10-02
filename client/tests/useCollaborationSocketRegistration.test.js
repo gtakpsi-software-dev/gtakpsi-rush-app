@@ -63,11 +63,6 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
                 };
             },
         },
-        './operations.js': {
-            applyOperation: noop,
-            createOperation: noop,
-            createOperationsFromDiff: noop,
-        },
     };
 
     runInNewContext(code, {

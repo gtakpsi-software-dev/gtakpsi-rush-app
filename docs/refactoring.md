@@ -63,9 +63,12 @@ The unrendered shared Button component and its private tests were removed.
 The PIS voice recorder and transcription modules were also removed after
 confirming their only baseline UI was commented out. The PIS answer handler's
 voice-tagged update branch remains unchanged.
-The remaining 270 client JS/TS modules, including two type declarations, all
+The remaining 269 client JS/TS modules, including two type declarations, all
 have a static import path from `main.jsx`. This does not establish that every
 export or conditional branch is used.
+The collaboration hook's unused legacy operation exports and private helper
+were removed. No runtime source imported them, and the production JS and CSS
+asset hashes stayed identical after removal.
 The PIS Socket.IO entrypoint reaches all 14 source modules through static
 imports. Current Rust build/test dependency lists cover all 151 API source
 files, 16 sorting socket files, and 22 voting socket files; the API's Redis
@@ -160,7 +163,7 @@ Run `python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'`
 for offline maintenance-script tests. These use fake collections and do not
 require PyMongo or a database connection.
 
-Current verified totals: 553 client tests, 87 server unit tests, 31 collaboration
+Current verified totals: 549 client tests, 87 server unit tests, 31 collaboration
 tests, 15 sorting WebSocket tests, 6 voting WebSocket tests with the Redis
 feature, 1 API Redis integration test, and 88 server tests from the latest
 MongoDB integration-feature run, plus 64 maintenance-script tests. Current CSS
