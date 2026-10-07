@@ -14,6 +14,10 @@ mod voting;
 pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
     let routes = Router::new()
         .route(
+            "/admin/season/reset",
+            post(controllers::admin::reset_season).options(|| async { StatusCode::OK }),
+        )
+        .route(
             "/admin/add_pis_question",
             post(controllers::admin::add_pis_question).options(|| async { StatusCode::OK }),
         )

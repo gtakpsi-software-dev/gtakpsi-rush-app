@@ -68,7 +68,7 @@ def run_setup(*, execute=True, month=9, day=30, post_outcomes=None, env_override
     class FakeRequestException(Exception):
         pass
 
-    def fake_post(url, *, json, headers=None):
+    def fake_post(url, *, json, headers=None, timeout=None, allow_redirects=True):
         events.append(("post", url, json, headers))
         outcome = post_outcomes.get(url)
         if outcome:

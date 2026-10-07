@@ -84,7 +84,6 @@ The voting socket reads `REDIS_URL` and otherwise uses `redis://localhost:6379`.
 ### Setup Script (.env in root)
 
 ```env
-MONGO_URI=mongodb+srv://...
 API=https://your-railway-backend-url.railway.app
 FIREBASE_API_KEY=your-api-key
 ADMIN_UID=your-admin-user-id
@@ -205,9 +204,20 @@ Infrastructure as Code or equivalent dashboard settings before that cutoff.
 Before each rush season, run the setup script to clear old data:
 
 ```bash
-pip install pymongo python-dotenv tqdm firebase-admin
+pip install python-dotenv tqdm firebase-admin requests
 python3 -m scripts.season_setup
 ```
+
+Deploy the updated API before running setup: it must provide the admin-protected
+`POST /admin/season/reset` endpoint. Set `API` to its public HTTPS URL. Setup uses
+a Firebase admin bearer token and `API_KEY` for both reset and seed requests;
+`MONGO_URI` is no longer needed locally. The deployed API uses its own `MONGO_URL`,
+which can remain private to Railway. Firebase Storage cleanup still uses the
+local service-account credentials and `FIREBASE_STORAGE_BUCKET`.
+
+The reset clears four collections sequentially, not transactionally. If it fails,
+setup stops before Storage cleanup or seed uploads, but earlier collection deletes
+may already have completed. Authentication failures stop before the reset.
 
 Run this from the repository root. The reset runs only when this command is
 invoked directly. Importing `scripts.season_setup.__main__`

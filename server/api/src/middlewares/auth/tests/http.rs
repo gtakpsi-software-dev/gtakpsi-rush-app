@@ -135,3 +135,25 @@ async fn bearer_parsing_preserves_supported_case_and_whitespace_rules() {
         );
     }
 }
+
+#[tokio::test]
+async fn season_reset_rejects_authenticated_non_admins() {
+    let app = crate::routes::create_router(Arc::new(auth(None).await));
+    for bidcom in [false, true] {
+        let mut claims = claims();
+        claims["bidcom"] = json!(bidcom);
+        let mut request = Request::builder()
+            .method("POST")
+            .uri("/admin/season/reset")
+            .header("authorization", format!("Bearer {}", token(&claims)));
+        if let Ok(key) = std::env::var("API_KEY") {
+            request = request.header("x-api-key", key);
+        }
+        let response = app
+            .clone()
+            .oneshot(request.body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    }
+}

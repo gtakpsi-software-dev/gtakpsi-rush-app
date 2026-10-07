@@ -1,27 +1,20 @@
 """Destructive setup stages invoked after the entrypoint's date gate."""
 
 
-def reset_database(db):
-    # INVARIANT: reset only these four season collections before replaying seed data.
-    print("Deleting all rushees...")
-    rushee_collection = db["rushees"]
-    rushee_collection.delete_many({})
-    print("Deleted all rushees")
-
-    print("Deleting all rush nights...")
-    rush_night_collection = db["rush-nights"]
-    rush_night_collection.delete_many({})
-    print("Deleted all rush nights")
-
-    print("Deleting all PIS timeslots...")
-    pis_timeslot_collection = db["pis-timeslots"]
-    pis_timeslot_collection.delete_many({})
-    print("Deleted all PIS timeslots.")
-
-    print("Deleting all PIS questions...")
-    pis_question_collection = db["pis-questions"]
-    pis_question_collection.delete_many({})
-    print("Deleted all PIS questions.")
+def reset_database(api_url, auth_headers, post):
+    print("Resetting season data through the API...")
+    # Do not follow redirects or retry a destructive request automatically.
+    response = post(
+        api_url + "/admin/season/reset", json={}, headers=auth_headers,
+        timeout=60, allow_redirects=False,
+    )
+    if response.status_code != 200:
+        hint = " Deploy the updated API first." if response.status_code == 404 else ""
+        raise RuntimeError(f"HTTP {response.status_code}.{hint}")
+    body = response.json()
+    if not isinstance(body, dict) or body.get("status") != "success":
+        raise RuntimeError("The API did not confirm a successful reset.")
+    print("Season database reset complete.")
 
 
 def clear_profile_pictures(storage):

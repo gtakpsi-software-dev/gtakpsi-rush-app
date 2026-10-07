@@ -7,6 +7,7 @@ async fn protected_routes_reject_missing_bearer_tokens_before_database_access() 
         (Method::GET, "/bidcom/rushees/sorting"),
         (Method::PUT, "/bidcom/rushees/900000001/notes"),
         (Method::POST, "/admin/add_pis_question"),
+        (Method::POST, "/admin/season/reset"),
         (Method::GET, "/admin/rushees/sorting"),
         (Method::PUT, "/admin/rushees/move"),
         (Method::POST, "/admin/make-admin"),
