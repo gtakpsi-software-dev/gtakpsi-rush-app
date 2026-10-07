@@ -1,3 +1,6 @@
+mod season;
+pub use season::reset_season;
+
 mod roles;
 pub use roles::{get_admin_status, make_admin, make_bidcom};
 

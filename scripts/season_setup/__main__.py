@@ -7,7 +7,6 @@ import firebase_admin
 import requests
 from dotenv import load_dotenv
 from firebase_admin import credentials, storage, auth as firebase_auth
-from pymongo import MongoClient
 from tqdm import tqdm
 
 from scripts.season_setup.authentication import get_admin_id_token
@@ -28,8 +27,9 @@ def main():
 
     load_dotenv()
 
-    mongo_uri = os.getenv("MONGO_URI")
-    api_url = os.getenv("API")
+    api_url = os.getenv("API", "").rstrip("/")
+    if not api_url:
+        raise SystemExit("API must be set to the deployed API URL.")
     firebase_credentials_path = os.getenv(
         "FIREBASE_CREDENTIALS_PATH", "firebase-service-account.json"
     )
@@ -47,17 +47,17 @@ def main():
     id_token = get_admin_id_token(
         firebase_api_key, admin_uid, firebase_auth, requests.post
     )
-    auth_headers = {}
-    if id_token:
-        auth_headers["Authorization"] = f"Bearer {id_token}"
+    if not id_token:
+        raise SystemExit("Authentication failed; no season data was changed.")
+    auth_headers = {"Authorization": f"Bearer {id_token}"}
     if api_key:
         auth_headers["X-API-Key"] = api_key
 
-    client = MongoClient(mongo_uri)
-    db = client["rush-app"]
-
-    # INVARIANT: the date gate and credential setup above must run before destructive reset calls.
-    reset_database(db)
+    # Stop before Storage deletion or seed uploads if the API reset fails.
+    try:
+        reset_database(api_url, auth_headers, requests.post)
+    except (RuntimeError, requests.exceptions.RequestException, ValueError) as error:
+        raise SystemExit(f"Season reset failed; setup stopped: {error}") from error
     clear_profile_pictures(storage)
 
     errors = seed_data(
