@@ -1,105 +1,205 @@
 # GT AKPsi Rush App
 
-A React + Rust full stack application using Railway (backend), Vercel (frontend), Firebase Storage (images), and MongoDB.
+Rush management for Georgia Tech AKPsi, including registration, attendance,
+Personal Information Sheets (PIS), collaborative reviews, sorting, and live voting.
 
-## Tech Stack
+## Stack
 
-Refactoring progress, compatibility rules, and test commands are tracked in
-[docs/refactoring.md](docs/refactoring.md).
-
-- **Frontend**: React + Vite, hosted on Vercel
-- **API**: Rust + Axum, hosted on Railway
-- **Database**: MongoDB Atlas
-- **Image Storage**: Firebase Storage
-- **Real-time**: Rust WebSocket services for voting and sorting, a Node.js
-  Socket.IO service for PIS editing, and Redis for voting updates
+- React, TypeScript, and Vite for the frontend
+- Rust and Axum for the HTTP API and voting/sorting WebSocket services
+- Node.js and Socket.IO for collaborative PIS editing
+- MongoDB for application data and Redis for voting state and broadcasts
+- Firebase Authentication for sign-in and Firebase Storage for profile pictures
+- Vercel for frontend hosting and Railway for backend services
 
 ## Repository layout
 
-| Path | Purpose |
+| Directory | Purpose |
 | --- | --- |
-| `client/` | React app, feature modules, and client tests |
-| `server/api/` | Main HTTP API, authentication, and database access |
-| `server/websockets/voting/` | Voting updates over WebSocket |
-| `server/websockets/sorting/` | Shared sorting board over WebSocket |
-| `server/websockets/pis/` | Collaborative PIS editing over Socket.IO |
-| `scripts/season_setup/` | Explicit start-of-season reset command |
-| `scripts/maintenance/` | Manual maintenance commands and offline tests |
-| `scripts/testing/` | Isolated API and voting integration runners |
-| `data/season_seed/` | Input records for the season setup command |
-| `docs/` | Refactoring contract and verified slice history |
+| `client/` | Frontend and client tests |
+| `server/api/` | HTTP API, authentication, and database access |
+| `server/websockets/voting/` | Live voting updates |
+| `server/websockets/sorting/` | Shared sorting board |
+| `server/websockets/pis/` | Collaborative PIS editing |
+| `scripts/season_setup/` | Season reset and seed uploads |
+| `scripts/maintenance/` | Manual reports, exports, and maintenance commands |
+| `scripts/testing/` | Database and WebSocket integration test runners |
+| `data/season_seed/` | Rush nights, PIS timeslots, and questions |
 
-## Environment Variables
+## Configuration
 
-### Client (.env in /client)
+Keep credentials in local `.env` files or your hosting provider's environment
+settings. Do not commit them.
 
-```env
-VITE_API_PREFIX=https://your-railway-backend-url.railway.app
-VITE_API_KEY=your-client-api-key
-VITE_FIREBASE_API_KEY=your-api-key
+### Frontend
+
+Create `client/.env` for local development. Set the same variables in the
+frontend hosting environment for deployment.
+
+```dotenv
+VITE_API_PREFIX=http://localhost:3000
+VITE_API_KEY=your-api-key
+VITE_BROADCASTER_API_PREFIX=ws://localhost:4000
+VITE_SORTING_BROADCASTER_URL=ws://localhost:4001
+VITE_WEBSOCKET_URL=http://localhost:3001
+
+VITE_FIREBASE_API_KEY=your-firebase-web-api-key
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
-VITE_ADMIN_ALLOWLIST=admin@example.com,bidcom@example.com
+VITE_ADMIN_ALLOWLIST=admin@example.com
 ```
 
-The three real-time services retain their deployment variable names:
+For deployment, use each service's public domain with no trailing slash:
 
-| Client variable | Service | Local fallback |
+| Variable | Service | Production protocol |
 | --- | --- | --- |
-| `VITE_WEBSOCKET_URL` | PIS collaborative editing (Socket.IO) | `http://localhost:3001` |
-| `VITE_SORTING_BROADCASTER_URL` | Sorting board (WebSocket) | `ws://localhost:4001` |
-| `VITE_BROADCASTER_API_PREFIX` | Voting updates (WebSocket) | None |
+| `VITE_API_PREFIX` | Main API | `https://` |
+| `VITE_BROADCASTER_API_PREFIX` | Voting WebSocket | `wss://` |
+| `VITE_SORTING_BROADCASTER_URL` | Sorting WebSocket | `wss://` |
+| `VITE_WEBSOCKET_URL` | PIS Socket.IO | `https://` |
 
-Client code reads them through `client/src/config/realtimeBaseUrls.js`. Existing
-deployment variable names stay unchanged.
-Set `VITE_BROADCASTER_API_PREFIX` to the deployed voting WebSocket URL when
-using voting updates; that variable has no local fallback. The admin allowlist
-is comma-separated. Vite embeds every `VITE_*` value in browser code, so these
-values must not contain service-account keys or other server-only secrets.
+Rebuild the frontend after changing its environment variables. Every `VITE_*`
+value is included in browser code; never use these variables for Firebase service
+accounts or other server-only secrets. The admin allowlist accepts comma-separated
+email addresses.
 
-### API (.env in /server/api)
+### API
 
-```env
-MONGO_URL=mongodb+srv://...
-REDIS_URL=rediss://...
-API_KEY=your-client-api-key
+Create `server/api/.env` locally, or set these variables on the Railway API service:
+
+```dotenv
+MONGO_URL=mongodb://localhost:27017
+REDIS_URL=redis://localhost:6379
+API_KEY=your-api-key
 FIREBASE_PROJECT_ID=your-project-id
-ADMIN_ALLOWLIST_EMAILS=admin@example.com,bidcom@example.com
-FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
+ADMIN_ALLOWLIST_EMAILS=admin@example.com
+FIREBASE_SERVICE_ACCOUNT_PATH=/absolute/path/to/firebase-service-account.json
 RUSH_TIMEZONE=America/New_York
 ```
 
-`FIREBASE_PROJECT_ID` is required at startup. `ADMIN_ALLOWLIST_EMAILS` and
-`RUSH_TIMEZONE` are optional; the latter defaults to `America/New_York`.
-Admin role-claim operations need a backend-only Firebase service account. Set
-either `FIREBASE_SERVICE_ACCOUNT_PATH` as shown or
-`FIREBASE_SERVICE_ACCOUNT_JSON` to the credential JSON; valid inline JSON takes
-precedence. Railway supplies `PORT` automatically, while local defaults are
-3000 for the API, 4000 for voting, 4001 for sorting, and 3001 for PIS editing.
-The voting socket reads `REDIS_URL` and otherwise uses `redis://localhost:6379`.
+The API uses the MongoDB database `rush-app`. `FIREBASE_PROJECT_ID` is required;
+`ADMIN_ALLOWLIST_EMAILS` is optional, and `RUSH_TIMEZONE` defaults to
+`America/New_York`.
 
-### Setup Script (.env in root)
+Firebase role-management operations require a backend service account. Supply
+`FIREBASE_SERVICE_ACCOUNT_PATH` or `FIREBASE_SERVICE_ACCOUNT_JSON`; valid inline
+JSON takes precedence over the file path.
 
-```env
-API=https://your-railway-backend-url.railway.app
-FIREBASE_API_KEY=your-api-key
-ADMIN_UID=your-admin-user-id
-API_KEY=your-client-api-key
-FIREBASE_CREDENTIALS_PATH=firebase-service-account.json
-FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+### WebSocket services
+
+Set `REDIS_URL` on the voting service, using the same Redis instance as the API.
+For local development, place it in `server/websockets/voting/.env`.
+
+All four backend services accept `PORT`. Their local defaults are:
+
+| Service | Port |
+| --- | --- |
+| API | `3000` |
+| Voting | `4000` |
+| Sorting | `4001` |
+| PIS | `3001` |
+
+## Local development
+
+Install Node.js, npm, Rust, MongoDB, and Redis. Python is needed for season setup
+and maintenance commands.
+
+From the repository root, install the JavaScript dependencies:
+
+```bash
+npm --prefix client ci
+npm --prefix server/websockets/pis ci
 ```
 
-The root `.env.example` belongs to season setup and some manual commands. The
-client and API read configuration from their own service directories or
-deployment environment.
+Start MongoDB and Redis, then run each service in a separate terminal:
 
-The [maintenance command guide](scripts/maintenance/README.md) lists each
-manual command, its side effects, and its configuration requirements.
+```bash
+# Frontend
+npm --prefix client run dev
 
-## Tests
+# API
+(cd server/api && cargo run --locked)
+
+# Voting WebSocket
+(cd server/websockets/voting && cargo run --locked)
+
+# Sorting WebSocket
+(cd server/websockets/sorting && cargo run --locked)
+
+# PIS collaboration
+npm --prefix server/websockets/pis start
+```
+
+## Deployment
+
+### Frontend on Vercel
+
+Use `client` as the project root, `npm run build` as the build command, and `dist`
+as the output directory. Configure the frontend variables with the public backend
+URLs and select the branch to deploy.
+
+### Backend on Railway
+
+Create a separate service for each backend component:
+
+| Service | Root directory | Build/start | Health check |
+| --- | --- | --- | --- |
+| API | `/server/api` | Dockerfile | `/health` |
+| Voting | `/server/websockets/voting` | Dockerfile | `/` |
+| Sorting | `/server/websockets/sorting` | Dockerfile | `/health` |
+| PIS | `/server/websockets/pis` | Node.js / `npm start` | `/health` |
+
+Configure each service's environment variables, public domain, and health check.
+The Rust Dockerfiles include their start commands. Railway supplies `PORT`; the
+public domain must target that listening port.
+
+MongoDB and Redis can use private Railway URLs when the dependent services are in
+the same project environment. The frontend must use public backend URLs. The
+voting health check confirms the HTTP service is running; check its logs to verify
+that both Redis subscriptions are connected.
+
+## Season setup
+
+Edit the dates, timeslots, and questions in `data/season_seed/` before starting a
+season. Create a root `.env` using `.env.example`:
+
+```dotenv
+API=https://your-api-domain
+API_KEY=your-api-key
+FIREBASE_API_KEY=your-firebase-web-api-key
+ADMIN_UID=your-firebase-user-uid
+FIREBASE_CREDENTIALS_PATH=/absolute/path/to/firebase-service-account.json
+FIREBASE_STORAGE_BUCKET=your-storage-bucket
+```
+
+`ADMIN_UID` is the user's UID in Firebase Authentication. That account needs an
+admin custom claim or an email in the API's `ADMIN_ALLOWLIST_EMAILS`.
+
+From the repository root, run:
+
+```bash
+python3 -m pip install python-dotenv tqdm firebase-admin requests
+python3 -m scripts.season_setup
+```
+
+**This command deletes existing season data and profile pictures.** It clears
+rushees, rush nights, PIS timeslots, and PIS questions; removes Firebase Storage
+objects under `profile-pictures/`; then uploads the seed records.
+
+Database operations use authenticated requests to the public API, including
+`POST /admin/season/reset`. Local MongoDB access is not required. Profile-picture
+cleanup uses the configured Firebase service account and Storage bucket.
+
+Authentication or reset failures stop setup before picture cleanup and seed
+uploads. Collection resets are sequential, so a failed reset can leave earlier
+collections cleared. The script also enforces a September rush-period date guard.
+
+## Testing
+
+Run from the repository root:
 
 ```bash
 npm --prefix client run lint:ci
@@ -107,130 +207,28 @@ npm --prefix client test
 npm --prefix client run typecheck
 npm --prefix client run build
 npm --prefix server/websockets/pis test
-cargo fmt --manifest-path server/api/Cargo.toml -- --check
-cargo fmt --manifest-path server/websockets/sorting/Cargo.toml -- --check
-cargo fmt --manifest-path server/websockets/voting/Cargo.toml -- --check
-cargo +1.88.0 clippy --locked --manifest-path server/api/Cargo.toml --all-targets -- -D warnings
-cargo +1.88.0 clippy --locked --manifest-path server/websockets/sorting/Cargo.toml --all-targets -- -D warnings
-cargo +1.88.0 clippy --locked --manifest-path server/websockets/voting/Cargo.toml --all-targets -- -D warnings
+
 cargo test --locked --manifest-path server/api/Cargo.toml
 cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
-scripts/testing/api-integration.sh
-python3 scripts/testing/voting-integration.py
-RUSH_TEST_CROSS_STORE=1 python3 scripts/testing/voting-integration.py
+cargo test --locked --manifest-path server/websockets/voting/Cargo.toml
+
 python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'
 ```
 
-The API integration command requires Docker. It creates a fresh MongoDB container,
-runs database-backed behavior checks, and removes the container on exit. It does
-not use the app's `.env` or an existing database. See
-[the verification notes](docs/refactoring.md#verification) for local toolchain
-requirements and remaining coverage.
-
-The voting integration command requires `redis-server` and `redis-cli`. It starts
-a separate local Redis instance, checks its run marker, and stops that instance
-after the voting WebSocket and API voting tests.
-The optional cross-store mode also requires Docker. It runs the selected-rushee
-MongoDB and Redis contract against fresh, marked instances; CI enables this mode.
-
-[Regression checks](.github/workflows/regression.yml) run these suites, Rust
-format and strict Clippy checks, scoped client lint, typecheck, and build on
-pushes and pull requests. Scoped lint checks all client files except
-`Attendance.jsx` and rejects any warnings.
-Repository-wide lint remains tracked separately in
-[the refactoring ledger](docs/refactoring.md#slice-ledger) because Attendance has eight
-existing undefined-setter errors. All six jobs passed on remote commit
-`77e45bd` in [this GitHub Actions run](https://github.com/gtakpsi-software-dev/gtakpsi-rush-app/actions/runs/36956853486);
-later local commits have not run in GitHub CI.
-
-## Deploy
-
-### Frontend (Vercel)
-
-The frontend is deployed automatically via Vercel when you push to the main branch.
-
-Manual deploy:
-```bash
-cd client
-npm run build
-# Deploy to Vercel via CLI or dashboard
-```
-
-### Backend (Railway)
-
-The backend is deployed automatically via Railway when you push to the main branch.
-
-Set the API service's Railway root directory to `server/api`. Its Dockerfile and
-`railway.toml` live there; the Rust executable is `rush-api` and HTTP routes
-are unchanged.
-
-### PIS collaboration service
-
-Set this Socket.IO service's deployment root to `server/websockets/pis`. Run it
-there with `npm start`. Its package name is `rush-pis-websocket`; its port
-default and event protocol are unchanged.
-
-### Sorting WebSocket service
-
-Set this service's Railway root directory to `server/websockets/sorting`. Its
-Dockerfile and `railway.toml` live there. The executable is
-`rush-sorting-websocket`; its port default and WebSocket messages are unchanged.
-
-### Voting WebSocket service
-
-Set this service's Railway root directory to `server/websockets/voting`. Its
-Dockerfile and `railway.toml` live there. The executable is
-`rush-voting-websocket`; its port default and WebSocket messages are unchanged.
-
-Railway treats the Root Directory and the Config as Code file path separately.
-For an existing Rust service that already uses its `railway.toml`, update the
-config file path as well as the root directory:
-
-| Service | Root Directory | Config file path |
-| --- | --- | --- |
-| API | `/server/api` | `/server/api/railway.toml` |
-| Sorting WebSocket | `/server/websockets/sorting` | `/server/websockets/sorting/railway.toml` |
-| Voting WebSocket | `/server/websockets/voting` | `/server/websockets/voting/railway.toml` |
-
-Check each deployment's settings to confirm whether it used the file. The PIS
-service has no `railway.toml` and starts with `npm start` from its own root.
-[Railway's current guidance](https://docs.railway.com/config-as-code) deprecates
-Config as Code: existing files work only until December 1, 2026, and new
-services cannot opt in. Migrate the live Rust service settings to Railway
-Infrastructure as Code or equivalent dashboard settings before that cutoff.
-
-## Setup Script
-
-Before each rush season, run the setup script to clear old data:
+Database integration tests use disposable local instances:
 
 ```bash
-pip install python-dotenv tqdm firebase-admin requests
-python3 -m scripts.season_setup
+# Requires Docker; creates and removes a MongoDB container.
+scripts/testing/api-integration.sh
+
+# Requires redis-server and redis-cli; starts and stops a temporary Redis instance.
+python3 scripts/testing/voting-integration.py
+
+# Tests API operations across both MongoDB and Redis; requires both sets of tools.
+RUSH_TEST_CROSS_STORE=1 python3 scripts/testing/voting-integration.py
 ```
 
-Deploy the updated API before running setup: it must provide the admin-protected
-`POST /admin/season/reset` endpoint. Set `API` to its public HTTPS URL. Setup uses
-a Firebase admin bearer token and `API_KEY` for both reset and seed requests;
-`MONGO_URI` is no longer needed locally. The deployed API uses its own `MONGO_URL`,
-which can remain private to Railway. Firebase Storage cleanup still uses the
-local service-account credentials and `FIREBASE_STORAGE_BUCKET`.
-
-The reset clears four collections sequentially, not transactionally. If it fails,
-setup stops before Storage cleanup or seed uploads, but earlier collection deletes
-may already have completed. Authentication failures stop before the reset.
-
-Run this from the repository root. The reset runs only when this command is
-invoked directly. Importing `scripts.season_setup.__main__`
-does not connect to services or delete data. Its offline regression tests use
-fake MongoDB, Firebase, and HTTP clients. Authentication, reset, Storage cleanup,
-and seed uploads live under `scripts/season_setup/`; seed files are read from
-`data/season_seed/`.
-
-Season seed files live in `data/season_seed/`. Setup and migration commands read
-them there directly.
-
-This will:
-- Clear all rushees from MongoDB
-- Clear all rush nights and PIS timeslots
-- Delete all profile pictures from Firebase Storage
-- Re-add rush nights, PIS timeslots, and questions from JSON files
+CI runs regression tests, Rust formatting and strict Clippy checks, frontend
+lint, type checking, and the production build on pushes and pull requests.
+`lint:ci` excludes `Attendance.jsx`; `npm --prefix client run lint` checks the
+entire frontend.
