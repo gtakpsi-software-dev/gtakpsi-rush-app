@@ -1,0 +1,109 @@
+import type { KeyboardEventHandler, MouseEventHandler, RefObject } from "react";
+import { Link } from "react-router-dom";
+
+import Navbar from "../../components/Navbar";
+import AuthEmailField from "./AuthEmailField";
+
+type ForgotPasswordViewProps = {
+    loading: boolean;
+    emailSent: boolean;
+    email: RefObject<HTMLInputElement>;
+    handleResetPassword: MouseEventHandler<HTMLButtonElement>;
+    handleKeyPress: KeyboardEventHandler<HTMLInputElement>;
+    onTryAgain: MouseEventHandler<HTMLButtonElement>;
+};
+
+export default function ForgotPasswordView(props: ForgotPasswordViewProps) {
+    return (
+        <div className="bg-white min-h-screen">
+            <Navbar />
+            <div className="animate-fade-in">
+                <div className="text-left">
+                    <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+                        <a href="#" className="flex items-center mb-8 animate-slide-up">
+                            <img className="w-20 h-20 mr-3" src="akpsilogo.png" alt="logo" />
+                        </a>
+                        <div className="w-96 card-apple animate-slide-up" style={{ animationDelay: "0.1s" }}>
+                            <div className="p-8 space-y-6">
+                                {props.emailSent ? (
+                                    <div className="text-center space-y-4">
+                                        <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+                                            <svg
+                                                className="w-8 h-8 text-green-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h1 className="text-apple-title1 font-light text-black">
+                                            Check Your Email
+                                        </h1>
+                                        <p className="text-apple-subheadline text-apple-gray-600">
+                                            {"We've"} sent a password reset link to <span className="font-medium text-black">{props.email.current?.value}</span>
+                                        </p>
+                                        <p className="text-apple-footnote text-apple-gray-500">
+                                            {"Didn't"} receive the email? Check your spam folder or try again.
+                                        </p>
+                                        <div className="pt-6 space-y-4">
+                                            <button
+                                                onClick={props.onTryAgain}
+                                                className="btn-apple-secondary w-full"
+                                            >
+                                                Try Again
+                                            </button>
+                                            <Link to="/login" className="block">
+                                                <button className="btn-apple w-full">
+                                                    Back to Sign In
+                                                </button>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="text-center">
+                                            <h1 className="text-apple-title1 font-light text-black mb-2">
+                                                Reset Password
+                                            </h1>
+                                            <p className="text-apple-subheadline text-apple-gray-600">
+                                                Enter your email and {"we'll"} send you a reset link
+                                            </p>
+                                        </div>
+                                        <div className="space-y-5">
+                                            <AuthEmailField
+                                                email={props.email}
+                                                handleKeyPress={props.handleKeyPress}
+                                            />
+                                            <button
+                                                onClick={props.handleResetPassword}
+                                                disabled={props.loading}
+                                                className="btn-apple w-full disabled:opacity-50"
+                                            >
+                                                {props.loading ? "Sending..." : "Send Reset Link"}
+                                            </button>
+
+                                            <div className="text-center pt-2">
+                                                <Link
+                                                    to="/login"
+                                                    className="text-apple-footnote text-black font-medium hover:text-apple-gray-600 transition-colors duration-200"
+                                                >
+                                                    ← Back to Sign In
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

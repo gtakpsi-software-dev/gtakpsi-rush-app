@@ -1,10 +1,13 @@
 .env
+.env.migrations
 firebase-service-account.json
 *.json.bak
+__pycache__/
+.DS_Store
 
-server/bin/
-server/lib/
+server/api/bin/
+server/api/lib/
 
-server/pyvenv.cfg
+server/api/pyvenv.cfg
 
 venv312/

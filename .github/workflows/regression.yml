@@ -1,0 +1,75 @@
+name: Regression checks
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  client:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm --prefix client ci
+      # Attendance has pre-existing undefined setters; gate every other client file under the parity contract.
+      - run: npm --prefix client run lint:ci
+      - run: npm --prefix client test
+      - run: npm --prefix client run typecheck
+      - run: npm --prefix client run build
+
+  collaboration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: server/websockets/pis/package-lock.json
+      - run: npm --prefix server/websockets/pis ci
+      - run: npm --prefix server/websockets/pis test
+
+  api:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/api/Cargo.toml -- --check
+      - run: rustup toolchain install 1.88.0 --component clippy
+      - run: cargo +1.88.0 clippy --locked --manifest-path server/api/Cargo.toml --all-targets -- -D warnings
+      - run: scripts/testing/api-integration.sh
+
+  sorting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/websockets/sorting/Cargo.toml -- --check
+      - run: rustup toolchain install 1.88.0 --component clippy
+      - run: cargo +1.88.0 clippy --locked --manifest-path server/websockets/sorting/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --locked --manifest-path server/websockets/sorting/Cargo.toml
+
+  voting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo fmt --manifest-path server/websockets/voting/Cargo.toml -- --check
+      - run: rustup toolchain install 1.88.0 --component clippy
+      - run: cargo +1.88.0 clippy --locked --manifest-path server/websockets/voting/Cargo.toml --all-targets -- -D warnings
+      - run: sudo apt-get update && sudo apt-get install -y redis-server
+      - run: RUSH_TEST_CROSS_STORE=1 python3 scripts/testing/voting-integration.py
+
+  maintenance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 -m unittest discover -s scripts/maintenance/tests -p 'test_*.py'

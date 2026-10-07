@@ -1,0 +1,35 @@
+use crate::{
+    protocol::{send_outgoing_message, OutgoingMessage},
+    state::AppState,
+};
+use std::{sync::Arc, time::Duration};
+
+pub(crate) async fn run(cleanup_state: Arc<AppState>) {
+    // Release abandoned drags after the existing inactivity window, even if their socket stays open.
+    let stale_threshold = Duration::from_secs(60);
+    loop {
+        tokio::time::sleep(Duration::from_secs(10)).await;
+
+        let stale_ids: Vec<String> = {
+            let drag = cleanup_state.drag_state.read().await;
+            drag.iter()
+                .filter(|(_, state)| state.last_update.elapsed() > stale_threshold)
+                .map(|(id, _)| id.clone())
+                .collect()
+        };
+
+        if !stale_ids.is_empty() {
+            println!("Cleaning up {} stale drags", stale_ids.len());
+            let mut drag = cleanup_state.drag_state.write().await;
+            for id in &stale_ids {
+                drag.remove(id);
+            }
+            drop(drag);
+
+            for rushee_id in stale_ids {
+                let msg = OutgoingMessage::DragEnd { rushee_id };
+                send_outgoing_message(&cleanup_state.broadcast_tx, msg);
+            }
+        }
+    }
+}

@@ -1,0 +1,110 @@
+import Navbar from "../../components/Navbar";
+import { formatRatingValue } from "./ratingDisplay";
+
+type CommentEntry = {
+  rushee: {
+    image_url: string;
+    first_name: string;
+    last_name: string;
+    gtid: string;
+  };
+  comments: {
+    night?: { name?: string };
+    comment: string;
+    ratings?: { name: string; value: number | string }[];
+  }[];
+};
+
+type Props = {
+  loading: boolean;
+  error: string | null;
+  commentsData: CommentEntry[];
+  onOpenProfile: (gtid: string) => void;
+};
+
+export default function CommentsView({ loading, error, commentsData, onOpenProfile }: Props) {
+  return (
+    <div className="min-h-screen w-full bg-white overflow-y-auto">
+      <Navbar />
+      <div className="pt-24 p-4 pb-20">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-8">
+            <h1 className="text-apple-large font-light text-black mb-3">Your Comments</h1>
+            <div className="w-16 h-0.5 bg-black mx-auto mb-4"></div>
+            <p className="text-apple-subheadline text-apple-gray-600 font-light">
+              View all the comments and ratings {"you've"} submitted for rushees
+            </p>
+          </div>
+          {loading ? (
+            <div className="card-apple p-8 text-center">
+              <p className="text-apple-footnote text-apple-gray-600 font-light">Loading...</p>
+            </div>
+          ) : error ? (
+            <div className="card-apple p-8 text-center">
+              <p className="text-red-600">{error}</p>
+            </div>
+          ) : commentsData.length === 0 ? (
+            <div className="card-apple p-8 text-center">
+              <p className="text-apple-footnote text-apple-gray-600 font-light">You {"haven't"} commented on any rushees yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {commentsData.map((entry, idx) => (
+                <div
+                  key={idx}
+                  className="card-apple p-6 hover:border-apple-gray-300 transition-all duration-200"
+                >
+                  <div className="flex flex-col md:flex-row items-start gap-6">
+                    <img
+                      src={entry.rushee.image_url}
+                      alt={`${entry.rushee.first_name} ${entry.rushee.last_name}`}
+                      className="w-24 h-24 rounded-apple-2xl object-cover border border-apple-gray-200 shrink-0"
+                    />
+                    <div className="flex-1 w-full">
+                      <div className="flex flex-row items-center mb-4">
+                        <h2 className="text-apple-title1 font-normal text-black">
+                          {entry.rushee.first_name} {entry.rushee.last_name}
+                        </h2>
+                        {entry.comments[0]?.night?.name && (
+                          <span className="ml-auto bg-apple-gray-100 text-apple-gray-700 text-apple-caption1 font-light px-2 py-1 rounded-apple whitespace-nowrap">
+                            {entry.comments[0].night.name}
+                          </span>
+                        )}
+                      </div>
+
+                      {entry.comments.map((comment, cidx) => (
+                        <div key={cidx} className="mb-6 last:mb-4">
+                          <div className="flex flex-col gap-3 mb-3">
+                            <div className="flex items-start gap-3">
+                              <p className="text-apple-body text-black font-light flex-1">{comment.comment}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {comment.ratings && comment.ratings.map((rating, rIdx) => (
+                                <span
+                                  key={rIdx}
+                                  className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"
+                                >
+                                  {rating.name}: {formatRatingValue(rating.value)}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => onOpenProfile(entry.rushee.gtid)}
+                        className="btn-apple px-6 py-3 text-apple-body font-light"
+                      >
+                        View full profile
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

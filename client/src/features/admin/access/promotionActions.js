@@ -1,0 +1,111 @@
+export function createPromotionActions({
+    apiBase,
+    selectedBrother,
+    setSelectedBrother,
+    setBrotherSearch,
+    setFilteredBrothers,
+    setBrotherAdminStatus,
+    setBrotherBidcomStatus,
+    setIsPromoting,
+    axios,
+    toast,
+}) {
+    const handleSelectBrother = (brother) => {
+        setSelectedBrother(brother);
+        const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
+        setBrotherSearch(fullName || brother.email || "");
+        setFilteredBrothers([]);
+        fetchBrotherAdminStatus(brother);
+    };
+
+    const fetchBrotherAdminStatus = async (brother) => {
+        // Brother records can carry Firebase or database identifiers.
+        const uid = brother?.uid || brother?.id || brother?._id;
+        if (!uid) {
+            setBrotherAdminStatus(null);
+            setBrotherBidcomStatus(null);
+            return;
+        }
+        try {
+            const response = await axios.post(`${apiBase}/get-admin-status`, { uid });
+            if (response.data.status === "success") {
+                setBrotherAdminStatus(response.data.admin === true);
+                setBrotherBidcomStatus(response.data.bidcom === true);
+            } else {
+                setBrotherAdminStatus(null);
+                setBrotherBidcomStatus(null);
+            }
+        } catch {
+            setBrotherAdminStatus(null);
+            setBrotherBidcomStatus(null);
+        }
+    };
+
+    // INVARIANT: role changes require a selected brother with a usable UID.
+    const updateRole = async ({ endpoint, field, enabled, setStatus, successMessage, failureMessage }) => {
+        if (!selectedBrother) {
+            toast.error("Select a brother first");
+            return;
+        }
+        const uid = selectedBrother.uid || selectedBrother.id || selectedBrother._id;
+        if (!uid) {
+            toast.error("No UID found for this brother");
+            return;
+        }
+        setIsPromoting(true);
+        try {
+            const response = await axios.post(`${apiBase}/${endpoint}`, { uid, [field]: enabled });
+            if (response.data.status === "success") {
+                setStatus(enabled);
+                toast.success(successMessage(), {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            } else {
+                toast.error(response.data.message || failureMessage, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || failureMessage, {
+                position: "top-center",
+                autoClose: 3000,
+                theme: "dark",
+            });
+        } finally {
+            setIsPromoting(false);
+        }
+    };
+
+    const handleSetAdmin = (makeAdmin) => updateRole({
+        endpoint: "make-admin",
+        field: "make_admin",
+        enabled: makeAdmin,
+        setStatus: setBrotherAdminStatus,
+        successMessage: () => makeAdmin
+            ? `Granted admin to ${selectedBrother.email || "brother"}`
+            : `Removed admin from ${selectedBrother.email || "brother"}`,
+        failureMessage: "Failed to update admin",
+    });
+
+    const handleSetBidcom = (makeBidcom) => updateRole({
+        endpoint: "make-bidcom",
+        field: "make_bidcom",
+        enabled: makeBidcom,
+        setStatus: setBrotherBidcomStatus,
+        successMessage: () => makeBidcom
+            ? `Granted bid committee access to ${selectedBrother.email || "brother"}`
+            : `Removed bid committee access from ${selectedBrother.email || "brother"}`,
+        failureMessage: "Failed to update bid committee",
+    });
+
+    return {
+        handleSelectBrother,
+        fetchBrotherAdminStatus,
+        handleSetAdmin,
+        handleSetBidcom,
+    };
+}
