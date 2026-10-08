@@ -18,7 +18,9 @@ const rushee = {
 };
 
 test("ratings card retains visible and hidden markup", async () => {
+    // Verify ratings card retains visible and hidden markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
+    // Render a lightweight React element for component assertions.
     const Interactions = () => React.createElement("section", { "data-test-interactions": "true" });
     const RusheeRatings = await loadTsxComponent(componentPath, {
         "../../../components/RusheeInteractionsByNight": Interactions,
@@ -31,7 +33,9 @@ test("ratings card retains visible and hidden markup", async () => {
 });
 
 test("interactions retain the original data in both visibility states", async () => {
+    // Verify interactions retain the original data in both visibility states.
     const calls = [];
+    // Capture interaction props and render a placeholder section.
     const Interactions = (props) => {
         calls.push(props);
         return React.createElement("section");

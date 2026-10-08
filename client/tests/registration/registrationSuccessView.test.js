@@ -13,7 +13,12 @@ import { transformWithEsbuild } from "vite";
 const componentPath = fileURLToPath(new URL("../../src/features/registration/RegistrationSuccessView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("../fixtures/registrationSuccessMarkup.json", import.meta.url));
 
-async function loadComponent({ copied = false, navigator = {}, setCopied = () => {}, setTimeout = () => {} } = {}) {
+// Load component with injected dependencies for isolated tests.
+async function loadComponent({ copied = false, navigator = {}, setCopied =
+    /* Leave this mocked callback inert. */
+    () => {}, setTimeout =
+    /* Leave this mocked callback inert. */
+    () => {} } = {}) {
     const source = await readFile(componentPath, "utf8");
     const { code } = await transformWithEsbuild(source, componentPath, {
         loader: "tsx", format: "cjs", jsx: "automatic",
@@ -27,9 +32,10 @@ async function loadComponent({ copied = false, navigator = {}, setCopied = () =>
         navigator,
         setTimeout,
         window: { location: { origin: "https://rush.example.edu" } },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === "react") {
-                return { ...React, useState: () => [copied, setCopied] };
+                return { ...React, useState: /* Expose controlled hook state and capture updates for assertions. */ () => [copied, setCopied] };
             }
             return requireFromComponent(specifier);
         },
@@ -38,6 +44,7 @@ async function loadComponent({ copied = false, navigator = {}, setCopied = () =>
     return module.exports.default;
 }
 
+// Find the first button in the rendered element tree.
 function findButton(node) {
     if (Array.isArray(node)) return node.map(findButton).find(Boolean);
     if (!React.isValidElement(node)) return null;
@@ -53,6 +60,7 @@ const props = {
 };
 
 test("registration success retains the personal link and copy-state markup", async () => {
+    // Verify registration success retains the personal link and copy-state markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const actual = {};
 
@@ -67,18 +75,22 @@ test("registration success retains the personal link and copy-state markup", asy
 });
 
 test("copy button writes the same link and resets its state after two seconds", async () => {
+    // Verify copy button writes the same link and resets its state after two seconds.
     const calls = [];
     let reset;
     const RegistrationSuccessView = await loadComponent({
         navigator: {
             clipboard: {
+                // Record copied text and resolve the clipboard request.
                 writeText: (value) => {
                     calls.push(["writeText", value]);
                     return Promise.resolve();
                 },
             },
         },
+        // Record set copied calls for assertions.
         setCopied: (value) => calls.push(["setCopied", value]),
+        // Capture the copy-status reset callback and its delay.
         setTimeout: (callback, delay) => {
             calls.push(["setTimeout", delay]);
             reset = callback;

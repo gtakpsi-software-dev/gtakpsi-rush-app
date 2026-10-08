@@ -9,26 +9,31 @@ const warningOptions = {
     progress: undefined, theme: "colored",
 };
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(overrides = {}) {
     const events = [];
     const values = ["Ada", "Lovelace", "ada@example.invalid", "Hall", "4045550100", "900000001", "Business", "she/her", "Third Year", "Friend"];
-    const inputs = values.map((value) => ({ current: { value } }));
-    const fields = inputs.map((input, index) => [
+    const inputs = values.map(/* Return the fixture for this scenario. */ (value) => ({ current: { value } }));
+    const fields = inputs.map(/* Return the fixture for this scenario. */ (input, index) => [
         input,
-        (value) => events.push(["field", index, value]),
+        /* Record callback arguments for assertions. */ (value) => events.push(["field", index, value]),
     ]);
     const deps = {
         fields,
         gtid: inputs[5],
         email: inputs[2],
         phone: inputs[4],
+        // Record registration verification and return success.
         verifyInfo: async (...args) => {
             events.push(["verify", ...args]);
             return { status: "success" };
         },
+        // Record set curr loading calls for assertions.
         setCurrLoading: (value) => events.push(["loading", value]),
+        // Record set page calls for assertions.
         setPage: (value) => events.push(["page", value]),
-        toast: { warn: (...args) => events.push(["warn", ...args]) },
+        toast: { warn: /* Record warn calls for assertions. */ (...args) => events.push(["warn", ...args]) },
+        // Record log error calls for assertions.
         logError: (error) => events.push(["log", error]),
         ...overrides,
     };
@@ -36,6 +41,7 @@ function harness(overrides = {}) {
 }
 
 test("valid basic info verifies GTID, email, and phone before saving fields in form order", async () => {
+    // Verify valid basic info verifies GTID, email, and phone before saving fields in form order.
     const { events, deps } = harness();
     await createBasicInfoSubmit(deps)();
     assert.deepEqual(events, [
@@ -57,6 +63,7 @@ test("valid basic info verifies GTID, email, and phone before saving fields in f
 });
 
 test("missing basic info warns before verification and retains the existing loading state", async () => {
+    // Verify missing basic info warns before verification and retains the existing loading state.
     for (const invalid of [null, ""]) {
         const { events, inputs, deps } = harness();
         inputs[4].current.value = invalid;
@@ -68,7 +75,9 @@ test("missing basic info warns before verification and retains the existing load
 });
 
 test("verification rejection shows its message and clears loading without saving fields", async () => {
+    // Verify verification rejection shows its message and clears loading without saving fields.
     const { events, deps } = harness({
+        // Record registration verification and reject the existing applicant.
         verifyInfo: async (...args) => {
             events.push(["verify", ...args]);
             return { status: "error", message: "Already registered" };
@@ -84,8 +93,11 @@ test("verification rejection shows its message and clears loading without saving
 });
 
 test("verification failure logs and warns before clearing loading", async () => {
+    // Verify verification failure logs and warns before clearing loading.
     const error = new Error("offline");
-    const { events, deps } = harness({ verifyInfo: async () => { throw error; } });
+    const { events, deps } = harness({ verifyInfo: async () => {
+        // Simulate a dependency failure for this scenario.
+         throw error; } });
     await createBasicInfoSubmit(deps)();
     assert.deepEqual(events, [
         ["loading", true], ["log", error],
@@ -95,14 +107,19 @@ test("verification failure logs and warns before clearing loading", async () => 
 });
 
 test("synchronous verification and field-setter failures keep separate cleanup paths", async () => {
+    // Verify synchronous verification and field-setter failures keep separate cleanup paths.
     const verifyError = new Error("verification setup failed");
-    const synchronous = harness({ verifyInfo: () => { throw verifyError; } });
+    const synchronous = harness({ verifyInfo: () => {
+        // Simulate a dependency failure for this scenario.
+         throw verifyError; } });
     await assert.rejects(createBasicInfoSubmit(synchronous.deps)(), verifyError);
     assert.deepEqual(synchronous.events, [["loading", true]]);
 
     const setterError = new Error("field update failed");
     const setter = harness();
-    setter.deps.fields[0][1] = () => { throw setterError; };
+    setter.deps.fields[0][1] = () => {
+        // Simulate a dependency failure for this scenario.
+         throw setterError; };
     await createBasicInfoSubmit(setter.deps)();
     assert.deepEqual(setter.events.slice(-4), [
         ["verify", "900000001", "ada@example.invalid", "4045550100", true],
@@ -110,5 +127,5 @@ test("synchronous verification and field-setter failures keep separate cleanup p
         ["warn", "Some internal error occurred", warningOptions],
         ["loading", false],
     ]);
-    assert.ok(!setter.events.some(([kind]) => kind === "page"));
+    assert.ok(!setter.events.some(/* Select recorded page calls. */ ([kind]) => kind === "page"));
 });

@@ -12,6 +12,7 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 const fieldsPath = fileURLToPath(new URL("../../src/features/registration/BasicInfoFields.tsx", import.meta.url));
 const contactPath = fileURLToPath(new URL("../../src/features/registration/BasicContactFields.tsx", import.meta.url));
 
+// Load fields with injected dependencies for isolated tests.
 async function loadFields() {
     const BasicContactFields = await loadTsxComponent(contactPath, {
         "../../lib/formatPhoneInput.js": { formatPhoneInput },
@@ -24,8 +25,9 @@ async function loadFields() {
     });
 }
 
+// Find the rendered input with the requested ID.
 function findInput(node, id) {
-    if (Array.isArray(node)) return node.map((child) => findInput(child, id)).find(Boolean);
+    if (Array.isArray(node)) return node.map(/* Invoke findInput with the test inputs. */ (child) => findInput(child, id)).find(Boolean);
     if (!React.isValidElement(node)) return null;
     if (typeof node.type === "function") return findInput(node.type(node.props), id);
     if (node.props.id === id) return node;
@@ -33,6 +35,7 @@ function findInput(node, id) {
 }
 
 test("registration phone input keeps the existing partial and full formatting", () => {
+    // Verify registration phone input keeps the existing partial and full formatting.
     for (const [input, expected] of [
         ["", ""],
         ["1", "(1"],
@@ -51,6 +54,7 @@ test("registration phone input keeps the existing partial and full formatting", 
 });
 
 test("the registration phone field still formats its target on change", async () => {
+    // Verify the registration phone field still formats its target on change.
     const BasicInfoFields = await loadFields();
     const tree = BasicInfoFields({});
     const phone = findInput(tree, "grid-phone");
@@ -61,6 +65,7 @@ test("the registration phone field still formats its target on change", async ()
 });
 
 test("contact inputs keep the registration form's refs", async () => {
+    // Verify contact inputs keep the registration form's refs.
     const BasicInfoFields = await loadFields();
     const refs = {
         email: { current: null },

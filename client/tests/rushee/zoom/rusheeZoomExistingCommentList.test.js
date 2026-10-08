@@ -19,11 +19,16 @@ const other = {
     brother_name: "Bea Two", comment: "Other note", night: { name: "Night 2" },
     ratings: [{ name: "Why AKPsi", value: 3 }],
 };
+// Render a lightweight React element for component assertions.
 const Badges = () => React.createElement("span", { "data-stub": "badge" });
+// Render a lightweight React element for component assertions.
 const CommentWarning = () => React.createElement("aside", { "data-stub": "warning" });
+// Render a lightweight React element for component assertions.
 const FaEdit = () => React.createElement("i", { "data-stub": "edit" });
+// Render a lightweight React element for component assertions.
 const FaTrash = () => React.createElement("i", { "data-stub": "trash" });
 
+// Load list with injected dependencies for isolated tests.
 async function loadList() {
     return loadTsxComponent(componentPath, {
         "../../../components/Badge": Badges,
@@ -33,27 +38,36 @@ async function loadList() {
     });
 }
 
+// Build component props with test-specific overrides.
 function props(overrides = {}) {
     return {
         visibleComments: [own, other],
         user: { firstname: "Ari", lastname: "One" },
         editingCommentId: null,
         editedCommentText: "Edited",
+        // Provide an inert set selected comment stub for this test.
         setSelectedComment() {},
+        // Provide an inert handle edit comment stub for this test.
         handleEditComment() {},
+        // Provide an inert handle delete comment stub for this test.
         handleDeleteComment() {},
+        // Provide an inert set edited comment text stub for this test.
         setEditedCommentText() {},
+        // Provide an inert validate edit comment stub for this test.
         validateEditComment() {},
         editCommentWarnings: [{ type: "name", message: "Warning" }],
+        // Provide an inert set edit comment warnings stub for this test.
         setEditCommentWarnings() {},
+        // Provide an inert handle submit edit stub for this test.
         handleSubmitEdit() {},
         ...overrides,
     };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         collect(node.props.children, elements);
@@ -62,6 +76,7 @@ function collect(node, elements = []) {
 }
 
 test("existing comments retain viewing, editing, and empty markup", async () => {
+    // Verify existing comments retain viewing, editing, and empty markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const ExistingCommentList = await loadList();
     const scenarios = {
@@ -76,22 +91,28 @@ test("existing comments retain viewing, editing, and empty markup", async () => 
 });
 
 test("comment cards and edit/delete buttons retain their handlers and propagation", async () => {
+    // Verify comment cards and edit/delete buttons retain their handlers and propagation.
     const ExistingCommentList = await loadList();
     const calls = [];
     const tree = ExistingCommentList(props({
+        // Record set selected comment calls for assertions.
         setSelectedComment: (comment) => calls.push(["select", comment]),
+        // Record handle edit comment calls for assertions.
         handleEditComment: (comment) => calls.push(["edit", comment]),
+        // Record handle delete comment calls for assertions.
         handleDeleteComment: (comment) => calls.push(["delete", comment]),
     }));
     const nodes = collect(tree);
-    const cards = nodes.filter((node) => node.props.className?.includes("relative bg-apple-gray-50"));
-    const buttons = nodes.filter((node) => node.type === "button");
+    const cards = nodes.filter(
+        /* Identify elements with the expected styling classes. */
+        (node) => node.props.className?.includes("relative bg-apple-gray-50"));
+    const buttons = nodes.filter(/* Identify rendered button elements. */ (node) => node.type === "button");
     assert.equal(cards.length, 2);
     assert.equal(buttons.length, 4);
     cards[0].props.onClick();
     cards[1].props.onClick();
-    buttons[0].props.onClick({ stopPropagation: () => calls.push(["stop"]) });
-    buttons[1].props.onClick({ stopPropagation: () => calls.push(["stop"]) });
+    buttons[0].props.onClick({ stopPropagation: /* Record stop propagation calls for assertions. */ () => calls.push(["stop"]) });
+    buttons[1].props.onClick({ stopPropagation: /* Record stop propagation calls for assertions. */ () => calls.push(["stop"]) });
     assert.deepEqual(calls, [
         ["select", own], ["select", other],
         ["stop"], ["edit", own], ["stop"], ["delete", own],
@@ -99,22 +120,29 @@ test("comment cards and edit/delete buttons retain their handlers and propagatio
 });
 
 test("edit text, warning dismissal, and submit retain update order", async () => {
+    // Verify edit text, warning dismissal, and submit retain update order.
     const ExistingCommentList = await loadList();
     const calls = [];
     const tree = ExistingCommentList(props({
         editingCommentId: own.comment,
+        // Record set edited comment text calls for assertions.
         setEditedCommentText: (text) => calls.push(["text", text]),
+        // Record validate edit comment calls for assertions.
         validateEditComment: (text) => calls.push(["validate", text]),
+        // Record set edit comment warnings calls for assertions.
         setEditCommentWarnings: (warnings) => calls.push(["warnings", warnings]),
+        // Record handle submit edit calls for assertions.
         handleSubmitEdit: (comment) => calls.push(["submit", comment]),
     }));
     const nodes = collect(tree);
-    const textarea = nodes.find((node) => node.type === "textarea");
-    const warning = nodes.find((node) => node.type === CommentWarning);
-    const update = nodes.find((node) => node.type === "button" && node.props.children === "Update Comment");
+    const textarea = nodes.find(/* Identify rendered textarea elements. */ (node) => node.type === "textarea");
+    const warning = nodes.find(/* Match node.type to CommentWarning. */ (node) => node.type === CommentWarning);
+    const update = nodes.find(
+        /* Find the button with label Update Comment. */
+        (node) => node.type === "button" && node.props.children === "Update Comment");
     textarea.props.onChange({ target: { value: "Revised" } });
     warning.props.onDismiss(0);
-    update.props.onClick({ stopPropagation: () => calls.push(["stop"]) });
+    update.props.onClick({ stopPropagation: /* Record stop propagation calls for assertions. */ () => calls.push(["stop"]) });
     assert.deepEqual(calls, [
         ["text", "Revised"], ["validate", "Revised"], ["warnings", []],
         ["stop"], ["submit", own],

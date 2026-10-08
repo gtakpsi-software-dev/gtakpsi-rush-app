@@ -17,9 +17,11 @@ const rushee = {
 };
 // The badge stub keeps the baseline markup independent of the shared component.
 // eslint-disable-next-line react/prop-types
+// Render a lightweight React element for component assertions.
 const Badges = ({ text }) => React.createElement("span", { "data-badge": text }, text);
 
 test("normal and bid committee profile headers retain original rendered markup", async () => {
+    // Verify normal and bid committee profile headers retain original rendered markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const RusheeProfileHeader = await loadTsxComponent(componentPath, {
         "../../../components/Badge": Badges,
@@ -27,7 +29,9 @@ test("normal and bid committee profile headers retain original rendered markup",
     for (const [name, bidMode] of Object.entries({ normal: false, bidCommittee: true })) {
         const html = renderToStaticMarkup(React.createElement(RusheeProfileHeader, {
             rushee,
+            // Return bid mode to the caller.
             isBidCommitteeMode: () => bidMode,
+            // Return the fixed rushee number fixture.
             getRusheeNumber: () => "42",
         }));
         const hash = createHash("sha256").update(html).digest("hex");
@@ -36,15 +40,18 @@ test("normal and bid committee profile headers retain original rendered markup",
 });
 
 test("bid committee number and privacy branches retain their existing checks", async () => {
+    // Verify bid committee number and privacy branches retain their existing checks.
     const RusheeProfileHeader = await loadTsxComponent(componentPath, {
         "../../../components/Badge": Badges,
     });
     const calls = [];
     renderToStaticMarkup(React.createElement(RusheeProfileHeader, {
         rushee,
+        // Record mode lookup and enable midterm mode.
         isBidCommitteeMode: () => { calls.push("mode"); return true; },
+        // Record anonymous-number lookup and return the fixed number.
         getRusheeNumber: () => { calls.push("number"); return "42"; },
     }));
-    assert.equal(calls.filter((call) => call === "mode").length, 5);
-    assert.equal(calls.filter((call) => call === "number").length, 2);
+    assert.equal(calls.filter(/* Match call to "mode". */ (call) => call === "mode").length, 5);
+    assert.equal(calls.filter(/* Match call to "number". */ (call) => call === "number").length, 2);
 });

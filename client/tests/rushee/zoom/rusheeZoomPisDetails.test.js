@@ -24,9 +24,10 @@ const rushee = {
     ],
 };
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collectClickable(node, clickable = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collectClickable(child, clickable));
+        node.forEach(/* Invoke collectClickable with the test inputs. */ (child) => collectClickable(child, clickable));
     } else if (React.isValidElement(node)) {
         if (node.props.onClick) clickable.push(node);
         collectClickable(node.props.children, clickable);
@@ -35,9 +36,12 @@ function collectClickable(node, clickable = []) {
 }
 
 test("PIS details retain populated and empty response markup", async () => {
+    // Verify PIS details retain populated and empty response markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const dateCalls = [];
+    // Return the dayjs fixture for this scenario.
     const dayjs = (value) => ({
+        // Capture date formatting inputs and return an inspectable label.
         format(pattern) {
             dateCalls.push([value, pattern]);
             return `date(${value},${pattern})`;
@@ -48,6 +52,7 @@ test("PIS details retain populated and empty response markup", async () => {
     for (const [name, pis] of Object.entries({ responses: rushee.pis, empty: [] })) {
         const html = renderToStaticMarkup(React.createElement(RusheePisDetails, {
             rushee: { ...rushee, pis },
+            // Provide an inert set selected pis stub for this test.
             setSelectedPis: () => {},
         }));
         assert.equal(createHash("sha256").update(html).digest("hex"), expected[name]);
@@ -59,14 +64,16 @@ test("PIS details retain populated and empty response markup", async () => {
 });
 
 test("each response opens the original PIS object", async () => {
+    // Verify each response opens the original PIS object.
     const RusheePisDetails = await loadTsxComponent(componentPath, {
-        dayjs: () => ({ format: () => "date" }),
+        // Return the dayjs fixture for this scenario.
+        dayjs: () => ({ format: /* Return the fixed format fixture. */ () => "date" }),
     });
     const selected = [];
-    const tree = RusheePisDetails({ rushee, setSelectedPis: (pis) => selected.push(pis) });
+    const tree = RusheePisDetails({ rushee, setSelectedPis: /* Record set selected pis calls for assertions. */ (pis) => selected.push(pis) });
     const cards = collectClickable(tree);
     assert.equal(cards.length, rushee.pis.length);
-    cards.forEach((card) => card.props.onClick());
+    cards.forEach(/* Invoke card.props.onClick with the test inputs. */ (card) => card.props.onClick());
     assert.equal(selected[0], rushee.pis[0]);
     assert.equal(selected[1], rushee.pis[1]);
 });

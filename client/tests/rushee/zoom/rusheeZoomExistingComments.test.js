@@ -16,6 +16,7 @@ const toastOptions = {
     progress: undefined, theme: "dark",
 };
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup({ currentRushee = rushee, currentError = false, editedCommentText = "Edited comment", editResponse = { status: "success" }, deleteResponse = { status: "success" } } = {}) {
     const calls = [];
     const actions = createExistingCommentActions({
@@ -24,20 +25,29 @@ function setup({ currentRushee = rushee, currentError = false, editedCommentText
         editedCommentText,
         gtid: "123",
         api: "/api",
+        // Record set editing comment id calls for assertions.
         setEditingCommentId: (value) => calls.push(["editId", value]),
+        // Record set edited comment text calls for assertions.
         setEditedCommentText: (value) => calls.push(["editText", value]),
+        // Record set edit comment warnings calls for assertions.
         setEditCommentWarnings: (value) => calls.push(["warnings", value]),
+        // Record set loading calls for assertions.
         setLoading: (value) => calls.push(["loading", value]),
+        // Record validation inputs and flag text containing the test warning word.
         validateComment: (text, first, last) => {
             calls.push(["validate", text, first, last]);
             return { hasWarnings: text.includes("bad") };
         },
+        // Return the generate warnings fixture for this scenario.
         generateWarnings: () => ["Warning"],
         toast: {
+            // Record warning calls for assertions.
             warning: (message, options) => calls.push(["warningToast", message, options]),
+            // Record error calls for assertions.
             error: (message, options) => calls.push(["errorToast", message, options]),
         },
         axios: {
+            // Select the edit or delete response for the recorded request.
             post: async (url, payload) => {
                 calls.push(["post", url, payload]);
                 const response = url.includes("edit-comment") ? editResponse : deleteResponse;
@@ -45,13 +55,16 @@ function setup({ currentRushee = rushee, currentError = false, editedCommentText
                 return { data: response };
             },
         },
+        // Record reload calls for assertions.
         reload: () => calls.push(["reload"]),
+        // Record log calls for assertions.
         log: (value) => calls.push(["log", value]),
     });
     return { calls, actions };
 }
 
 test("opening and validating an edit keep the original comment-text identity", () => {
+    // Verify opening and validating an edit keep the original comment-text identity.
     const { calls, actions } = setup();
     actions.handleEditComment(comment);
     assert.deepEqual(calls, [
@@ -66,6 +79,7 @@ test("opening and validating an edit keep the original comment-text identity", (
 });
 
 test("edited comments warn but submit the original ratings and night", async () => {
+    // Verify edited comments warn but submit the original ratings and night.
     const { calls, actions } = setup({ editedCommentText: "bad wording" });
     await actions.handleSubmitEdit(comment);
     assert.deepEqual(calls[0], ["log", comment]);
@@ -80,26 +94,28 @@ test("edited comments warn but submit the original ratings and night", async () 
         ratings: comment.ratings,
         night: comment.night,
     }]);
-    assert.deepEqual(calls.slice(6).map(([kind]) => kind), ["reload", "editId", "editText", "warnings", "loading"]);
+    assert.deepEqual(calls.slice(6).map(/* Return kind to the caller. */ ([kind]) => kind), ["reload", "editId", "editText", "warnings", "loading"]);
     assert.deepEqual(calls.at(-1), ["loading", false]);
 });
 
 test("edit response and network errors retain their distinct logs and reset state", async () => {
+    // Verify edit response and network errors retain their distinct logs and reset state.
     const denied = setup({ editResponse: { status: "error", message: "Denied" } });
     await denied.actions.handleSubmitEdit(comment);
-    assert.equal(denied.calls.find(([kind]) => kind === "errorToast")[1], "Denied");
-    assert.deepEqual(denied.calls.find(([kind]) => kind === "errorToast")[2], toastOptions);
+    assert.equal(denied.calls.find(/* Select recorded errorToast calls. */ ([kind]) => kind === "errorToast")[1], "Denied");
+    assert.deepEqual(denied.calls.find(/* Select recorded errorToast calls. */ ([kind]) => kind === "errorToast")[2], toastOptions);
     assert.deepEqual(denied.calls.at(-1), ["loading", false]);
 
     const offline = setup({ currentError: true, editResponse: new Error("offline") });
     await offline.actions.handleSubmitEdit(comment);
-    assert.deepEqual(offline.calls.find(([kind, value]) => kind === "log" && value === true), ["log", true]);
-    assert.equal(offline.calls.find(([kind]) => kind === "errorToast")[1], "Some network error occurred");
-    assert.deepEqual(offline.calls.find(([kind]) => kind === "errorToast")[2], toastOptions);
+    assert.deepEqual(offline.calls.find(/* Select recorded log calls. */ ([kind, value]) => kind === "log" && value === true), ["log", true]);
+    assert.equal(offline.calls.find(/* Select recorded errorToast calls. */ ([kind]) => kind === "errorToast")[1], "Some network error occurred");
+    assert.deepEqual(offline.calls.find(/* Select recorded errorToast calls. */ ([kind]) => kind === "errorToast")[2], toastOptions);
     assert.deepEqual(offline.calls.at(-1), ["loading", false]);
 });
 
 test("deleting passes the stored comment through and retains success and error cleanup", async () => {
+    // Verify deleting passes the stored comment through and retains success and error cleanup.
     const removed = setup();
     await removed.actions.handleDeleteComment(comment);
     assert.deepEqual(removed.calls, [
@@ -115,7 +131,7 @@ test("deleting passes the stored comment through and retains success and error c
 
     const offline = setup({ deleteResponse: new Error("offline") });
     await offline.actions.handleDeleteComment(comment);
-    assert.deepEqual(offline.calls.map(([kind]) => kind), ["loading", "post", "log", "errorToast", "loading"]);
+    assert.deepEqual(offline.calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "post", "log", "errorToast", "loading"]);
     assert.equal(offline.calls[3][1], "Some network error occurred");
     assert.deepEqual(offline.calls[3][2], toastOptions);
 });

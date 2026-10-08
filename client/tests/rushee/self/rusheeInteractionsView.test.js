@@ -16,6 +16,7 @@ const componentPath = fileURLToPath(new URL(
 ));
 
 test("interaction summaries keep regular, compact, and empty markup", async () => {
+    // Verify interaction summaries keep regular, compact, and empty markup.
     const Component = await loadTsxComponent(componentPath, {
         react: React,
         axios: {},

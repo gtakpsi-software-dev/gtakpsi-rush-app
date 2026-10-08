@@ -20,6 +20,7 @@ const rushee = {
     major: "Computer Science", class: "Third", pronouns: "she/her",
 };
 
+// Load form with injected dependencies for isolated tests.
 async function loadForm() {
     const RusheeProfileContactFields = await loadTsxComponent(contactPath, {
         "../../../lib/formatPhoneInput.js": { formatPhoneInput },
@@ -31,9 +32,10 @@ async function loadForm() {
     });
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         if (typeof node.type === "function") collect(node.type(node.props), elements);
@@ -43,22 +45,30 @@ function collect(node, elements = []) {
 }
 
 test("self-profile form retains its pre-extraction fields, labels, options, and styling", async () => {
+    // Verify self-profile form retains its pre-extraction fields, labels, options, and styling.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const RusheeProfileForm = await loadForm();
     const html = renderToStaticMarkup(React.createElement(RusheeProfileForm, {
-        rushee, onSubmit() {}, onChange() {},
+        rushee,
+            /* Provide an inert on submit stub for this test. */
+            onSubmit() {},
+            /* Provide an inert on change stub for this test. */
+            onChange() {},
     }));
     assert.equal(createHash("sha256").update(html).digest("hex"), expected.filled);
 });
 
 test("form keeps the original submit and regular field handlers", async () => {
+    // Verify form keeps the original submit and regular field handlers.
     const RusheeProfileForm = await loadForm();
     const calls = [];
+    // Record on submit calls for assertions.
     const onSubmit = (event) => calls.push(["submit", event]);
+    // Record on change calls for assertions.
     const onChange = (event) => calls.push(["change", event]);
     const nodes = collect(RusheeProfileForm({ rushee, onSubmit, onChange }));
-    const form = nodes.find((node) => node.type === "form");
-    const firstName = nodes.find((node) => node.type === "input" && node.props.name === "first_name");
+    const form = nodes.find(/* Identify rendered form elements. */ (node) => node.type === "form");
+    const firstName = nodes.find(/* Identify rendered input elements. */ (node) => node.type === "input" && node.props.name === "first_name");
     assert.equal(form.props.onSubmit, onSubmit);
     assert.equal(firstName.props.value, "Ada");
     assert.equal(firstName.props.onChange, onChange);
@@ -69,12 +79,17 @@ test("form keeps the original submit and regular field handlers", async () => {
 });
 
 test("phone input mutates the event with the existing partial and full formats", async () => {
+    // Verify phone input mutates the event with the existing partial and full formats.
     const RusheeProfileForm = await loadForm();
     const calls = [];
     const nodes = collect(RusheeProfileForm({
-        rushee, onSubmit() {}, onChange: (event) => calls.push(event),
+        rushee,
+            /* Provide an inert on submit stub for this test. */
+            onSubmit() {}, onChange:
+            /* Record on change calls for assertions. */
+            (event) => calls.push(event),
     }));
-    const phone = nodes.find((node) => node.type === "input" && node.props.name === "phone_number");
+    const phone = nodes.find(/* Identify rendered input elements. */ (node) => node.type === "input" && node.props.name === "phone_number");
     for (const [raw, expected] of [
         ["4", "(4"], ["404555", "(404) 555"],
         ["4045551234", "(404) 555-1234"], ["4045551", "4045551"],
@@ -88,15 +103,17 @@ test("phone input mutates the event with the existing partial and full formats",
 });
 
 test("profile contact values and regular changes still reach their inputs", async () => {
+    // Verify profile contact values and regular changes still reach their inputs.
     const RusheeProfileForm = await loadForm();
+    // Provide an inert on change stub for this test.
     const onChange = () => {};
-    const nodes = collect(RusheeProfileForm({ rushee, onSubmit() {}, onChange }));
+    const nodes = collect(RusheeProfileForm({ rushee, /* Provide an inert on submit stub for this test. */ onSubmit() {}, onChange }));
     for (const [name, value] of [
         ["housing", "Hall"],
         ["email", "ada@example.com"],
         ["gtid", "123456789"],
     ]) {
-        const input = nodes.find((node) => node.type === "input" && node.props.name === name);
+        const input = nodes.find(/* Identify rendered input elements. */ (node) => node.type === "input" && node.props.name === name);
         assert.equal(input.props.value, value);
         assert.equal(input.props.onChange, onChange);
     }
