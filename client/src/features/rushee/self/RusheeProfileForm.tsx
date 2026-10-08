@@ -17,6 +17,7 @@ type RusheeProfileFormProps = {
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 };
 
+// Render the editable rushee profile and its Save Changes action.
 export default function RusheeProfileForm({ rushee, onSubmit, onChange }: RusheeProfileFormProps) {
     return (
         <div className="mt-8 max-w-4xl mx-auto card-apple mb-16">
@@ -56,7 +57,7 @@ export default function RusheeProfileForm({ rushee, onSubmit, onChange }: Rushee
                                 onChange={onChange}
                                 className="input-apple"
                             >
-                                {MAJOR_OPTIONS.map((major) => (
+                                {MAJOR_OPTIONS.map(/* Render a major option. */ (major) => (
                                     <option key={major}>{major}</option>
                                 ))}
                             </select>
@@ -69,7 +70,7 @@ export default function RusheeProfileForm({ rushee, onSubmit, onChange }: Rushee
                                 onChange={onChange}
                                 className="input-apple"
                             >
-                                {YEAR_OPTIONS.map((year) => (
+                                {YEAR_OPTIONS.map(/* Render a class-year option. */ (year) => (
                                     <option key={year}>{year}</option>
                                 ))}
                             </select>
@@ -84,7 +85,7 @@ export default function RusheeProfileForm({ rushee, onSubmit, onChange }: Rushee
                             onChange={onChange}
                             className="input-apple"
                         >
-                            {PRONOUN_OPTIONS.map(({ value, label }) => (
+                            {PRONOUN_OPTIONS.map(/* Render a pronoun option with its stored value. */ ({ value, label }) => (
                                 <option key={value} value={value}>{label}</option>
                             ))}
                         </select>

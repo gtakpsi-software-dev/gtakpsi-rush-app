@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+// Render an animated blue-and-gold shader plane that fills the viewport.
 export default function LiquidShader() {
     const meshRef = useRef();
     const clock = new THREE.Clock();
 
     useFrame(() => {
+        // Update the shader time uniform for the current animation frame.
         const time = clock.getElapsedTime();
         if (meshRef.current) {
             meshRef.current.material.uniforms.uTime.value = time;
@@ -14,6 +16,8 @@ export default function LiquidShader() {
     });
 
     useEffect(() => {
+        // Size the shader plane and subscribe to viewport resize events.
+        // Scale the plane and update shader resolution to cover the viewport.
         const handleResize = () => {
             if (meshRef.current) {
                 const aspect = window.innerWidth / window.innerHeight;
@@ -32,7 +36,7 @@ export default function LiquidShader() {
 
         handleResize();
         window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
+        return /* Remove the viewport resize listener when the shader unmounts. */ () => window.removeEventListener("resize", handleResize);
     }, []);
 
     return (

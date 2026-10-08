@@ -14,6 +14,7 @@ type RusheeProfileContactFieldsProps = {
     onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
+// Render editable housing, phone, email, and GTID fields.
 export default function RusheeProfileContactFields({
     rushee,
     onChange,
@@ -38,6 +39,7 @@ export default function RusheeProfileContactFields({
                         name="phone_number"
                         value={rushee.phone_number}
                         onChange={(e) => {
+                            // Format the phone number before forwarding the field change.
                             e.target.value = formatPhoneInput(e.target.value);
                             onChange(e);
                         }}

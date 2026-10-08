@@ -18,6 +18,7 @@ type Props = {
     onEditImage: () => void;
 };
 
+// Display the saved profile, attendance badges, and photo-edit action.
 export default function RusheeProfileSummary({ initialRushee, onEditImage }: Props) {
     return (
         <div className="max-w-4xl mx-auto card-apple">
@@ -43,7 +44,7 @@ export default function RusheeProfileSummary({ initialRushee, onEditImage }: Pro
                             {initialRushee.first_name} {initialRushee.last_name}
                         </h1>
                         <div className="flex flex-wrap gap-2">
-                            {initialRushee.attendance.map((event, idx) => (
+                            {initialRushee.attendance.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                                 <Badges text={event.name} key={idx} />
                             ))}
                         </div>

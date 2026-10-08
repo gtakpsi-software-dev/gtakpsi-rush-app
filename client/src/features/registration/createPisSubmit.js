@@ -1,3 +1,4 @@
+// Build the signup API payload from form values and the uploaded photo URL.
 function buildSignupPayload(form, imageUrl) {
     return {
         first_name: form.firstName,
@@ -18,6 +19,7 @@ function buildSignupPayload(form, imageUrl) {
     };
 }
 
+// Create the final registration handler with upload and API dependencies.
 export function createPisSubmit({
     api,
     form,
@@ -40,6 +42,7 @@ export function createPisSubmit({
     logError,
 }) {
     return async () => {
+        // Upload the profile photo, submit signup details, and store the returned access code.
         setCurrLoading(true);
         setPage(3);
 
@@ -62,6 +65,7 @@ export function createPisSubmit({
 
         const payload = buildSignupPayload(form, imageUrl);
 
+        // Store the successful signup access code or navigate to the configured error page.
         const handleSignupResponse = (response) => {
             if (response.data.status === "error") {
                 navigate(`/error/${errorTitle}/${errorDescription}`);
@@ -72,6 +76,7 @@ export function createPisSubmit({
             }
         };
 
+        // Log the captured page error and navigate after a rejected signup request.
         const handleRequestRejection = () => {
             // Response-handler failures share the request rejection's captured page error.
             logError(pageError);

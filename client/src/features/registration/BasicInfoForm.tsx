@@ -4,6 +4,7 @@ type BasicInfoFormProps = BasicInfoFieldsProps & {
     onContinue: () => void | Promise<void>;
 };
 
+// Render the basic-information stage and its Continue action.
 export default function BasicInfoForm(props: BasicInfoFormProps) {
     return (
         <div className="mt-24 p-4 max-w-4xl mx-auto">

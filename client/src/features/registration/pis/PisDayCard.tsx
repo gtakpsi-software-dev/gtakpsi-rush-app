@@ -10,6 +10,7 @@ type PisDayCardProps = {
     onSelect: (slot: PisSlot) => void;
 };
 
+// Choose timeslot styling based on selection, availability, and the Monday fallback.
 function slotClass(slot: PisSlot, selectedSlot: PisSlot | null, isMonday: boolean) {
     const selected = slot === selectedSlot;
     const selectionClass = selected
@@ -30,6 +31,7 @@ function slotClass(slot: PisSlot, selectedSlot: PisSlot | null, isMonday: boolea
     return `py-3 px-4 rounded-apple-xl transition-all duration-200 text-center ${selectionClass} ${availabilityClass}`;
 }
 
+// Display one day’s selectable PIS timeslots and Monday instructions.
 export default function PisDayCard({ day, timeslots, selectedSlot, onSelect }: PisDayCardProps) {
     const jsDate = new Date(day);
     const isMonday = jsDate.getDay() === 1;
@@ -65,10 +67,10 @@ export default function PisDayCard({ day, timeslots, selectedSlot, onSelect }: P
             )}
 
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-3 max-w-xl">
-                {timeslots.map((slot, index) => (
+                {timeslots.map(/* Render a timeslot with its time, remaining capacity, and selection state. */ (slot, index) => (
                     <button
                         key={index}
-                        onClick={() => onSelect(slot)}
+                        onClick={/* Select this PIS timeslot. */ () => onSelect(slot)}
                         className={slotClass(slot, selectedSlot, isMonday)}
                         disabled={slot.num_available === 0}
                     >

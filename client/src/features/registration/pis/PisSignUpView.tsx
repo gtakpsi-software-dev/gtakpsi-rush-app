@@ -16,6 +16,7 @@ export type PisSignUpViewProps = {
     onContinue: MouseEventHandler<HTMLButtonElement>;
 };
 
+// Display PIS day cards, optional Monday slots, and the flexibility checkbox.
 export default function PisSignUpView({
     error,
     loading,
@@ -59,8 +60,10 @@ export default function PisSignUpView({
                             <div>
                                 <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
                                     {[...days.entries()]
-                                        .filter(([day]) => new Date(day).getDay() !== 1 || showMonday)
-                                        .map(([day, timeslots]) => (
+                                        .filter(
+                                            /* Hide Monday unless the fallback has been requested. */
+                                            ([day]) => new Date(day).getDay() !== 1 || showMonday)
+                                        .map(/* Render a day’s available PIS timeslots. */ ([day, timeslots]) => (
                                             <PisDayCard
                                                 key={day}
                                                 day={day}
@@ -74,11 +77,11 @@ export default function PisSignUpView({
                                 {/* Monday stays hidden until the rushee requests the fallback. */}
                                 {!showMonday &&
                                     [...days.entries()].some(
-                                        ([day]) => new Date(day).getDay() === 1
+                                        /* Check whether any Monday timeslots exist. */ ([day]) => new Date(day).getDay() === 1
                                     ) && (
                                         <div className="mt-6 flex justify-center">
                                             <button
-                                                onClick={() => setShowMonday(true)}
+                                                onClick={/* Reveal the Monday fallback timeslots. */ () => setShowMonday(true)}
                                                 className="py-3 px-6 rounded-apple-xl border border-apple-gray-300 text-apple-footnote font-medium text-black bg-white hover:bg-apple-gray-50 hover:border-apple-gray-400 active:scale-95 transition-all duration-200"
                                             >
                                                 {"I can't attend Sunday — show Monday times"}
@@ -94,7 +97,9 @@ export default function PisSignUpView({
                                                 <input
                                                     type="checkbox"
                                                     checked={flexWindow}
-                                                    onChange={(e) => setFlexWindow(e.target.checked)}
+                                                    onChange={
+                                                        /* Update whether the selected start time may shift within the flex window. */
+                                                        (e) => setFlexWindow(e.target.checked)}
                                                     className="sr-only"
                                                 />
                                                 <div className={`w-5 h-5 rounded-md border-2 transition-all duration-200 mr-4 flex items-center justify-center ${

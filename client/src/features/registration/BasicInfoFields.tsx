@@ -15,6 +15,7 @@ export type BasicInfoFieldsProps = BasicContactFieldsProps & {
     exposure: Ref<HTMLSelectElement>;
 };
 
+// Render identity, contact, academic, and referral fields for registration.
 export default function BasicInfoFields(props: BasicInfoFieldsProps) {
     return (
         <>
@@ -73,7 +74,7 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                         className="input-apple"
                         id="grid-major"
                     >
-                        {MAJOR_OPTIONS.map((major) => (
+                        {MAJOR_OPTIONS.map(/* Render a major option. */ (major) => (
                             <option key={major}>{major}</option>
                         ))}
                     </select>
@@ -90,7 +91,7 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                         className="input-apple"
                         id="grid-pronouns"
                     >
-                        {PRONOUN_OPTIONS.map(({ value, label }) => (
+                        {PRONOUN_OPTIONS.map(/* Render a pronoun option with its stored value. */ ({ value, label }) => (
                             <option key={value} value={value}>{label}</option>
                         ))}
                     </select>
@@ -104,7 +105,7 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                         className="input-apple"
                         id="grid-year"
                     >
-                        {YEAR_OPTIONS.map((year) => (
+                        {YEAR_OPTIONS.map(/* Render a class-year option. */ (year) => (
                             <option key={year}>{year}</option>
                         ))}
                     </select>
@@ -120,7 +121,7 @@ export default function BasicInfoFields(props: BasicInfoFieldsProps) {
                     className="input-apple"
                     id="grid-exposure"
                 >
-                    {EXPOSURE_OPTIONS.map((source) => (
+                    {EXPOSURE_OPTIONS.map(/* Render a referral-source option. */ (source) => (
                         <option key={source}>{source}</option>
                     ))}
                 </select>

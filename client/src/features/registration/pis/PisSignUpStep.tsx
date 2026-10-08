@@ -9,6 +9,7 @@ type PisSignUpStepProps =
         setSelectedSlot: (slot: PisSlot) => void;
     };
 
+// Load and group PIS timeslots and connect selection state to the signup view.
 export default function PisSignUpStep(props: PisSignUpStepProps) {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -17,10 +18,13 @@ export default function PisSignUpStep(props: PisSignUpStepProps) {
     const [showMonday, setShowMonday] = useState(false);
 
     useEffect(() => {
+        // Fetch timeslots while the stage is loading.
+        // Request available timeslots and finish the loading state.
         async function fetch() {
             const api = import.meta.env.VITE_API_PREFIX;
 
             await axios.get(`${api}/admin/get_pis_timeslots`).then((response) => {
+                // Group successful results by local date or flag an unsuccessful response.
                 if (response.data.status && response.data.status == "success") {
                     const tempDays = new Map<string, PisSlot[]>();
 
@@ -60,6 +64,7 @@ export default function PisSignUpStep(props: PisSignUpStepProps) {
         }
     });
 
+    // Store the selected PIS timeslot in the registration form.
     const handleSlotClick = (slot: PisSlot) => {
         props.setSelectedSlot(slot);
     };

@@ -1,3 +1,4 @@
+// Return toast options for photo-update notifications.
 function toastOptions() {
     return {
         position: "top-center",
@@ -11,6 +12,7 @@ function toastOptions() {
     };
 }
 
+// Upload a new profile photo, save its URL, and reload after a successful update.
 export async function submitRusheePhoto({
     image, gtid, api, storage, setLoading, makeStorageRef, toBlob,
     upload, getDownloadUrl, post, toast, reload, navigate, logger, now = Date.now,
@@ -31,6 +33,7 @@ export async function submitRusheePhoto({
 
         await post(`${api}/rushee/update-rushee/${gtid}`, payload)
             .then((response) => {
+                // Reload after a successful photo update or show the returned error.
                 if (response.data.status == "success") {
                     reload();
                 } else {
@@ -38,6 +41,7 @@ export async function submitRusheePhoto({
                 }
             })
             .catch(() => {
+                // Show a network error for a rejected photo-update request.
                 toast.error("Some internal network error occurred", toastOptions());
             });
     } catch (error) {

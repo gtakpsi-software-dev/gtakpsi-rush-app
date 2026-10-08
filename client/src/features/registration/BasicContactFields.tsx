@@ -8,6 +8,7 @@ export type BasicContactFieldsProps = {
     phone: Ref<HTMLInputElement>;
 };
 
+// Render registration inputs for email, housing, and phone number.
 export default function BasicContactFields(props: BasicContactFieldsProps) {
     return (
         <>
@@ -51,6 +52,7 @@ export default function BasicContactFields(props: BasicContactFieldsProps) {
                         type="tel"
                         placeholder="(123) 456-7890"
                         onChange={(e) => {
+                            // Format the phone input as the user types.
                             e.target.value = formatPhoneInput(e.target.value);
                         }}
                     />

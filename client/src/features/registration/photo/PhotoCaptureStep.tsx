@@ -9,6 +9,7 @@ type PhotoCaptureStepProps = {
     onContinue: () => void;
 };
 
+// Render camera capture, photo preview, retake, and continuation controls.
 export default function PhotoCaptureStep(props: PhotoCaptureStepProps) {
 
     const [showPreview, setShowPreview] = useState(false)
@@ -20,6 +21,7 @@ export default function PhotoCaptureStep(props: PhotoCaptureStepProps) {
         aspectRatio: 1,
     };
 
+    // Capture a mirrored 1280-pixel square JPEG and display its preview.
     const capture = () => {
         const webcam = props.webcamRef.current!;
         const video = webcam.video!;
@@ -80,7 +82,7 @@ export default function PhotoCaptureStep(props: PhotoCaptureStepProps) {
                         {showPreview ? (
                             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                                 <button
-                                    onClick={() => setShowPreview(false)}
+                                    onClick={/* Return from the photo preview to the live camera. */ () => setShowPreview(false)}
                                     className="btn-apple-secondary px-6 py-3 text-apple-body font-light"
                                 >
                                     Retake Photo
