@@ -5,6 +5,7 @@ use axum::{
     Router,
 };
 
+// Add rushee registration, profile, attendance, comment, and PIS endpoints.
 pub(super) fn routes(router: Router) -> Router {
     router
         .route(

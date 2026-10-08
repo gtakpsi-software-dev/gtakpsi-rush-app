@@ -28,6 +28,7 @@ pub(super) struct UpdateBody<'a> {
     pub(super) custom_attributes: String,
 }
 
+// Parse the last returned user's custom claims, falling back to an empty map.
 pub(super) fn claims_from_lookup_response(data: LookupResponse) -> HashMap<String, Value> {
     let attrs = data
         .users
@@ -44,6 +45,7 @@ pub(super) fn claims_from_lookup_response(data: LookupResponse) -> HashMap<Strin
     HashMap::new()
 }
 
+// Treat only a JSON boolean true as an enabled role.
 pub(super) fn role_enabled(claims: &HashMap<String, Value>, role: &str) -> bool {
     claims
         .get(role)
@@ -58,6 +60,7 @@ mod tests {
     };
     use serde_json::{json, to_value};
 
+    // Verify the Firebase field names used for role lookups and updates.
     #[test]
     fn firebase_role_wire_fields_keep_camel_case() {
         let lookup = LookupBody {
@@ -87,6 +90,7 @@ mod tests {
         );
     }
 
+    // Verify last-user selection and empty claims for missing or malformed attributes.
     #[test]
     fn firebase_lookup_preserves_last_user_and_malformed_claim_fallback() {
         let response: LookupResponse = serde_json::from_value(json!({
@@ -115,6 +119,7 @@ mod tests {
         }
     }
 
+    // Verify that strings, numbers, and missing values do not grant roles.
     #[test]
     fn role_flags_require_json_booleans() {
         let claims = serde_json::from_value(json!({

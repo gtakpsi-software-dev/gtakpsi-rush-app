@@ -13,6 +13,7 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+// Initialize configuration, authentication, and tracing, then serve the API on the configured port.
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()

@@ -8,6 +8,7 @@ use axum::{
 
 mod rushee;
 
+// Build routes without a Firebase role gate, including health and registration endpoints.
 pub(super) fn routes() -> Router {
     let routes = Router::new()
         .route("/", get(health_check))

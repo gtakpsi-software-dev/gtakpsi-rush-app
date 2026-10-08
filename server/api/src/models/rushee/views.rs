@@ -24,6 +24,7 @@ pub struct RusheeSelfView {
 }
 
 impl From<RusheeModel> for RusheeSelfView {
+    // Build the self-service view using only fields visible to the rushee.
     fn from(r: RusheeModel) -> Self {
         RusheeSelfView {
             first_name: r.first_name,

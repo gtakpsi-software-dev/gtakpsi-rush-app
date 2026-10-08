@@ -73,6 +73,7 @@ pub enum AuthError {
 }
 
 impl FirebaseAuth {
+    // Create Firebase authentication state with a normalized admin allowlist and empty certificate cache.
     pub fn new(
         project_id: String,
         allowlist_csv: Option<String>,

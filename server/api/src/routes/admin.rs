@@ -11,6 +11,7 @@ use std::sync::Arc;
 mod pis_availability;
 mod voting;
 
+// Build administrator routes and apply their shared Firebase role gate.
 pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
     let routes = Router::new()
         .route(

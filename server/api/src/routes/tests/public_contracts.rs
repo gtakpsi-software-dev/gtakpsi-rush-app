@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify health response bodies and unknown-route status codes.
 #[tokio::test]
 async fn health_checks_and_unknown_routes_keep_their_http_contracts() {
     for path in ["/", "/health"] {
@@ -22,6 +23,7 @@ async fn health_checks_and_unknown_routes_keep_their_http_contracts() {
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
 
+// Verify comment-visibility route methods without accessing its handler.
 #[tokio::test]
 async fn public_comment_visibility_status_keeps_get_and_preflight_methods() {
     let path = "/brother/comment-visibility/status";
@@ -38,6 +40,7 @@ async fn public_comment_visibility_status_keeps_get_and_preflight_methods() {
     assert_eq!(preflight.status(), StatusCode::OK);
 }
 
+// Verify API-key enforcement and malformed signup payload responses.
 #[tokio::test]
 async fn public_json_routes_keep_extractor_validation_and_api_key_gating() {
     let api_key_enabled = env::var("API_KEY").is_ok_and(|key| !key.is_empty());
@@ -68,6 +71,7 @@ async fn public_json_routes_keep_extractor_validation_and_api_key_gating() {
     }
 }
 
+// Verify supported methods and preflight behavior across public rushee routes.
 #[tokio::test]
 async fn rushee_public_routes_keep_paths_methods_and_preflight_behavior() {
     let routes = [

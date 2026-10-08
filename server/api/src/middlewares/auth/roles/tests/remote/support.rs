@@ -25,6 +25,7 @@ struct MockState {
     update_status: StatusCode,
 }
 
+// Validate the mock OAuth exchange payload and return the configured token response.
 async fn token(
     State(state): State<MockState>,
     Form(body): Form<HashMap<String, String>>,
@@ -37,6 +38,7 @@ async fn token(
     Json(state.token_body)
 }
 
+// Capture a mock Firebase request with its authorization header and JSON body.
 async fn record(state: &MockState, action: &'static str, headers: HeaderMap, body: Value) {
     state.requests.lock().await.push(RecordedRequest {
         action,
@@ -50,6 +52,7 @@ async fn record(state: &MockState, action: &'static str, headers: HeaderMap, bod
     });
 }
 
+// Record mock account lookups or updates and return their configured responses.
 async fn identity_action(
     State(state): State<MockState>,
     uri: Uri,
@@ -76,6 +79,7 @@ pub(super) struct MockServer {
 }
 
 impl MockServer {
+    // Start a mock Firebase server with a successful OAuth token response.
     pub(super) fn start(
         lookup_status: StatusCode,
         lookup_body: Value,
@@ -89,6 +93,7 @@ impl MockServer {
         )
     }
 
+    // Start a local OAuth and Firebase mock with configurable response bodies and statuses.
     pub(super) fn start_with_token_body(
         token_body: Value,
         lookup_status: StatusCode,
@@ -124,6 +129,7 @@ impl MockServer {
         }
     }
 
+    // Create authentication state that directs service-account requests to this mock server.
     pub(super) fn auth(&self) -> FirebaseAuth {
         let service_account = ServiceAccount {
             client_email: "service@example.test".to_string(),
@@ -137,12 +143,14 @@ impl MockServer {
         auth
     }
 
+    // Return the requests recorded by the mock server.
     pub(super) async fn requests(&self) -> Vec<RecordedRequest> {
         self.requests.lock().await.clone()
     }
 }
 
 impl Drop for MockServer {
+    // Stop the mock server task when its fixture leaves scope.
     fn drop(&mut self) {
         self.task.abort();
     }

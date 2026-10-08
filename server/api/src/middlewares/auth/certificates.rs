@@ -5,6 +5,7 @@ const CERT_URL: &str =
     "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
 
 impl FirebaseAuth {
+    // Return cached Firebase signing certificates, refreshing an empty cache or one older than 50 minutes.
     pub(super) async fn fetch_certs(&self) -> Result<HashMap<String, String>, reqwest::Error> {
         let mut guard = self.cert_cache.write().await;
         // Refresh if older than 50 minutes

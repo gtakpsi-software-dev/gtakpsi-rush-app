@@ -2,6 +2,7 @@ use super::*;
 
 mod remote;
 
+// Verify project selection and URL construction for Firebase account actions.
 #[test]
 fn identity_toolkit_urls_keep_the_project_and_operation_paths() {
     let mut auth = FirebaseAuth::new("default-project".to_string(), None, None);

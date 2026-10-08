@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify access for all combinations of role claims and admin allowlist membership.
 #[tokio::test]
 async fn role_matrix_preserves_brother_bidcom_admin_and_allowlist_access() {
     for admin in [false, true] {
@@ -34,6 +35,7 @@ async fn role_matrix_preserves_brother_bidcom_admin_and_allowlist_access() {
     }
 }
 
+// Verify that missing email is accepted but nonboolean role claims grant no access.
 #[tokio::test]
 async fn role_claims_require_booleans_and_email_is_optional() {
     let auth = auth(Some("brother@example.test")).await;
@@ -57,6 +59,7 @@ async fn role_claims_require_booleans_and_email_is_optional() {
     ));
 }
 
+// Verify rejection of malformed tokens, invalid claims, and tampered signatures.
 #[tokio::test]
 async fn every_verifier_rejects_invalid_identity_claims_and_signature_metadata() {
     let auth = auth(None).await;
@@ -112,6 +115,7 @@ async fn every_verifier_rejects_invalid_identity_claims_and_signature_metadata()
     }
 }
 
+// Verify that role reads and writes require service-account configuration.
 #[tokio::test]
 async fn missing_service_account_fails_before_any_remote_role_operation() {
     let auth = auth(None).await;

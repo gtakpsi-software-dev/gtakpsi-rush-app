@@ -11,6 +11,7 @@ mod bid_committee;
 mod brother;
 mod public;
 
+// Combine route groups and apply the shared API-key and CORS layers.
 pub fn create_router(firebase_auth: Arc<FirebaseAuth>) -> Router {
     let public_routes = public::routes();
     let brother_routes = brother::routes(firebase_auth.clone());
@@ -38,6 +39,7 @@ pub fn create_router(firebase_auth: Arc<FirebaseAuth>) -> Router {
         )
 }
 
+// Return the API liveness response without querying external services.
 async fn health_check() -> (StatusCode, String) {
     (StatusCode::OK, "Healthy!".to_string())
 }

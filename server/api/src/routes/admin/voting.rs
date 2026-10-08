@@ -7,6 +7,7 @@ use axum::{
 };
 use std::sync::Arc;
 
+// Add voting administration endpoints to the supplied administrator router.
 pub(super) fn routes(router: Router<Arc<FirebaseAuth>>) -> Router<Arc<FirebaseAuth>> {
     router
         .route(

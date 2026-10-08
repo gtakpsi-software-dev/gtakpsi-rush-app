@@ -5,6 +5,7 @@ use axum::http::StatusCode;
 use serde_json::{json, Value};
 use support::MockServer;
 
+// Verify authenticated lookup-before-update requests and retention of unrelated claims.
 #[tokio::test]
 async fn role_updates_preserve_unrelated_claims_and_use_ordered_lookup_then_update() {
     let server = MockServer::start(
@@ -56,6 +57,7 @@ async fn role_updates_preserve_unrelated_claims_and_use_ordered_lookup_then_upda
         .all(|request| request.body["localId"] == "brother-1"));
 }
 
+// Verify the empty-claims fallback when a lookup fails before a role update.
 #[tokio::test]
 async fn failed_lookup_still_updates_from_an_empty_claim_map() {
     let server = MockServer::start(StatusCode::INTERNAL_SERVER_ERROR, json!({}), StatusCode::OK);
@@ -79,6 +81,7 @@ async fn failed_lookup_still_updates_from_an_empty_claim_map() {
     assert_eq!(attributes, json!({"admin": true}));
 }
 
+// Verify that direct role reads report a failed Firebase lookup.
 #[tokio::test]
 async fn failed_lookup_returns_internal_for_a_direct_role_read() {
     let server = MockServer::start(StatusCode::INTERNAL_SERVER_ERROR, json!({}), StatusCode::OK);
@@ -93,6 +96,7 @@ async fn failed_lookup_returns_internal_for_a_direct_role_read() {
     assert_eq!(requests[0].body, json!({"localId": ["brother-4"]}));
 }
 
+// Verify that a malformed OAuth response prevents Firebase account requests.
 #[tokio::test]
 async fn missing_oauth_access_token_stops_before_identity_toolkit_requests() {
     let server = MockServer::start_with_token_body(
@@ -108,6 +112,7 @@ async fn missing_oauth_access_token_stops_before_identity_toolkit_requests() {
     assert!(server.requests().await.is_empty());
 }
 
+// Verify that Firebase update failures propagate after a successful claims lookup.
 #[tokio::test]
 async fn failed_update_returns_internal_after_a_successful_lookup() {
     let server = MockServer::start(

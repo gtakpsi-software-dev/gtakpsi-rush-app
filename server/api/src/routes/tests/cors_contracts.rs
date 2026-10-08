@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify that browser preflight succeeds without API-key or role credentials.
 #[tokio::test]
 async fn cors_preflight_bypasses_api_key_and_role_gates() {
     let request = Request::builder()

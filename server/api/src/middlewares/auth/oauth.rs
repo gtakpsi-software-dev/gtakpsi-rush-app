@@ -3,6 +3,7 @@ use jsonwebtoken::Algorithm;
 use serde::Deserialize;
 
 impl FirebaseAuth {
+    // Exchange a server-side service-account assertion for a Google OAuth access token.
     pub(super) async fn fetch_access_token(
         &self,
         sa: &ServiceAccount,

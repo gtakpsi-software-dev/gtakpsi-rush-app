@@ -7,6 +7,7 @@ use axum::{
 use std::{env, sync::Arc};
 use tower::ServiceExt;
 
+// Build the API router with test Firebase configuration.
 fn app() -> axum::Router {
     create_router(Arc::new(FirebaseAuth::new(
         "local-test-project".to_string(),
@@ -15,6 +16,7 @@ fn app() -> axum::Router {
     )))
 }
 
+// Build a JSON request with an optional configured API key.
 fn request(method: Method, path: &str, body: &str, include_api_key: bool) -> Request<Body> {
     let mut request = Request::builder()
         .method(method)
