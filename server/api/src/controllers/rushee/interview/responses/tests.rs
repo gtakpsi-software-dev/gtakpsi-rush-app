@@ -1,6 +1,7 @@
 use super::autosave::{stored_brother_name, PISAutosavePayload};
 use serde_json::json;
 
+// Verify autosave request fields and required interviewer names.
 #[test]
 fn autosave_payload_keeps_field_names_and_requires_all_brother_names() {
     let value = json!({
@@ -18,6 +19,7 @@ fn autosave_payload_keeps_field_names_and_requires_all_brother_names() {
     assert!(serde_json::from_value::<PISAutosavePayload>(incomplete).is_err());
 }
 
+// Verify interviewer-name trimming and the sentinel for blank names.
 #[test]
 fn brother_names_keep_trimmed_values_and_the_empty_none_marker() {
     assert_eq!(stored_brother_name(" Alex "), "Alex");

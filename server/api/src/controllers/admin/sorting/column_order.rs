@@ -5,6 +5,7 @@ use axum::http::StatusCode;
 use mongodb::bson::{doc, DateTime};
 use mongodb::Collection;
 
+// Persist sequential column positions and the user responsible for each update.
 pub(super) async fn write_column_order(
     collection: &Collection<RusheeModel>,
     ids: &[String],
@@ -27,6 +28,7 @@ pub(super) async fn write_column_order(
     Ok(())
 }
 
+// Load valid IDs in a column, ordered by stored position and GTID.
 pub(super) async fn fetch_ids(
     collection: &Collection<RusheeModel>,
     column: &str,

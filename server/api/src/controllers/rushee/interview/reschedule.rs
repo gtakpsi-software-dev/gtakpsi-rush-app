@@ -5,6 +5,7 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+// Transfer timeslot capacity and update the rushee's PIS time and signup time.
 pub async fn reschedule_pis(
     Path(id): Path<String>,
     Json(payload): Json<String>,

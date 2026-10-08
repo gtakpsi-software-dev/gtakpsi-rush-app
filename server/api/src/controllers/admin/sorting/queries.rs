@@ -13,6 +13,7 @@ enum SortingAudience {
     Public,
 }
 
+// Build a board card with legacy defaults and audience-specific rush-number visibility.
 fn project_sorting_rushee(
     document: &RusheeModel,
     order_counter: i32,
@@ -45,6 +46,7 @@ fn project_sorting_rushee(
     }
 }
 
+// Sort board cards by column, position, and GTID.
 fn sort_sorting_rushees(list: &mut [SortingRushee]) {
     list.sort_by(|a, b| {
         let ai = SORTING_STATUSES
@@ -61,6 +63,7 @@ fn sort_sorting_rushees(list: &mut [SortingRushee]) {
     });
 }
 
+// Load valid rushee rows and return ordered board cards for the requested audience.
 async fn load_sorting_rushees(audience: SortingAudience) -> Result<Json<Value>, StatusCode> {
     let collection: mongodb::Collection<RusheeModel> = db::get_rushee_collection().await;
 

@@ -6,6 +6,7 @@ use crate::models::rush_nights::{IncomingRushNight, RushNight};
 use crate::services::rush_time::string_to_bson_datetime;
 use crate::storage::db;
 
+// Parse the requested event time and insert a rush night.
 pub async fn add_rush_night(
     Json(payload): Json<IncomingRushNight>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -29,6 +30,7 @@ pub async fn add_rush_night(
     }
 }
 
+// Delete one rush night matching the supplied timestamp.
 pub async fn delete_rush_night(Json(payload): Json<RushNight>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rush_nights_collection().await;
 

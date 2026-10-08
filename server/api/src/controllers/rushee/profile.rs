@@ -5,6 +5,7 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+// Update the cloud field using the supplied MongoDB _id.
 pub async fn update_cloud(
     Path(id): Path<String>,
     Json(payload): Json<String>,
@@ -31,6 +32,7 @@ pub async fn update_cloud(
     }
 }
 
+// Apply allowed profile edits in order and synchronize duplicated PIS signup fields.
 pub async fn update_rushee(
     Path(id): Path<String>,
     Json(payload): Json<Vec<RusheeEdit>>,

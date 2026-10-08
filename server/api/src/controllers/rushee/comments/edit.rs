@@ -4,6 +4,7 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
 
+// Replace the text of a comment matching the rushee, brother name, and night.
 pub async fn edit_comment(
     Path(id): Path<String>,
     Json(payload): Json<Comment>,

@@ -4,6 +4,7 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
+// Return form activity and sent time, defaulting a missing form to inactive.
 pub async fn get_pis_availability_form_status() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_pis_availability_form_status_collection().await;
 
@@ -30,6 +31,7 @@ pub struct CheckBrotherAvailabilityPayload {
     pub brother_uid: String,
 }
 
+// Check whether an active form still lacks a submission from the supplied brother UID.
 pub async fn check_brother_needs_availability_form(
     Json(payload): Json<CheckBrotherAvailabilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {

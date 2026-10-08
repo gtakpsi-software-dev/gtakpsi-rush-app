@@ -5,6 +5,7 @@ use mongodb::bson::{doc, to_bson};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
+// Trim an interviewer name, using the none sentinel for blank input.
 pub(super) fn stored_brother_name(name: &str) -> String {
     // Blank names use the sentinel checked by existing assignment logic.
     let trimmed = name.trim();
@@ -24,6 +25,7 @@ pub struct PISAutosavePayload {
     pub brother_b_last_name: String,
 }
 
+// Save interview responses and normalized interviewer names in one database update.
 pub async fn autosave_pis(
     Path(id): Path<String>,
     Json(payload): Json<PISAutosavePayload>,

@@ -5,6 +5,7 @@ use crate::models::pis::PISQuestion;
 use crate::models::rushee::RusheeModel;
 use crate::storage::{cursor_rows::collect_valid_rows, db};
 
+// Load valid PIS questions while skipping malformed database rows.
 pub(super) async fn load_questions() -> Result<Vec<PISQuestion>, &'static str> {
     let connection = db::get_pis_questions_collection().await;
     let cursor = connection
@@ -14,6 +15,7 @@ pub(super) async fn load_questions() -> Result<Vec<PISQuestion>, &'static str> {
     Ok(collect_valid_rows(cursor).await)
 }
 
+// Persist the selected category questions on the rushee record.
 pub(super) async fn save_assignment(
     connection: &Collection<RusheeModel>,
     id: &str,

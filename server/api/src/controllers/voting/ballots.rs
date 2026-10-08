@@ -6,6 +6,7 @@ use axum::{http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde_json::{json, to_string, Value};
 
+// Parse yes, no, or abstain without case sensitivity, rejecting other strings.
 fn map_vote(vote: String) -> Result<VoteOption, Error> {
     match vote.to_lowercase().as_str() {
         "yes" => Ok(VoteOption::Yes),
@@ -15,6 +16,7 @@ fn map_vote(vote: String) -> Result<VoteOption, Error> {
     }
 }
 
+// Record and publish a vote unless the brother is ineligible or has already voted.
 pub async fn handle_rushee_vote(
     Json(payload): Json<IncomingRusheeVote>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -70,6 +72,7 @@ pub async fn handle_rushee_vote(
     })))
 }
 
+// Delete the vote log and publish a cleared notification.
 pub async fn clear_votes() -> Result<Json<Value>, StatusCode> {
     let conn_arc = get_redis_manager().await;
     let mut conn = conn_arc.as_ref().clone();
@@ -95,6 +98,7 @@ pub async fn clear_votes() -> Result<Json<Value>, StatusCode> {
 mod tests {
     use super::*;
 
+    // Verify accepted vote casing and rejection of surrounding whitespace or unknown options.
     #[test]
     fn vote_values_preserve_case_insensitivity_without_accepting_whitespace() {
         assert!(matches!(map_vote("YES".into()), Ok(VoteOption::Yes)));
@@ -107,6 +111,7 @@ mod tests {
         assert!(map_vote("maybe".into()).is_err());
     }
 
+    // Verify that an invalid vote returns a bad request without accessing Redis.
     #[tokio::test]
     async fn invalid_vote_fails_before_requesting_redis() {
         let payload = IncomingRusheeVote {

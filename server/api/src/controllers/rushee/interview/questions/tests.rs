@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify stable question order and placement of questions without a display order.
 #[test]
 fn question_sorting_keeps_equal_orders_stable_and_missing_orders_last() {
     let mut questions: Vec<PISQuestion> = [

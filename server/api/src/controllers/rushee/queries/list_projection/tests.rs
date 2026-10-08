@@ -3,6 +3,7 @@ use serde_json::json;
 use super::project_list_rushee;
 use crate::models::rushee::RusheeModel;
 
+// Verify list-view fields and exclusion of private record details.
 #[test]
 fn list_projection_preserves_public_fields_and_excludes_private_details() {
     let record: RusheeModel = serde_json::from_value(json!({

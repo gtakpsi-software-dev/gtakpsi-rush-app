@@ -1,6 +1,7 @@
 use super::*;
 use std::sync::Arc;
 
+// Build test authentication state without service-account credentials.
 fn auth_without_service_account() -> State<Arc<FirebaseAuth>> {
     State(Arc::new(FirebaseAuth::new(
         "test-project".to_string(),
@@ -9,6 +10,7 @@ fn auth_without_service_account() -> State<Arc<FirebaseAuth>> {
     )))
 }
 
+// Verify endpoint-specific errors when service-account credentials are absent.
 #[tokio::test]
 async fn role_endpoints_keep_their_distinct_missing_service_account_responses() {
     assert_eq!(
@@ -60,6 +62,7 @@ async fn role_endpoints_keep_their_distinct_missing_service_account_responses() 
     );
 }
 
+// Verify role-specific success and failure response messages.
 #[test]
 fn role_updates_keep_grant_revoke_and_generic_failure_messages() {
     for (role, granted, removed, failed) in [

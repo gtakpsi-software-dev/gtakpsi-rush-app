@@ -10,10 +10,12 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
 
+// Build a comment-creation error response with the supplied message.
 fn comment_error(message: &'static str) -> Result<Json<Value>, StatusCode> {
     Ok(Json(json!({ "status": "error", "message": message })))
 }
 
+// Validate a current-night comment, update category averages, and append the comment.
 pub async fn post_comment(
     Path(id): Path<String>,
     Json(payload): Json<IncomingComment>,

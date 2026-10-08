@@ -3,6 +3,7 @@ use axum::{http::StatusCode, response::Json};
 use mongodb::bson::doc;
 use serde_json::{json, Value};
 
+// Return PIS times and interviewer names ordered by serialized timestamp strings.
 pub async fn export_pis_with_brothers() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_rushee_collection().await;
 

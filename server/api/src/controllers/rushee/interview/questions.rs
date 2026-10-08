@@ -12,10 +12,12 @@ use self::store::{load_questions, save_assignment};
 /// questions become visible/get assigned.
 const PIS_QUESTION_REVEAL_LEAD_MINUTES: i64 = 10;
 
+// Sort questions by display order, placing missing orders last and preserving ties.
 fn sort_pis_questions(questions: &mut [PISQuestion]) {
     questions.sort_by_key(|q| q.order.unwrap_or(i32::MAX));
 }
 
+// Build a sorted question response with availability and reveal-time metadata.
 fn question_response(
     available: bool,
     reveal_at: bson::DateTime,

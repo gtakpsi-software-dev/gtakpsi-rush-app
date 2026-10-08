@@ -4,6 +4,7 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
 
+// Replace PIS responses by clearing the array and appending each supplied answer in order.
 pub async fn post_pis(
     Path(id): Path<String>,
     Json(payload): Json<Vec<PisResponse>>,

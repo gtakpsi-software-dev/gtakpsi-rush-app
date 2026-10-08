@@ -57,6 +57,7 @@ pub async fn get_rushee_self(
 mod tests {
     use super::*;
 
+    // Verify access-code parsing for omitted, empty, and populated query values.
     #[test]
     fn self_service_query_distinguishes_missing_empty_and_supplied_codes() {
         for (query, expected) in [

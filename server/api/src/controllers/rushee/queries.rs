@@ -10,6 +10,7 @@ use super::read_rows::map_rushee_rows;
 mod list_projection;
 use list_projection::project_list_rushee;
 
+// Return rushee list summaries with registration order and per-night interaction counts.
 pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_rushee_collection().await;
     let rush_nights = rush_night_queries::get_rush_nights_sorted()
@@ -30,6 +31,7 @@ pub async fn get_rushees() -> Result<Json<Value>, StatusCode> {
     }
 }
 
+// Return a rushee by GTID, adding interaction counts when rush nights can be loaded.
 pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_collection().await;
 
@@ -54,6 +56,7 @@ pub async fn get_rushee(Path(id): Path<String>) -> Result<Json<Value>, StatusCod
     }
 }
 
+// Check GTID availability, returning the existing error-status response for an occupied ID.
 pub async fn does_rushee_exist(Path(id): Path<String>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_collection().await;
 

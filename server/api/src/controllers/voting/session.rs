@@ -24,6 +24,7 @@ pub struct QuestionAndRushee {
     pub rushee: RusheeModel,
 }
 
+// Load and enrich a rushee, then store and publish the voting selection in Redis.
 pub async fn change_rushee(
     Json(payload): Json<ChangeRusheePayload>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -62,6 +63,7 @@ pub async fn change_rushee(
     })))
 }
 
+// Read the Redis selection as a question-and-rushee payload, reporting missing or invalid data.
 pub async fn get_rushee() -> Result<Json<Value>, StatusCode> {
     let redis_conn = get_redis_manager().await;
     let mut redis = redis_conn.as_ref().clone();
@@ -85,6 +87,7 @@ pub async fn get_rushee() -> Result<Json<Value>, StatusCode> {
     }
 }
 
+// Store the voting question in Redis and publish it to subscribers.
 pub async fn post_question(
     Json(payload): Json<PostQuestionPayload>,
 ) -> Result<Json<Value>, StatusCode> {

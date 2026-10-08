@@ -9,6 +9,7 @@ use mongodb::Collection;
 use rand::{distributions::Alphanumeric, Rng};
 use serde_json::{json, Value};
 
+// Validate the GTID, reserve a PIS place, and create a rushee with a generated access code.
 pub async fn signup(Json(payload): Json<IncomingRushee>) -> Result<Json<Value>, StatusCode> {
     let collection: Collection<RusheeModel> = db::get_rushee_collection().await;
     let pis_timeslot = rush_time::string_to_bson_datetime(&payload.pis_timeslot.to_string());

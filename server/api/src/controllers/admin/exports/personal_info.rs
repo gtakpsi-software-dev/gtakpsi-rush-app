@@ -3,6 +3,7 @@ use serde_json::{json, Value};
 
 use super::read_rushees::map_rushees;
 
+// Return rushee contact, academic, and registration details for export.
 pub async fn export_rushee_personal_info() -> Result<Json<Value>, StatusCode> {
     let rows = map_rushees(|rushee| {
         json!({

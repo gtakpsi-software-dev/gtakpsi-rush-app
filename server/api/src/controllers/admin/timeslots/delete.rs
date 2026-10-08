@@ -8,6 +8,7 @@ use crate::services::pis_timeslot_deletion::{plan_deletion, DeletionPlan};
 use crate::services::rush_time;
 use crate::storage::db;
 
+// Look up a timeslot and either delete it or apply its planned capacity change.
 pub async fn delete_pis_timeslot(
     Json(payload): Json<PISTimeslotIncoming>,
 ) -> Result<Json<Value>, StatusCode> {

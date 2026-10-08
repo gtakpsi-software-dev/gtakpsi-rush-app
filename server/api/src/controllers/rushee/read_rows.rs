@@ -6,6 +6,7 @@ use serde_json::{json, Value};
 use crate::models::rushee::RusheeModel;
 use crate::storage::cursor_rows::for_each_strict_row;
 
+// Map all rushee records into response rows, reporting query or decoding failures.
 pub(super) async fn map_rushee_rows<T>(
     collection: Collection<RusheeModel>,
     mut map: impl FnMut(RusheeModel) -> T,

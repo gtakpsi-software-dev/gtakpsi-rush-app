@@ -4,6 +4,7 @@ use serde_json::{json, Value};
 
 use crate::storage::db;
 
+// Clear rushees, rush nights, PIS timeslots, and PIS questions for a season reset.
 pub async fn reset_season() -> Result<Json<Value>, StatusCode> {
     let client = db::get_mongo_client().await;
     let database = client.database("rush-app");
