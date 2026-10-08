@@ -1,9 +1,11 @@
+// Insert an ID at the requested position, clamping it to the list bounds.
 fn insert_at_target(ids: &mut Vec<String>, id: String, target_index: i32) {
     // Keep negative indices at the front and oversized indices at the end of the column.
     let index = usize::try_from(target_index).unwrap_or(0).min(ids.len());
     ids.insert(index, id);
 }
 
+// Remove an existing ID and reinsert it at the requested column position.
 pub(crate) fn move_within_column(
     mut ids: Vec<String>,
     moved_id: &str,
@@ -15,6 +17,7 @@ pub(crate) fn move_within_column(
     Some(ids)
 }
 
+// Move an existing ID from the source column to the requested destination position.
 pub(crate) fn move_between_columns(
     mut source_ids: Vec<String>,
     mut target_ids: Vec<String>,
@@ -31,10 +34,12 @@ pub(crate) fn move_between_columns(
 mod tests {
     use super::{move_between_columns, move_within_column};
 
+    // Convert string slices into owned IDs for sorting fixtures.
     fn ids(values: &[&str]) -> Vec<String> {
         values.iter().map(|value| (*value).to_string()).collect()
     }
 
+    // Verify that insertion positions refer to the list after removing the moved ID.
     #[test]
     fn moving_within_a_column_uses_the_order_after_removal() {
         assert_eq!(
@@ -51,6 +56,7 @@ mod tests {
         );
     }
 
+    // Verify both column orders after a cross-column move.
     #[test]
     fn moving_between_columns_keeps_source_and_target_order() {
         assert_eq!(
@@ -63,6 +69,7 @@ mod tests {
         );
     }
 
+    // Verify that moving a missing ID produces no replacement order.
     #[test]
     fn missing_rushee_does_not_produce_an_order_to_write() {
         assert_eq!(move_within_column(ids(&["a"]), "missing", 0), None);

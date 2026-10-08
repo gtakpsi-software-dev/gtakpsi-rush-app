@@ -1,5 +1,6 @@
 use futures::{Stream, StreamExt};
 
+// Visit decoded rows while skipping cursor errors.
 pub(crate) async fn for_each_valid_row<T, E>(
     mut cursor: impl Stream<Item = Result<T, E>> + Unpin,
     mut visit: impl FnMut(T),
@@ -12,6 +13,7 @@ pub(crate) async fn for_each_valid_row<T, E>(
     }
 }
 
+// Collect decoded rows while skipping cursor errors.
 pub(crate) async fn collect_valid_rows<T, E>(
     cursor: impl Stream<Item = Result<T, E>> + Unpin,
 ) -> Vec<T> {
@@ -20,6 +22,7 @@ pub(crate) async fn collect_valid_rows<T, E>(
     rows
 }
 
+// Collect all rows or return the first cursor error.
 pub(crate) async fn collect_strict_rows<T, E>(
     cursor: impl Stream<Item = Result<T, E>> + Unpin,
 ) -> Result<Vec<T>, E> {
@@ -28,6 +31,7 @@ pub(crate) async fn collect_strict_rows<T, E>(
     Ok(rows)
 }
 
+// Visit rows in order, stopping and returning the first cursor error.
 pub(crate) async fn for_each_strict_row<T, E>(
     mut cursor: impl Stream<Item = Result<T, E>> + Unpin,
     mut visit: impl FnMut(T),
@@ -44,6 +48,7 @@ mod tests {
     use super::{collect_strict_rows, collect_valid_rows, for_each_strict_row, for_each_valid_row};
     use futures::stream;
 
+    // Verify that tolerant readers continue past malformed rows.
     #[tokio::test]
     async fn malformed_rows_do_not_hide_later_valid_rows() {
         let cursor = stream::iter([Ok(1), Err(()), Ok(2)]);
@@ -55,6 +60,7 @@ mod tests {
         assert_eq!(visited, [1, 2]);
     }
 
+    // Verify that strict readers stop at the first malformed row.
     #[tokio::test]
     async fn strict_reads_discard_partial_rows_at_the_first_error() {
         let cursor = stream::iter([Ok(1), Err("invalid"), Ok(2)]);

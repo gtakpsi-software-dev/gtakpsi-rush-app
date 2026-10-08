@@ -7,6 +7,7 @@ pub(crate) enum SignupSlot {
 }
 
 impl SignupSlot {
+    // Return the database field paths for this interviewer slot.
     pub(crate) fn fields(self) -> (&'static str, &'static str) {
         match self {
             Self::First => (
@@ -20,6 +21,7 @@ impl SignupSlot {
         }
     }
 
+    // Return the signup confirmation for this interviewer slot.
     pub(crate) fn success_message(self) -> &'static str {
         match self {
             Self::First => "Successfully registered!",
@@ -28,6 +30,7 @@ impl SignupSlot {
     }
 }
 
+// Choose an empty interviewer slot, rejecting a duplicate first interviewer or a full signup.
 pub(crate) fn select_signup_slot(
     signup: &PISSignup,
     payload: &IncomingPISSignup,
@@ -61,6 +64,7 @@ pub(crate) fn select_signup_slot(
 mod tests {
     use super::*;
 
+    // Build a signup fixture with the supplied interviewer names.
     fn signup(first: (&str, &str), second: (&str, &str)) -> PISSignup {
         PISSignup {
             time: bson::DateTime::from_millis(0),
@@ -75,6 +79,7 @@ mod tests {
         }
     }
 
+    // Build a brother signup request fixture.
     fn payload() -> IncomingPISSignup {
         IncomingPISSignup {
             brother_first_name: "Bea".to_string(),
@@ -82,6 +87,7 @@ mod tests {
         }
     }
 
+    // Verify that an empty first slot is selected before inspecting the second slot.
     #[test]
     fn first_empty_slot_takes_priority_over_second_slot_state() {
         let state = signup(("none", "none"), ("Occupied", "Brother"));
@@ -95,6 +101,7 @@ mod tests {
         );
     }
 
+    // Verify that a partially populated first slot still permits a new second interviewer.
     #[test]
     fn second_slot_accepts_a_new_brother_even_when_first_is_partial() {
         let state = signup(("Alex", "none"), ("none", "none"));
@@ -108,6 +115,7 @@ mod tests {
         );
     }
 
+    // Verify the response when the first interviewer tries to sign up again.
     #[test]
     fn duplicate_first_brother_keeps_exact_error_text() {
         let state = signup(("Bea", "Brother"), ("none", "none"));
@@ -117,6 +125,7 @@ mod tests {
         );
     }
 
+    // Verify that a full signup reports both existing interviewers.
     #[test]
     fn full_slots_keep_exact_error_text() {
         let state = signup(("Alex", "Brother"), ("Casey", "Member"));

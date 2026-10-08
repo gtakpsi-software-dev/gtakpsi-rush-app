@@ -5,16 +5,19 @@ use crate::models::rushee::{Comment, NightInteractionSummary, RusheeModel};
 
 use super::{merge_rush_nights, night_matches};
 
+// Identify development nights by a case-insensitive name substring.
 fn is_dev_night(name: &str) -> bool {
     name.to_lowercase().contains("dev")
 }
 
+// Check whether attendance contains a matching night.
 fn rushee_attended_night(attendance: &[RushNight], night: &RushNight) -> bool {
     attendance
         .iter()
         .any(|attended| night_matches(attended, night))
 }
 
+// Count distinct brother names among comments matching a night.
 fn unique_brothers_for_night(comments: &[Comment], night: &RushNight) -> i32 {
     let mut names = HashSet::new();
     for comment in comments {
@@ -25,6 +28,7 @@ fn unique_brothers_for_night(comments: &[Comment], night: &RushNight) -> i32 {
     names.len() as i32
 }
 
+// Build per-night interaction counts, hiding unattended nights except development nights.
 pub fn interactions_by_night(
     db_rush_nights: &[RushNight],
     attendance: &[RushNight],
@@ -57,6 +61,7 @@ pub fn interactions_by_night(
         .collect()
 }
 
+// Populate a rushee's interaction summaries from attendance and comments.
 pub fn enrich_interactions_by_night(rushee: &mut RusheeModel, db_rush_nights: &[RushNight]) {
     rushee.interactions_by_night =
         interactions_by_night(db_rush_nights, &rushee.attendance, &rushee.comments);

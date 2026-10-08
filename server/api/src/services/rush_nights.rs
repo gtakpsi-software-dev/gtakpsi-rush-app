@@ -27,10 +27,12 @@ fn canonical_rush_nights() -> Vec<RushNight> {
     ]
 }
 
+// Compare rush-night names without case sensitivity or whitespace normalization.
 fn names_match(a: &str, b: &str) -> bool {
     a.eq_ignore_ascii_case(b)
 }
 
+// Match nights by case-insensitive name or rush-calendar date.
 pub fn night_matches(a: &RushNight, b: &RushNight) -> bool {
     names_match(&a.name, &b.name) || same_day(&a.time, &b.time)
 }
@@ -63,6 +65,7 @@ pub fn current_rush_night(nights: &[RushNight], now: DateTime) -> Option<RushNig
     Some(chosen.clone())
 }
 
+// Merge database, default, and comment nights without matching duplicates, then sort by time.
 pub fn merge_rush_nights(db_nights: &[RushNight], comments: &[Comment]) -> Vec<RushNight> {
     let mut merged: Vec<RushNight> = db_nights.to_vec();
 

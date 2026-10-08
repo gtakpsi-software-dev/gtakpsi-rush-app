@@ -9,14 +9,17 @@ enum CapacityChange {
     Vacate,
 }
 
+// Reserve one place in a PIS timeslot, rejecting missing or full slots.
 pub async fn take_pis_timeslot(time: DateTime) -> Result<bool, Error> {
     change_pis_timeslot_capacity(time, CapacityChange::Take).await
 }
 
+// Return one place to the selected PIS timeslot.
 pub async fn vacate_pis_timeslot(time: DateTime) -> Result<bool, Error> {
     change_pis_timeslot_capacity(time, CapacityChange::Vacate).await
 }
 
+// Read a timeslot and persist its adjusted capacity, reporting lookup and write failures.
 async fn change_pis_timeslot_capacity(
     time: DateTime,
     change: CapacityChange,

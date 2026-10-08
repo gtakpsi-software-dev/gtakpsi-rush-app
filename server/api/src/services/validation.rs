@@ -31,6 +31,7 @@ pub fn is_editable_rushee_field(field: &str) -> bool {
     )
 }
 
+// Check GTID length and reject IDs already present in the database.
 pub async fn is_gtid_valid(gtid: &str) -> Result<bool, Error> {
     // Preserve the existing byte-length rule before checking uniqueness.
     if gtid.len() != 9 {
@@ -46,6 +47,7 @@ pub async fn is_gtid_valid(gtid: &str) -> Result<bool, Error> {
     }
 }
 
+// Reject a second comment from the same brother on the same rush-calendar day.
 pub async fn check_valid_comment(
     brother_name: &str,
     night: &RushNight,
@@ -65,6 +67,7 @@ pub async fn check_valid_comment(
 mod tests {
     use super::{is_editable_rushee_field, is_pis_signup_synced_field};
 
+    // Verify the editable profile fields and the fields synchronized to PIS signups.
     #[test]
     fn profile_edit_fields_keep_exact_allowlists() {
         for field in ["first_name", "last_name", "gtid"] {

@@ -3,6 +3,7 @@ use mongodb::{bson::doc, Collection};
 use super::AssignmentPlan;
 use crate::models::rushee::RusheeModel;
 
+// Write the planned interviewer names to a rushee and report whether the update succeeded.
 pub(super) async fn persist_assignment(
     collection: &Collection<RusheeModel>,
     rushee: &RusheeModel,
