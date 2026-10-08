@@ -9,6 +9,7 @@ type PisAvailabilitySubmissionsCardProps = {
     onEditAvailability: (brother: BrotherAvailability) => void;
 };
 
+// Display submitted availability counts and buttons to edit each brother’s slots.
 export default function PisAvailabilitySubmissionsCard({
     brotherAvailabilities,
     onEditAvailability,
@@ -32,10 +33,10 @@ export default function PisAvailabilitySubmissionsCard({
             {brotherAvailabilities.length > 0 && (
                 <div className="bg-apple-gray-50 rounded-apple-lg p-3 max-h-48 overflow-y-auto border border-apple-gray-100">
                     <div className="flex flex-wrap gap-2">
-                        {brotherAvailabilities.map((avail, idx) => (
+                        {brotherAvailabilities.map(/* Render a brother’s name and submitted timeslot count. */ (avail, idx) => (
                             <button
                                 key={idx}
-                                onClick={() => onEditAvailability(avail)}
+                                onClick={/* Open the editor for this brother’s availability. */ () => onEditAvailability(avail)}
                                 className="text-apple-caption1 bg-white px-3 py-1.5 rounded-apple border border-apple-gray-200 text-apple-gray-700 hover:bg-apple-gray-100 hover:border-apple-gray-300 transition-all cursor-pointer font-light"
                             >
                                 {avail.brother_first_name} {avail.brother_last_name}

@@ -1,3 +1,4 @@
+// Create actions for editing and saving a brother’s PIS availability.
 export function createAvailabilityEditorActions({
     apiBase,
     getApiPrefix,
@@ -11,12 +12,14 @@ export function createAvailabilityEditorActions({
     axios,
     toast,
 }) {
+    // Open the editor with the brother’s stored timeslots normalized to ISO strings.
     const openEditAvailability = (brother) => {
         setEditingBrotherAvailability(brother);
         // Normalize both stored date formats so selections match the timeslot keys.
         const slots = new Set();
         if (brother.available_timeslots) {
             brother.available_timeslots.forEach(ts => {
+                // Normalize a stored BSON or plain date and add it to the selected set.
                 let isoString;
                 if (ts.$date && ts.$date.$numberLong) {
                     isoString = new Date(parseInt(ts.$date.$numberLong)).toISOString();
@@ -29,11 +32,13 @@ export function createAvailabilityEditorActions({
         setEditingSlots(slots);
     };
 
+    // Close the availability editor and clear its selected slots.
     const closeEditAvailability = () => {
         setEditingBrotherAvailability(null);
         setEditingSlots(new Set());
     };
 
+    // Toggle a timeslot in a copy of the edited selection.
     const toggleEditSlot = (slotIso) => {
         const newSlots = new Set(editingSlots);
         if (newSlots.has(slotIso)) {
@@ -44,17 +49,20 @@ export function createAvailabilityEditorActions({
         setEditingSlots(newSlots);
     };
 
+    // Select every configured PIS timeslot in the editor.
     const selectAllEditSlots = () => {
-        const allSlots = new Set(allPisTimeslots.map(slot =>
+        const allSlots = new Set(allPisTimeslots.map(/* Convert a configured timeslot’s BSON date to an ISO string. */ slot =>
             new Date(parseInt(slot.time.$date.$numberLong)).toISOString()
         ));
         setEditingSlots(allSlots);
     };
 
+    // Clear the editor’s timeslot selection.
     const clearAllEditSlots = () => {
         setEditingSlots(new Set());
     };
 
+    // Save the edited availability, refresh submissions, and close the editor after success.
     const saveEditedAvailability = async () => {
         if (!editingBrotherAvailability) return;
 

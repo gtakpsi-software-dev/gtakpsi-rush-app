@@ -25,6 +25,7 @@ type PisQuestionsCardProps = {
     saveQuestionCategory: (question: PisQuestion) => Promise<void>;
 };
 
+// Render question creation, deletion, and category editing for the PIS question bank.
 export default function PisQuestionsCard({
     question,
     setQuestion,
@@ -51,14 +52,14 @@ export default function PisQuestionsCard({
                     placeholder="Question text"
                     className="input-apple text-apple-body"
                     value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
+                    onChange={/* Update the question text. */ (e) => setQuestion(e.target.value)}
                 />
                 <input
                     type="text"
                     placeholder="Question type (e.g., FR, MC)"
                     className="input-apple text-apple-body"
                     value={questionType}
-                    onChange={(e) => setQuestionType(e.target.value)}
+                    onChange={/* Update the question type. */ (e) => setQuestionType(e.target.value)}
                 />
                 <input
                     type="number"
@@ -66,6 +67,7 @@ export default function PisQuestionsCard({
                     className="input-apple text-apple-body"
                     value={questionOrder}
                     onChange={(e) => {
+                        // Store the question order as a number or preserve blank input.
                         const value = e.target.value;
                         setQuestionOrder(value === "" ? "" : Number(value));
                     }}
@@ -75,7 +77,7 @@ export default function PisQuestionsCard({
                     placeholder="Category (leave blank for a fixed, always-shown question)"
                     className="input-apple text-apple-body"
                     value={questionCategory}
-                    onChange={(e) => setQuestionCategory(e.target.value)}
+                    onChange={/* Update the question category. */ (e) => setQuestionCategory(e.target.value)}
                 />
                 <p className="text-apple-caption text-apple-gray-400">
                     Questions with the same category form a random-draw bucket &mdash; one is randomly picked per category, per rushee, 5 minutes before their PIS. Leave category blank for logistics/MC questions or anything that should always be asked.
@@ -84,6 +86,7 @@ export default function PisQuestionsCard({
             <div className="flex gap-3">
                 <button
                     onClick={async () => {
+                        // Submit the question with optional order and category, then refresh the question bank.
                         const order = questionOrder === "" ? undefined : Number(questionOrder);
                         const category = questionCategory.trim() === "" ? undefined : questionCategory.trim();
                         await handleRequest("add_pis_question", { question, question_type: questionType, order, category }, "post", "Question added!");
@@ -95,6 +98,7 @@ export default function PisQuestionsCard({
                 </button>
                 <button
                     onClick={async () => {
+                        // Delete the matching question and refresh the question bank.
                         await handleRequest("delete_pis_question", { question, question_type: questionType }, "post", "Question deleted!");
                         fetchPisQuestions();
                     }}
@@ -115,7 +119,7 @@ export default function PisQuestionsCard({
                     </button>
                 </div>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {pisQuestions.map((q, idx) => (
+                    {pisQuestions.map(/* Render a question and its editable category. */ (q, idx) => (
                         <div key={idx} className="flex items-center gap-2 p-3 bg-apple-gray-50 rounded-apple-lg">
                             <div className="flex-1 min-w-0">
                                 <p className="text-apple-body text-black truncate">{q.question}</p>
@@ -126,10 +130,16 @@ export default function PisQuestionsCard({
                                 placeholder="Fixed (no category)"
                                 className="input-apple text-apple-caption w-48"
                                 value={categoryEdits[q.question] ?? q.category ?? ""}
-                                onChange={(e) => setCategoryEdits((prev) => ({ ...prev, [q.question]: e.target.value }))}
+                                onChange={
+                                    /* Update the category draft for this question. */
+                                    (e) => setCategoryEdits(
+                                        /* Merge this question’s category into the previous drafts. */
+                                        (prev) => ({ ...prev, [q.question]: e.target.value })
+                                    )
+                                }
                             />
                             <button
-                                onClick={() => saveQuestionCategory(q)}
+                                onClick={/* Save this question’s edited category. */ () => saveQuestionCategory(q)}
                                 className="text-apple-caption bg-black text-white px-3 py-2 rounded-apple-lg hover:bg-apple-gray-800 transition-colors whitespace-nowrap"
                             >
                                 Save

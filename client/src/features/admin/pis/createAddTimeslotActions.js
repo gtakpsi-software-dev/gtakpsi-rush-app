@@ -1,3 +1,4 @@
+// Create the timeslot submission action with form and feedback dependencies.
 export function createAddTimeslotActions({
     apiBase,
     timeslotTime,
@@ -10,6 +11,7 @@ export function createAddTimeslotActions({
     axios,
     scheduleTimeout,
 }) {
+    // Validate a selected time, submit its capacity change, and reset the form on resolution.
     const handleAddTimeslot = async () => {
         if (!timeslotTime) {
             setResult("Please select a time");
@@ -28,7 +30,7 @@ export function createAddTimeslotActions({
             setTimeslotTime("");
             setTimeslotChange(1);
             setShowSuccess(true);
-            scheduleTimeout(() => setShowSuccess(false), 3000);
+            scheduleTimeout(/* Hide the timeslot submission confirmation after its timeout. */ () => setShowSuccess(false), 3000);
         } catch (error) {
             setResult(error.response?.data || "An error occurred");
         }

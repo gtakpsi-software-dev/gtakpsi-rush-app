@@ -9,6 +9,7 @@ type AdminExportsAccessSectionProps =
     ComponentProps<typeof AdminAccessCard> &
     ComponentProps<typeof AccessSettingsCards>;
 
+// Group export controls, role management, and app-access settings.
 export default function AdminExportsAccessSection(props: AdminExportsAccessSectionProps) {
     const {
         exportRusheeNumbers, exportPISSchedule, exportRusheePersonalInfo, handleRequest,

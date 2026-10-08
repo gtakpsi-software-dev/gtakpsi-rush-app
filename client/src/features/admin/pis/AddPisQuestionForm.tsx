@@ -8,6 +8,7 @@ type Props = {
     onSubmit: () => void;
 };
 
+// Render a standalone form for a PIS question, type, and optional category.
 export default function AddPisQuestionForm({
     question,
     setQuestion,
@@ -26,21 +27,21 @@ export default function AddPisQuestionForm({
                     placeholder="Enter Question"
                     className="border border-gray-300 rounded-md p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
+                    onChange={/* Update the question text. */ (e) => setQuestion(e.target.value)}
                 />
                 <input
                     type="text"
                     placeholder="Enter Question Type"
                     className="border border-gray-300 rounded-md p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     value={questionType}
-                    onChange={(e) => setQuestionType(e.target.value)}
+                    onChange={/* Update the question type. */ (e) => setQuestionType(e.target.value)}
                 />
                 <input
                     type="text"
                     placeholder="Category (blank = always shown to every rushee)"
                     className="border border-gray-300 rounded-md p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     value={questionCategory}
-                    onChange={(e) => setQuestionCategory(e.target.value)}
+                    onChange={/* Update the question category. */ (e) => setQuestionCategory(e.target.value)}
                 />
                 <button
                     onClick={onSubmit}

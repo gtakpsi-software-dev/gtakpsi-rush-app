@@ -15,6 +15,7 @@ type AccessSettingsCardsProps = {
     handleToggleMidtermMode: (newValue: boolean) => Promise<void>;
 };
 
+// Render controls for role access, comment visibility, and midterm mode.
 export default function AccessSettingsCards({
     rushAppStatus,
     rushAppLoading,
@@ -40,7 +41,9 @@ export default function AccessSettingsCards({
                         description="Members with bid committee access"
                         enabled={rushAppStatus.disable_bidcom}
                         disabled={rushAppLoading}
-                        onClick={() => handleToggleRushAppAccess('disable_bidcom', !rushAppStatus.disable_bidcom)}
+                        onClick={
+                            /* Toggle the bid committee access restriction. */
+                            () => handleToggleRushAppAccess('disable_bidcom', !rushAppStatus.disable_bidcom)}
                     />
 
                     <AccessToggleRow
@@ -48,7 +51,9 @@ export default function AccessSettingsCards({
                         description="Brothers without admin or bid committee"
                         enabled={rushAppStatus.disable_regular}
                         disabled={rushAppLoading}
-                        onClick={() => handleToggleRushAppAccess('disable_regular', !rushAppStatus.disable_regular)}
+                        onClick={
+                            /* Toggle the regular-brother access restriction. */
+                            () => handleToggleRushAppAccess('disable_regular', !rushAppStatus.disable_regular)}
                     />
                 </div>
 
@@ -79,7 +84,9 @@ export default function AccessSettingsCards({
                         : 'On — every brother can read all comments (voting mode)'}
                     enabled={!commentVisibilityStatus.require_comment_to_view}
                     disabled={commentVisibilityLoading}
-                    onClick={() => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
+                    onClick={
+                        /* Toggle whether comment viewing is restricted. */
+                        () => handleToggleCommentVisibility(!commentVisibilityStatus.require_comment_to_view)}
                 />
 
                 <div className="mt-4 pt-3 border-t border-apple-gray-100">
@@ -103,7 +110,7 @@ export default function AccessSettingsCards({
                     description="Brothers see only the voting page"
                     enabled={rushAppStatus.midterm_mode}
                     disabled={midtermLoading}
-                    onClick={() => handleToggleMidtermMode(!rushAppStatus.midterm_mode)}
+                    onClick={/* Toggle midterm mode. */ () => handleToggleMidtermMode(!rushAppStatus.midterm_mode)}
                 />
 
                 <div className="mt-4 pt-3 border-t border-apple-gray-100">

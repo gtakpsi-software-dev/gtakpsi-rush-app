@@ -13,6 +13,7 @@ type AdminPageViewProps = {
     availability: ComponentProps<typeof PisAvailabilitySection>;
 };
 
+// Render the admin panel sections and optional availability editor.
 export default function AdminPageView({
     editor,
     exportsAccess,

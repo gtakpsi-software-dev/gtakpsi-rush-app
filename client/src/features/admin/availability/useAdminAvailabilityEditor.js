@@ -2,6 +2,7 @@ import { useState } from "react";
 import { groupEditSlots } from "../pis/pisTime";
 import { createAvailabilityEditorActions } from "./availabilityEditorActions";
 
+// Manage the availability editor’s selected brother, slots, saving state, and actions.
 export default function useAdminAvailabilityEditor({
     apiBase,
     getApiPrefix,

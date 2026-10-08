@@ -7,6 +7,7 @@ import { verifyUser } from "../../auth/verifyUser";
 import { auth, db } from "../../../firebase";
 import { loadAdminData } from "./loadAdminData";
 
+// Load admin data during the page’s existing startup lifecycle.
 export default function useAdminBootstrap({
     loading,
     navigate,
@@ -27,6 +28,7 @@ export default function useAdminBootstrap({
     const errorDescription = "If this is a mistake, try logging back in";
 
     useEffect(() => {
+        // Start authorization and data loading when the page is loading.
         if (loading === true) {
             loadAdminData({
                 verifyUser,
@@ -42,6 +44,7 @@ export default function useAdminBootstrap({
                 apiBase,
                 rusheeApiBase,
                 toast,
+                // Log the failed admin section and its error.
                 logError: (message, error) => console.error(message, error),
                 setBrothers,
                 setRushees,

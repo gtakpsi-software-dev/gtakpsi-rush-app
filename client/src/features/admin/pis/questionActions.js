@@ -1,3 +1,4 @@
+// Create actions to load ordered PIS questions and update question categories.
 export function createQuestionActions({
     apiBase,
     categoryEdits,
@@ -6,6 +7,7 @@ export function createQuestionActions({
     axios,
     toast,
 }) {
+    // Fetch and sort PIS questions, reporting request failures.
     const fetchPisQuestions = async () => {
         setPisQuestionsLoading(true);
         try {
@@ -13,6 +15,7 @@ export function createQuestionActions({
             if (response.data.status === "success") {
                 // Keep unnumbered questions after ordered prompts without mutating the response.
                 const sorted = [...response.data.payload].sort((a, b) => {
+                    // Order numbered questions first and place unnumbered questions last.
                     const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
                     const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
                     return orderA - orderB;
@@ -29,6 +32,7 @@ export function createQuestionActions({
         setPisQuestionsLoading(false);
     };
 
+    // Save the edited category, using null for blank input, and reload questions on success.
     const saveQuestionCategory = async (q) => {
         const rawCategory = (categoryEdits[q.question] ?? q.category ?? "").trim();
         const category = rawCategory === "" ? null : rawCategory;

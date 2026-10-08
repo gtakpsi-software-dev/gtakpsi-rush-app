@@ -1,3 +1,4 @@
+// Create brother selection and administrator or bid committee role actions.
 export function createPromotionActions({
     apiBase,
     selectedBrother,
@@ -10,6 +11,7 @@ export function createPromotionActions({
     axios,
     toast,
 }) {
+    // Select a brother, update the search label, and fetch their current roles.
     const handleSelectBrother = (brother) => {
         setSelectedBrother(brother);
         const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
@@ -18,6 +20,7 @@ export function createPromotionActions({
         fetchBrotherAdminStatus(brother);
     };
 
+    // Fetch role flags using the brother’s available ID, clearing them on failure.
     const fetchBrotherAdminStatus = async (brother) => {
         // Brother records can carry Firebase or database identifiers.
         const uid = brother?.uid || brother?.id || brother?._id;
@@ -42,6 +45,7 @@ export function createPromotionActions({
     };
 
     // INVARIANT: role changes require a selected brother with a usable UID.
+    // Validate the selected brother’s UID, submit a role change, and update its status.
     const updateRole = async ({ endpoint, field, enabled, setStatus, successMessage, failureMessage }) => {
         if (!selectedBrother) {
             toast.error("Select a brother first");
@@ -80,22 +84,26 @@ export function createPromotionActions({
         }
     };
 
+    // Grant or remove the selected brother’s administrator role.
     const handleSetAdmin = (makeAdmin) => updateRole({
         endpoint: "make-admin",
         field: "make_admin",
         enabled: makeAdmin,
         setStatus: setBrotherAdminStatus,
+        // Describe the administrator-role change for the selected brother.
         successMessage: () => makeAdmin
             ? `Granted admin to ${selectedBrother.email || "brother"}`
             : `Removed admin from ${selectedBrother.email || "brother"}`,
         failureMessage: "Failed to update admin",
     });
 
+    // Grant or remove the selected brother’s bid committee role.
     const handleSetBidcom = (makeBidcom) => updateRole({
         endpoint: "make-bidcom",
         field: "make_bidcom",
         enabled: makeBidcom,
         setStatus: setBrotherBidcomStatus,
+        // Describe the bid committee role change for the selected brother.
         successMessage: () => makeBidcom
             ? `Granted bid committee access to ${selectedBrother.email || "brother"}`
             : `Removed bid committee access from ${selectedBrother.email || "brother"}`,

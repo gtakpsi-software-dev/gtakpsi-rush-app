@@ -1,3 +1,4 @@
+// Create actions for rush access, midterm mode, and comment visibility settings.
 export function createAccessSettingsActions({
     apiBase,
     rushAppStatus,
@@ -10,6 +11,7 @@ export function createAccessSettingsActions({
     toast,
     auth,
 }) {
+    // Submit a setting, apply successful state, and report its result through toasts.
     async function submitSetting({
         endpoint, payload, onSuccess, successMessage, fallbackMessage, errorMessage, setLoading,
     }) {
@@ -42,6 +44,7 @@ export function createAccessSettingsActions({
     }
 
     // The update endpoint replaces all rush-app flags, so preserve the other settings on each toggle.
+    // Update one role’s access restriction while preserving the other rush-app flags.
     const handleToggleRushAppAccess = async (field, newValue) => {
         setRushAppLoading(true);
 
@@ -52,14 +55,17 @@ export function createAccessSettingsActions({
         };
 
         await submitSetting({
+            // Return the rush-app settings endpoint.
             endpoint: () => `${apiBase}/rush-app/update`,
             payload: newStatus,
+            // Store the updated access flags and current administrator email.
             onSuccess: () => {
                 setRushAppStatus({
                     ...newStatus,
                     updated_by: auth.currentUser?.email || "admin"
                 });
             },
+            // Describe the access change for the selected role.
             successMessage: () => {
                 const targetText = field === 'disable_bidcom' ? 'Bid Committee' : 'Regular Brothers';
                 return `${targetText} access ${newValue ? 'disabled' : 'enabled'}`;
@@ -70,6 +76,7 @@ export function createAccessSettingsActions({
         });
     };
 
+    // Update midterm mode while preserving both role access restrictions.
     const handleToggleMidtermMode = async (newValue) => {
         setMidtermLoading(true);
 
@@ -80,14 +87,17 @@ export function createAccessSettingsActions({
         };
 
         await submitSetting({
+            // Return the rush-app settings endpoint.
             endpoint: () => `${apiBase}/rush-app/update`,
             payload: newStatus,
+            // Store the updated midterm flag and current administrator email.
             onSuccess: () => {
                 setRushAppStatus({
                     ...newStatus,
                     updated_by: auth.currentUser?.email || "admin"
                 });
             },
+            // Describe whether midterm mode was enabled or disabled.
             successMessage: () => `Midterm Mode ${newValue ? 'enabled' : 'disabled'}`,
             fallbackMessage: "Failed to update Midterm Mode",
             errorMessage: "Failed to update Midterm Mode",
@@ -95,18 +105,22 @@ export function createAccessSettingsActions({
         });
     };
 
+    // Update whether brothers may view comments from other brothers.
     const handleToggleCommentVisibility = async (newValue) => {
         setCommentVisibilityLoading(true);
 
         await submitSetting({
+            // Return the comment-visibility settings endpoint.
             endpoint: () => `${apiBase}/comment-visibility/update`,
             payload: { require_comment_to_view: newValue },
+            // Store the updated restriction and current administrator email.
             onSuccess: () => {
                 setCommentVisibilityStatus({
                     require_comment_to_view: newValue,
                     updated_by: auth.currentUser?.email || "admin"
                 });
             },
+            // Describe the resulting comment-visibility policy.
             successMessage: () => newValue
                 ? 'Comment viewing restricted — brothers only see their own comments'
                 : 'Comment viewing open — all brothers can read every comment',

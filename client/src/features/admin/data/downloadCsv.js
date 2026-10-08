@@ -1,3 +1,4 @@
+// Trigger a dated CSV download through a temporary link when the browser supports it.
 export function downloadCsv(csvContent, filenamePrefix) {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");

@@ -12,6 +12,7 @@ type AddTimeslotFormProps = {
     handleAddTimeslot: () => Promise<void>;
 };
 
+// Render timeslot inputs, submission controls, and request feedback.
 export default function AddTimeslotForm({
     timeslotTime,
     setTimeslotTime,

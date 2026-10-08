@@ -8,6 +8,7 @@ type AccessToggleRowProps = {
     onClick: () => void;
 };
 
+// Render a labeled settings toggle with its enabled and disabled states.
 export default function AccessToggleRow({
     label, description, enabled, disabled, onClick,
 }: AccessToggleRowProps) {

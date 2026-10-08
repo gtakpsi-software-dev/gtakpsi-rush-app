@@ -16,6 +16,7 @@ type PisAvailabilitySectionProps = {
     exportPISWithBrothers: () => Promise<void>;
 };
 
+// Render availability management, submissions, assignment controls, and schedule export.
 export default function PisAvailabilitySection({
     pisFormStatus,
     pisFormLoading,
