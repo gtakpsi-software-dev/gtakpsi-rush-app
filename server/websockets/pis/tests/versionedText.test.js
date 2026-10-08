@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const { applyVersionedTextUpdate } = require('../src/operations/versionedText');
 
+// Build a versioned room fixture with an existing notes field.
 function room() {
     return {
         document: new Map([['notes', 'Before']]),
@@ -11,6 +12,7 @@ function room() {
 }
 
 test('accepted full-text updates replace only their field and advance its version', () => {
+    // Verify that accepted edits change only their field and increment its version.
     const state = room();
     state.document.set('other', 'Unchanged');
     state.versions.set('other', 4);
@@ -26,6 +28,7 @@ test('accepted full-text updates replace only their field and advance its versio
 });
 
 test('stale updates return server truth without mutating room state or activity', () => {
+    // Verify that stale edits return server state without changing text or activity.
     const state = room();
 
     const result = applyVersionedTextUpdate(state, {
@@ -41,6 +44,7 @@ test('stale updates return server truth without mutating room state or activity'
 });
 
 test('unversioned fields use version zero and missing text rejects as empty', () => {
+    // Verify version-zero defaults and empty text for previously unversioned fields.
     const state = room();
     state.versions.set('legacy', 0);
 

@@ -5,12 +5,16 @@ const { createRoom } = require('../src/rooms');
 const { recordLegacyTextOperation } = require('../src/operations/recordLegacyTextOperation');
 
 const options = {
+    // Return a fixed operation ID for repeatable assertions.
     generateId: () => 'operation-1',
+    // Return a fixed operation timestamp for rebasing tests.
     now: () => 1000,
+    // Return a fixed room-activity timestamp.
     activityTime: () => '2026-10-01T00:00:00.000Z',
 };
 
 test('recent legacy edits shift the broadcast position but stored text uses the original edit', () => {
+    // Verify rebased broadcasts while stored text uses the original edit position.
     const room = createRoom();
     room.document.set('notes', 'abc');
     room.operations.push({
@@ -32,6 +36,7 @@ test('recent legacy edits shift the broadcast position but stored text uses the 
 });
 
 test('only the last ten operations and edits less than one second apart transform', () => {
+    // Verify the ten-operation history window and strict one-second rebasing boundary.
     const room = createRoom();
     room.operations.push({
         field: 'notes', type: 'insert', position: 0, content: 'old', timestamp: 999,

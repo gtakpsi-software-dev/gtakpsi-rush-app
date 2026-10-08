@@ -3,6 +3,7 @@ const test = require('node:test');
 const { transformOperation, applyOperation } = require('../src/operations/legacyText');
 
 test('transforms preserve insertion ties, deletion clamping, and untouched operations', () => {
+    // Verify insertion ties, deletion clamping, and operations unaffected by rebasing.
     const operation = { type: 'insert', position: 4, content: 'B' };
     assert.deepEqual(transformOperation({ type: 'insert', position: 4, content: 'ABC' }, operation), {
         ...operation, position: 7,
@@ -15,12 +16,14 @@ test('transforms preserve insertion ties, deletion clamping, and untouched opera
 });
 
 test('legacy text operations preserve insert, delete, and replace offsets', () => {
+    // Verify text insertion, deletion, and replacement offsets.
     assert.equal(applyOperation('abcd', { type: 'insert', position: 2, content: 'X' }), 'abXcd');
     assert.equal(applyOperation('abcd', { type: 'delete', position: 1, length: 2 }), 'ad');
     assert.equal(applyOperation('abcd', { type: 'replace', position: 1, length: 2, content: 'XY' }), 'aXYd');
 });
 
 test('missing operation values and unknown types retain the existing text', () => {
+    // Verify that missing edit values and unsupported operation types leave text unchanged.
     assert.equal(applyOperation('abcd', { type: 'insert', position: 2 }), 'abcd');
     assert.equal(applyOperation('abcd', { type: 'delete', position: 1 }), 'abcd');
     assert.equal(applyOperation('abcd', { type: 'replace', position: 1 }), 'abcd');

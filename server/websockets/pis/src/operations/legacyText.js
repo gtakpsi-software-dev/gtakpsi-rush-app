@@ -1,3 +1,4 @@
+// Shift an operation's position to account for a preceding insertion or deletion.
 const transformOperation = (op1, op2) => {
     // Legacy clients receive shifted positions so near-simultaneous edits do not use stale offsets.
     if (op1.position <= op2.position) {
@@ -16,6 +17,7 @@ const transformOperation = (op1, op2) => {
     return op2;
 };
 
+// Apply a legacy insert, delete, or replace operation to a text value.
 function applyOperation(currentDoc, operation) {
     let newDoc = currentDoc;
 

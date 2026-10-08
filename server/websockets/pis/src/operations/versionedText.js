@@ -1,3 +1,4 @@
+// Apply an edit only at the current field version, otherwise return the server value and version.
 function applyVersionedTextUpdate(room, { field, value, baseVersion }) {
     const currentVersion = room.versions.get(field) || 0;
 

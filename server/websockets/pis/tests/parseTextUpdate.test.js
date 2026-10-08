@@ -4,6 +4,7 @@ const test = require('node:test');
 const { parseTextUpdate } = require('../src/handlers/parseTextUpdate');
 
 test('complete text updates keep their field, string value, and version', () => {
+    // Verify preservation of a complete, typed text-update payload.
     assert.deepEqual(parseTextUpdate({
         field: 'notes', value: 'Hello', baseVersion: 2, clientUpdateId: 'edit-1',
     }), {
@@ -12,6 +13,7 @@ test('complete text updates keep their field, string value, and version', () => 
 });
 
 test('missing fields or the wrong version and update ID types remain ignored', () => {
+    // Verify rejection of missing fields and invalid version or update-ID types.
     for (const payload of [
         null,
         {},
@@ -25,6 +27,7 @@ test('missing fields or the wrong version and update ID types remain ignored', (
 });
 
 test('non-string values remain empty and other accepted types are not newly rejected', () => {
+    // Verify empty-text normalization and the existing acceptance of other field and version values.
     assert.deepEqual(parseTextUpdate({
         field: 7, value: 123, baseVersion: Number.NaN, clientUpdateId: 'edit-2',
     }), {

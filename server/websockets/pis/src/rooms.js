@@ -1,3 +1,4 @@
+// Create empty user, text, version, and operation state for a collaboration room.
 function createRoom() {
     return {
         users: new Map(),
@@ -9,6 +10,7 @@ function createRoom() {
     };
 }
 
+// Serialize room text and versions into the document snapshot sent to clients.
 function snapshotDocument(room) {
     const documentState = {};
     for (const [field, content] of room.document.entries()) {
