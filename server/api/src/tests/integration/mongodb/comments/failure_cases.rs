@@ -5,6 +5,7 @@ use axum::Json;
 use bson::doc;
 use serde_json::json;
 
+// Verify stored comments and ratings after rejected edits, appends, deletions, and rating writes.
 pub(super) async fn check_contracts() {
     let database = db::get_mongo_client().await.database("rush-app");
     let mut blocked_edit = stored_rushee().await.comments[0].clone();

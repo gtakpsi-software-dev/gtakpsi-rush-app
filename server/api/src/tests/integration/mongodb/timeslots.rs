@@ -9,6 +9,7 @@ use crate::{
     storage::db,
 };
 
+// Build a capacity-change request for the standard fixture timeslot.
 fn change(amount: i32) -> Json<PISTimeslotIncoming> {
     Json(PISTimeslotIncoming {
         time: SLOT.to_string(),
@@ -16,6 +17,7 @@ fn change(amount: i32) -> Json<PISTimeslotIncoming> {
     })
 }
 
+// Verify timeslot creation, legacy timestamp matching, and strict listing behavior.
 pub async fn check_contracts() {
     reset().await;
 
@@ -79,6 +81,7 @@ pub async fn check_contracts() {
     println!("PIS timeslot create, update, delete, and list contracts passed");
 }
 
+// Verify that an undecodable existing slot prevents either creation or capacity updates.
 async fn check_malformed_existing_slot() {
     reset().await;
     let collection = db::get_mongo_client()
@@ -99,6 +102,7 @@ async fn check_malformed_existing_slot() {
     assert!(!stored.contains_key("num_available"));
 }
 
+// Verify that a rejected timeslot insert leaves no stored slot.
 async fn check_rejected_creation() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");
@@ -128,6 +132,7 @@ async fn check_rejected_creation() {
         .unwrap();
 }
 
+// Verify that a matching string timestamp produces a decoding error without deletion.
 async fn check_delete_lookup_error() {
     reset().await;
     let collection = db::get_mongo_client()

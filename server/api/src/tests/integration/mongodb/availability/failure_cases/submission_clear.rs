@@ -3,6 +3,7 @@ use serde_json::json;
 
 use super::{admin, db, reset};
 
+// Verify that a failed submission clear stops before replacing form status.
 pub(super) async fn check_rejected_submission_clear() {
     reset().await;
     assert_eq!(

@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify that the first answer remains stored when a later answer write fails.
 pub(super) async fn check_second_response_write_failure() {
     reset().await;
     register().await;
@@ -39,6 +40,7 @@ pub(super) async fn check_second_response_write_failure() {
         .unwrap();
 }
 
+// Verify that rejected answer clearing retains saved responses and the existing status message.
 pub(super) async fn check_response_clear_failure() {
     reset().await;
     register().await;
@@ -82,6 +84,7 @@ pub(super) async fn check_response_clear_failure() {
         .unwrap();
 }
 
+// Verify that failed autosave retains both prior answers and interviewer names.
 pub(super) async fn check_autosave_write_failure() {
     reset().await;
     register().await;

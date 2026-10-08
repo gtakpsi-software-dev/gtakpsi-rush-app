@@ -16,6 +16,7 @@ use redis::AsyncCommands;
 #[cfg(feature = "redis-integration-tests")]
 use std::{env, time::Duration};
 
+// Verify that missing or malformed selections fail before Redis access.
 pub async fn check_missing_rushee_contracts() {
     reset().await;
     let missing = Json(serde_json::from_value(json!({"gtid": "absent"})).unwrap());
@@ -43,6 +44,7 @@ pub async fn check_missing_rushee_contracts() {
     reset().await;
 }
 
+// Verify MongoDB-to-Redis selection, publication, read-shape mismatch, and partial failures.
 #[cfg(feature = "redis-integration-tests")]
 pub async fn check_selected_rushee_contract() {
     let port = env::var("RUSH_TEST_REDIS_PORT").expect("Use the disposable Redis runner");

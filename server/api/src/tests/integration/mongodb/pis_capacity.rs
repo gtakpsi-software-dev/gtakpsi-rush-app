@@ -3,6 +3,7 @@ use bson::DateTime;
 use super::fixtures::{add_slot, capacity, reset, SLOT};
 use crate::services::pis_capacity;
 
+// Verify missing and full timeslot errors plus reservation and release capacity changes.
 pub async fn check_contracts() {
     reset().await;
     let time = DateTime::parse_rfc3339_str(SLOT).unwrap();

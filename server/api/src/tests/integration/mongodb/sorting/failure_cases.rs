@@ -5,6 +5,7 @@ use serde_json::json;
 use super::*;
 use crate::{controllers::rushee, storage::db};
 
+// Verify that a rejected sorting update retains status, order, and attribution.
 pub(super) async fn check_single_sorting_write_failure() {
     reset().await;
     register().await;
@@ -42,6 +43,7 @@ pub(super) async fn check_single_sorting_write_failure() {
         .unwrap();
 }
 
+// Verify that rejected note autosave retains notes, tags, and attribution together.
 pub(super) async fn check_notes_write_failure() {
     reset().await;
     register().await;
@@ -81,6 +83,7 @@ pub(super) async fn check_notes_write_failure() {
         .unwrap();
 }
 
+// Verify that earlier reordered records remain committed when a later write fails.
 pub(super) async fn check_bulk_reorder_failure() {
     reset().await;
     register().await;

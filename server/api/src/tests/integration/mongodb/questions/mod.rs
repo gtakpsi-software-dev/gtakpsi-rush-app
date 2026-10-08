@@ -7,6 +7,7 @@ use crate::{controllers::admin, models::pis::PISQuestion, storage::db};
 
 mod failure_cases;
 
+// Verify question creation, strict listing, exact identity matching, category changes, and deletion.
 pub async fn check_contracts() {
     reset().await;
 

@@ -9,6 +9,7 @@ use crate::{
     storage::db,
 };
 
+// Verify rush-night creation, timestamp-based deletion, and strict handling of malformed schedules.
 pub async fn check_contracts() {
     reset().await;
     let collection = db::get_rush_nights_collection().await;
@@ -103,6 +104,7 @@ pub async fn check_contracts() {
     reset().await;
 }
 
+// Verify the rush-night deletion error using a read-only fixture view.
 async fn check_delete_failure() {
     let database = db::get_mongo_client().await.database("rush-app");
     let collection = db::get_rush_nights_collection().await;

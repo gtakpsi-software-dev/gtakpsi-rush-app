@@ -4,6 +4,7 @@ use serde_json::json;
 use super::fixtures::{register, reset, GTID};
 use crate::{controllers::rushee, storage::db};
 
+// Verify that malformed rows reject rushee and signup listings without changing valid records.
 pub async fn check_malformed_row_responses() {
     reset().await;
     register().await;

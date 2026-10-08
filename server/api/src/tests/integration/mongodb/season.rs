@@ -2,6 +2,7 @@ use crate::{controllers::admin::reset_season, storage::db};
 use mongodb::bson::{doc, Document};
 use serde_json::json;
 
+// Verify that season reset clears only its four collections and succeeds when repeated.
 pub async fn check_contracts() {
     let client = db::get_mongo_client().await;
     let database = client.database("rush-app");

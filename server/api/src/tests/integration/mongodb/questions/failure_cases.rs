@@ -4,6 +4,7 @@ use serde_json::json;
 
 use super::*;
 
+// Verify rejected question inserts and category updates retain the expected database state.
 pub(super) async fn check_write_failures() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");
@@ -70,6 +71,7 @@ pub(super) async fn check_write_failures() {
     check_delete_failure().await;
 }
 
+// Verify the question deletion error using a read-only fixture view.
 async fn check_delete_failure() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");

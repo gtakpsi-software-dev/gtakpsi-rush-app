@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify that an unavailable eligibility check prevents recording a vote.
 pub(super) async fn assert_eligibility_read_failure(
     redis: &mut redis::aio::ConnectionManager,
     vote: IncomingRusheeVote,
@@ -27,6 +28,7 @@ pub(super) async fn assert_eligibility_read_failure(
         .unwrap();
 }
 
+// Verify that a rejected atomic vote write leaves no ballot.
 pub(super) async fn assert_vote_write_failure(redis: &mut redis::aio::ConnectionManager) {
     // Deny the atomic vote write in the disposable instance. A rejected write
     // must leave no ballot and produce no notification for the failed voter.
@@ -63,6 +65,7 @@ pub(super) async fn assert_vote_write_failure(redis: &mut redis::aio::Connection
         .unwrap();
 }
 
+// Verify selection errors for invalid JSON and denied Redis reads.
 pub(super) async fn assert_rushee_read_failures(redis: &mut redis::aio::ConnectionManager) {
     let _: () = redis.set("rushee", "not-json").await.unwrap();
     assert_eq!(
@@ -93,6 +96,7 @@ pub(super) async fn assert_rushee_read_failures(redis: &mut redis::aio::Connecti
         .unwrap();
 }
 
+// Verify that successful Redis writes remain stored when their notifications fail.
 pub(super) async fn assert_publish_failures(redis: &mut redis::aio::ConnectionManager) {
     // Deny publishing only in the guarded instance to characterize writes
     // that succeed before their notification fails.

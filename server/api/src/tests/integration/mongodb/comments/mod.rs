@@ -12,6 +12,7 @@ use crate::{
     storage::db,
 };
 
+// Build a comment fixture with one Professionalism rating.
 fn payload(name: &str, value: f32) -> IncomingComment {
     serde_json::from_value(json!({
         "brother_id": name, "brother_name": name, "comment": "Observation",
@@ -20,6 +21,7 @@ fn payload(name: &str, value: f32) -> IncomingComment {
     .unwrap()
 }
 
+// Verify comment duplication, rating updates, text-only edits, and deletion behavior.
 pub async fn check_contracts() {
     reset().await;
     register().await;

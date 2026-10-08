@@ -12,6 +12,7 @@ use crate::{
 
 mod failure_cases;
 
+// Request app access using the supplied test role flags.
 async fn check_access(is_admin: bool, is_bidcom: bool) -> Value {
     admin::check_rush_app_access(Json(CheckAccessPayload {
         uid: "brother-1".to_string(),
@@ -23,6 +24,7 @@ async fn check_access(is_admin: bool, is_bidcom: bool) -> Value {
     .0
 }
 
+// Verify access defaults, group restrictions, settings replacement, and update attribution.
 pub async fn check_contracts() {
     reset().await;
 

@@ -3,6 +3,7 @@ use serde_json::json;
 
 use super::*;
 
+// Verify strict export failures and tolerant PIS schedule output for malformed rushees.
 pub(super) async fn check_malformed_rushee() {
     reset().await;
     register().await;

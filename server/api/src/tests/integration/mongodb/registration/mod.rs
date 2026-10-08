@@ -7,6 +7,7 @@ use crate::{controllers::rushee, services::validation, storage::db};
 
 mod failure_cases;
 
+// Verify signup validation, access-code privacy, capacity changes, and rescheduling behavior.
 pub async fn check_contracts() {
     reset().await;
     assert!(!validation::is_gtid_valid("short").await.unwrap());

@@ -8,6 +8,7 @@ use crate::{controllers::voting, models::rushee::IncomingRusheeVote, storage::db
 
 mod failure_cases;
 
+// Verify eligibility, duplicate votes, clearing, questions, and failure behavior in disposable Redis.
 #[tokio::test]
 async fn voting_redis_contracts() {
     let port = env::var("RUSH_TEST_REDIS_PORT").expect("Run scripts/testing/voting-integration.py");

@@ -7,6 +7,7 @@ use crate::{controllers::admin, models::pis::IncomingBrotherAvailability, storag
 
 mod failure_cases;
 
+// Check whether the standard test brother still needs to submit availability.
 async fn needs_form() -> serde_json::Value {
     admin::check_brother_needs_availability_form(Json(
         serde_json::from_value(json!({"brother_uid": "brother-1"})).unwrap(),
@@ -16,6 +17,7 @@ async fn needs_form() -> serde_json::Value {
     .0
 }
 
+// Verify form activation, submission replacement, reset, and deactivation behavior.
 pub async fn check_contracts() {
     reset().await;
 

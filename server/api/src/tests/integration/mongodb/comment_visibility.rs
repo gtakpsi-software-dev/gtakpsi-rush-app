@@ -8,6 +8,7 @@ use crate::{
     models::pis::UpdateCommentVisibilityPayload, storage::db,
 };
 
+// Verify visibility defaults, settings attribution, and fallback after read or write failures.
 pub async fn check_contracts() {
     reset().await;
 

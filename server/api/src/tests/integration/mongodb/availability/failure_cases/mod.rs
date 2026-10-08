@@ -7,6 +7,7 @@ use crate::{controllers::admin, models::pis::IncomingBrotherAvailability, storag
 
 mod submission_clear;
 
+// Verify form and submission state after failed availability lifecycle writes.
 pub(super) async fn check_contracts() {
     let submission = IncomingBrotherAvailability {
         brother_uid: "brother-2".to_string(),
@@ -68,6 +69,7 @@ pub(super) async fn check_contracts() {
     check_rejected_submission_replacement().await;
 }
 
+// Verify that a failed replacement leaves no active availability form.
 async fn check_rejected_form_send() {
     reset().await;
     assert_eq!(
@@ -100,6 +102,7 @@ async fn check_rejected_form_send() {
         .unwrap();
 }
 
+// Verify that a rejected deactivation leaves the form active.
 async fn check_rejected_deactivation() {
     reset().await;
     assert_eq!(
@@ -130,6 +133,7 @@ async fn check_rejected_deactivation() {
         .unwrap();
 }
 
+// Verify that a failed replacement insert leaves the brother without a submission.
 async fn check_rejected_submission_replacement() {
     reset().await;
     let existing = IncomingBrotherAvailability {

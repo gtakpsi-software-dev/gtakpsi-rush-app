@@ -4,6 +4,7 @@ use serde_json::json;
 
 use super::*;
 
+// Verify that a rejected attendance update leaves the record unchanged.
 pub(super) async fn check_attendance_write_failure() {
     reset().await;
     register().await;
@@ -36,6 +37,7 @@ pub(super) async fn check_attendance_write_failure() {
         .unwrap();
 }
 
+// Verify retained earlier edits and synchronized fields after later profile writes fail.
 pub(super) async fn check_profile_write_failures() {
     reset().await;
     register().await;
@@ -102,6 +104,7 @@ pub(super) async fn check_profile_write_failures() {
         .unwrap();
 }
 
+// Verify the error and retained value when a matched cloud update is rejected.
 pub(super) async fn check_cloud_write_failure() {
     reset().await;
     let database = db::get_mongo_client().await.database("rush-app");

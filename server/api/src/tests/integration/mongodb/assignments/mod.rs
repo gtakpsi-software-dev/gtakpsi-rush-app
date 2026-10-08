@@ -6,6 +6,7 @@ use crate::{controllers::admin, models::pis::BrotherPISAvailability, storage::db
 
 mod failure_cases;
 
+// Insert a brother availability fixture for the specified timeslot.
 async fn add_availability_at(first: &str, last: &str, slot: &str) {
     db::get_brother_pis_availability_collection()
         .await
@@ -21,10 +22,12 @@ async fn add_availability_at(first: &str, last: &str, slot: &str) {
         .unwrap();
 }
 
+// Insert a brother availability fixture for the standard test timeslot.
 async fn add_availability(first: &str, last: &str) {
     add_availability_at(first, last, SLOT).await;
 }
 
+// Verify automatic assignments, partial coverage, repeat runs, and assignment clearing.
 pub async fn check_contracts() {
     reset().await;
     register().await;

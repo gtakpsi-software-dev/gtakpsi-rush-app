@@ -7,6 +7,7 @@ use crate::{controllers::rushee, models::pis::PISQuestion, storage::db};
 
 mod failure_cases;
 
+// Verify question reveal and persistence, signup listings, autosave, and answer replacement.
 pub async fn check_contracts() {
     reset().await;
     assert_eq!(

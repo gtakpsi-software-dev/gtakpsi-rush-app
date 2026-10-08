@@ -3,6 +3,7 @@ use bson::doc;
 use super::super::fixtures::{register, reset, GTID};
 use crate::{controllers::admin, storage::db};
 
+// Verify that malformed rows neither appear on the board nor consume fallback numbers.
 pub(super) async fn check_malformed_rows() {
     reset().await;
     let raw_rushees = db::get_mongo_client()

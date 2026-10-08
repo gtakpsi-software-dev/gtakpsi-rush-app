@@ -3,6 +3,7 @@ use serde_json::json;
 
 use super::*;
 
+// Verify that a rejected assignment reset retains the existing interviewer names.
 pub(super) async fn check_clear_failure() {
     reset().await;
     register().await;
@@ -50,6 +51,7 @@ pub(super) async fn check_clear_failure() {
         .unwrap();
 }
 
+// Verify that malformed availability does not hide later valid interviewers.
 pub(super) async fn check_malformed_availability_is_skipped() {
     reset().await;
     register().await;
@@ -77,6 +79,7 @@ pub(super) async fn check_malformed_availability_is_skipped() {
     assert_eq!(signup.second_brother_first_name, "none");
 }
 
+// Verify that malformed rushee records do not prevent later valid assignments.
 pub(super) async fn check_malformed_rushee_is_skipped() {
     reset().await;
 

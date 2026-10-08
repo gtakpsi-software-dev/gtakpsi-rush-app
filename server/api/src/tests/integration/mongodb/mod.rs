@@ -22,6 +22,7 @@ use crate::storage::db;
 use mongodb::{bson::doc, Client};
 use std::{env, sync::Arc};
 
+// Run database scenarios against a marked disposable MongoDB instance on one shared runtime.
 #[tokio::test]
 async fn database_contracts() {
     let uri = env::var("RUSH_TEST_MONGO_URL").expect("Run scripts/testing/api-integration.sh");

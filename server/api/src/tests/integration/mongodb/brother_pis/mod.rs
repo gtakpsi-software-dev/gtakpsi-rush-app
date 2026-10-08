@@ -11,6 +11,7 @@ use crate::{
     storage::db,
 };
 
+// Build an interviewer signup payload from the supplied name.
 fn brother(first: &str, last: &str) -> Json<IncomingPISSignup> {
     Json(IncomingPISSignup {
         brother_first_name: first.to_string(),
@@ -18,6 +19,7 @@ fn brother(first: &str, last: &str) -> Json<IncomingPISSignup> {
     })
 }
 
+// Fetch the PIS assignments for a supplied test brother name.
 async fn assigned_rushees(first: &str, last: &str) -> serde_json::Value {
     admin::get_brother_pis(Json(IncomingBrotherName {
         first_name: first.to_string(),
@@ -28,6 +30,7 @@ async fn assigned_rushees(first: &str, last: &str) -> serde_json::Value {
     .0
 }
 
+// Verify interviewer signup limits, duplicate detection, assignment listings, and partial slots.
 pub async fn check_contracts() {
     reset().await;
     register().await;

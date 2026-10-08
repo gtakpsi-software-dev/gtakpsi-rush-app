@@ -8,6 +8,7 @@ use crate::{
     storage::db,
 };
 
+// Verify access defaults after rejected settings replacement and malformed stored settings.
 pub(super) async fn check_contracts() {
     let collection = db::get_rush_app_status_collection().await;
     let stored = collection.find_one(doc! {}).await.unwrap().unwrap();

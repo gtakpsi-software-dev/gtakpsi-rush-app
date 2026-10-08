@@ -6,6 +6,7 @@ use crate::{controllers::admin, storage::db};
 
 mod failure_cases;
 
+// Verify exported numbering, personal information, and PIS schedule ordering.
 pub async fn check_contracts() {
     reset().await;
     register().await;

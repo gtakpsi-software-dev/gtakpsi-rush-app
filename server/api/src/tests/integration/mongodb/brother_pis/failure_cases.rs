@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify that an undecodable signup target is rejected without modification.
 pub(super) async fn check_malformed_signup_target() {
     reset().await;
     let collection = db::get_mongo_client()
@@ -30,6 +31,7 @@ pub(super) async fn check_malformed_signup_target() {
     assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
 }
 
+// Verify retained signup names when either sequential name write fails.
 pub(super) async fn check_signup_write_failures() {
     reset().await;
     register().await;

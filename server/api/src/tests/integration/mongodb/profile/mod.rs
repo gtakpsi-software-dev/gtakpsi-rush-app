@@ -7,6 +7,7 @@ use crate::{controllers::rushee, models::rush_nights::RushNight, storage::db};
 
 mod failure_cases;
 
+// Verify attendance, profile synchronization, partial edits, and rushee lookup responses.
 pub async fn check_contracts() {
     reset().await;
     register().await;

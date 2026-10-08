@@ -7,6 +7,7 @@ use crate::{
 use axum::Json;
 use serde_json::json;
 
+// Verify within-column and cross-column moves, including partial results after a write failure.
 pub(super) async fn check_move_contracts() {
     reset().await;
     // An incomplete row in the source column must not enter move ordering.

@@ -8,6 +8,7 @@ use serde_json::json;
 use super::fixtures::*;
 use crate::{controllers::admin, middlewares::auth::FirebaseUser};
 
+// Build an administrator identity fixture for sorting writes.
 fn brother() -> Extension<FirebaseUser> {
     Extension(FirebaseUser {
         uid: "brother-1".to_string(),
@@ -17,6 +18,7 @@ fn brother() -> Extension<FirebaseUser> {
     })
 }
 
+// Verify sorting validation, note tags, update attribution, and public rush-number redaction.
 pub async fn check_contracts() {
     reset().await;
     register().await;

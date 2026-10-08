@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify retained capacity changes when the final rushee reschedule write fails.
 pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_write_failure(
     old_slot: &str,
 ) {
@@ -37,6 +38,7 @@ pub(in crate::tests::integration::mongodb::registration) async fn check_reschedu
         .unwrap();
 }
 
+// Verify that missing rushees or old timeslots prevent claiming a new slot.
 pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_missing_rushee_and_old_slot(
     old_slot: &str,
 ) {
@@ -81,6 +83,7 @@ pub(in crate::tests::integration::mongodb::registration) async fn check_reschedu
     assert_eq!(stored.pis_signup.time, stored.pis_timeslot);
 }
 
+// Verify that failed old-slot release leaves capacities and the rushee time unchanged.
 pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_old_slot_write_failure(
     old_slot: &str,
 ) {
@@ -121,6 +124,7 @@ pub(in crate::tests::integration::mongodb::registration) async fn check_reschedu
         .unwrap();
 }
 
+// Verify rollback of old-slot capacity when reserving the new slot fails.
 pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_new_slot_write_failure(
     old_slot: &str,
 ) {

@@ -7,10 +7,12 @@ use crate::{controllers::rushee, models::rushee::RusheeModel, storage::db};
 pub const GTID: &str = "900000001";
 pub const SLOT: &str = "2030-01-01T18:00:00Z";
 
+// Build the standard test rushee's GTID path parameter.
 pub fn path() -> Path<String> {
     Path(GTID.to_string())
 }
 
+// Clear fixture collections in the disposable database verified by the integration entry point.
 pub async fn reset() {
     let client = db::get_mongo_client().await;
     for name in [
@@ -32,6 +34,7 @@ pub async fn reset() {
     }
 }
 
+// Build the standard test rushee's registration request.
 pub fn signup_payload() -> Value {
     json!({
         "first_name": "Test", "last_name": "Rushee", "housing": "Campus",
@@ -43,6 +46,7 @@ pub fn signup_payload() -> Value {
     })
 }
 
+// Insert a fixture PIS timeslot with the requested capacity.
 pub async fn add_slot(time: &str, capacity: i32) {
     db::get_pis_timeslots_collection()
         .await
@@ -54,6 +58,7 @@ pub async fn add_slot(time: &str, capacity: i32) {
         .unwrap();
 }
 
+// Create the standard fixture rushee and return its generated access code.
 pub async fn register() -> String {
     add_slot(SLOT, 2).await;
     let response = rushee::signup(Json(serde_json::from_value(signup_payload()).unwrap()))
@@ -64,6 +69,7 @@ pub async fn register() -> String {
     response["payload"].as_str().unwrap().to_string()
 }
 
+// Load the standard fixture rushee from MongoDB.
 pub async fn stored_rushee() -> RusheeModel {
     db::get_rushee_collection()
         .await
@@ -73,6 +79,7 @@ pub async fn stored_rushee() -> RusheeModel {
         .unwrap()
 }
 
+// Read the remaining capacity of a fixture timeslot.
 pub async fn capacity(time: &str) -> i32 {
     db::get_pis_timeslots_collection()
         .await

@@ -10,6 +10,7 @@ use crate::{
     tests::integration::mongodb::fixtures::{path, register, reset, GTID},
 };
 
+// Verify brother-specific comment listings while skipping malformed rushee records.
 pub(super) async fn check_contracts() {
     reset().await;
     // Put an incomplete rushee first so the query must continue to a valid comment.
