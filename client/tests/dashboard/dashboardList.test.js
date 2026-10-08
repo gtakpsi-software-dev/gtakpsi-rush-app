@@ -8,6 +8,7 @@ const rushees = [
     { name: "Bea Gamma", major: "CS", class: "Senior", gtid: "111111111" },
 ];
 
+// Return the options fixture for this scenario.
 const options = (overrides = {}) => ({
     selectedMajor: "All",
     selectedClass: "All",
@@ -17,7 +18,10 @@ const options = (overrides = {}) => ({
 });
 
 test("dashboard filtering applies major and class before exact GTID lookup", () => {
-    const unusedFuse = { search: () => { throw new Error("exact IDs must skip fuzzy search"); } };
+    // Verify dashboard filtering applies major and class before exact GTID lookup.
+    const unusedFuse = { search: () => {
+        // Simulate a dependency failure for this scenario.
+         throw new Error("exact IDs must skip fuzzy search"); } };
 
     assert.deepEqual(filterDashboardRushees(rushees, options({
         selectedMajor: "CS", selectedClass: "Senior",
@@ -31,8 +35,10 @@ test("dashboard filtering applies major and class before exact GTID lookup", () 
 });
 
 test("fuzzy queries retain the original full-list search and sorting order", () => {
+    // Verify fuzzy queries retain the original full-list search and sorting order.
     const calls = [];
     const fuse = { search(query) {
+        // Record the search query and return the configured search matches.
         calls.push(query);
         return [{ item: rushees[0] }, { item: rushees[1] }];
     } };
@@ -47,10 +53,11 @@ test("fuzzy queries retain the original full-list search and sorting order", () 
 });
 
 test("shuffle uses one random value per item and does not mutate the source", () => {
+    // Verify shuffle uses one random value per item and does not mutate the source.
     const draws = [0.7, 0.1, 0.4];
-    const shuffled = shuffleArray(rushees, () => draws.shift());
+    const shuffled = shuffleArray(rushees, /* Invoke draws.shift with the test inputs. */ () => draws.shift());
 
     assert.deepEqual(shuffled, [rushees[1], rushees[2], rushees[0]]);
-    assert.deepEqual(rushees.map(({ name }) => name), ["Zoe Beta", "Ada Alpha", "Bea Gamma"]);
+    assert.deepEqual(rushees.map(/* Return name to the caller. */ ({ name }) => name), ["Zoe Beta", "Ada Alpha", "Bea Gamma"]);
     assert.equal(draws.length, 0);
 });

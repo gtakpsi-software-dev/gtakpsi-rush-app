@@ -8,9 +8,11 @@ import {
     getPisAppointmentRelativeTime,
 } from "../../src/features/brotherPis/appointments.js";
 
+// Return the slot fixture for this scenario.
 const slot = (milliseconds) => ({ $date: { $numberLong: String(milliseconds) } });
 
 test("appointments sort in place by stored timestamp, with missing times first", () => {
+    // Verify appointments sort in place by stored timestamp, with missing times first.
     const appointments = [
         { id: "late", pis_timeslot: slot(2000) },
         { id: "missing" },
@@ -19,10 +21,11 @@ test("appointments sort in place by stored timestamp, with missing times first",
     ];
 
     assert.equal(sortPisAppointments(appointments), appointments);
-    assert.deepEqual(appointments.map(({ id }) => id), ["missing", "early", "equal", "late"]);
+    assert.deepEqual(appointments.map(/* Return id to the caller. */ ({ id }) => id), ["missing", "early", "equal", "late"]);
 });
 
 test("appointment time keeps the missing label and local display format", () => {
+    // Verify appointment time keeps the missing label and local display format.
     assert.equal(formatPisAppointmentTime(null), "No time scheduled");
     assert.equal(formatPisAppointmentTime({ $date: {} }), "No time scheduled");
 
@@ -32,8 +35,11 @@ test("appointment time keeps the missing label and local display format", () => 
 });
 
 test("relative labels retain completed, soon, hourly, and daily boundaries", () => {
+    // Verify relative labels retain completed, soon, hourly, and daily boundaries.
     const now = dayjs("2030-01-01T12:00:00");
+    // Return now to the caller.
     const clock = () => now;
+    // Invoke getPisAppointmentRelativeTime with the test inputs.
     const relative = (minutes) => getPisAppointmentRelativeTime(
         slot(now.add(minutes, "minute").valueOf()), clock,
     );

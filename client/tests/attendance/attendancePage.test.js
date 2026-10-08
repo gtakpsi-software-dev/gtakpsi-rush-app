@@ -14,12 +14,14 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 const pagePath = fileURLToPath(new URL("../../src/pages/Attendance.jsx", import.meta.url));
 const viewPath = fileURLToPath(new URL("../../src/features/attendance/AttendanceView.tsx", import.meta.url));
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage({ state = {}, getResponse, postResponse, getFailure = false, postFailure = false } = {}) {
     const updates = [];
     const requests = [];
     const errors = [];
     const effects = [];
     const captured = new Map();
+    // Provide an inert navigate stub for this test.
     const navigate = () => {};
     let stateIndex = 0;
     const source = (await readFile(pagePath, "utf8"))
@@ -29,7 +31,9 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
     });
     const module = { exports: {} };
     const requireFromPage = createRequire(pagePath);
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => {
+        // Capture component props and render a placeholder element.
         function Stub(props) {
             captured.set(name, props);
             return React.createElement("span", { "data-stub": name });
@@ -47,39 +51,46 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
     runInNewContext(code, {
         module,
         exports: module.exports,
-        console: { log() {} },
+        console: { /* Provide an inert log stub for this test. */ log() {} },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             const dependencies = {
                 react: {
                     ...React,
+                    // Expose controlled hook state and capture updates for assertions.
                     useState(initial) {
                         const index = stateIndex++;
                         return [Object.hasOwn(state, index) ? state[index] : initial,
-                            (value) => updates.push([index, value])];
+                            /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
                     },
+                    // Capture effects so the test can run them explicitly.
                     useEffect(callback, dependencies) {
                         effects.push({ callback, dependencies });
                     },
                 },
                 "../features/attendance/AttendanceView": AttendanceView,
-                "react-toastify": { toast: { error: (message, options) => errors.push([message, options]) } },
+                "react-toastify": { toast: { error:
+                    /* Record error calls for assertions. */
+                    (message, options) => errors.push([message, options]) } },
                 "react-toastify/dist/ReactToastify.css": {},
                 "../features/registration/registrationVerification": {},
-                "../features/auth/verifyUser": { verifyUser: async () => true },
+                "../features/auth/verifyUser": { verifyUser: /* Return true from this dependency stub. */ async () => true },
                 "../features/attendance/createAttendanceActions": { createAttendanceActions },
                 axios: {
+                    // Record check-in lookup and simulate the configured response or network failure.
                     get: async (url) => {
                         requests.push(["get", url]);
                         if (getFailure) throw new Error("network offline");
                         return getResponse ?? { data: { status: "success", payload: { gtid: "123" } } };
                     },
+                    // Record check-in submission and simulate the configured response or network failure.
                     post: async (url) => {
                         requests.push(["post", url]);
                         if (postFailure) throw new Error("network offline");
                         return postResponse ?? { data: { status: "success" } };
                     },
                 },
-                "react-router-dom": { useNavigate: () => navigate },
+                "react-router-dom": { useNavigate: /* Return navigate to the caller. */ () => navigate },
             };
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -90,6 +101,7 @@ async function loadPage({ state = {}, getResponse, postResponse, getFailure = fa
     return { Page: module.exports.default, captured, updates, requests, errors, effects, navigate };
 }
 
+// Resolve the page wrappers to expose the active attendance branch.
 function renderBranch(page) {
     let element = page.Page();
     element = element.type(element.props);
@@ -100,6 +112,7 @@ function renderBranch(page) {
 }
 
 test("attendance keeps its wrapper markup and fetch-effect dependencies", async () => {
+    // Verify attendance keeps its wrapper markup and fetch-effect dependencies.
     for (const [state, expected] of [
         [{}, '<div><div><span data-stub="splash"></span></div></div>'],
         [{ 2: true }, '<div><span data-stub="loader"></span></div>'],
@@ -114,6 +127,7 @@ test("attendance keeps its wrapper markup and fetch-effect dependencies", async 
 });
 
 test("attendance retains its splash, loading, confirmation, and success branches", async () => {
+    // Verify attendance retains its splash, loading, confirmation, and success branches.
     for (const [state, expected] of [
         [{}, "splash"], [{ 2: true }, "loader"],
         [{ 1: 1, 3: { name: "Rushee" } }, "info"], [{ 1: 2 }, "success"],
@@ -126,6 +140,7 @@ test("attendance retains its splash, loading, confirmation, and success branches
 });
 
 test("attendance lookup, check-in, and back retain their state transitions", async () => {
+    // Verify attendance lookup, check-in, and back retain their state transitions.
     const splash = await loadPage({ state: { 0: "123" } });
     const splashElement = renderBranch(splash);
     await splashElement.props.func();
@@ -144,6 +159,7 @@ test("attendance lookup, check-in, and back retain their state transitions", asy
 });
 
 test("attendance lookup and check-in retain their toast options on API errors", async () => {
+    // Verify attendance lookup and check-in retain their toast options on API errors.
     for (const [state, response, action] of [
         [{ 0: "123" }, { data: { status: "error", message: "Not found" } }, "func"],
         [{ 0: "123", 1: 1 }, { data: { status: "error", message: "Already checked in" } }, "checkIn"],
@@ -165,6 +181,7 @@ test("attendance lookup and check-in retain their toast options on API errors", 
 });
 
 test("attendance network failures retain their shared toast and loading reset", async () => {
+    // Verify attendance network failures retain their shared toast and loading reset.
     for (const [state, options, action] of [
         [{ 0: "123" }, { getFailure: true }, "func"],
         [{ 0: "123", 1: 1 }, { postFailure: true }, "checkIn"],

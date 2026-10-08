@@ -10,6 +10,7 @@ import { shouldShowAllComments } from "../../src/features/comments/commentVisibi
 
 const hookPath = fileURLToPath(new URL("../../src/features/comments/useCommentVisibility.js", import.meta.url));
 
+// Load hook with injected dependencies for isolated tests.
 async function loadHook({ status, user, requestError } = {}) {
     const source = (await readFile(hookPath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", '"/api"');
@@ -20,6 +21,7 @@ async function loadHook({ status, user, requestError } = {}) {
     let effect;
     let stateIndex = 0;
     const axios = {
+        // Record visibility lookup and return settings or the configured error.
         async get(path) {
             requests.push(path);
             if (requestError) throw requestError;
@@ -28,10 +30,12 @@ async function loadHook({ status, user, requestError } = {}) {
     };
     const dependencies = {
         react: {
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const index = stateIndex++;
-                return [initial, (value) => updates.push([index, value])];
+                return [initial, /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
             },
+            // Update effect in the test harness.
             useEffect(callback) { effect = callback; },
         },
         axios: { default: axios, ...axios },
@@ -42,20 +46,23 @@ async function loadHook({ status, user, requestError } = {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             throw new Error(`Unexpected import: ${specifier}`);
         },
     }, { filename: hookPath });
 
-    return { hook: module.exports.useCommentVisibility(), runEffect: () => effect(), requests, updates };
+    return { hook: module.exports.useCommentVisibility(), runEffect: /* Invoke effect with the test inputs. */ () => effect(), requests, updates };
 }
 
 test("comment visibility loads server policy before refreshing role claims", async () => {
+    // Verify comment visibility loads server policy before refreshing role claims.
     const tokenCalls = [];
     const harness = await loadHook({
         status: { status: "success", require_comment_to_view: false },
         user: {
+            // Record token refresh and return administrator claims.
             async getIdTokenResult(forceRefresh) {
                 tokenCalls.push(forceRefresh);
                 return { claims: { admin: true, bidcom: false } };
@@ -72,9 +79,12 @@ test("comment visibility loads server policy before refreshing role claims", asy
 });
 
 test("comment visibility keeps restrictive defaults when requests fail", async () => {
+    // Verify comment visibility keeps restrictive defaults when requests fail.
     const harness = await loadHook({
         requestError: new Error("offline"),
-        user: { async getIdTokenResult() { throw new Error("token failed"); } },
+        user: { async getIdTokenResult() {
+            // Simulate a dependency failure for this scenario.
+             throw new Error("token failed"); } },
     });
     assert.deepEqual({ ...harness.hook.visibilityOptions }, {
         requireCommentToView: true, isAdmin: false, isBidcom: false,

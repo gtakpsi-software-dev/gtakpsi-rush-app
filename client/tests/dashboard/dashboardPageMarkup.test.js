@@ -28,12 +28,16 @@ const rushee = {
     ratings: [{ name: 'Leadership', value: 4.5 }]
 };
 
-async function loadDashboard({ state = {}, midterm = false, showRatings = true, open = () => {} } = {}) {
+// Load dashboard with injected dependencies for isolated tests.
+async function loadDashboard({ state = {}, midterm = false, showRatings = true, open = /* Leave this mocked callback inert. */ () => {} } = {}) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub() {
+        // Capture component props and render a placeholder element.
         return React.createElement('span', { 'data-stub': name });
     };
     // Test doubles render only the fields needed to pin dashboard markup.
     // eslint-disable-next-line react/prop-types
+    // Render a lightweight React element for component assertions.
     const Badges = ({ text }) => React.createElement('span', { 'data-stub': 'badge' }, text);
     const Card = await loadTsxComponent(cardPath, {
         '../../components/Badge': Badges,
@@ -42,6 +46,7 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
     const Filters = await loadTsxComponent(filtersPath);
     const View = await loadTsxComponent(viewPath, {
         '../../components/Navbar': stub('navbar'),
+        // Render a lightweight React element for component assertions.
         '../../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
         '../../components/Loader': stub('loader'),
         '../brotherPisAvailability/PisAvailabilityModal': stub('availability'),
@@ -61,33 +66,52 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState: (initial) => {
                 const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, () => {}];
+                return [Object.hasOwn(state, index) ? state[index] : initial, /* Leave this mocked callback inert. */ () => {}];
             },
+            // Provide an inert use effect stub for this test.
             useEffect: () => {}
         },
         axios: {},
-        'react-router-dom': { useNavigate: () => () => {} },
-        '../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midterm }) },
-        '../features/comments/useCommentVisibility': { useCommentVisibility: () => ({ showAll: showRatings }) },
+        'react-router-dom': { useNavigate:
+            /* Provide the callback used by this dependency stub. */
+            () =>
+            /* Leave this mocked callback inert. */
+            () => {} },
+        '../contexts/MidtermModeContext': { useMidtermMode:
+            /* Return the use midterm mode fixture for this scenario. */
+            () => ({ isMidtermMode: midterm }) },
+        '../features/comments/useCommentVisibility': { useCommentVisibility:
+            /* Return the use comment visibility fixture for this scenario. */
+            () => ({ showAll: showRatings }) },
         'fuse.js': class Fuse {},
-        '../features/auth/verifyUser': { verifyUser() {} },
-        '../features/dashboard/list': { filterDashboardRushees() {}, shuffleArray() {} },
-        '../features/dashboard/loadDashboardData': { loadDashboardData() {} },
+        '../features/auth/verifyUser': { /* Provide an inert verify user stub for this test. */ verifyUser() {} },
+        '../features/dashboard/list': {
+            /* Provide an inert filter dashboard rushees stub for this test. */
+            filterDashboardRushees() {},
+            /* Provide an inert shuffle array stub for this test. */
+            shuffleArray() {} },
+        '../features/dashboard/loadDashboardData': { /* Provide an inert load dashboard data stub for this test. */ loadDashboardData() {} },
         '../features/dashboard/DashboardView': View,
         '../firebase': { auth: {}, db: {} },
-        'firebase/firestore': { doc() {}, getDoc() {} }
+        'firebase/firestore': {
+            /* Provide an inert doc stub for this test. */
+            doc() {},
+            /* Provide an inert get doc stub for this test. */
+            getDoc() {} }
     };
 
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
         },
-        localStorage: { getItem: () => null },
+        localStorage: { getItem: /* Return no value from this dependency stub. */ () => null },
         window: { open }
     }, { filename: pagePath });
 
@@ -95,6 +119,7 @@ async function loadDashboard({ state = {}, midterm = false, showRatings = true, 
 }
 
 test('dashboard retains loading, error, empty, card, midterm, and availability markup', async () => {
+    // Verify dashboard retains loading, error, empty, card, midterm, and availability markup.
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: {},
@@ -114,9 +139,11 @@ test('dashboard retains loading, error, empty, card, midterm, and availability m
 });
 
 test('dashboard card keeps the profile URL and disables its click in midterm mode', async () => {
+    // Verify dashboard card keeps the profile URL and disables its click in midterm mode.
     const opens = [];
     const state = { 1: false, 5: [rushee], 6: [rushee] };
 
+    // Find the rendered card for the fixture rushee.
     function findCard(node) {
         if (Array.isArray(node)) return node.map(findCard).find(Boolean);
         if (!React.isValidElement(node)) return undefined;
@@ -125,7 +152,7 @@ test('dashboard card keeps the profile URL and disables its click in midterm mod
         return findCard(node.props.children);
     }
 
-    const Dashboard = await loadDashboard({ state, open: (...args) => opens.push(args) });
+    const Dashboard = await loadDashboard({ state, open: /* Record open calls for assertions. */ (...args) => opens.push(args) });
     const card = findCard(Dashboard({ user: { uid: 'brother-1' } }));
     assert.equal(typeof card.type(card.props).props.onClick, 'function');
     card.type(card.props).props.onClick();
@@ -137,10 +164,12 @@ test('dashboard card keeps the profile URL and disables its click in midterm mod
 });
 
 test('dashboard filters keep option order, selections, search, and shuffle callbacks', async () => {
+    // Verify dashboard filters keep option order, selections, search, and shuffle callbacks.
     const Filters = await loadTsxComponent(filtersPath);
     const calls = [];
     const tree = Filters({
         query: 'Ada',
+        // Record handle search calls for assertions.
         handleSearch: (event) => calls.push(['search', event.target.value]),
         rushees: [
             { major: 'Computer Science', class: '2028' },
@@ -148,15 +177,20 @@ test('dashboard filters keep option order, selections, search, and shuffle callb
             { major: 'Computer Science', class: '2028' }
         ],
         selectedMajor: 'All',
+        // Record set selected major calls for assertions.
         setSelectedMajor: (value) => calls.push(['major', value]),
         selectedClass: 'All',
+        // Record set selected class calls for assertions.
         setSelectedClass: (value) => calls.push(['class', value]),
         selectedSort: 'none',
+        // Record set selected sort calls for assertions.
         setSelectedSort: (value) => calls.push(['sort', value]),
+        // Record on shuffle calls for assertions.
         onShuffle: () => calls.push(['shuffle'])
     });
     const elements = [];
 
+    // Walk the rendered element tree to collect nodes for assertions.
     function collect(node) {
         if (Array.isArray(node)) node.forEach(collect);
         else if (React.isValidElement(node)) {
@@ -166,9 +200,9 @@ test('dashboard filters keep option order, selections, search, and shuffle callb
     }
     collect(tree);
 
-    const input = elements.find((element) => element.type === 'input');
-    const selects = elements.filter((element) => element.type === 'select');
-    const button = elements.find((element) => element.type === 'button');
+    const input = elements.find(/* Identify rendered input elements. */ (element) => element.type === 'input');
+    const selects = elements.filter(/* Identify rendered select elements. */ (element) => element.type === 'select');
+    const button = elements.find(/* Identify rendered button elements. */ (element) => element.type === 'button');
     input.props.onChange({ target: { value: 'Grace' } });
     selects[0].props.onChange({ target: { value: 'Mathematics' } });
     selects[1].props.onChange({ target: { value: '2027' } });

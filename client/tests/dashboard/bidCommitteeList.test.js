@@ -9,6 +9,7 @@ const rushees = [
     { name: 'Ben Beta', gtid: '900000003', major: 'Business', class: '2028', registration_order: 2 }
 ];
 
+// Return the filters fixture for this scenario.
 const filters = (overrides = {}) => ({
     selectedMajor: 'All',
     selectedClass: 'All',
@@ -18,6 +19,7 @@ const filters = (overrides = {}) => ({
 });
 
 test('unfiltered results retain input identity and major/class filters retain order', () => {
+    // Verify unfiltered results retain input identity and major/class filters retain order.
     assert.equal(filterBidCommitteeRushees(rushees, filters()), rushees);
     assert.deepEqual(filterBidCommitteeRushees(rushees, filters({
         selectedMajor: 'Business', selectedClass: '2028'
@@ -25,6 +27,7 @@ test('unfiltered results retain input identity and major/class filters retain or
 });
 
 test('only an exact nine-digit GTID matches within the selected major and class', () => {
+    // Verify only an exact nine-digit GTID matches within the selected major and class.
     assert.deepEqual(filterBidCommitteeRushees(rushees, filters({ query: ' 900000002 ' })), [rushees[1]]);
     assert.deepEqual(filterBidCommitteeRushees(rushees, filters({
         query: '900000002', selectedMajor: 'Business'
@@ -35,6 +38,7 @@ test('only an exact nine-digit GTID matches within the selected major and class'
 });
 
 test('first, last, and registration-order sorts copy the array', () => {
+    // Verify first, last, and registration-order sorts copy the array.
     for (const [selectedSort, expected] of [
         ['firstName', [rushees[1], rushees[2], rushees[0]]],
         ['lastName', [rushees[0], rushees[2], rushees[1]]],
@@ -44,7 +48,7 @@ test('first, last, and registration-order sorts copy the array', () => {
         assert.deepEqual(actual, expected);
         assert.notEqual(actual, rushees);
     }
-    assert.deepEqual(rushees.map((rushee) => rushee.gtid), [
+    assert.deepEqual(rushees.map(/* Extract each rushee GTID. */ (rushee) => rushee.gtid), [
         '900000001', '900000002', '900000003'
     ]);
 });

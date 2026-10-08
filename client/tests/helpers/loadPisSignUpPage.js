@@ -12,8 +12,10 @@ const pagePath = fileURLToPath(new URL('../../src/features/registration/pis/PisS
 const viewPath = fileURLToPath(new URL('../../src/features/registration/pis/PisSignUpView.tsx', import.meta.url));
 const cardPath = fileURLToPath(new URL('../../src/features/registration/pis/PisDayCard.tsx', import.meta.url));
 
+// Render a lightweight React element for component assertions.
 const Loader = () => React.createElement('span', { 'data-stub': 'loader' });
-export async function loadPage(states, get = () => {}) {
+// Load page with injected dependencies for isolated tests.
+export async function loadPage(states, get = /* Leave this mocked callback inert. */ () => {}) {
     const DayCard = existsSync(cardPath) ? await loadTsxComponent(cardPath) : null;
     const View = existsSync(viewPath)
         ? await loadTsxComponent(viewPath, {
@@ -37,13 +39,17 @@ export async function loadPage(states, get = () => {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === 'react') return {
+                // Expose controlled hook state and capture updates for assertions.
                 useState: () => {
                     const index = stateIndex++;
+                    // Record setter calls for assertions.
                     const setter = (value) => setters.push([index, value]);
                     return [states[index], setter];
                 },
+                // Capture effects so the test can run them explicitly.
                 useEffect: (effect) => effects.push(effect),
             };
             if (specifier === '../Loader') return Loader;
@@ -56,9 +62,10 @@ export async function loadPage(states, get = () => {}) {
     return { Page: module.exports.default, setters, effects };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 export function walk(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => walk(child, elements));
+        node.forEach(/* Invoke walk with the test inputs. */ (child) => walk(child, elements));
     } else if (node && typeof node === 'object' && node.type) {
         if (typeof node.type === 'function') {
             walk(node.type(node.props), elements);
@@ -70,6 +77,7 @@ export function walk(node, elements = []) {
     return elements;
 }
 
+// Flatten rendered children into text for label assertions.
 export function textOf(node) {
     if (Array.isArray(node)) return node.map(textOf).join('');
     if (node && typeof node === 'object' && node.type) return textOf(node.props.children);

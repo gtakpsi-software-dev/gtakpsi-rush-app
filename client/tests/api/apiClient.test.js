@@ -8,6 +8,7 @@ import { transformWithEsbuild } from "vite";
 
 const sourcePath = fileURLToPath(new URL("../../src/api/client.js", import.meta.url));
 
+// Load api client with injected dependencies for isolated tests.
 async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
     const source = (await readFile(sourcePath, "utf8"))
         .replaceAll("import.meta.env.VITE_API_PREFIX", JSON.stringify(apiPrefix))
@@ -15,11 +16,13 @@ async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
     const { code } = await transformWithEsbuild(source, sourcePath, { format: "cjs" });
     const instances = [];
     const axios = {
+        // Create an API client fake with captured request interceptors.
         create(config) {
             const instance = {
                 config,
                 interceptors: {
                     request: {
+                        // Capture the request interceptor and error handler for direct testing.
                         use(onRequest, onError) {
                             instance.onRequest = onRequest;
                             instance.onError = onError;
@@ -35,6 +38,7 @@ async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === "axios") return { default: axios, ...axios };
             throw new Error(`Unexpected import: ${specifier}`);
@@ -45,6 +49,7 @@ async function loadApiClient({ apiPrefix = "/api", apiKey = "rush-key" } = {}) {
 }
 
 test("the API client keeps the prefix and adds the API key", async () => {
+    // Verify the API client keeps the prefix and adds the API key.
     const { api, instances } = await loadApiClient();
 
     assert.equal(api.default, instances[0]);
@@ -54,10 +59,11 @@ test("the API client keeps the prefix and adds the API key", async () => {
     assert.equal(instances[0].onRequest(request), request);
     assert.equal(request.headers["X-API-Key"], "rush-key");
     const error = new Error("request failed");
-    await assert.rejects(instances[0].onError(error), (reason) => reason === error);
+    await assert.rejects(instances[0].onError(error), /* Invoke the operation whose failure is being asserted. */ (reason) => reason === error);
 });
 
 test("missing environment settings retain empty prefix and leave headers untouched", async () => {
+    // Verify missing environment settings retain empty prefix and leave headers untouched.
     const { instances } = await loadApiClient({ apiPrefix: "", apiKey: "" });
     assert.equal(instances.length, 1);
     assert.equal(instances[0].config.baseURL, "");

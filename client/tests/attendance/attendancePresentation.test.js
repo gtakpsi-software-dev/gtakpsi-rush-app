@@ -10,37 +10,43 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 const splashPath = fileURLToPath(new URL("../../src/features/attendance/SplashPage.tsx", import.meta.url));
 const successPath = fileURLToPath(new URL("../../src/features/attendance/SuccessPage.tsx", import.meta.url));
 
+// Load splash with injected dependencies for isolated tests.
 async function loadSplash(state = {}, calls = []) {
     let stateIndex = 0;
     return loadTsxComponent(splashPath, {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial,
-                    (value) => calls.push([index, value])];
+                    /* Record callback arguments for assertions. */ (value) => calls.push([index, value])];
             },
         },
         "../registration/registrationVerification": {
+            // Record verification and allow access.
             verifyGTID: (value) => {
                 calls.push(["verify", value]);
                 return true;
             },
         },
         "react-router-dom": {
-            useNavigate: () => (path) => calls.push(["navigate", path]),
+            // Provide the callback used by this dependency stub.
+            useNavigate: () => /* Record callback arguments for assertions. */ (path) => calls.push(["navigate", path]),
         },
     });
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (!React.isValidElement(node)) return elements;
     elements.push(node);
-    React.Children.forEach(node.props.children, (child) => collect(child, elements));
+    React.Children.forEach(node.props.children, /* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     return elements;
 }
 
 test("attendance splash retains initial, valid, and invalid markup", async () => {
+    // Verify attendance splash retains initial, valid, and invalid markup.
     const actual = {};
     const scenarios = {
         initial: {},
@@ -50,7 +56,8 @@ test("attendance splash retains initial, valid, and invalid markup", async () =>
     for (const [name, state] of Object.entries(scenarios)) {
         const Splash = await loadSplash(state);
         const html = renderToStaticMarkup(React.createElement(Splash, {
-            setGtid() {}, func() {},
+            // Provide an inert set gtid stub for this test.
+            setGtid() {}, /* Provide an inert func stub for this test. */ func() {},
         }));
         actual[name] = createHash("sha256").update(html).digest("hex");
     }
@@ -63,14 +70,17 @@ test("attendance splash retains initial, valid, and invalid markup", async () =>
 });
 
 test("attendance splash retains GTID, registration, and submit actions", async () => {
+    // Verify attendance splash retains GTID, registration, and submit actions.
     const calls = [];
     const Splash = await loadSplash({ 0: "901234567" }, calls);
     const elements = collect(Splash({
+        // Record set gtid calls for assertions.
         setGtid: (value) => calls.push(["gtid", value]),
+        // Record func calls for assertions.
         func: () => calls.push(["submit"]),
     }));
-    const input = elements.find((element) => element.type === "input");
-    const buttons = elements.filter((element) => element.type === "button");
+    const input = elements.find(/* Identify rendered input elements. */ (element) => element.type === "input");
+    const buttons = elements.filter(/* Identify rendered button elements. */ (element) => element.type === "button");
 
     input.props.onChange({ target: { value: "901234568" } });
     buttons[0].props.onClick();
@@ -82,10 +92,11 @@ test("attendance splash retains GTID, registration, and submit actions", async (
 });
 
 test("attendance success retains optional Back markup and callback", async () => {
+    // Verify attendance success retains optional Back markup and callback.
     const Success = await loadTsxComponent(successPath);
     const actual = {};
     for (const [name, props] of Object.entries({
-        success: {}, back: { goBack() {} },
+        success: {}, back: { /* Provide an inert go back stub for this test. */ goBack() {} },
     })) {
         const html = renderToStaticMarkup(React.createElement(Success, props));
         actual[name] = createHash("sha256").update(html).digest("hex");
@@ -96,8 +107,8 @@ test("attendance success retains optional Back markup and callback", async () =>
     });
 
     const calls = [];
-    const button = collect(Success({ goBack: () => calls.push("back") }))
-        .find((element) => element.type === "button");
+    const button = collect(Success({ goBack: /* Record go back calls for assertions. */ () => calls.push("back") }))
+        .find(/* Identify rendered button elements. */ (element) => element.type === "button");
     button.props.onClick();
     assert.deepEqual(calls, ["back"]);
 });

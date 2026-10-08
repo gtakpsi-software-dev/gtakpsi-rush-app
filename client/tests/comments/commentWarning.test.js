@@ -10,6 +10,7 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 const componentPath = fileURLToPath(new URL("../../src/features/comments/CommentWarning.tsx", import.meta.url));
 
 test("comment warnings retain empty, icon-type, and dismissible markup", async () => {
+    // Verify comment warnings retain empty, icon-type, and dismissible markup.
     const Warning = await loadTsxComponent(componentPath);
     const cases = {
         empty: { warnings: [] },
@@ -22,10 +23,12 @@ test("comment warnings retain empty, icon-type, and dismissible markup", async (
         },
         dismiss: {
             warnings: [{ type: "name", message: "Name" }],
+            // Provide an inert on dismiss stub for this test.
             onDismiss: () => {},
         },
     };
     const hashes = Object.fromEntries(Object.entries(cases).map(([name, props]) => {
+        // Render each warning scenario and calculate its markup hash.
         const html = renderToStaticMarkup(React.createElement(Warning, props));
         return [name, createHash("sha256").update(html).digest("hex")];
     }));
@@ -38,6 +41,7 @@ test("comment warnings retain empty, icon-type, and dismissible markup", async (
 });
 
 test("dismiss buttons retain the warning's original array index", async () => {
+    // Verify dismiss buttons retain the warning's original array index.
     const Warning = await loadTsxComponent(componentPath);
     const dismissed = [];
     const tree = Warning({
@@ -45,11 +49,12 @@ test("dismiss buttons retain the warning's original array index", async () => {
             { type: "name", message: "First" },
             { type: "speculative", message: "Second" },
         ],
+        // Record on dismiss calls for assertions.
         onDismiss: (index) => dismissed.push(index),
     });
     const cards = React.Children.toArray(tree.props.children);
     for (const card of cards) {
-        const button = React.Children.toArray(card.props.children).find((child) => child.type === "button");
+        const button = React.Children.toArray(card.props.children).find(/* Identify rendered button elements. */ (child) => child.type === "button");
         button.props.onClick();
     }
 

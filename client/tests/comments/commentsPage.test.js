@@ -25,8 +25,10 @@ const entry = {
     }],
 };
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage({ state = {}, storedUser = null, response } = {}) {
     const View = await loadTsxComponent(viewPath, {
+        // Render a lightweight React element for component assertions.
         "../../components/Navbar": () => React.createElement("span", { "data-stub": "navbar" }),
         "./ratingDisplay": { formatRatingValue },
     });
@@ -44,25 +46,33 @@ async function loadPage({ state = {}, storedUser = null, response } = {}) {
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial,
-                    (value) => updates.push([index, value])];
+                    /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
             },
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),
         },
-        "react-router-dom": { useNavigate: () => (path) => navigations.push(path) },
+        "react-router-dom": { useNavigate:
+            /* Provide the callback used by this dependency stub. */
+            () =>
+            /* Record callback arguments for assertions. */
+            (path) => navigations.push(path) },
         "../features/comments/CommentsView": View,
     };
     const module = { exports: {} };
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => storedUser },
+        localStorage: { getItem: /* Return stored user to the caller. */ () => storedUser },
+        // Record the comments request and return the configured JSON response.
         fetch: async (url, options) => {
             requests.push({ url, options });
-            return { json: async () => response };
+            return { json: /* Return response to the caller. */ async () => response };
         },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -73,6 +83,7 @@ async function loadPage({ state = {}, storedUser = null, response } = {}) {
 }
 
 test("Your Comments retains loading, error, empty, and populated markup", async () => {
+    // Verify Your Comments retains loading, error, empty, and populated markup.
     const scenarios = {
         loading: {},
         error: { 1: false, 2: "Oops" },
@@ -95,18 +106,20 @@ test("Your Comments retains loading, error, empty, and populated markup", async 
 });
 
 test("missing identity retains the error state without fetching", async () => {
+    // Verify missing identity retains the error state without fetching.
     const { Page, effects, updates, requests } = await loadPage();
     Page();
     effects[0]();
     await setImmediate();
 
     assert.equal(requests.length, 0);
-    assert.deepEqual(updates.map(([index, value]) => [index, value]), [
+    assert.deepEqual(updates.map(/* Return the fixture for this scenario. */ ([index, value]) => [index, value]), [
         [1, true], [2, null], [2, "User not logged in."], [1, false],
     ]);
 });
 
 test("comment fetch retains the encoded brother path and API key header", async () => {
+    // Verify comment fetch retains the encoded brother path and API key header.
     const { Page, effects, requests, updates } = await loadPage({
         storedUser: '{"firstname":"Sam","lastname":"Brother"}',
         response: { status: "success", payload: [entry] },
@@ -118,13 +131,15 @@ test("comment fetch retains the encoded brother path and API key header", async 
     assert.equal(requests.length, 1);
     assert.equal(requests[0].url, "/api/brother/comments/Sam%20Brother");
     assert.equal(requests[0].options.headers["X-API-Key"], "key");
-    assert.equal(updates.find(([index]) => index === 0)[1][0].rushee.gtid, "123");
+    assert.equal(updates.find(/* Match index to 0. */ ([index]) => index === 0)[1][0].rushee.gtid, "123");
 });
 
 test("View full profile keeps the brother rushee route", async () => {
+    // Verify View full profile keeps the brother rushee route.
     const { Page, navigations } = await loadPage({ state: { 0: [entry], 1: false } });
     const view = Page();
     const tree = view.type(view.props);
+    // Find the first button in the rendered element tree.
     const findButton = (node) => {
         if (!React.isValidElement(node)) return null;
         if (node.type === "button") return node;

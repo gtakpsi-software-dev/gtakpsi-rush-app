@@ -19,8 +19,11 @@ const sectionPath = fileURLToPath(new URL('../../src/features/admin/overview/Adm
 const managementPath = fileURLToPath(new URL('../../src/features/admin/overview/AdminManagementSection.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../../src/features/admin/overview/AdminPageView.tsx', import.meta.url));
 
+// Load admin with injected dependencies for isolated tests.
 export async function loadAdmin(state = {}, captured = new Map()) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement('span', { 'data-stub': name });
     };
@@ -52,8 +55,10 @@ export async function loadAdmin(state = {}, captured = new Map()) {
     const module = { exports: {} };
     const requireFromPage = createRequire(pagePath);
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
-    const actions = () => new Proxy({}, { get: () => noop });
+    // Provide inert action handlers for any requested property.
+    const actions = () => new Proxy({}, { get: /* Provide an inert handler for the test. */ () => noop });
     const search = {
         rusheeSearch: '', setRusheeSearch: noop, filteredRushees: [], setFilteredRushees: noop,
         brotherSearch: '', setBrotherSearch: noop, filteredBrothers: [], setFilteredBrothers: noop
@@ -61,6 +66,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState: (initial) => {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial, noop];
@@ -68,7 +74,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
             useEffect: noop
         },
         axios: {},
-        'react-router-dom': { useNavigate: () => noop },
+        'react-router-dom': { useNavigate: /* Provide an inert handler for the test. */ () => noop },
         'react-toastify': { toast: {} },
         'react-toastify/dist/ReactToastify.css': {},
         '../features/auth/verifyUser': { verifyUser: noop },
@@ -84,6 +90,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
         '../features/admin/pis/questionActions': { createQuestionActions: actions },
         '../features/admin/pis/pisTime': {
             formatCurrentPISTime: noop, formatSlotTime: noop, formatTimeslot: noop,
+            // Return the group edit slots fixture for this scenario.
             groupEditSlots: () => ({})
         },
         '../features/admin/pis/ReschedulePisCard': stub('reschedule'),
@@ -96,7 +103,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
         '../features/admin/access/promotionActions': { createPromotionActions: actions },
         '../features/admin/access/AccessSettingsCards': stub('access-settings'),
         '../features/admin/access/accessSettingsActions': { createAccessSettingsActions: actions },
-        '../features/admin/search/useAdminSearch': { useAdminSearch: () => search },
+        '../features/admin/search/useAdminSearch': { useAdminSearch: /* Return search to the caller. */ () => search },
         '../features/admin/overview/AdminExportsAccessSection': Section,
         '../features/admin/overview/AdminManagementSection': Management,
         '../features/admin/overview/AdminPageView': PageView,
@@ -107,7 +114,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
         editorHookPath,
         {
             react: dependencies.react,
-            '../pis/pisTime': { groupEditSlots: () => ({}) },
+            '../pis/pisTime': { groupEditSlots: /* Return the group edit slots fixture for this scenario. */ () => ({}) },
             './availabilityEditorActions': { createAvailabilityEditorActions: actions },
         },
     );
@@ -155,6 +162,7 @@ export async function loadAdmin(state = {}, captured = new Map()) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);

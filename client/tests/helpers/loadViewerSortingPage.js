@@ -13,8 +13,10 @@ import { loadTsxModule } from "./loadTsxComponent.js";
 
 const viewPath = fileURLToPath(new URL("../../src/features/sorting/ViewerSortingBoardView.tsx", import.meta.url));
 const viewportPath = fileURLToPath(new URL("../../src/features/sorting/useSortingViewport.js", import.meta.url));
+// Supply an inert callback where this test does not exercise the handler.
 const noop = () => {};
 
+// Load board view with injected dependencies for isolated tests.
 async function loadBoardView(dependencies) {
     const source = await readFile(viewPath, "utf8");
     const { code } = await transformWithEsbuild(source, viewPath, {
@@ -26,6 +28,7 @@ async function loadBoardView(dependencies) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromView(specifier);
@@ -35,9 +38,12 @@ async function loadBoardView(dependencies) {
     return module.exports.default;
 }
 
+// Load page with injected dependencies for isolated tests.
 export async function loadPage(name, state = {}, captured = new Map()) {
     const pagePath = fileURLToPath(new URL(`../../src/pages/${name}.jsx`, import.meta.url));
+    // Create a lightweight component that captures props for assertions.
     const stub = (component) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(component, props);
         return React.createElement("span", { "data-stub": component });
     };
@@ -49,6 +55,7 @@ export async function loadPage(name, state = {}, captured = new Map()) {
         "./SortingPresenceIndicator": stub("presence"),
         "./SortingGhostCards": stub("ghosts"),
     });
+    // Capture board props, root props, and the root ref while rendering.
     const BoardViewWithCapture = (props) => {
         captured.set("board-view", props);
         const tree = boardView(props);
@@ -59,15 +66,19 @@ export async function loadPage(name, state = {}, captured = new Map()) {
     let stateIndex = 0;
     const reactMock = {
         ...React,
+        // Expose controlled hook state and capture updates for assertions.
         useState(initial) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        // Capture effects so the test can run them explicitly.
         useEffect: (effect, deps) => {
             if (!captured.has('effects')) captured.set('effects', []);
             captured.get('effects').push({ effect, deps });
         },
+        // Provide a mutable ref without mounting a React component.
         useRef: (initial) => ({ current: initial }),
+        // Keep the callback callable without a React render cycle.
         useCallback: (callback) => callback,
     };
     const { useSortingViewport } = await loadTsxModule(viewportPath, {
@@ -77,12 +88,12 @@ export async function loadPage(name, state = {}, captured = new Map()) {
     });
     const dependencies = {
         react: reactMock,
-        "react-router-dom": { useNavigate: () => noop },
+        "react-router-dom": { useNavigate: /* Provide an inert handler for the test. */ () => noop },
         "react-toastify": { toast: { error: noop } },
         "react-toastify/dist/ReactToastify.css": {},
         "../components/Navbar": stub("navbar"),
         "../firebase": { auth: {} },
-        axios: { get: (path) => captured.set("axios-get", path) },
+        axios: { get: /* Invoke captured.set with the test inputs. */ (path) => captured.set("axios-get", path) },
         "../features/admin/api": { adminGet: noop, adminPut: noop },
         "../features/auth/parseAdminAllowlist": { parseAdminAllowlist },
         "../features/sorting/board": { STATUSES, MIN_SCALE, MAX_SCALE, createEmptyColumns },
@@ -95,26 +106,35 @@ export async function loadPage(name, state = {}, captured = new Map()) {
         "../features/sorting/SortingGhostCards": stub("ghosts"),
         "../features/sorting/useSortingViewport": { useSortingViewport },
         "../features/sorting/useSortingWheelListener": {
+            // Capture wheel listener arguments without attaching a browser listener.
             useSortingWheelListener: (canvasRef, handleWheel, loading) => {
                 captured.set("wheel-listener", { canvasRef, handleWheel, loading });
             },
         },
         "../features/sorting/createSortingNotesHandlers": {
-            createSortingNotesHandlers: () => new Proxy({}, { get: () => noop }),
+            // Provide inert note handlers for any requested property.
+            createSortingNotesHandlers: () => new Proxy({}, { get: /* Provide an inert handler for the test. */ () => noop }),
         },
         "../features/sorting/createBrotherSortingDetailsHandlers": {
+            // Capture details dependencies and expose inert open and close handlers.
             createBrotherSortingDetailsHandlers: (options) => {
                 captured.set("brother-details-options", options);
-                const handlers = { openDetails: () => {}, closeDetails: () => {} };
+                const handlers = { openDetails:
+                    /* Provide an inert open details stub for this test. */
+                    () => {}, closeDetails:
+                    /* Provide an inert close details stub for this test. */
+                    () => {} };
                 captured.set("brother-details-handlers", handlers);
                 return handlers;
             },
         },
         "../features/sorting/useSortingViewerConnection": {
+            // Invoke captured.set with the test inputs.
             useSortingViewerConnection: (options) => captured.set("viewer-connection", options),
         },
         "../features/sorting/loadBidCommitteeSortingData": { loadBidCommitteeSortingData: noop },
         "../features/sorting/subscribeToSortingAuth": {
+            // Invoke captured.set with the test inputs.
             subscribeToSortingAuth: (options) => captured.set("auth-subscription", options),
         },
         "../features/sorting/loadBrotherSortingData": { loadBrotherSortingData: noop },
@@ -131,6 +151,7 @@ export async function loadPage(name, state = {}, captured = new Map()) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
