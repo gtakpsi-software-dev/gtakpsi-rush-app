@@ -27,6 +27,7 @@ type ExistingCommentListProps = {
     handleSubmitEdit: (comment: Comment) => void;
 };
 
+// Render visible comments with author edit controls, warnings, and rating badges.
 export default function ExistingCommentList({
     visibleComments, user, editingCommentId, editedCommentText,
     setSelectedComment, handleEditComment, handleDeleteComment,
@@ -38,10 +39,10 @@ export default function ExistingCommentList({
         <>
             {visibleComments.length > 0 && (
                 <div className="mt-6 space-y-4">
-                    {visibleComments.map((comment, idx) => (
+                    {visibleComments.map(/* Render one visible comment and its current edit state. */ (comment, idx) => (
                         <div
                             key={idx}
-                            onClick={() => setSelectedComment(comment)}
+                            onClick={/* Open this comment in the detail modal. */ () => setSelectedComment(comment)}
                             className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
                         >
                             <div
@@ -54,6 +55,7 @@ export default function ExistingCommentList({
                             >
                                 <button
                                     onClick={(e) => {
+                                        // Start editing this comment without opening its detail modal.
                                         e.stopPropagation();
                                         handleEditComment(comment);
                                     }}
@@ -63,6 +65,7 @@ export default function ExistingCommentList({
                                 </button>
                                 <button
                                     onClick={(e) => {
+                                        // Delete this comment without opening its detail modal.
                                         e.stopPropagation();
                                         handleDeleteComment(comment);
                                     }}
@@ -73,12 +76,13 @@ export default function ExistingCommentList({
                             </div>
 
                             {editingCommentId === comment.comment ? (
-                                <div onClick={(e) => e.stopPropagation()}>
+                                <div onClick={/* Keep clicks within the editor from opening the comment modal. */ (e) => e.stopPropagation()}>
                                     <textarea
                                         className="input-apple mb-4 resize-none min-h-[120px]"
                                         value={editedCommentText}
-                                        onClick={(e) => e.stopPropagation()}
+                                        onClick={/* Keep textarea clicks from opening the comment modal. */ (e) => e.stopPropagation()}
                                         onChange={(e) => {
+                                            // Update edited text and regenerate validation warnings.
                                             setEditedCommentText(e.target.value);
                                             validateEditComment(e.target.value);
                                         }}
@@ -87,13 +91,17 @@ export default function ExistingCommentList({
                                     <CommentWarning
                                         warnings={editCommentWarnings}
                                         onDismiss={(index) => {
-                                            const newWarnings = editCommentWarnings.filter((_, i) => i !== index);
+                                            // Dismiss the selected edit warning.
+                                            const newWarnings = editCommentWarnings.filter(
+                                                /* Keep warnings other than the dismissed index. */
+                                                (_, i) => i !== index);
                                             setEditCommentWarnings(newWarnings);
                                         }}
                                     />
 
                                     <button
                                         onClick={(e) => {
+                                            // Submit the edit without opening the comment modal.
                                             e.stopPropagation();
                                             handleSubmitEdit(comment);
                                         }}
@@ -114,7 +122,7 @@ export default function ExistingCommentList({
                             )}
 
                             <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-apple-gray-200">
-                                {comment.ratings.map((rating, rIdx) => (
+                                {comment.ratings.map(/* Render a formatted rating badge for this comment. */ (rating, rIdx) => (
                                     <span
                                         key={rIdx}
                                         className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"

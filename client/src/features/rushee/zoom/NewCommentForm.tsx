@@ -18,6 +18,7 @@ type NewCommentFormProps = {
     handleSubmitComment: () => void;
 };
 
+// Render the add-comment prompt or the draft form with warnings and rating controls.
 export default function NewCommentForm({
     isAddingComment, handleAddComment, newComment, setNewComment,
     validateNewComment, commentWarnings, setCommentWarnings, ratingFields,
@@ -40,6 +41,7 @@ export default function NewCommentForm({
                         placeholder="Add your comment..."
                         value={newComment}
                         onChange={(e) => {
+                            // Update draft text and regenerate advisory warnings.
                             setNewComment(e.target.value);
                             validateNewComment(e.target.value);
                         }}
@@ -48,20 +50,23 @@ export default function NewCommentForm({
                     <CommentWarning
                         warnings={commentWarnings}
                         onDismiss={(index) => {
-                            const newWarnings = commentWarnings.filter((_, i) => i !== index);
+                            // Dismiss the selected draft warning.
+                            const newWarnings = commentWarnings.filter(/* Keep warnings other than the dismissed index. */ (_, i) => i !== index);
                             setCommentWarnings(newWarnings);
                         }}
                     />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                        {ratingFields.map((field) => (
+                        {ratingFields.map(/* Render one rating category’s score and not-seen controls. */ (field) => (
                             <RatingSlider
                                 key={field}
                                 label={field}
                                 value={ratings[field]}
                                 notSeen={ratingNotSeen[field]}
-                                onValueChange={(value) => handleRatingChange(field, value)}
-                                onNotSeenChange={(notSeen) => handleRatingNotSeenChange(field, notSeen)}
+                                onValueChange={/* Update this rating category’s score. */ (value) => handleRatingChange(field, value)}
+                                onNotSeenChange={
+                                    /* Update whether this rating category was observed. */
+                                    (notSeen) => handleRatingNotSeenChange(field, notSeen)}
                             />
                         ))}
                     </div>

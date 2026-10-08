@@ -15,21 +15,22 @@ type ZoomModalsProps = {
     onClosePis: () => void;
 };
 
+// Display expanded comment or interview-response details with dismissal controls.
 export default function ZoomModals({ selectedComment, selectedPis, onCloseComment, onClosePis }: ZoomModalsProps) {
     return (
         <>
             {selectedComment && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                    onClick={() => onCloseComment()}
+                    onClick={/* Close the comment modal from its backdrop. */ () => onCloseComment()}
                 >
                     <div
                         className="card-apple p-6 w-11/12 max-w-2xl transform scale-100 transition-transform duration-200"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={/* Keep comment-panel clicks from reaching the backdrop. */ (e) => e.stopPropagation()}
                     >
                         <button
                             className="text-apple-gray-600 hover:text-black float-right text-2xl font-light focus:outline-none"
-                            onClick={() => onCloseComment()}
+                            onClick={/* Close the comment modal from its close button. */ () => onCloseComment()}
                         >
                             ×
                         </button>
@@ -40,7 +41,7 @@ export default function ZoomModals({ selectedComment, selectedPis, onCloseCommen
                         <p className="text-apple-body text-black font-light mb-6 leading-relaxed">{selectedComment.comment}</p>
 
                         <div className="flex flex-wrap gap-2 mt-4">
-                            {selectedComment.ratings.map((rating, rIdx) => (
+                            {selectedComment.ratings.map(/* Render a formatted rating badge for the expanded comment. */ (rating, rIdx) => (
                                 <span
                                     key={rIdx}
                                     className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
@@ -56,16 +57,16 @@ export default function ZoomModals({ selectedComment, selectedPis, onCloseCommen
             {selectedPis && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-                    onClick={() => onClosePis()}
+                    onClick={/* Close the interview-response modal from its backdrop. */ () => onClosePis()}
                 >
                     {/* This inner box stops clicks from propagating to backdrop */}
                     <div
                         className="card-apple p-6 w-11/12 max-w-2xl transform scale-100 transition-transform duration-200"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={/* Keep interview-panel clicks from reaching the backdrop. */ (e) => e.stopPropagation()}
                     >
                         <button
                             className="text-apple-gray-600 hover:text-black float-right text-2xl font-light focus:outline-none"
-                            onClick={() => onClosePis()}
+                            onClick={/* Close the interview-response modal from its close button. */ () => onClosePis()}
                         >
                             ×
                         </button>

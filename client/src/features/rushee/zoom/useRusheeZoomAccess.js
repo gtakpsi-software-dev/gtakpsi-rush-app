@@ -6,6 +6,7 @@ import { getVisibleComments, hasOwnComment, shouldShowAllComments } from "../../
 import { verifyUser } from "../../auth/verifyUser";
 import { loadRusheeZoom } from "./loadRusheeZoom";
 
+// Manage profile access checks and derive visible comments from current roles and settings.
 export default function useRusheeZoomAccess({
     loading,
     navigate,
@@ -32,6 +33,8 @@ export default function useRusheeZoomAccess({
     const userHasOwnComment = rushee ? hasOwnComment(rushee.comments, user) : false;
 
     useEffect(() => {
+        // Fetch access and profile data while the page is loading.
+        // Load the rushee profile, role claims, and comment-visibility setting.
         async function fetch() {
             await loadRusheeZoom({
                 verifyUser,
@@ -48,7 +51,9 @@ export default function useRusheeZoomAccess({
                 setRequireCommentToView,
                 setError,
                 setLoading,
+                // Log an access or visibility request error with its context.
                 logError: (message, error) => console.error(message, error),
+                // Log the loaded rushee profile.
                 logData: (value) => console.log(value),
             });
         }

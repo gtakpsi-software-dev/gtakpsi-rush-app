@@ -1,5 +1,6 @@
 import { createCommentToastOptions } from "./commentToastOptions.js";
 
+// Create actions for drafting, rating, validating, and submitting a new comment.
 export function createCommentCreateActions({
     rushee,
     user,
@@ -25,6 +26,7 @@ export function createCommentCreateActions({
     reload,
     log,
 }) {
+    // Open the comment form with cleared warnings and default ratings.
     const handleAddComment = () => {
         setIsAddingComment(true);
         setCommentWarnings([]);
@@ -32,6 +34,7 @@ export function createCommentCreateActions({
         setRatingNotSeen(createDefaultNotSeen());
     };
 
+    // Update one rating value in the draft.
     const handleRatingChange = (field, value) => {
         setRatings({
             ...ratings,
@@ -39,6 +42,7 @@ export function createCommentCreateActions({
         });
     };
 
+    // Update whether a rating category was observed.
     const handleRatingNotSeenChange = (field, notSeen) => {
         setRatingNotSeen({
             ...ratingNotSeen,
@@ -46,6 +50,7 @@ export function createCommentCreateActions({
         });
     };
 
+    // Generate advisory warnings for the draft comment.
     const validateNewComment = (commentText) => {
         if (!rushee) return;
 
@@ -54,6 +59,7 @@ export function createCommentCreateActions({
         setCommentWarnings(warnings);
     };
 
+    // Submit the comment and observed ratings, then reset the form after the request.
     const handleSubmitComment = async () => {
         if (!rushee) return;
 
@@ -91,6 +97,7 @@ export function createCommentCreateActions({
 
         await axios.post(`${api}/rushee/post-comment/${gtid}`, payload)
             .then((response) => {
+                // Reload after success or show the API’s comment-submission error.
                 if (response.data.status === "success") {
                     reload();
                 } else {
@@ -98,6 +105,7 @@ export function createCommentCreateActions({
                 }
             })
             .catch((error) => {
+                // Log the request failure and navigate to the submission error page.
                 log(error);
 
                 const title = "Uh Oh! Something weird happened...";

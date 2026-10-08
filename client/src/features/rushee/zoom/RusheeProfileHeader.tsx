@@ -19,6 +19,7 @@ type RusheeProfileHeaderProps = {
     getRusheeNumber: () => string;
 };
 
+// Display a full rushee header or an anonymous committee header with attendance.
 export default function RusheeProfileHeader({ rushee, isBidCommitteeMode, getRusheeNumber }: RusheeProfileHeaderProps) {
     return (
         <div className="card-apple p-6 mb-6">
@@ -48,7 +49,7 @@ export default function RusheeProfileHeader({ rushee, isBidCommitteeMode, getRus
                             </h1>
                         )}
                         <div className="flex flex-wrap gap-2">
-                            {rushee.attendance.map((event, idx) => (
+                            {rushee.attendance.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                                 <Badges text={event.name} key={idx} />
                             ))}
                         </div>

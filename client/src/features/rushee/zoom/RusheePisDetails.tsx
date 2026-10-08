@@ -16,6 +16,7 @@ type RusheePisDetailsProps = {
     setSelectedPis: (pis: PisResponse) => void;
 };
 
+// Display the interview schedule, assigned brothers, and saved question responses.
 export default function RusheePisDetails({ rushee, setSelectedPis }: RusheePisDetailsProps) {
     return (
         <div className="card-apple p-6 mb-6 max-h-[40rem] overflow-y-auto">
@@ -40,11 +41,11 @@ export default function RusheePisDetails({ rushee, setSelectedPis }: RusheePisDe
             <div className="border-t border-apple-gray-200 pt-6">
                 <h3 className="text-apple-title2 font-normal text-black mb-4">PIS Responses</h3>
                 <div className="space-y-4">
-                    {rushee.pis.map((pis, idx) => (
+                    {rushee.pis.map(/* Render an interview response that can be opened in a detail modal. */ (pis, idx) => (
                         <div
                             key={idx}
                             className="bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
-                            onClick={() => setSelectedPis(pis)}
+                            onClick={/* Open this interview response in the detail modal. */ () => setSelectedPis(pis)}
                         >
                             <p className="text-apple-body text-black font-light mb-2">
                                 <span className="font-normal text-apple-gray-700">Q:</span> {pis.question}

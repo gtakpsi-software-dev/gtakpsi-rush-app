@@ -1,3 +1,4 @@
+// Verify access and load a rushee profile, role claims, and comment-visibility settings.
 export async function loadRusheeZoom({
     verifyUser,
     navigate,
@@ -18,6 +19,7 @@ export async function loadRusheeZoom({
 }) {
     await verifyUser()
         .then(async (response) => {
+            // Handle verification and load roles, the profile, and visibility settings.
             // Preserve the existing redirect while later profile reads still complete.
             if (response == false) {
                 navigate(`/error/${errorTitle}/${errorDescription}`);
@@ -36,6 +38,7 @@ export async function loadRusheeZoom({
 
             await axios.get(`${api}/rushee/${gtid}`)
                 .then((response) => {
+                    // Store the returned rushee or navigate to the missing-profile error.
                     if (response.data.status === "success") {
                         logData(response.data.payload);
                         setRushee(response.data.payload);
@@ -55,6 +58,7 @@ export async function loadRusheeZoom({
             }
         })
         .catch(() => {
+            // Mark loading failed and navigate to the configured error page.
             setError(true);
             navigate(`/error/${errorTitle}/${errorDescription}`);
         });

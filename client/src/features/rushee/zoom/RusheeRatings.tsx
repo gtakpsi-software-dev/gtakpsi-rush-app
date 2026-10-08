@@ -11,6 +11,7 @@ type RusheeRatingsProps = {
     showAllComments: boolean;
 };
 
+// Display permitted aggregate ratings and per-night interaction summaries.
 export default function RusheeRatings({ rushee, showAllComments }: RusheeRatingsProps) {
     return (
         <div className="card-apple p-6 mb-6">
@@ -18,7 +19,7 @@ export default function RusheeRatings({ rushee, showAllComments }: RusheeRatings
 
             {showAllComments ? (
                 <div className="flex flex-col gap-4">
-                    {rushee.ratings.map((rating, idx) => (
+                    {rushee.ratings.map(/* Render a rating bar and its two-decimal score. */ (rating, idx) => (
                         <div key={idx} className="w-full">
                             <p className="text-apple-body text-black font-normal mb-2">{rating.name}</p>
                             <div className="w-full bg-apple-gray-100 rounded-apple h-3">

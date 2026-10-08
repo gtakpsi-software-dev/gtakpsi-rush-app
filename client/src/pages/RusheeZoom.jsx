@@ -21,6 +21,7 @@ import { validateComment, generateWarnings } from "../features/comments/commentV
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Manage profile details, comment actions, permissions, and expanded-detail modals.
 export default function RusheeZoom() {
     const { gtid } = useParams();
     const location = useLocation();
@@ -47,8 +48,12 @@ export default function RusheeZoom() {
 
     const api = import.meta.env.VITE_API_PREFIX;
 
+    // Read the committee-facing rushee number from the current URL.
     const getRusheeNumber = () => getRusheeNumberFromSearch(location.search);
-    const isBidCommitteeMode = () => matchesBidCommitteeMode(location, () => document.referrer);
+    // Determine committee mode using route context and the document referrer.
+    const isBidCommitteeMode = () => matchesBidCommitteeMode(location,
+        /* Read the referring page for committee-mode fallback. */
+        () => document.referrer);
 
     const ratingFields = RATING_FIELDS;
 
@@ -101,7 +106,9 @@ export default function RusheeZoom() {
         generateWarnings,
         toast,
         axios,
+        // Reload after a successful new comment.
         reload: () => window.location.reload(),
+        // Log new-comment submission details or failures.
         log: (value) => console.log(value),
     });
 
@@ -124,16 +131,20 @@ export default function RusheeZoom() {
         generateWarnings,
         toast,
         axios,
+        // Reload after a successful comment edit or deletion.
         reload: () => window.location.reload(),
+        // Log existing-comment actions or failures.
         log: (value) => console.log(value),
     });
 
     const [copied, setCopied] = useState(false);
 
+    // Copy the personal edit link, including the access code, to the clipboard.
     const handleCopy = () => {
         navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${rushee.access_code}`).then(() => {
+            // Show temporary copy confirmation after the clipboard write succeeds.
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setTimeout(/* Clear the copy confirmation after two seconds. */ () => setCopied(false), 2000);
         });
     };
 
@@ -146,7 +157,9 @@ export default function RusheeZoom() {
                     modals={{
                         selectedComment,
                         selectedPis,
+                        // Close the expanded comment.
                         onCloseComment: () => setSelectedComment(null),
+                        // Close the expanded interview response.
                         onClosePis: () => setSelectedPis(null),
                     }}
                     profile={{ rushee, isBidCommitteeMode, getRusheeNumber }}
