@@ -11,11 +11,13 @@ import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 const fixturePath = fileURLToPath(new URL("../../fixtures/sortingGhostCards.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../../../src/features/sorting/SortingGhostCards.tsx", import.meta.url));
 
+// Load ghost cards with injected dependencies for isolated tests.
 function loadGhostCards() {
     return loadTsxComponent(componentPath);
 }
 
 test("all sorting boards retain ghost card positions, names, and widths", async () => {
+    // Verify all sorting boards retain ghost card positions, names, and widths.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const SortingGhostCards = await loadGhostCards();
     const scenarios = {

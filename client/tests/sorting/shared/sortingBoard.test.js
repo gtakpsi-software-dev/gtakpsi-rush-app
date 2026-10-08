@@ -11,6 +11,7 @@ import {
 } from "../../../src/features/sorting/board.js";
 
 test("sorting boards keep their six column labels and visible tag classes", () => {
+    // Verify sorting boards keep their six column labels and visible tag classes.
     assert.deepEqual(STATUSES, [
         { key: "UNSORTED", label: "Unsorted" },
         { key: "IN_CLOUD", label: "In Cloud" },
@@ -32,6 +33,7 @@ test("sorting boards keep their six column labels and visible tag classes", () =
 });
 
 test("unknown sorting statuses fall back to Unsorted and each column orders by sortingOrder", () => {
+    // Verify unknown sorting statuses fall back to Unsorted and each column orders by sortingOrder.
     const rows = [
         { id: "a", sortingStatus: "IN_CLOUD", sortingOrder: 3 },
         { id: "b", sortingStatus: "IN_CLOUD", sortingOrder: 1 },
@@ -41,22 +43,23 @@ test("unknown sorting statuses fall back to Unsorted and each column orders by s
     ];
 
     const columns = groupSortingRows(rows);
-    assert.deepEqual(Object.keys(columns), STATUSES.map(({ key }) => key));
-    assert.deepEqual(columns.IN_CLOUD.map(({ id }) => id), ["b", "a"]);
-    assert.deepEqual(columns.UNSORTED.map(({ id }) => id), ["d", "c"]);
-    assert.deepEqual(columns.DISCUSSED.map(({ id }) => id), ["e"]);
+    assert.deepEqual(Object.keys(columns), STATUSES.map(/* Return key to the caller. */ ({ key }) => key));
+    assert.deepEqual(columns.IN_CLOUD.map(/* Return id to the caller. */ ({ id }) => id), ["b", "a"]);
+    assert.deepEqual(columns.UNSORTED.map(/* Return id to the caller. */ ({ id }) => id), ["d", "c"]);
+    assert.deepEqual(columns.DISCUSSED.map(/* Return id to the caller. */ ({ id }) => id), ["e"]);
     assert.deepEqual(columns.OUT_CLOUD, []);
-    assert.deepEqual(rows.map(({ id }) => id), ["a", "b", "c", "d", "e"]);
+    assert.deepEqual(rows.map(/* Return id to the caller. */ ({ id }) => id), ["a", "b", "c", "d", "e"]);
     assert.strictEqual(columns.IN_CLOUD[0], rows[1]);
 });
 
 test("equal orders retain input order and each board gets fresh arrays", () => {
+    // Verify equal orders retain input order and each board gets fresh arrays.
     const columns = groupSortingRows([
         { id: "first", sortingStatus: "UNSORTED", sortingOrder: 4 },
         { id: "second", sortingStatus: "UNSORTED", sortingOrder: 4 },
         { id: "third", sortingStatus: "UNSORTED" },
     ]);
-    assert.deepEqual(columns.UNSORTED.map(({ id }) => id), ["first", "second", "third"]);
+    assert.deepEqual(columns.UNSORTED.map(/* Return id to the caller. */ ({ id }) => id), ["first", "second", "third"]);
 
     const other = createEmptyColumns();
     assert.notStrictEqual(other.UNSORTED, columns.UNSORTED);

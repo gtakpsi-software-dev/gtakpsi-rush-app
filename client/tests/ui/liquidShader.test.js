@@ -11,6 +11,7 @@ import { transformWithEsbuild } from "vite";
 
 const shaderPath = fileURLToPath(new URL("../../src/features/notFound/LiquidShader.jsx", import.meta.url));
 
+// Load shader with injected dependencies for isolated tests.
 async function loadShader() {
     const source = await readFile(shaderPath, "utf8");
     const { code } = await transformWithEsbuild(source, shaderPath, {
@@ -21,19 +22,21 @@ async function loadShader() {
     const windowStub = {
         innerWidth: 1200,
         innerHeight: 600,
+        // Record listener registration and retain the resize callback.
         addEventListener(name, callback) {
             calls.push(["listen", name]);
             this.resize = callback;
         },
+        // Record remove event listener calls for assertions.
         removeEventListener(name, callback) {
             calls.push(["remove", name, callback === this.resize]);
         },
     };
     const meshRef = { current: {
-        scale: { set: (...args) => calls.push(["scale", ...args]) },
+        scale: { set: /* Record set calls for assertions. */ (...args) => calls.push(["scale", ...args]) },
         material: { uniforms: {
             uTime: { value: 0 },
-            uResolution: { value: { set: (...args) => calls.push(["resolution", ...args]) } },
+            uResolution: { value: { set: /* Record set calls for assertions. */ (...args) => calls.push(["resolution", ...args]) } },
         } },
     } };
     let frame;
@@ -41,17 +44,27 @@ async function loadShader() {
     const dependencies = {
         react: {
             ...React,
+            // Provide a mutable ref without mounting a React component.
             useRef: () => meshRef,
+            // Verify mount-only dependencies and capture the effect cleanup.
             useEffect(effect, dependencies) {
                 assert.deepEqual(Array.from(dependencies), []);
                 cleanup = effect();
             },
         },
-        "@react-three/fiber": { useFrame: (callback) => { frame = callback; } },
+        "@react-three/fiber": { useFrame: (callback) => {
+            // Update frame in the test harness.
+             frame = callback; } },
         three: {
-            Clock: class { getElapsedTime() { return 7.5; } },
-            Vector2: class { constructor(x, y) { this.x = x; this.y = y; } },
-            Color: class { constructor(hex) { this.hex = hex; } },
+            Clock: class { getElapsedTime() {
+                // Return a fixed value to keep the test deterministic.
+                 return 7.5; } },
+            Vector2: class { constructor(x, y) {
+                // Store vector coordinates for shader assertions.
+                 this.x = x; this.y = y; } },
+            Color: class { constructor(hex) {
+                // Update this.hex in the test harness.
+                 this.hex = hex; } },
             DoubleSide: "double-sided",
         },
     };
@@ -60,16 +73,22 @@ async function loadShader() {
         module,
         exports: module.exports,
         window: windowStub,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromShader(specifier);
         },
     }, { filename: shaderPath });
 
-    return { Shader: module.exports.default, calls, windowStub, meshRef, frame: () => frame(), cleanup: () => cleanup() };
+    return { Shader: module.exports.default, calls, windowStub, meshRef, frame:
+        /* Invoke frame with the test inputs. */
+        () => frame(), cleanup:
+        /* Invoke cleanup with the test inputs. */
+        () => cleanup() };
 }
 
 test("404 liquid shader keeps its mesh, uniforms, colors, and GLSL source", async () => {
+    // Verify 404 liquid shader keeps its mesh, uniforms, colors, and GLSL source.
     const { Shader } = await loadShader();
     const mesh = Shader();
     const [plane, material] = React.Children.toArray(mesh.props.children);
@@ -85,7 +104,7 @@ test("404 liquid shader keeps its mesh, uniforms, colors, and GLSL source", asyn
         x: material.props.uniforms.uResolution.value.x,
         y: material.props.uniforms.uResolution.value.y,
     }, { x: 1200, y: 600 });
-    assert.deepEqual(Array.from(material.props.uniforms.uColors.value, (color) => color.hex), [
+    assert.deepEqual(Array.from(material.props.uniforms.uColors.value, /* Extract the configured color value. */ (color) => color.hex), [
         "#0033A0", "#FFD700", "#FFD700", "#0033A0",
     ]);
     assert.equal(createHash("sha256").update(material.props.vertexShader).digest("hex"),
@@ -95,6 +114,7 @@ test("404 liquid shader keeps its mesh, uniforms, colors, and GLSL source", asyn
 });
 
 test("404 liquid shader keeps frame timing, resize scaling, and listener cleanup", async () => {
+    // Verify 404 liquid shader keeps frame timing, resize scaling, and listener cleanup.
     const shader = await loadShader();
     shader.Shader();
     assert.deepEqual(shader.calls, [

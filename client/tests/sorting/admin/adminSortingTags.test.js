@@ -4,6 +4,7 @@ import test from "node:test";
 import { applySavedSortingTags } from "../../../src/features/sorting/applySavedSortingTags.js";
 
 test("saved notes refresh tags for the matching card without changing other cards", () => {
+    // Verify saved notes refresh tags for the matching card without changing other cards.
     const selected = { id: "r1", sortingTags: ["night_1"], sortingOrder: 1 };
     const neighbor = { id: "r2", sortingTags: [], sortingOrder: 2 };
     const other = { id: "r3", sortingTags: [], sortingOrder: 1 };
@@ -23,6 +24,7 @@ test("saved notes refresh tags for the matching card without changing other card
 });
 
 test("missing and duplicate IDs retain the original all-column mapping behavior", () => {
+    // Verify missing and duplicate IDs retain the original all-column mapping behavior.
     const first = { id: "r1", sortingTags: [] };
     const second = { id: "r1", sortingTags: ["pis"] };
     const columns = { UNSORTED: [first], IN_CLOUD: [second], DISCUSSED: [] };

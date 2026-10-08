@@ -13,6 +13,7 @@ const componentPath = fileURLToPath(new URL(
     import.meta.url,
 ));
 
+// Render brother comments with controlled effects and capture their animation.
 async function renderComments(rushee) {
     const effects = [];
     const animations = [];
@@ -25,19 +26,28 @@ async function renderComments(rushee) {
     const dependencies = {
         react: {
             ...React,
+            // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),
-            useState: (initial) => [initial, () => {}],
+            // Expose controlled hook state and capture updates for assertions.
+            useState: (initial) => [initial, /* Leave this mocked callback inert. */ () => {}],
+            // Capture effects so the test can run them explicitly.
             useEffect: (callback, values) => effects.push({ callback, values }),
         },
-        "./BrotherVotingContext": { useBrotherVotingContext: () => ({ rushee }) },
+        "./BrotherVotingContext": { useBrotherVotingContext:
+            /* Return the use brother voting context fixture for this scenario. */
+            () => ({ rushee }) },
+        // Return no value from this dependency stub.
         "../../../components/Badge": () => null,
-        gsap: { fromTo: (...args) => animations.push(args) },
+        gsap: { fromTo: /* Record from to calls for assertions. */ (...args) => animations.push(args) },
         "../../comments/ratingDisplay": {
             formatRatingValue: String,
+            // Return the fixed rating badge class fixture.
             ratingBadgeClass: () => "",
         },
         "../../comments/commentVisibility": {
+            // Return comments to the caller.
             getVisibleComments: (comments) => comments,
+            // Return true from this dependency stub.
             shouldShowAllComments: () => true,
         },
         axios: {},
@@ -47,7 +57,8 @@ async function renderComments(rushee) {
     runInNewContext(compiled.code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => null },
+        localStorage: { getItem: /* Return no value from this dependency stub. */ () => null },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromComponent(specifier);
@@ -60,6 +71,7 @@ async function renderComments(rushee) {
 }
 
 test("brother comment animation tracks visible comments and skips empty selections", async () => {
+    // Verify brother comment animation tracks visible comments and skips empty selections.
     const comments = [{ brother_name: "Sam", comment: "Met", ratings: [] }];
     const active = await renderComments({ comments });
     assert.equal(active.effects.length, 2);

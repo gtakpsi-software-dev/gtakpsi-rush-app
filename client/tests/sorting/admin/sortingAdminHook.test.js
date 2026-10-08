@@ -11,6 +11,7 @@ const hookPath = fileURLToPath(new URL(
     "../../../src/features/sorting/useSortingAdminConnection.js", import.meta.url,
 ));
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 async function setup() {
     const source = await readFile(hookPath, "utf8");
     const { code } = await transformWithEsbuild(source, hookPath, {
@@ -25,21 +26,26 @@ async function setup() {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Capture the interval callback and return a fixed handle.
         setInterval(callback, delay) {
             timers.push({ callback, delay });
             return 9;
         },
+        // Record clear interval calls for assertions.
         clearInterval: (id) => cleared.push(id),
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             const dependencies = {
-                react: { useEffect: (effect, deps) => effects.push({ effect, deps }) },
+                react: { useEffect: /* Capture effects so the test can run them explicitly. */ (effect, deps) => effects.push({ effect, deps }) },
                 "../../config/realtimeBaseUrls": {
                     realtimeBaseUrls: { sorting: "ws://sorting" },
                 },
                 "./connectSortingAdmin": {
+                    // Record connect sorting admin calls for assertions.
                     connectSortingAdmin: (options) => connections.push(options),
                 },
                 "./cleanupStaleSortingGhosts": {
+                    // Record cleanup stale sorting ghosts calls for assertions.
                     cleanupStaleSortingGhosts: (options) => sweeps.push(options),
                 },
                 "./startSortingConnectionLifecycle": { startSortingConnectionLifecycle },
@@ -53,18 +59,27 @@ async function setup() {
 }
 
 test("admin sorting hook preserves socket options, ghost cleanup, and unmount", async () => {
+    // Verify admin sorting hook preserves socket options, ghost cleanup, and unmount.
     const { hook, effects, connections, sweeps, timers, cleared } = await setup();
     const user = { uid: "admin-1" };
     const closed = [];
+    // Provide an inert cancel drag state stub for this test.
     const cancelDragState = () => {};
     const options = {
         auth: { currentUser: user },
-        wsRef: { current: { close: () => closed.push("original") } },
+        wsRef: { current: { close: /* Record close calls for assertions. */ () => closed.push("original") } },
         draggingRef: { current: null },
         ghostTimestampsRef: { current: {} },
-        fetchDataRef: { current: () => {} },
-        setWsConnected() {}, setViewerCount() {}, setGhostCards() {},
+        fetchDataRef: { current: /* Provide an inert current stub for this test. */ () => {} },
+        // Provide an inert set ws connected stub for this test.
+        setWsConnected() {},
+            /* Provide an inert set viewer count stub for this test. */
+            setViewerCount() {},
+            /* Provide an inert set ghost cards stub for this test. */
+            setGhostCards() {},
+        // Provide an inert set locked cards stub for this test.
         setLockedCards() {},
+        // Return cancel drag state to the caller.
         getCancelDragState: () => cancelDragState,
     };
 
@@ -90,7 +105,7 @@ test("admin sorting hook preserves socket options, ghost cleanup, and unmount", 
         assert.equal(sweeps[0][key], options[key]);
     }
 
-    options.wsRef.current = { close: () => closed.push("reconnected") };
+    options.wsRef.current = { close: /* Record close calls for assertions. */ () => closed.push("reconnected") };
     cleanup();
     assert.deepEqual(closed, ["reconnected"]);
     assert.deepEqual(cleared, [9]);

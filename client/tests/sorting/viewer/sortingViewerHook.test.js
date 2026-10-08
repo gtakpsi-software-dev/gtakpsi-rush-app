@@ -11,6 +11,7 @@ const hookPath = fileURLToPath(new URL(
     "../../../src/features/sorting/useSortingViewerConnection.js", import.meta.url,
 ));
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 async function setup() {
     const source = await readFile(hookPath, "utf8");
     const { code } = await transformWithEsbuild(source, hookPath, {
@@ -25,22 +26,27 @@ async function setup() {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Capture interval callbacks and return deterministic handles.
         setInterval(callback, delay) {
             const id = timers.length + 1;
             timers.push({ id, callback, delay });
             return id;
         },
+        // Record clear interval calls for assertions.
         clearInterval: (id) => cleared.push(id),
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             const dependencies = {
-                react: { useEffect: (effect, deps) => effects.push({ effect, deps }) },
+                react: { useEffect: /* Capture effects so the test can run them explicitly. */ (effect, deps) => effects.push({ effect, deps }) },
                 "../../config/realtimeBaseUrls": {
                     realtimeBaseUrls: { sorting: "ws://sorting" },
                 },
                 "./connectSortingViewer": {
+                    // Record connect sorting viewer calls for assertions.
                     connectSortingViewer: (options) => connections.push(options),
                 },
                 "./cleanupStaleSortingGhosts": {
+                    // Record cleanup stale sorting ghosts calls for assertions.
                     cleanupStaleSortingGhosts: (options) => sweeps.push(options),
                 },
                 "./startSortingConnectionLifecycle": { startSortingConnectionLifecycle },
@@ -55,15 +61,21 @@ async function setup() {
 
 for (const showRusheeNames of [true, false]) {
     test(`sorting viewer hook preserves ${showRusheeNames ? "brother" : "bidcom"} socket lifecycle`, async () => {
+        // Verify viewer hook setup, ghost sweeps, and cleanup for each privacy mode.
         const { hook, effects, connections, sweeps, timers, cleared } = await setup();
         const user = { uid: "brother-1" };
         const closed = [];
         const options = {
             auth: { currentUser: user },
-            wsRef: { current: { close: () => closed.push("close") } },
+            wsRef: { current: { close: /* Record close calls for assertions. */ () => closed.push("close") } },
             ghostTimestampsRef: { current: {} },
-            fetchDataRef: { current: () => {} },
-            setWsConnected() {}, setViewerCount() {}, setGhostCards() {},
+            fetchDataRef: { current: /* Provide an inert current stub for this test. */ () => {} },
+            // Provide an inert set ws connected stub for this test.
+            setWsConnected() {},
+                /* Provide an inert set viewer count stub for this test. */
+                setViewerCount() {},
+                /* Provide an inert set ghost cards stub for this test. */
+                setGhostCards() {},
             showRusheeNames,
         };
 
@@ -95,18 +107,24 @@ for (const showRusheeNames of [true, false]) {
 }
 
 test("sorting viewer cleanup closes the latest reconnected socket", async () => {
+    // Verify sorting viewer cleanup closes the latest reconnected socket.
     const { hook, effects } = await setup();
     const closed = [];
-    const wsRef = { current: { close: () => closed.push("original") } };
+    const wsRef = { current: { close: /* Record close calls for assertions. */ () => closed.push("original") } };
     hook({
         auth: { currentUser: null }, wsRef,
         ghostTimestampsRef: { current: {} }, fetchDataRef: { current: null },
-        setWsConnected() {}, setViewerCount() {}, setGhostCards() {},
+        // Provide an inert set ws connected stub for this test.
+        setWsConnected() {},
+            /* Provide an inert set viewer count stub for this test. */
+            setViewerCount() {},
+            /* Provide an inert set ghost cards stub for this test. */
+            setGhostCards() {},
         showRusheeNames: true,
     });
 
     const cleanup = effects[0].effect();
-    wsRef.current = { close: () => closed.push("reconnected") };
+    wsRef.current = { close: /* Record close calls for assertions. */ () => closed.push("reconnected") };
     cleanup();
 
     assert.deepEqual(closed, ["reconnected"]);

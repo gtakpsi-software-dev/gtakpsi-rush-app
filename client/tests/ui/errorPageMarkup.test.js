@@ -9,16 +9,20 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../../src/components/Error.tsx", import.meta.url));
 
-async function loadPage(params, navigate = () => {}) {
+// Load page with injected dependencies for isolated tests.
+async function loadPage(params, navigate = /* Leave this mocked callback inert. */ () => {}) {
     return loadTsxComponent(pagePath, {
         "react-router-dom": {
+            // Return params to the caller.
             useParams: () => params,
+            // Return navigate to the caller.
             useNavigate: () => navigate,
         },
     });
 }
 
 test("error page retains fallback, route, 404, and ignored-prop markup", async () => {
+    // Verify error page retains fallback, route, 404, and ignored-prop markup.
     const cases = {
         fallback: [{}, {}],
         route: [{ title: "Route Title", description: "Route Description" }, {}],
@@ -41,9 +45,11 @@ test("error page retains fallback, route, 404, and ignored-prop markup", async (
 });
 
 test("Go Home keeps navigating to the root", async () => {
+    // Verify Go Home keeps navigating to the root.
     const paths = [];
-    const Page = await loadPage({}, (path) => paths.push(path));
+    const Page = await loadPage({}, /* Record callback arguments for assertions. */ (path) => paths.push(path));
     const tree = Page({});
+    // Find the first button in the rendered element tree.
     const findButton = (node) => {
         if (!React.isValidElement(node)) return null;
         if (node.type === "button") return node;

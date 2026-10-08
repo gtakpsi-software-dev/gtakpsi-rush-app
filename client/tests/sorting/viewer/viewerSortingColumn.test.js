@@ -14,19 +14,22 @@ const fixturePath = fileURLToPath(new URL("../../fixtures/viewerSortingColumn.js
 const first = { id: "r1", fullName: "Ada One", rushNumber: 12, sortingTags: ["night_1", "unknown"] };
 const second = { id: "r2", fullName: "Bea Two", rushNumber: 13, sortingTags: [] };
 
+// Build component props with test-specific overrides.
 function props(overrides = {}) {
     return {
         col: { key: "UNSORTED", label: "Unsorted" },
         columns: { UNSORTED: [first, second] },
         showRusheeNames: true,
+        // Provide an inert on open stub for this test.
         onOpen() {},
         ...overrides,
     };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         collect(node.props.children, elements);
@@ -35,6 +38,7 @@ function collect(node, elements = []) {
 }
 
 test("viewer columns retain brother and bid committee markup from before extraction", async () => {
+    // Verify viewer columns retain brother and bid committee markup from before extraction.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const ViewerSortingColumn = await loadTsxComponent(componentPath, { "./board": { TAGS } });
 
@@ -55,10 +59,11 @@ test("viewer columns retain brother and bid committee markup from before extract
 });
 
 test("viewer cards pass their original row to the page's click handler", async () => {
+    // Verify viewer cards pass their original row to the page's click handler.
     const ViewerSortingColumn = await loadTsxComponent(componentPath, { "./board": { TAGS } });
     const opened = [];
-    const tree = ViewerSortingColumn(props({ onOpen: (row) => opened.push(row) }));
-    const cards = collect(tree).filter((node) => node.props["data-card"]);
+    const tree = ViewerSortingColumn(props({ onOpen: /* Record on open calls for assertions. */ (row) => opened.push(row) }));
+    const cards = collect(tree).filter(/* Match node.props["data-card"]. */ (node) => node.props["data-card"]);
 
     assert.equal(cards.length, 2);
     cards[0].props.onClick();

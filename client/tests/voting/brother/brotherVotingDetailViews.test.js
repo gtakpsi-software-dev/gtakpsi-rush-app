@@ -20,11 +20,14 @@ const rushee = {
     attendance: [], comments: [],
 };
 
+// Render the detail view with a selected rushee and stubbed interactions.
 async function renderView(path, selectedRushee, props = {}) {
     const View = await loadTsxComponent(path, {
         "./BrotherVotingContext": {
+            // Return the use brother voting context fixture for this scenario.
             useBrotherVotingContext: () => ({ rushee: selectedRushee }),
         },
+        // Render a lightweight React element for component assertions.
         "../../../components/RusheeInteractionsByNight": () => (
             React.createElement("span", { "data-stub": "interactions" })
         ),
@@ -33,6 +36,7 @@ async function renderView(path, selectedRushee, props = {}) {
 }
 
 test("brother voting preview and PIS detail states retain their exact markup", async () => {
+    // Verify brother voting preview and PIS detail states retain their exact markup.
     const scenarios = {
         waiting: await renderView(previewPath, null),
         regular: await renderView(previewPath, rushee),
@@ -44,7 +48,7 @@ test("brother voting preview and PIS detail states retain their exact markup", a
             { question: "When?", answer: "" },
         ] }),
     };
-    const hashes = Object.fromEntries(Object.entries(scenarios).map(([name, html]) => [
+    const hashes = Object.fromEntries(Object.entries(scenarios).map(/* Return the fixture for this scenario. */ ([name, html]) => [
         name, createHash("sha256").update(html).digest("hex"),
     ]));
 

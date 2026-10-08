@@ -3,7 +3,8 @@ import test from "node:test";
 
 import { connectSortingAdmin } from "../../../src/features/sorting/connectSortingAdmin.js";
 
-function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
+// Create isolated state, dependency fakes, and captured calls for this test.
+function harness(getCurrentUser = /* Return the fixture for this scenario. */ () => ({ email: "admin@example.edu" })) {
     const sockets = [];
     const reconnects = [];
     const errors = [];
@@ -12,6 +13,7 @@ function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
     const wsRef = { current: null };
 
     class FakeWebSocket {
+        // Register a fake socket with recorded outbound messages and close state.
         constructor(url) {
             this.url = url;
             this.sent = [];
@@ -19,7 +21,9 @@ function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
             sockets.push(this);
         }
 
+        // Record send calls for assertions.
         send(message) { this.sent.push(JSON.parse(message)); }
+        // Update this.closed in the test harness.
         close() { this.closed = true; }
     }
 
@@ -29,19 +33,28 @@ function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
         getCurrentUser,
         draggingRef: { current: { id: "r1" } },
         ghostTimestampsRef: { current: {} },
-        fetchDataRef: { current: () => calls.push("refresh") },
+        fetchDataRef: { current: /* Record current calls for assertions. */ () => calls.push("refresh") },
+        // Update state.connected in the test harness.
         setWsConnected: (value) => { state.connected = value; },
+        // Update state.viewerCount in the test harness.
         setViewerCount: (value) => { state.viewerCount = value; },
+        // Update state.ghosts in the test harness.
         setGhostCards: (update) => {
             state.ghosts = typeof update === "function" ? update(state.ghosts) : update;
         },
+        // Update state.locks in the test harness.
         setLockedCards: (update) => {
             state.locks = typeof update === "function" ? update(state.locks) : update;
         },
+        // Record cancel drag state calls for assertions.
         cancelDragState: () => calls.push("cancel"),
+        // Create a fake socket for the requested URL.
         createWebSocket: (url) => new FakeWebSocket(url),
+        // Record schedule reconnect calls for assertions.
         scheduleReconnect: (callback, delay) => reconnects.push({ callback, delay }),
+        // Provide an inert log stub for this test.
         log: () => {},
+        // Record log error calls for assertions.
         logError: (...args) => errors.push(args),
     });
 
@@ -49,6 +62,7 @@ function harness(getCurrentUser = () => ({ email: "admin@example.edu" })) {
 }
 
 test("admin socket joins as admin, dispatches messages, clears state, and reconnects", () => {
+    // Verify admin socket joins as admin, dispatches messages, clears state, and reconnects.
     const { sockets, reconnects, calls, state, wsRef } = harness();
     const first = sockets[0];
     assert.equal(first.url, "wss://sorting.example/ws");
@@ -77,8 +91,9 @@ test("admin socket joins as admin, dispatches messages, clears state, and reconn
 });
 
 test("admin socket keeps display-name fallback and error handling", () => {
+    // Verify admin socket keeps display-name fallback and error handling.
     let user = { displayName: "Lead Admin", email: "admin@example.edu" };
-    const { sockets, reconnects, errors } = harness(() => user);
+    const { sockets, reconnects, errors } = harness(/* Return user to the caller. */ () => user);
     sockets[0].onopen();
     assert.equal(sockets[0].sent[0].name, "Lead Admin");
 

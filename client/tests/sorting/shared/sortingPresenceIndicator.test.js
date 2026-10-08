@@ -11,11 +11,13 @@ import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 const fixturePath = fileURLToPath(new URL("../../fixtures/sortingPresenceIndicator.json", import.meta.url));
 const componentPath = fileURLToPath(new URL("../../../src/features/sorting/SortingPresenceIndicator.tsx", import.meta.url));
 
+// Load indicator with injected dependencies for isolated tests.
 function loadIndicator() {
     return loadTsxComponent(componentPath);
 }
 
 test("sorting presence badge retains each role's visibility, labels, and styling", async () => {
+    // Verify sorting presence badge retains each role's visibility, labels, and styling.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const SortingPresenceIndicator = await loadIndicator();
     const scenarios = {

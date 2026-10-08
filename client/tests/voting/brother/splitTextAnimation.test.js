@@ -6,6 +6,7 @@ import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../../../src/features/voting/brother/SplitText.tsx", import.meta.url));
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 async function setup({ splitError = false, emptyTargets = false } = {}) {
     const calls = [];
     const element = { style: {} };
@@ -20,6 +21,7 @@ async function setup({ splitError = false, emptyTargets = false } = {}) {
     let splitterOptions;
 
     class Splitter {
+        // Capture text-splitting options and expose targets or simulate failure.
         constructor(_element, options) {
             if (splitError) throw new Error("split failed");
             splitterOptions = options;
@@ -28,26 +30,36 @@ async function setup({ splitError = false, emptyTargets = false } = {}) {
             this.chars = emptyTargets ? [] : targets.chars;
         }
 
+        // Record revert calls for assertions.
         revert() { calls.push("revert"); }
     }
 
     const timeline = {
+        // Record set calls for assertions.
         set: (items, options) => calls.push(["timeline.set", items, options]),
+        // Record to calls for assertions.
         to: (items, options) => calls.push(["timeline.to", items, options]),
+        // Record kill calls for assertions.
         kill: () => calls.push("timeline.kill"),
     };
     const gsap = {
+        // Provide an inert register plugin stub for this test.
         registerPlugin() {},
+        // Capture timeline options and return the fake animation timeline.
         timeline: (options) => {
             timelineOptions = options;
             return timeline;
         },
+        // Record set calls for assertions.
         set: (items, options) => calls.push(["gsap.set", items, options]),
+        // Record kill tweens of calls for assertions.
         killTweensOf: (items) => calls.push(["killTweens", items]),
     };
     const Component = await loadTsxComponent(componentPath, {
         react: {
+            // Provide a mutable ref without mounting a React component.
             useRef: () => refs.shift(),
+            // Update effect in the test harness.
             useEffect: (callback) => { effect = callback; },
         },
         gsap: { gsap },
@@ -56,27 +68,34 @@ async function setup({ splitError = false, emptyTargets = false } = {}) {
     }, {
         window: {},
         console: {
+            // Record error calls for assertions.
             error: (...args) => calls.push(["error", ...args]),
+            // Record warn calls for assertions.
             warn: (...args) => calls.push(["warn", ...args]),
         },
     });
 
     return {
         calls, element, targets,
+        // Render the component and run its captured effect.
         render: (props) => {
             const view = Component(props);
             return { view, cleanup: effect?.() };
         },
+        // Return timeline options to the caller.
         get timelineOptions() { return timelineOptions; },
+        // Return splitter options to the caller.
         get splitterOptions() { return splitterOptions; },
     };
 }
 
 test("character animation retains scroll start, tween settings, callback, and cleanup", async () => {
+    // Verify character animation retains scroll start, tween settings, callback, and cleanup.
     const state = await setup();
     let completed = 0;
     const { view, cleanup } = state.render({
         text: "Hello", className: "headline",
+        // Update completed in the test harness.
         onLetterAnimationComplete: () => { completed += 1; },
     });
 
@@ -94,22 +113,25 @@ test("character animation retains scroll start, tween settings, callback, and cl
     assert.equal(state.calls[1][2].duration, 0.6);
     assert.equal(state.calls[1][2].stagger, 0.1);
     assert.equal(state.calls[0][1], state.targets.chars);
-    assert.deepEqual(state.targets.chars.map((target) => target.style.willChange), [
+    assert.deepEqual(state.targets.chars.map(/* Read each target's animation hint. */ (target) => target.style.willChange), [
         "transform, opacity", "transform, opacity",
     ]);
 
-    const trigger = { kill: () => state.calls.push("trigger.kill") };
+    const trigger = { kill: /* Record kill calls for assertions. */ () => state.calls.push("trigger.kill") };
     state.timelineOptions.scrollTrigger.onToggle(trigger);
     state.timelineOptions.onComplete();
     assert.equal(completed, 1);
     assert.equal(state.calls.at(-1)[0], "gsap.set");
     cleanup();
-    assert.deepEqual(state.calls.slice(-5).map((call) => Array.isArray(call) ? call[0] : call), [
+    assert.deepEqual(state.calls.slice(-5).map(
+        /* Extract the recorded operation name while preserving scalar entries. */
+        (call) => Array.isArray(call) ? call[0] : call), [
         "gsap.set", "timeline.kill", "trigger.kill", "killTweens", "revert",
     ]);
 });
 
 test("line splitting keeps absolute positioning and numeric margin units", async () => {
+    // Verify line splitting keeps absolute positioning and numeric margin units.
     const state = await setup();
     state.render({ text: "Two lines", splitType: "lines", threshold: 0.25, rootMargin: "1.5em" });
 
@@ -128,6 +150,7 @@ test("line splitting keeps absolute positioning and numeric margin units", async
 });
 
 test("failed or empty splitting never creates a timeline", async () => {
+    // Verify failed or empty splitting never creates a timeline.
     const failed = await setup({ splitError: true });
     const failure = failed.render({ text: "Hello" });
     assert.equal(failure.cleanup, undefined);
@@ -138,7 +161,9 @@ test("failed or empty splitting never creates a timeline", async () => {
     const noTargets = empty.render({ text: "Hello" });
     assert.equal(noTargets.cleanup, undefined);
     assert.equal(empty.timelineOptions, undefined);
-    assert.deepEqual(empty.calls.map((call) => Array.isArray(call) ? call[0] : call), [
+    assert.deepEqual(empty.calls.map(
+        /* Extract the recorded operation name while preserving scalar entries. */
+        (call) => Array.isArray(call) ? call[0] : call), [
         "warn", "revert",
     ]);
 });

@@ -16,19 +16,22 @@ const requireFromBanner = createRequire(bannerPath);
 const requireFromView = createRequire(viewPath);
 const storedUser = '{"_id":"b1","firstname":"Sam","lastname":"Brother"}';
 
+// Load banner with injected dependencies for isolated tests.
 async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
     const viewSource = await readFile(viewPath, "utf8");
     const viewCode = await transformWithEsbuild(viewSource, viewPath, {
         loader: "tsx", format: "cjs", jsx: "automatic",
     });
     const viewModule = { exports: {} };
+    // Render a lightweight React element for component assertions.
     function SplitTextStub() {
         return React.createElement("span", { "data-stub": "split" }, "Who?");
     }
     runInNewContext(viewCode.code, {
         module: viewModule,
         exports: viewModule.exports,
-        Math: { random: () => 0.5 },
+        Math: { random: /* Return a fixed value to keep the test deterministic. */ () => 0.5 },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === "./SplitText") {
                 return SplitTextStub;
@@ -45,23 +48,29 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
     const effects = [];
     const requests = [];
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const value = stateIndex++ === 0 ? hasVoted : initial;
                 return [value, noop];
             },
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),
         },
         "./BrotherVotingContext": {
+            // Return the use brother voting context fixture for this scenario.
             useBrotherVotingContext: () => ({ question: "Who?", setQuestion: noop }),
         },
         "./QuestionBannerView": viewModule.exports.default,
-        "react-toastify": { toast: { error: noop, promise: async (request) => request } },
+        "react-toastify": { toast: { error: noop, promise: /* Return request to the caller. */ async (request) => request } },
+        // Render a lightweight React element for component assertions.
         "../../../pages/NotFound": () => React.createElement("div", { "data-stub": "not-found" }),
         axios: {
+            // Record the vote request and return success.
             post: async (url, payload) => {
                 requests.push({ url, payload });
                 return { data: { status: "success" } };
@@ -72,9 +81,10 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => user },
-        Math: { random: () => 0.5 },
+        localStorage: { getItem: /* Return user to the caller. */ () => user },
+        Math: { random: /* Return a fixed value to keep the test deterministic. */ () => 0.5 },
         console: { log: noop },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromBanner(specifier);
@@ -85,6 +95,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
 }
 
 test("question banner retains signed-out, regular, voted, and midterm markup", async () => {
+    // Verify question banner retains signed-out, regular, voted, and midterm markup.
     const cases = {
         noUser: { user: null },
         regular: {},
@@ -111,6 +122,7 @@ test("question banner retains signed-out, regular, voted, and midterm markup", a
 });
 
 test("missing user retains the NotFound gate without skipping the reset hook", async () => {
+    // Verify missing user retains the NotFound gate without skipping the reset hook.
     const { Banner, effects } = await loadBanner({ user: null });
     const tree = Banner({});
 
@@ -119,8 +131,10 @@ test("missing user retains the NotFound gate without skipping the reset hook", a
 });
 
 test("Yes vote retains the API path and brother payload", async () => {
+    // Verify Yes vote retains the API path and brother payload.
     const { Banner, requests } = await loadBanner();
     const tree = Banner({});
+    // Find the Yes button through component and element children.
     const findYes = (node) => {
         if (!React.isValidElement(node)) return null;
         if (node.type === "button" && node.props.children === "Yes") return node;

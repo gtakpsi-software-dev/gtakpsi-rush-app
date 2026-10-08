@@ -3,20 +3,26 @@ import test from "node:test";
 
 import { handleAdminSortingMessage } from "../../../src/features/sorting/handleAdminSortingMessage.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(overrides = {}) {
     const calls = [];
     const state = { viewerCount: null, ghostCards: {}, lockedCards: {} };
     const refs = {
         draggingRef: { current: null },
         ghostTimestampsRef: { current: {} },
-        fetchDataRef: { current: () => calls.push("fetch") },
+        fetchDataRef: { current: /* Record current calls for assertions. */ () => calls.push("fetch") },
     };
     const dependencies = {
         ...refs,
+        // Record viewer-count updates and store the latest count.
         setViewerCount: (count) => { calls.push("viewers"); state.viewerCount = count; },
+        // Apply and record ghost-card updates.
         setGhostCards: (update) => { calls.push("ghosts"); state.ghostCards = update(state.ghostCards); },
+        // Apply and record card-lock updates.
         setLockedCards: (update) => { calls.push("locks"); state.lockedCards = update(state.lockedCards); },
+        // Record cancel drag state calls for assertions.
         cancelDragState: () => calls.push("cancel"),
+        // Record clock reads and return a fixed timestamp.
         now: () => { calls.push("now"); return 12345; },
         ...overrides,
     };
@@ -29,6 +35,7 @@ const remoteDrag = {
 };
 
 test("viewer counts and remote drag starts retain update order and ghost fields", () => {
+    // Verify viewer counts and remote drag starts retain update order and ghost fields.
     const { calls, state, refs, dependencies } = harness();
     handleAdminSortingMessage({ type: "viewer_count", count: 4 }, dependencies);
     handleAdminSortingMessage({ type: "drag_start", ...remoteDrag }, dependencies);
@@ -42,6 +49,7 @@ test("viewer counts and remote drag starts retain update order and ghost fields"
 });
 
 test("self drag messages are ignored and active current drags join as ghosts", () => {
+    // Verify self drag messages are ignored and active current drags join as ghosts.
     const { calls, state, refs, dependencies } = harness();
     refs.draggingRef.current = { id: "r1" };
     handleAdminSortingMessage({ type: "drag_start", ...remoteDrag }, dependencies);
@@ -56,6 +64,7 @@ test("self drag messages are ignored and active current drags join as ghosts", (
 });
 
 test("remote drag movement refreshes timestamps even before its ghost appears", () => {
+    // Verify remote drag movement refreshes timestamps even before its ghost appears.
     const { calls, state, refs, dependencies } = harness();
     const originalGhosts = state.ghostCards;
     handleAdminSortingMessage({ type: "drag_move", rushee_id: "r1", x: 30, y: 40 }, dependencies);
@@ -71,6 +80,7 @@ test("remote drag movement refreshes timestamps even before its ghost appears", 
 });
 
 test("local drag movement does not create a remote ghost or refresh its timestamp", () => {
+    // Verify local drag movement does not create a remote ghost or refresh its timestamp.
     const { calls, state, refs, dependencies } = harness();
     refs.draggingRef.current = { id: "r1" };
     handleAdminSortingMessage({ type: "drag_move", rushee_id: "r1", x: 30, y: 40 }, dependencies);
@@ -80,6 +90,7 @@ test("local drag movement does not create a remote ghost or refresh its timestam
 });
 
 test("drag end clears ghost and lock while a missing ghost retains object identity", () => {
+    // Verify drag end clears ghost and lock while a missing ghost retains object identity.
     const { calls, state, refs, dependencies } = harness();
     handleAdminSortingMessage({ type: "drag_start", ...remoteDrag }, dependencies);
     handleAdminSortingMessage({ type: "drag_end", rushee_id: "r1" }, dependencies);
@@ -95,6 +106,7 @@ test("drag end clears ghost and lock while a missing ghost retains object identi
 });
 
 test("drag denial locks the card and cancels only the matching local drag", () => {
+    // Verify drag denial locks the card and cancels only the matching local drag.
     const { calls, state, refs, dependencies } = harness();
     refs.draggingRef.current = { id: "r1" };
     handleAdminSortingMessage({ type: "drag_denied", rushee_id: "r1", dragger_name: "Other" }, dependencies);
@@ -105,6 +117,7 @@ test("drag denial locks the card and cancels only the matching local drag", () =
 });
 
 test("card movement clears stale drag state and requests a refresh even without an ID", () => {
+    // Verify card movement clears stale drag state and requests a refresh even without an ID.
     const { calls, state, refs, dependencies } = harness();
     handleAdminSortingMessage({ type: "drag_start", ...remoteDrag }, dependencies);
     handleAdminSortingMessage({ type: "card_moved", rushee_id: "r1" }, dependencies);
@@ -117,6 +130,7 @@ test("card movement clears stale drag state and requests a refresh even without 
 });
 
 test("unknown message types have no side effects", () => {
+    // Verify unknown message types have no side effects.
     const { calls, dependencies } = harness();
     handleAdminSortingMessage({ type: "unknown" }, dependencies);
     assert.deepEqual(calls, []);

@@ -20,8 +20,11 @@ const viewPath = fileURLToPath(new URL('../../../src/features/sorting/AdminSorti
 const viewportPath = fileURLToPath(new URL('../../../src/features/sorting/useSortingViewport.js', import.meta.url));
 const fixturePath = fileURLToPath(new URL('../../fixtures/adminSortingPageMarkup.json', import.meta.url));
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(state = {}, captured = new Map()) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement('span', { 'data-stub': name });
     };
@@ -34,6 +37,7 @@ async function loadPage(state = {}, captured = new Map()) {
         './SortingPresenceIndicator': stub('presence'),
         './SortingZoomControls': stub('zoom'),
     });
+    // Capture the rendered view, board root props, and root ref.
     const ViewWithCapture = (props) => {
         captured.set('view', props);
         const tree = View(props);
@@ -49,20 +53,26 @@ async function loadPage(state = {}, captured = new Map()) {
     });
     const module = { exports: {} };
     const requireFromPage = createRequire(pagePath);
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
-    const actions = () => new Proxy({}, { get: () => noop });
+    // Provide inert action handlers for any requested property.
+    const actions = () => new Proxy({}, { get: /* Provide an inert handler for the test. */ () => noop });
     let stateIndex = 0;
     const reactMock = {
         ...React,
+        // Expose controlled hook state and capture updates for assertions.
         useState(initial) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        // Capture effects so the test can run them explicitly.
         useEffect: (effect, deps) => {
             if (!captured.has('effects')) captured.set('effects', []);
             captured.get('effects').push({ effect, deps });
         },
+        // Provide a mutable ref without mounting a React component.
         useRef: (initial) => ({ current: initial }),
+        // Keep the callback callable without a React render cycle.
         useCallback: (callback) => callback,
     };
     const { useSortingViewport } = await loadTsxModule(viewportPath, {
@@ -72,7 +82,7 @@ async function loadPage(state = {}, captured = new Map()) {
     });
     const dependencies = {
         react: reactMock,
-        'react-router-dom': { useNavigate: () => noop },
+        'react-router-dom': { useNavigate: /* Provide an inert handler for the test. */ () => noop },
         'react-toastify': { toast: { error: noop } },
         'react-toastify/dist/ReactToastify.css': {},
         '../components/Navbar': stub('navbar'),
@@ -87,12 +97,14 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/SortingGhostCards': stub('ghosts'),
         '../features/sorting/SortingColumn': stub('column'),
         '../features/sorting/useSortingAdminConnection': {
+            // Invoke captured.set with the test inputs.
             useSortingAdminConnection: (options) => captured.set('admin-connection', options),
         },
         '../features/sorting/createAdminSortingMoveActions': { createAdminSortingMoveActions },
         '../features/sorting/createSortingDragHandlers': { createSortingDragHandlers: actions },
         '../features/sorting/useSortingViewport': { useSortingViewport },
         '../features/sorting/useSortingWheelListener': {
+            // Capture wheel listener arguments without attaching a browser listener.
             useSortingWheelListener: (canvasRef, handleWheel, loading) => {
                 captured.set('wheel-listener', { canvasRef, handleWheel, loading });
             },
@@ -100,6 +112,7 @@ async function loadPage(state = {}, captured = new Map()) {
         '../features/sorting/createSortingNotesHandlers': { createSortingNotesHandlers: actions },
         '../features/sorting/loadAdminSortingData': { loadAdminSortingData: noop },
         '../features/sorting/subscribeToSortingAuth': {
+            // Invoke captured.set with the test inputs.
             subscribeToSortingAuth: (options) => captured.set('auth-subscription', options),
         },
     };
@@ -107,6 +120,7 @@ async function loadPage(state = {}, captured = new Map()) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -117,6 +131,7 @@ async function loadPage(state = {}, captured = new Map()) {
 }
 
 test('admin sorting page keeps loading, board, drag, and notes layout', async () => {
+    // Verify admin sorting page keeps loading, board, drag, and notes layout.
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: {},
@@ -134,6 +149,7 @@ test('admin sorting page keeps loading, board, drag, and notes layout', async ()
 });
 
 test('admin sorting page passes board state and callbacks to its controls', async () => {
+    // Verify admin sorting page passes board state and callbacks to its controls.
     const captured = new Map();
     const columns = { ...createEmptyColumns(), UNSORTED: [{ id: 'r1' }] };
     const dragging = { id: 'r1', fromColumn: 'UNSORTED', index: 0 };
@@ -168,6 +184,7 @@ test('admin sorting page passes board state and callbacks to its controls', asyn
 });
 
 test('admin sorting retains the auth effect after its drag-ref effect', async () => {
+    // Verify admin sorting retains the auth effect after its drag-ref effect.
     const captured = new Map();
     const Page = await loadPage({ 1: false }, captured);
     renderToStaticMarkup(React.createElement(Page));

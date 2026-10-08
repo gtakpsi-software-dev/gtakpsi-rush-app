@@ -14,6 +14,7 @@ import { parseAdminAllowlist } from "../../src/features/auth/parseAdminAllowlist
 const navbarPath = fileURLToPath(new URL("../../src/components/Navbar.tsx", import.meta.url));
 const requireFromNavbar = createRequire(navbarPath);
 
+// Render the navbar with controlled state and hash its markup.
 async function renderNavbar(state, props = {}, midterm = false) {
     const source = (await readFile(navbarPath, "utf8"))
         .replaceAll("import.meta.env.VITE_ADMIN_ALLOWLIST", '""');
@@ -21,10 +22,12 @@ async function renderNavbar(state, props = {}, midterm = false) {
         loader: "tsx", format: "cjs", jsx: "automatic",
     });
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial, noop];
@@ -36,15 +39,18 @@ async function renderNavbar(state, props = {}, midterm = false) {
         "../features/auth/parseAdminAllowlist": { parseAdminAllowlist },
         "../firebase": { auth: {} },
         "../contexts/MidtermModeContext": {
+            // Return the use midterm mode fixture for this scenario.
             useMidtermMode: () => ({ isMidtermMode: midterm }),
         },
         "../features/navigation/loadNavbarAuth": { loadNavbarAuth: noop },
+        // Render a lightweight React element for component assertions.
         "../features/navigation/NavbarMenu": () => React.createElement("span", { "data-stub": "menu" }),
     };
     const module = { exports: {} };
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromNavbar(specifier);
@@ -56,6 +62,7 @@ async function renderNavbar(state, props = {}, midterm = false) {
 }
 
 test("Navbar retains loading, access, stripped, and midterm markup", async () => {
+    // Verify Navbar retains loading, access, stripped, and midterm markup.
     const ready = { 3: true, 4: false };
     const actual = {
         loading: await renderNavbar({}),

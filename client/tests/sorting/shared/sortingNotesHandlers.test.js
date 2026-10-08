@@ -4,8 +4,10 @@ import test from "node:test";
 import { harness, rushee } from "../../helpers/sortingNotesHarness.js";
 
 test("opening notes keeps the request path and success fallbacks", async () => {
+    // Verify opening notes keeps the request path and success fallbacks.
     const urls = [];
     const { handlers, calls, state } = harness({
+        // Record note lookup and return success.
         getNotes: async (url) => { urls.push(url); return { data: { status: "success" } }; },
     });
     await handlers.openNotes(rushee);
@@ -19,13 +21,16 @@ test("opening notes keeps the request path and success fallbacks", async () => {
 });
 
 test("bid committee notes use the same save behavior with the bidcom endpoint", async () => {
+    // Verify bid committee notes use the same save behavior with the bidcom endpoint.
     const requests = [];
     const { handlers, state } = harness({
         apiBase: "/api/bidcom",
+        // Record note lookup and return existing notes and tags.
         getNotes: async (url) => {
             requests.push(["get", url]);
             return { data: { status: "success", sortingNotes: "Read", sortingTags: ["pis"] } };
         },
+        // Record note updates and return success.
         putNotes: async (url, payload) => {
             requests.push(["put", url, payload]);
             return { data: { status: "success" } };
@@ -45,7 +50,9 @@ test("bid committee notes use the same save behavior with the bidcom endpoint", 
 });
 
 test("opening notes retains saved values and clears them on failed responses or requests", async () => {
+    // Verify opening notes retains saved values and clears them on failed responses or requests.
     const success = harness({
+        // Return the notes fixture for this scenario.
         getNotes: async () => ({ data: { status: "success", sortingNotes: "Review", sortingTags: ["pis"] } }),
     });
     await success.handlers.openNotes(rushee);
@@ -54,8 +61,10 @@ test("opening notes retains saved values and clears them on failed responses or 
     assert.equal(success.state.notesStatus, "idle");
 
     for (const getNotes of [
-        async () => ({ data: { status: "error" } }),
-        async () => { throw new Error("offline"); },
+        /* Return the fixture for this scenario. */ async () => ({ data: { status: "error" } }),
+        async () => {
+            // Simulate a dependency failure for this scenario.
+             throw new Error("offline"); },
     ]) {
         const failed = harness({ getNotes });
         await failed.handlers.openNotes(rushee);
@@ -66,6 +75,7 @@ test("opening notes retains saved values and clears them on failed responses or 
 });
 
 test("closing notes resets state and cancels both pending edits", () => {
+    // Verify closing notes resets state and cancels both pending edits.
     const { handlers, calls, state, notesTimer, tagsTimer } = harness();
     notesTimer.current = { cancelled: false };
     tagsTimer.current = { cancelled: false };
@@ -80,8 +90,10 @@ test("closing notes resets state and cancels both pending edits", () => {
 });
 
 test("successful save preserves payload, board tags, status order, and 800 ms reset", async () => {
+    // Verify successful save preserves payload, board tags, status order, and 800 ms reset.
     const requests = [];
     const { handlers, calls, timers, state } = harness({
+        // Record note updates and return success.
         putNotes: async (url, payload) => {
             requests.push([url, payload]);
             return { data: { status: "success" } };
@@ -92,7 +104,7 @@ test("successful save preserves payload, board tags, status order, and 800 ms re
     assert.deepEqual(requests, [["/api/admin/rushees/r1/notes", {
         sortingNotes: "Review", sortingTags: updatedTags,
     }]]);
-    assert.deepEqual(calls.map(([type, value]) => [type, type === "columns" ? null : value]), [
+    assert.deepEqual(calls.map(/* Return the fixture for this scenario. */ ([type, value]) => [type, type === "columns" ? null : value]), [
         ["status", "saving"], ["columns", null], ["status", "saved"], ["schedule", 800],
     ]);
     assert.equal(state.columns.UNSORTED[0].sortingTags, updatedTags);
@@ -102,13 +114,16 @@ test("successful save preserves payload, board tags, status order, and 800 ms re
 });
 
 test("missing selection does nothing and failed saves show error without changing board", async () => {
+    // Verify missing selection does nothing and failed saves show error without changing board.
     const absent = harness({ selectedRushee: null });
     await absent.handlers.saveNotes("Text", []);
     assert.deepEqual(absent.calls, []);
 
     for (const putNotes of [
-        async () => ({ data: { status: "error" } }),
-        async () => { throw new Error("offline"); },
+        /* Return the fixture for this scenario. */ async () => ({ data: { status: "error" } }),
+        async () => {
+            // Simulate a dependency failure for this scenario.
+             throw new Error("offline"); },
     ]) {
         const failed = harness({ putNotes });
         const original = failed.state.columns;
@@ -120,8 +135,10 @@ test("missing selection does nothing and failed saves show error without changin
 });
 
 test("text edits debounce for 500 ms with the current rendered tags", async () => {
+    // Verify text edits debounce for 500 ms with the current rendered tags.
     const requests = [];
     const { handlers, calls, timers, notesTimer, state } = harness({
+        // Record tag updates and return success.
         putNotes: async (url, payload) => {
             requests.push([url, payload]);
             return { data: { status: "success" } };
@@ -129,7 +146,7 @@ test("text edits debounce for 500 ms with the current rendered tags", async () =
     });
     notesTimer.current = { cancelled: false };
     handlers.onNotesChange({ target: { value: "Draft" } });
-    assert.deepEqual(calls.slice(0, 3).map(([type]) => type), ["notes", "cancel", "schedule"]);
+    assert.deepEqual(calls.slice(0, 3).map(/* Return type to the caller. */ ([type]) => type), ["notes", "cancel", "schedule"]);
     assert.equal(notesTimer.current, timers[0]);
     assert.equal(timers[0].delay, 500);
     assert.equal(state.notes, "Draft");
@@ -141,6 +158,7 @@ test("text edits debounce for 500 ms with the current rendered tags", async () =
 });
 
 test("tag toggles debounce for 300 ms with the current rendered notes", async () => {
+    // Verify tag toggles debounce for 300 ms with the current rendered notes.
     for (const [initialTags, expectedTags] of [
         [["night_1"], []],
         [[], ["night_1"]],
@@ -148,6 +166,7 @@ test("tag toggles debounce for 300 ms with the current rendered notes", async ()
         const requests = [];
         const { handlers, timers, tagsTimer, state } = harness({
             tags: initialTags,
+            // Record tag updates and return success.
             putNotes: async (url, payload) => {
                 requests.push([url, payload]);
                 return { data: { status: "success" } };

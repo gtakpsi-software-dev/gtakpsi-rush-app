@@ -22,6 +22,7 @@ const scenarios = [
 
 for (const [value, colors] of scenarios) {
     test(`badge retains markup for ${value ?? 'missing text'}`, async () => {
+        // Verify badge text and styling for the current scenario.
         const Badge = await loadTsxComponent(badgePath);
         const html = renderToStaticMarkup(React.createElement(Badge, { text: value }));
         assert.equal(html, `<span class="h-6 ${colors} ${baseClass}">${value ?? ''}</span>`);
