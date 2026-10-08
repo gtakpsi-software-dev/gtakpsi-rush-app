@@ -6,6 +6,7 @@ type ErrorPageProps = {
     description?: string;
 };
 
+// Display a routed error message or the not-found view with a home button.
 export default function MyError(props: ErrorPageProps) {
 
     const { title, description } = useParams()
@@ -61,7 +62,7 @@ export default function MyError(props: ErrorPageProps) {
 
                 <div className="animate-slide-up" style={{animationDelay: '0.3s'}}>
                     <button 
-                        onClick={() => navigate("/")} 
+                        onClick={/* Navigate back to the home page. */ () => navigate("/")}
                         className="btn-apple px-8 py-4 text-apple-headline"
                     >
                         Go Home

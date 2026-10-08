@@ -13,6 +13,7 @@ type ForgotPasswordViewProps = {
     onTryAgain: MouseEventHandler<HTMLButtonElement>;
 };
 
+// Render the password-reset form or the email-sent confirmation.
 export default function ForgotPasswordView(props: ForgotPasswordViewProps) {
     return (
         <div className="bg-white min-h-screen">

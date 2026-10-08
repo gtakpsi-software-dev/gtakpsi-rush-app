@@ -1,3 +1,4 @@
+// Check app access and sign out on an explicit denial, retaining access when the check fails.
 export async function checkRushAppAccess({
     user,
     isAdmin,

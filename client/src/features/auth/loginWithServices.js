@@ -1,6 +1,7 @@
 import { loginErrorMessage } from "./errorMessages.js";
 import { loginStoredUser } from "./userSession.js";
 
+// Sign in, check app access, and persist the user only after access is allowed.
 export async function loginWithServices(credentials, {
     auth,
     signInWithEmailAndPassword,

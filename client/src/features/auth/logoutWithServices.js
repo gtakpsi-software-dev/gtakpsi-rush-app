@@ -1,3 +1,4 @@
+// Sign out and remove the local session, retaining it if Firebase sign-out fails.
 export async function logoutWithServices({ auth, signOut, removeStoredUser, logger }) {
     try {
         await signOut(auth);

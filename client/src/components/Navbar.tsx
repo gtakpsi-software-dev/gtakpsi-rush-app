@@ -12,6 +12,7 @@ const ADMIN_ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST
 
 type NavbarProps = { stripped?: boolean };
 
+// Render authenticated navigation with role-based menus and midterm-mode links.
 export default function Navbar(props: NavbarProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [showMore, setShowMore] = useState(false);
@@ -24,6 +25,7 @@ export default function Navbar(props: NavbarProps) {
     const { isMidtermMode } = useMidtermMode();
 
     useEffect(() => {
+        // Load authentication and role state when navigation mounts.
         loadNavbarAuth({
             verifyUser,
             auth,
@@ -55,6 +57,7 @@ export default function Navbar(props: NavbarProps) {
                     </a>
                     <button
                         onClick={() => {
+                            // Toggle the mobile navigation menu.
                             setShowMenu(!showMenu);
                         }}
                         type="button"
@@ -101,7 +104,7 @@ export default function Navbar(props: NavbarProps) {
                             setShowMore={setShowMore}
                             setShowAdmin={setShowAdmin}
                             logout={logout}
-                            reload={() => window.location.reload()}
+                            reload={/* Reload the page after the menu requests a refresh. */ () => window.location.reload()}
                         />
                     </div>
                 </div>

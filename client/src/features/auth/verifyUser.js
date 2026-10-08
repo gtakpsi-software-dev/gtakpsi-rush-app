@@ -3,9 +3,12 @@ import { auth, signOut } from "../../firebase";
 
 const api = import.meta.env.VITE_API_PREFIX;
 
+// Verify the Firebase session, check app access, and synchronize the locally stored user.
 export async function verifyUser() {
     return new Promise((resolve) => {
+        // Wait for the first authentication result to resolve session verification.
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            // Check the current user once, clear denied sessions, and refresh stored identity fields.
             unsubscribe();
 
             if (user) {

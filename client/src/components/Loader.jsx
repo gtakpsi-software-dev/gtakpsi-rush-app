@@ -1,4 +1,5 @@
 
+// Render the full-page loading spinner and label.
 export default function Loader() {
 
     return (

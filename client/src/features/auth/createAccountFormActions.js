@@ -1,3 +1,4 @@
+// Create account-form validation, submission, and Enter-key handlers.
 export function createAccountFormActions({
     firstName,
     lastName,
@@ -9,6 +10,7 @@ export function createAccountFormActions({
     createAccount,
     navigate,
 }) {
+    // Show an account-form validation error toast.
     const showValidationError = (message) => {
         toast.error(message, {
             position: "top-center",
@@ -17,6 +19,7 @@ export function createAccountFormActions({
         });
     };
 
+    // Validate account fields, create the account, and navigate after success.
     const handleCreateAccount = async () => {
         // Check in this order so the first validation error stops account creation.
         if (!firstName.current?.value || !lastName.current?.value) {
@@ -60,6 +63,7 @@ export function createAccountFormActions({
         }
     };
 
+    // Submit the account form when Enter is pressed.
     const handleKeyPress = (event) => {
         if (event.key === "Enter") {
             handleCreateAccount();

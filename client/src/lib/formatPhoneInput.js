@@ -1,3 +1,4 @@
+// Strip nondigits and format complete or partial US phone-number input.
 export function formatPhoneInput(value) {
     const digits = value.replace(/\D/g, "");
     return digits

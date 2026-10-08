@@ -1,3 +1,4 @@
+// Render a label with the color assigned to its rush-night name.
 export default function Badge(props: { text?: string }) {
     let css = "bg-apple-gray-100 text-apple-gray-700 text-apple-caption1 font-light me-2 px-2 py-1 rounded-apple whitespace-nowrap";
 

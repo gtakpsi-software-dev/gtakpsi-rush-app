@@ -15,6 +15,7 @@ type CreateAccountViewProps = {
     handleKeyPress: KeyboardEventHandler<HTMLInputElement>;
 };
 
+// Render the brother account form and its loading state.
 export default function CreateAccountView(props: CreateAccountViewProps) {
     return (
         <div className="bg-white min-h-screen">

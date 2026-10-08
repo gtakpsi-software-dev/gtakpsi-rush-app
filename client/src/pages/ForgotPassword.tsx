@@ -4,12 +4,14 @@ import type { KeyboardEvent } from "react";
 import { resetPassword } from "../features/auth/account";
 import ForgotPasswordView from "../features/auth/ForgotPasswordView";
 
+// Manage password-reset submission and the email-sent confirmation.
 export default function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
 
     const email = useRef<HTMLInputElement>(null);
 
+    // Send a reset email for the entered address and update loading and confirmation state.
     const handleResetPassword = async () => {
         if (!email.current?.value) {
             return;
@@ -26,6 +28,7 @@ export default function ForgotPassword() {
         }
     };
 
+    // Submit the password-reset form when Enter is pressed.
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             handleResetPassword();
@@ -39,7 +42,7 @@ export default function ForgotPassword() {
             email={email}
             handleResetPassword={handleResetPassword}
             handleKeyPress={handleKeyPress}
-            onTryAgain={() => setEmailSent(false)}
+            onTryAgain={/* Return from the confirmation to the password-reset form. */ () => setEmailSent(false)}
         />
     );
 }
