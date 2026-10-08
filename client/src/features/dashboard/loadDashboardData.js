@@ -1,3 +1,4 @@
+// Verify access and load brother availability plus the shuffled dashboard rushees.
 export async function loadDashboardData({
     verifyUser,
     navigate,
@@ -19,6 +20,7 @@ export async function loadDashboardData({
     setLoading(true);
     await verifyUser()
         .then(async (response) => {
+            // Process verification, load the brother profile and availability, then request rushees.
             if (response === false) {
                 navigate("/");
             }
@@ -57,6 +59,7 @@ export async function loadDashboardData({
             await axios
                 .get(`${api}/rushee/get-rushees`)
                 .then((response) => {
+                    // Store a shuffled successful response or report a rushee-loading error.
                     if (response.data.status === "success") {
                         console.log(response.data.payload.length)
 
@@ -69,11 +72,13 @@ export async function loadDashboardData({
                     }
                 })
                 .catch(() => {
+                    // Report a network failure while fetching rushees.
                     setErrorDescription("There was some network error while fetching the rushees.");
                     setError(true);
                 });
         })
         .catch(() => {
+            // Report a failure to verify the current user.
             setErrorDescription("There was an error verifying your credentials.");
             setError(true);
         });

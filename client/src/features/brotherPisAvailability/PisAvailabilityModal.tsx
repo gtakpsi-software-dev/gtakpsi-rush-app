@@ -38,6 +38,8 @@ export default function PisAvailabilityModal({ user, onSubmit }: PisAvailability
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
+        // Load available PIS timeslots when the API URL changes.
+        // Fetch and sort timeslots, reporting failures and finishing the loading state.
         const fetchTimeslots = async () => {
             try {
                 const response = await axios.get(`${api}/admin/get_pis_timeslots`);
@@ -55,6 +57,7 @@ export default function PisAvailabilityModal({ user, onSubmit }: PisAvailability
         fetchTimeslots();
     }, [api]);
 
+    // Toggle one timeslot in a new copy of the selected set.
     const toggleSlot = (slotTime) => {
         const newSelected = new Set(selectedSlots);
         if (newSelected.has(slotTime)) {
@@ -65,14 +68,17 @@ export default function PisAvailabilityModal({ user, onSubmit }: PisAvailability
         setSelectedSlots(newSelected);
     };
 
+    // Select every available timeslot.
     const selectAll = () => {
         setSelectedSlots(selectAllTimeslots(timeslots));
     };
 
+    // Clear all selected timeslots.
     const clearAll = () => {
         setSelectedSlots(new Set());
     };
 
+    // Submit the current user’s selected availability and update submission state.
     const handleSubmit = () => submitAvailability({
         user,
         selectedSlots,

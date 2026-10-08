@@ -9,6 +9,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { createAttendanceActions } from "../features/attendance/createAttendanceActions";
 
+// Connect GTID lookup and check-in actions to the attendance screens.
 export default function Attendance() {
     const [gtid, setGtid] = useState();
     const [page, setPage] = useState(0);
@@ -19,10 +20,13 @@ export default function Attendance() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Run the existing verification and rushee-fetch flow when loading is true.
+        // Verify access and attempt to populate the existing rushee-list state.
         async function fetch() {
             setLoading(true);
             await verifyUser()
                 .then(async (response) => {
+                    // Redirect failed verification and continue the rushee-list request.
                     if (response === false) {
                         navigate("/");
                     }
@@ -30,6 +34,7 @@ export default function Attendance() {
                     await axios
                         .get(`${api}/rushee/get-rushees`)
                         .then((response) => {
+                            // Pass the response to the existing rushee-list or error setters.
                             if (response.data.status === "success") {
                                 setRushees(response.data.payload);
                                 setFilteredRushees(response.data.payload);
@@ -41,11 +46,13 @@ export default function Attendance() {
                             }
                         })
                         .catch(() => {
+                            // Pass a network error to the existing error setters.
                             setErrorDescription("There was some network error while fetching the rushees.");
                             setError(true);
                         });
                 })
                 .catch(() => {
+                    // Pass a verification error to the existing error setters.
                     setErrorDescription("There was an error verifying your credentials.");
                     setError(true);
                 });
@@ -60,7 +67,7 @@ export default function Attendance() {
 
     const { handleSubmit, goBack, checkIn } = createAttendanceActions({
         api, gtid, setLoading, setPage, setRushee, setGtid,
-        axios, toast, log: (value) => console.log(value),
+        axios, toast, log: /* Log an attendance lookup or request result. */ (value) => console.log(value),
     });
 
     return (

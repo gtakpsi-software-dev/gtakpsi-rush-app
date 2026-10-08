@@ -18,6 +18,7 @@ type Props = {
     onView: () => void;
 };
 
+// Display a rushee’s details, attendance, and PIS appointment time.
 export default function PisAppointmentCard({ rushee, formattedTime, relativeTime, onView }: Props) {
     return (
         <div className="card-apple overflow-hidden">
@@ -35,7 +36,7 @@ export default function PisAppointmentCard({ rushee, formattedTime, relativeTime
                                 {rushee.name}
                             </h2>
                             <div className="flex flex-wrap gap-1">
-                                {rushee.attendance?.map((event, idx) => (
+                                {rushee.attendance?.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                                     <Badges text={event.name} key={idx} />
                                 ))}
                             </div>

@@ -15,6 +15,7 @@ type DisplayInfoProps = {
     checkIn: () => void;
 };
 
+// Show the matched rushee profile with back and check-in actions.
 export default function DisplayInfo(props: DisplayInfoProps) {
     const initialRushee = props.rushee;
 

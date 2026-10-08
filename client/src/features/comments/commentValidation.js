@@ -37,6 +37,7 @@ export const SPECULATIVE_WORDS = [
     "effective", "ineffective", "valuable", "worthless"
 ];
 
+// Find whole-word speculative phrases and return unique matches in word-bank order.
 export const checkSpeculativeLanguage = (comment) => {
     if (!comment || typeof comment !== 'string') {
         return { hasSpeculativeLanguage: false, flaggedWords: [] };
@@ -46,6 +47,7 @@ export const checkSpeculativeLanguage = (comment) => {
     const flaggedWords = [];
 
     SPECULATIVE_WORDS.forEach(word => {
+        // Record a speculative phrase when its word-boundary pattern matches.
         // Word boundaries keep partial words from triggering a warning.
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         if (regex.test(lowerComment)) {
@@ -59,6 +61,7 @@ export const checkSpeculativeLanguage = (comment) => {
     };
 };
 
+// Detect occurrences of the rushee’s first, last, or full name in a comment.
 export const checkRusheeName = (comment, rusheeFirstName, rusheeLastName) => {
     if (!comment || !rusheeFirstName || !rusheeLastName) {
         return { hasRusheeName: false, foundNames: [] };
@@ -90,6 +93,7 @@ export const checkRusheeName = (comment, rusheeFirstName, rusheeLastName) => {
     };
 };
 
+// Combine speculative-language and name checks into a validation result.
 export const validateComment = (comment, rusheeFirstName, rusheeLastName) => {
     const speculativeCheck = checkSpeculativeLanguage(comment);
     const nameCheck = checkRusheeName(comment, rusheeFirstName, rusheeLastName);
@@ -102,6 +106,7 @@ export const validateComment = (comment, rusheeFirstName, rusheeLastName) => {
     };
 };
 
+// Build warning messages from the detected speculative phrases and names.
 export const generateWarnings = (validationResult) => {
     const warnings = [];
 

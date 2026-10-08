@@ -13,6 +13,7 @@ type DashboardFiltersProps = {
     onShuffle: () => void;
 };
 
+// Render search, major, class, sorting, and shuffle controls.
 export default function DashboardFilters({
     query,
     handleSearch,
@@ -42,11 +43,15 @@ export default function DashboardFilters({
                     <div>
                         <select
                             value={selectedMajor}
-                            onChange={(e) => setSelectedMajor(e.target.value)}
+                            onChange={/* Update the selected major filter. */ (e) => setSelectedMajor(e.target.value)}
                             className="input-apple text-apple-body"
                         >
                             <option value="All">All Majors</option>
-                            {Array.from(new Set(rushees.map((rushee) => rushee.major))).map((major, idx) => (
+                            {Array.from(new Set(rushees.map(
+                                /* Extract the major for the unique filter options. */
+                                (rushee) => rushee.major))).map(
+                                /* Render a major filter option. */
+                                (major, idx) => (
                                 <option key={idx} value={major}>
                                     {major}
                                 </option>
@@ -57,11 +62,15 @@ export default function DashboardFilters({
                     <div>
                         <select
                             value={selectedClass}
-                            onChange={(e) => setSelectedClass(e.target.value)}
+                            onChange={/* Update the selected class filter. */ (e) => setSelectedClass(e.target.value)}
                             className="input-apple text-apple-body"
                         >
                             <option value="All">All Years</option>
-                            {Array.from(new Set(rushees.map((rushee) => rushee.class))).map((classYear, idx) => (
+                            {Array.from(new Set(rushees.map(
+                                /* Extract the class year for the unique filter options. */
+                                (rushee) => rushee.class))).map(
+                                /* Render a class-year filter option. */
+                                (classYear, idx) => (
                                 <option key={idx} value={classYear}>
                                     {classYear}
                                 </option>
@@ -72,7 +81,7 @@ export default function DashboardFilters({
                     <div>
                         <select
                             value={selectedSort}
-                            onChange={(e) => setSelectedSort(e.target.value)}
+                            onChange={/* Update the selected sort order. */ (e) => setSelectedSort(e.target.value)}
                             className="input-apple text-apple-body"
                         >
                             <option value="none">No Sorting</option>

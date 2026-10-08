@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommentsView from "../features/comments/CommentsView";
 
+// Load the current brother’s comments and connect profile navigation to the view.
 const Comments = () => {
   const navigate = useNavigate();
   const [commentsData, setCommentsData] = useState([]);
@@ -9,6 +10,8 @@ const Comments = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+      // Fetch the brother’s comments when the page mounts.
+    // Request comments by the stored brother name and update loading or error state.
     const fetchComments = async () => {
       setLoading(true);
       setError(null);
@@ -46,7 +49,7 @@ const Comments = () => {
       loading={loading}
       error={error}
       commentsData={commentsData}
-      onOpenProfile={(gtid) => navigate(`/brother/rushee/${gtid}`)}
+      onOpenProfile={/* Open the profile for the selected GTID. */ (gtid) => navigate(`/brother/rushee/${gtid}`)}
     />
   );
 };

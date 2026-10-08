@@ -16,6 +16,7 @@ type PisAvailabilityViewProps = {
     handleSubmit: () => void;
 };
 
+// Render grouped availability choices and the submission controls.
 export default function PisAvailabilityView({
     loading,
     timeslots,
@@ -71,13 +72,14 @@ export default function PisAvailabilityView({
                             </div>
 
                             <div className="space-y-6">
-                                {Object.entries(groupedSlots).map(([dateKey, slots]) => (
+                                {Object.entries(groupedSlots).map(/* Render one day’s available timeslots. */ ([dateKey, slots]) => (
                                     <div key={dateKey}>
                                         <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
                                             {dateKey}
                                         </h3>
                                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                             {slots.map((slot, idx) => {
+                                                // Render a timeslot button with its current selection state.
                                                 const slotIso = timeslotIso(slot);
                                                 const isSelected = selectedSlots.has(slotIso);
                                                 const { time } = formatTimeslot(slot);
@@ -85,7 +87,7 @@ export default function PisAvailabilityView({
                                                 return (
                                                     <button
                                                         key={idx}
-                                                        onClick={() => toggleSlot(slotIso)}
+                                                        onClick={/* Toggle this timeslot’s selection. */ () => toggleSlot(slotIso)}
                                                         className={`
                                                             px-3 py-2.5 rounded-apple-lg text-apple-footnote font-light
                                                             transition-all duration-150

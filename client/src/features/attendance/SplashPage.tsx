@@ -9,6 +9,7 @@ type Props = {
     gtid?: string;
 };
 
+// Render GTID entry with validation and a registration link.
 export default function SplashPage(props: Props) {
 
     const [inputValue, setInputValue] = useState("");
@@ -16,6 +17,7 @@ export default function SplashPage(props: Props) {
 
     const navigate = useNavigate()
 
+    // Update the entered GTID and show an error when it is invalid.
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         props.setGtid(e.target.value);
         setInputValue(e.target.value)
@@ -57,7 +59,7 @@ export default function SplashPage(props: Props) {
 
             <div className="relative z-10 text-center max-w-md w-full">
                 <button 
-                    onClick={() => navigate("/register")}
+                    onClick={/* Open the rushee registration page. */ () => navigate("/register")}
                     className="inline-flex items-center gap-2 py-2 px-4 mb-8 text-apple-footnote text-apple-gray-600 bg-apple-gray-100 hover:bg-apple-gray-200 rounded-apple-2xl transition-all duration-200 font-light"
                 >
                     <span>{"Don't"} have an account? Create one now</span>

@@ -16,6 +16,7 @@ type AttendanceViewProps = {
     checkIn: () => void;
 };
 
+// Render the loading, GTID entry, identity confirmation, or check-in success screen.
 export default function AttendanceView({
     loading, page, gtid, setGtid, rushee, handleSubmit, goBack, checkIn,
 }: AttendanceViewProps) {

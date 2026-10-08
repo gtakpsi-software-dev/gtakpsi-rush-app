@@ -7,11 +7,13 @@ type Props = {
     onDismiss?: (index: number) => void;
 };
 
+// Display validation warnings with optional dismissal controls.
 const CommentWarning = ({ warnings, onDismiss }: Props) => {
     if (!warnings || warnings.length === 0) {
         return null;
     }
 
+    // Choose the icon for a speculative-language, name, or general warning.
     const getIcon = (type: string) => {
         switch (type) {
             case 'speculative':
@@ -23,6 +25,7 @@ const CommentWarning = ({ warnings, onDismiss }: Props) => {
         }
     };
 
+    // Choose border and background colors for the warning type.
     const getWarningClass = (type: string) => {
         switch (type) {
             case 'speculative':
@@ -36,7 +39,7 @@ const CommentWarning = ({ warnings, onDismiss }: Props) => {
 
     return (
         <div className="mb-4 space-y-2">
-            {warnings.map((warning, index) => (
+            {warnings.map(/* Render one validation warning and its optional dismiss button. */ (warning, index) => (
                 <div
                     key={index}
                     className={`flex items-start p-4 rounded-apple border ${getWarningClass(warning.type)}`}
@@ -51,7 +54,7 @@ const CommentWarning = ({ warnings, onDismiss }: Props) => {
                     </div>
                     {onDismiss && (
                         <button
-                            onClick={() => onDismiss(index)}
+                            onClick={/* Dismiss the warning at this index. */ () => onDismiss(index)}
                             className="flex-shrink-0 ml-2 text-apple-gray-600 hover:text-black text-lg font-light"
                         >
                             ×

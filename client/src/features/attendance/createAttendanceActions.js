@@ -1,3 +1,4 @@
+// Show an attendance error using the shared toast options.
 function showAttendanceError(toast, message) {
     toast.error(message, {
         position: "top-center",
@@ -11,14 +12,17 @@ function showAttendanceError(toast, message) {
     });
 }
 
+// Create rushee lookup, back, and check-in actions for the attendance flow.
 export function createAttendanceActions({
     api, gtid, setLoading, setPage, setRushee, setGtid, axios, toast, log,
 }) {
+    // Look up the entered GTID while displaying the loading state.
     const handleSubmit = async () => {
         setLoading(true);
 
         await axios.get(`${api}/rushee/${gtid}`)
             .then((response) => {
+                // Show the matched profile or report an unsuccessful lookup.
                 if (response.data.status == "success") {
                     setPage(1);
                     setRushee(response.data.payload);
@@ -28,6 +32,7 @@ export function createAttendanceActions({
                 }
             })
             .catch((error) => {
+                // Log a failed lookup request and show a network error.
                 log(error);
                 showAttendanceError(toast, "Some internal network error occurred");
             });
@@ -35,17 +40,20 @@ export function createAttendanceActions({
         setLoading(false);
     };
 
+    // Clear the selected rushee and return to GTID entry.
     const goBack = () => {
         setGtid();
         setPage(0);
         setRushee();
     };
 
+    // Record attendance for the selected GTID and update the loading state.
     const checkIn = async () => {
         setLoading(true);
 
         await axios.post(`${api}/rushee/update-attendance/${gtid}`)
             .then((response) => {
+                // Show check-in confirmation or report an unsuccessful attendance update.
                 if (response.data.status == "success") {
                     setPage(2);
                 } else {
@@ -53,6 +61,7 @@ export function createAttendanceActions({
                 }
             })
             .catch((error) => {
+                // Log a failed attendance request and show a network error.
                 log(error);
                 showAttendanceError(toast, "Some internal network error occurred");
             });

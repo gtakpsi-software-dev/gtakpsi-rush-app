@@ -20,6 +20,7 @@ type DashboardRusheeCardProps = {
     onOpen: () => void;
 };
 
+// Display a rushee summary with attendance, interactions, and optional ratings.
 export default function DashboardRusheeCard({
     rushee,
     isMidtermMode,
@@ -45,7 +46,7 @@ export default function DashboardRusheeCard({
                         </h2>
                     </div>
                     <div className="flex flex-wrap gap-1">
-                        {rushee.attendance.map((event, idx) => (
+                        {rushee.attendance.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                             <Badges text={event.name} key={idx} />
                         ))}
                     </div>
@@ -69,7 +70,7 @@ export default function DashboardRusheeCard({
 
                 {showRatings && rushee.ratings && rushee.ratings.length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                        {rushee.ratings.map((rating, rIdx) => (
+                        {rushee.ratings.map(/* Render an aggregate rating rounded to two decimal places. */ (rating, rIdx) => (
                             <span
                                 key={rIdx}
                                 className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"

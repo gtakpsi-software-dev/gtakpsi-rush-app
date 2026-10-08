@@ -15,6 +15,7 @@ import type { DashboardAvailabilityUser, DashboardCard } from "../features/dashb
 
 type DashboardProps = { user?: unknown };
 
+// Manage dashboard loading, availability, searching, filtering, and card navigation.
 export default function Dashboard(props: DashboardProps) {
     const { isMidtermMode } = useMidtermMode();
     const { showAll: showRatings } = useCommentVisibility();
@@ -42,6 +43,7 @@ export default function Dashboard(props: DashboardProps) {
     const api = import.meta.env.VITE_API_PREFIX;
 
     useEffect(() => {
+        // Load dashboard data while the page is in its loading state.
         if (loading === true) {
             loadDashboardData({
                 verifyUser,
@@ -70,12 +72,14 @@ export default function Dashboard(props: DashboardProps) {
         minMatchCharLength: 1,
     });
 
+    // Update and log the dashboard search query.
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         const input = e.target.value;
         console.log(input);
         setQuery(input);
     };
 
+    // Apply current search, major, class, and sort settings to the displayed rushees.
     const handleFilters = () => {
         const filtered = filterDashboardRushees(
             rushees,
@@ -88,6 +92,7 @@ export default function Dashboard(props: DashboardProps) {
     };
 
     useEffect(() => {
+        // Reapply filters when a search or filter selection changes.
         handleFilters();
         // Preserve the original filter triggers; loading new rushees alone did not reapply filters.
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,6 +104,7 @@ export default function Dashboard(props: DashboardProps) {
             availability={{
                 open: showAvailabilityModal,
                 user: brotherData,
+                // Close the availability modal after submission.
                 onSubmit: () => setShowAvailabilityModal(false),
             }}
             filters={{
@@ -111,6 +117,7 @@ export default function Dashboard(props: DashboardProps) {
                 setSelectedClass,
                 selectedSort,
                 setSelectedSort,
+                // Shuffle the full rushee list into the displayed list.
                 onShuffle: () => {
                     const shuffled = shuffleArray(rushees);
                     setFilteredRushees(shuffled);
@@ -120,6 +127,7 @@ export default function Dashboard(props: DashboardProps) {
                 rushees: filteredRushees,
                 isMidtermMode,
                 showRatings,
+                // Open the selected rushee’s profile in a new tab.
                 onOpen: (rushee) => window.open(`/brother/rushee/${rushee.gtid}`, "_blank"),
             }}
         />
