@@ -12,6 +12,7 @@ type ReadOnlyDetailsPanelProps = {
     onViewRushee: () => void;
 };
 
+// Display a rushee’s sorting notes and tags without editing controls.
 export default function ReadOnlyDetailsPanel({
     selectedRushee,
     notesLoading,
@@ -56,7 +57,8 @@ export default function ReadOnlyDetailsPanel({
                                     <div className="text-sm font-medium text-apple-gray-700 mb-2">Tags</div>
                                     <div className="flex flex-wrap gap-2">
                                         {notesTags.map((tagKey) => {
-                                            const tagInfo = TAGS.find((t) => t.key === tagKey);
+                                            // Render a recognized saved tag badge.
+                                            const tagInfo = TAGS.find(/* Find the display metadata for this tag key. */ (t) => t.key === tagKey);
                                             if (!tagInfo) return null;
                                             return (
                                                 <span

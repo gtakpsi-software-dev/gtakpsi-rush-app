@@ -19,6 +19,7 @@ export const TAGS = [
 export const MIN_SCALE = 0.5;
 export const MAX_SCALE = 2;
 
+// Create an empty list for every sorting status.
 export function createEmptyColumns() {
     return {
         UNSORTED: [],
@@ -30,9 +31,11 @@ export function createEmptyColumns() {
     };
 }
 
+// Group rows by status and sort each column by saved order.
 export function groupSortingRows(rows) {
     const grouped = createEmptyColumns();
     rows.forEach((r) => {
+        // Place a row in its status column, defaulting unknown statuses to Unsorted.
         if (grouped[r.sortingStatus]) {
             grouped[r.sortingStatus].push(r);
         } else {
@@ -40,7 +43,8 @@ export function groupSortingRows(rows) {
         }
     });
     Object.keys(grouped).forEach((k) => {
-        grouped[k].sort((a, b) => a.sortingOrder - b.sortingOrder);
+        // Sort one column by its saved order.
+        grouped[k].sort(/* Compare saved sorting positions. */ (a, b) => a.sortingOrder - b.sortingOrder);
     });
     return grouped;
 }

@@ -14,6 +14,7 @@ import { useSortingViewerConnection } from "../features/sorting/useSortingViewer
 import { loadBrotherSortingData } from "../features/sorting/loadBrotherSortingData";
 import { subscribeToSortingAuth } from "../features/sorting/subscribeToSortingAuth";
 
+// Manage the brother’s read-only sorting board and detail panel.
 export default function BrotherSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/brother";
 
@@ -42,20 +43,22 @@ export default function BrotherSorting() {
     
     const fetchDataRef = useRef(null);
 
-    const fetchData = useCallback(() => loadBrotherSortingData({
+    const fetchData = useCallback(/* Verify sign-in and load the current brother sorting board. */ () => loadBrotherSortingData({
         auth,
         navigate,
         apiBase,
+        // Fetch sorting rows through Axios.
         getSorting: (path) => axios.get(path),
         setColumns,
         setLoading,
+        // Show a sorting-board loading error.
         showError: (message) => toast.error(message),
     }), [apiBase, navigate]);
 
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;
 
-    useEffect(() => subscribeToSortingAuth({
+    useEffect(/* Reload or redirect when the authentication state changes. */ () => subscribeToSortingAuth({
         auth, authChecked: false, fetchData, navigate,
     }), [fetchData, navigate]);
 
@@ -67,6 +70,7 @@ export default function BrotherSorting() {
 
     const { openDetails, closeDetails } = createBrotherSortingDetailsHandlers({
         apiBase,
+        // Fetch the selected rushee’s sorting notes through Axios.
         getNotes: (path) => axios.get(path),
         setSelectedRushee,
         setNotes,
@@ -113,7 +117,7 @@ export default function BrotherSorting() {
                     notesTags={notesTags}
                     notes={notes}
                     onClose={closeDetails}
-                    onViewRushee={() => navigate(`/brother/rushee/${selectedRushee.id}`)}
+                    onViewRushee={/* Open the selected rushee’s full profile. */ () => navigate(`/brother/rushee/${selectedRushee.id}`)}
                 />
             )}
         </ViewerSortingBoardView>

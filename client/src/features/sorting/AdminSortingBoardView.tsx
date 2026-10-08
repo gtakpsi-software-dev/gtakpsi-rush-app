@@ -30,6 +30,7 @@ type AdminSortingBoardViewProps =
         toggleTag: NotesProps['onToggleTag'];
     };
 
+// Render the interactive sorting canvas, remote drags, viewport controls, and notes editor.
 export default function AdminSortingBoardView({
     canvasRef, onMouseDown, onMouseMove, onMouseUp, onContextMenu,
     wsConnected, viewerCount, ghostCards, scale, zoomOut, zoomIn,
@@ -77,7 +78,7 @@ export default function AdminSortingBoardView({
                     }}
                 >
                     <div className="flex gap-4 p-6">
-                        {STATUSES.map((col) => (
+                        {STATUSES.map(/* Render an editable column for this sorting status. */ (col) => (
                             <SortingColumn
                                 key={col.key}
                                 col={col}

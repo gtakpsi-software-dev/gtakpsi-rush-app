@@ -18,6 +18,7 @@ import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
+// Manage the editable admin sorting board, persistence queue, collaboration, and notes.
 export default function AdminSorting() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
 
@@ -57,6 +58,7 @@ export default function AdminSorting() {
     useSortingAdminConnection({
         auth, wsRef, draggingRef, ghostTimestampsRef, fetchDataRef,
         setWsConnected, setViewerCount, setGhostCards, setLockedCards,
+        // Resolve the drag-cancellation handler after the page has created it.
         getCancelDragState: () => cancelDragState,
     });
 
@@ -67,7 +69,7 @@ export default function AdminSorting() {
         }
     }, []);
 
-    const fetchData = useCallback(() => loadAdminSortingData({
+    const fetchData = useCallback(/* Verify admin access and load the current sorting board. */ () => loadAdminSortingData({
         auth,
         navigate,
         allowlist: ALLOWLIST,
@@ -76,6 +78,7 @@ export default function AdminSorting() {
         setColumns,
         setLoading,
         setAuthChecked,
+        // Show a sorting-board loading error.
         showError: (message) => toast.error(message),
     }), [apiBase, navigate]);
 
@@ -83,10 +86,11 @@ export default function AdminSorting() {
     fetchDataRef.current = fetchData;
 
     useEffect(() => {
+        // Keep the drag ref synchronized with the current React state.
         draggingRef.current = dragging;
     }, [dragging]);
 
-    useEffect(() => subscribeToSortingAuth({
+    useEffect(/* Subscribe to authentication until the initial board access check completes. */ () => subscribeToSortingAuth({
         auth, authChecked, fetchData, navigate,
     }), [fetchData, authChecked, navigate]);
 
@@ -113,8 +117,10 @@ export default function AdminSorting() {
         moveInFlightRef,
         pendingMovesRef,
         fetchDataRef,
+        // Persist one queued sorting move through the authenticated admin API.
         persistMove: (next) => adminPut(`${apiBase}/rushees/move`, next),
         wsSend,
+        // Show a sorting-move persistence error.
         showError: (message) => toast.error(message),
     });
 
@@ -158,6 +164,7 @@ export default function AdminSorting() {
         lockedCards, setHoverIndex, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, openNotes, selectedRushee,
         notesStatus, tags, notes, closeNotes, toggleTag, onNotesChange,
+        // Open the selected rushee’s full profile.
         onViewRushee: () => navigate(`/brother/rushee/${selectedRushee.id}`),
     }} />;
 }

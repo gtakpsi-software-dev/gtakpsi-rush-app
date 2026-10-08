@@ -17,6 +17,7 @@ type EditableNotesPanelProps = {
     onViewRushee: () => void;
 };
 
+// Render editable sorting notes and tags with audience-specific identity labels.
 export default function EditableNotesPanel({
     selectedRushee,
     audience,
@@ -64,11 +65,12 @@ export default function EditableNotesPanel({
                                 <div className="text-sm font-medium text-apple-gray-700 mb-2">Tags</div>
                                 <div className="flex flex-wrap gap-2">
                                     {TAGS.map((tag) => {
+                                        // Render a tag toggle with its current selection state.
                                         const isSelected = tags.includes(tag.key);
                                         return (
                                             <button
                                                 key={tag.key}
-                                                onClick={() => onToggleTag(tag.key)}
+                                                onClick={/* Toggle this sorting tag. */ () => onToggleTag(tag.key)}
                                                 className={`px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all ${
                                                     isSelected
                                                         ? tag.color + " border-current"

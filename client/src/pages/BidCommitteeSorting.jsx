@@ -17,6 +17,7 @@ import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
+// Manage the anonymous committee sorting board and editable notes.
 export default function BidCommitteeSorting() {
     // Uses bidcom endpoints which allow both admin and bidcom users
     const apiBase = import.meta.env.VITE_API_PREFIX + "/bidcom";
@@ -49,7 +50,7 @@ export default function BidCommitteeSorting() {
     
     const fetchDataRef = useRef(null);
 
-    const fetchData = useCallback(() => loadBidCommitteeSortingData({
+    const fetchData = useCallback(/* Verify committee access and load the current sorting board. */ () => loadBidCommitteeSortingData({
         auth,
         navigate,
         allowlist: ALLOWLIST,
@@ -58,13 +59,14 @@ export default function BidCommitteeSorting() {
         setColumns,
         setLoading,
         setAuthChecked,
+        // Show a sorting-board loading error.
         showError: (message) => toast.error(message),
     }), [apiBase, navigate]);
 
     // Store fetchData in ref for WebSocket to use
     fetchDataRef.current = fetchData;
 
-    useEffect(() => subscribeToSortingAuth({
+    useEffect(/* Subscribe to authentication until the initial board access check completes. */ () => subscribeToSortingAuth({
         auth, authChecked, fetchData, navigate,
     }), [fetchData, authChecked, navigate]);
 
@@ -136,7 +138,9 @@ export default function BidCommitteeSorting() {
                     onClose={closeNotes}
                     onToggleTag={toggleTag}
                     onNotesChange={onNotesChange}
-                    onViewRushee={() => navigate(`/brother/rushee/${selectedRushee.id}?bid_committee=true&rushee_num=${selectedRushee.rushNumber}`)}
+                    onViewRushee={
+                        /* Open the selected profile in committee mode with its rushee number. */
+                        () => navigate(`/brother/rushee/${selectedRushee.id}?bid_committee=true&rushee_num=${selectedRushee.rushNumber}`)}
                 />
             )}
         </ViewerSortingBoardView>

@@ -14,6 +14,7 @@ type Props = {
     onOpen: (card: Card) => void;
 };
 
+// Render a read-only sorting column with optional names and clickable detail cards.
 export default function ViewerSortingColumn({ col, columns, showRusheeNames, onOpen }: Props) {
     const items = columns[col.key] || [];
 
@@ -26,11 +27,11 @@ export default function ViewerSortingColumn({ col, columns, showRusheeNames, onO
                 <div className="text-apple-caption2 text-apple-gray-600 bg-apple-gray-100 px-2 py-0.5 rounded-full">{items.length}</div>
             </div>
             <div className="space-y-1 min-h-[60px]">
-                {items.map((r) => (
+                {items.map(/* Render one rushee’s read-only card. */ (r) => (
                     <div
                         key={r.id}
                         data-card
-                        onClick={() => onOpen(r)}
+                        onClick={/* Open this card’s detail panel. */ () => onOpen(r)}
                         className="p-3 rounded-apple-lg border-2 bg-white hover:shadow-md cursor-pointer select-none transition-all border-apple-gray-200 hover:border-apple-gray-300"
                     >
                         {/* The bid committee board keeps names hidden while retaining the same card layout. */}
@@ -46,7 +47,8 @@ export default function ViewerSortingColumn({ col, columns, showRusheeNames, onO
                         {r.sortingTags && r.sortingTags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
                                 {r.sortingTags.map((tagKey) => {
-                                    const tagInfo = TAGS.find((t) => t.key === tagKey);
+                                    // Render a recognized sorting tag badge.
+                                    const tagInfo = TAGS.find(/* Find the display metadata for this tag key. */ (t) => t.key === tagKey);
                                     if (!tagInfo) return null;
                                     return (
                                         <span

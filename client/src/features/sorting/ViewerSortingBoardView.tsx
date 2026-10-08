@@ -25,6 +25,7 @@ type ViewerSortingBoardViewProps =
         children: ReactNode;
     };
 
+// Render the viewer board with pan and zoom, remote drags, and supplied detail panels.
 export default function ViewerSortingBoardView({
     canvasRef,
     onMouseDown,
@@ -82,7 +83,7 @@ export default function ViewerSortingBoardView({
                     }}
                 >
                     <div className="flex gap-4 p-6">
-                        {STATUSES.map((col) => (
+                        {STATUSES.map(/* Render a read-only column for this sorting status. */ (col) => (
                             <ViewerSortingColumn
                                 key={col.key}
                                 col={col}

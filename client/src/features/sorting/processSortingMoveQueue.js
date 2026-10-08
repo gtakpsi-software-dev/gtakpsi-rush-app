@@ -1,3 +1,4 @@
+// Persist queued moves serially, broadcasting success or reloading server order after failure.
 export async function processSortingMoveQueue(deps) {
     const {
         moveInFlightRef, pendingMovesRef, fetchDataRef, persistMove, wsSend, showError,

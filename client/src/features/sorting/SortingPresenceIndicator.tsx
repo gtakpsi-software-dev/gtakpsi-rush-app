@@ -5,6 +5,7 @@ type SortingPresenceIndicatorProps = {
     hideWhenAlone: boolean;
 };
 
+// Display connected viewer or active-drag counts using the board’s visibility policy.
 export default function SortingPresenceIndicator({
     connected,
     viewerCount,

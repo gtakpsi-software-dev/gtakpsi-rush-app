@@ -11,8 +11,9 @@ type SortingGhostCardsProps = {
     wide: boolean;
 };
 
+// Render floating previews for active remote card drags.
 export default function SortingGhostCards({ ghostCards, wide }: SortingGhostCardsProps) {
-    return Object.values(ghostCards).map((ghost) => (
+    return Object.values(ghostCards).map(/* Position and label one remote drag preview. */ (ghost) => (
         <div
             key={ghost.rusheeId}
             className="fixed z-50 pointer-events-none"

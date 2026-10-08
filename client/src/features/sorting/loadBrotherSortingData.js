@@ -1,5 +1,6 @@
 import { groupSortingRows } from "./board.js";
 
+// Require a signed-in user before loading and grouping the brother sorting board.
 export async function loadBrotherSortingData({
     auth, navigate, apiBase, getSorting, setColumns, setLoading, showError,
 }) {
