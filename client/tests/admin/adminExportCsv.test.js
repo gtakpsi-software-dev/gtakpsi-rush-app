@@ -9,6 +9,7 @@ import {
 } from "../../src/features/admin/data/exportCsv.js";
 
 test("personal-info CSV preserves field order and the existing per-field quoting", () => {
+    // Verify personal-info CSV preserves field order and the existing per-field quoting.
     const rushees = [{
         first_name: 'Ada "A"', last_name: "Lovelace", gtid: "9", email: "ada@example.com",
         phone_number: "123", housing: 'North "Hall"', major: "CS, Math", class: "2027",
@@ -23,6 +24,7 @@ test("personal-info CSV preserves field order and the existing per-field quoting
 });
 
 test("rushee-number CSV retains mapping order and legacy quote handling", () => {
+    // Verify rushee-number CSV retains mapping order and legacy quote handling.
     assert.equal(buildRusheeNumbersCsv([
         { rushee_number: "001", name: 'A "Quoted" Name', gtid: "9" },
         { rushee_number: "002", name: "Bob", gtid: "10" },
@@ -34,12 +36,14 @@ test("rushee-number CSV retains mapping order and legacy quote handling", () => 
 });
 
 test("PIS schedule CSV sorts appointments by date and retains flexible labels", () => {
+    // Verify PIS schedule CSV sorts appointments by date and retains flexible labels.
     const first = Date.parse("2026-10-01T12:00:00Z");
     const second = Date.parse("2026-10-02T14:30:00Z");
     const slots = [
         { time: { $date: { $numberLong: String(second) } }, rushee_first_name: "Bob", rushee_last_name: "B", flex_window: false },
         { time: { $date: { $numberLong: String(first) } }, rushee_first_name: "Ada", rushee_last_name: "A", flex_window: true },
     ];
+    // Build the expected availability CSV row using local date formatting.
     const row = (timestamp, name, flexible) => {
         const date = new Date(timestamp);
         return [`"${date.toLocaleDateString()}"`, `"${date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}"`, `"${name}"`, `"${flexible}"`].join(",");
@@ -54,12 +58,14 @@ test("PIS schedule CSV sorts appointments by date and retains flexible labels", 
 });
 
 test("full PIS schedule CSV supports both date forms and blank brother sentinels", () => {
+    // Verify full PIS schedule CSV supports both date forms and blank brother sentinels.
     const first = Date.parse("2026-10-01T12:00:00Z");
     const second = Date.parse("2026-10-02T14:30:00Z");
     const assignments = [
         { timeslot: new Date(second).toISOString(), rushee_name: "Bob B", brother_1: "Brother One", brother_2: "none none" },
         { timeslot: { $date: { $numberLong: String(first) } }, rushee_name: "Ada A", brother_1: "none none", brother_2: "Brother Two" },
     ];
+    // Build the expected interview CSV row using local date formatting.
     const row = (timestamp, name, firstBrother, secondBrother) => {
         const date = new Date(timestamp);
         return [`"${name}"`, `"${date.toLocaleDateString()}"`, `"${date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}"`, `"${firstBrother}"`, `"${secondBrother}"`].join(",");

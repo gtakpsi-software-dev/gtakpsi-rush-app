@@ -10,18 +10,22 @@ const componentPath = fileURLToPath(new URL(
     import.meta.url,
 ));
 
+// Render comments with controlled effects and capture the resulting animation.
 async function renderComments(rushee) {
     const effects = [];
     const animations = [];
     const RusheeComments = await loadTsxComponent(componentPath, {
         react: {
             ...React,
+            // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),
+            // Capture effects so the test can run them explicitly.
             useEffect: (callback, dependencies) => effects.push({ callback, dependencies }),
         },
-        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "./AdminVotingContext": { useAdminVotingContext: /* Return the use admin voting context fixture for this scenario. */ () => ({ rushee }) },
+        // Return no value from this dependency stub.
         "../../../components/Badge": () => null,
-        gsap: { fromTo: (...args) => animations.push(args) },
+        gsap: { fromTo: /* Record from to calls for assertions. */ (...args) => animations.push(args) },
         "../../comments/ratingDisplay": { formatRatingValue: String },
     });
 
@@ -31,6 +35,7 @@ async function renderComments(rushee) {
 }
 
 test("admin comment animation tracks the comments array and skips empty selections", async () => {
+    // Verify admin comment animation tracks the comments array and skips empty selections.
     const comments = [{ brother_name: "Sam", comment: "Met", ratings: [] }];
     const active = await renderComments({ comments });
     assert.equal(active.effects.length, 1);

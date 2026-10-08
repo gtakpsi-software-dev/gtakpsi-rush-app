@@ -6,20 +6,25 @@ import { createQuestionActions } from "../../src/features/admin/pis/questionActi
 
 const question = { question: "Why join?", question_type: "text", category: "Old" };
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup({ categoryEdits = {}, questions = [], postResponse = { status: "success" }, getResponse } = {}) {
     const calls = [];
     const actions = createQuestionActions({
         apiBase: "/api/admin",
         categoryEdits,
+        // Record set pis questions calls for assertions.
         setPisQuestions: (value) => calls.push(["questions", value]),
+        // Record set pis questions loading calls for assertions.
         setPisQuestionsLoading: (value) => calls.push(["loading", value]),
         axios: {
+            // Record the GET request and return questions or the configured error.
             get: async (url) => {
                 calls.push(["get", url]);
                 const response = getResponse ?? { status: "success", payload: questions };
                 if (response instanceof Error) throw response;
                 return { data: response };
             },
+            // Record the POST request and return or throw its configured response.
             post: async (url, payload) => {
                 calls.push(["post", url, payload]);
                 if (postResponse instanceof Error) throw postResponse;
@@ -27,7 +32,9 @@ function setup({ categoryEdits = {}, questions = [], postResponse = { status: "s
             },
         },
         toast: {
+            // Record success calls for assertions.
             success: (message, options) => calls.push(["success", message, options]),
+            // Record error calls for assertions.
             error: (message, options) => calls.push(["error", message, options]),
         },
     });
@@ -35,6 +42,7 @@ function setup({ categoryEdits = {}, questions = [], postResponse = { status: "s
 }
 
 test("loading sorts question copies by order and keeps unordered entries last", async () => {
+    // Verify loading sorts question copies by order and keeps unordered entries last.
     const unordered = { question: "No order" };
     const second = { question: "Second", order: 2 };
     const first = { question: "First", order: 1 };
@@ -42,7 +50,7 @@ test("loading sorts question copies by order and keeps unordered entries last", 
     const { calls, actions } = setup({ questions: payload });
     await actions.fetchPisQuestions();
 
-    assert.deepEqual(calls.map(([kind]) => kind), ["loading", "get", "questions", "loading"]);
+    assert.deepEqual(calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "get", "questions", "loading"]);
     assert.deepEqual(calls[2][1], [first, second, unordered]);
     assert.deepEqual(payload, [unordered, second, first]);
     assert.notEqual(calls[2][1], payload);
@@ -50,6 +58,7 @@ test("loading sorts question copies by order and keeps unordered entries last", 
 });
 
 test("category save trims edits, sends null for empty values, and refetches on success", async () => {
+    // Verify category save trims edits, sends null for empty values, and refetches on success.
     const { calls, actions } = setup({ categoryEdits: { "Why join?": "   " } });
     await actions.saveQuestionCategory(question);
     await setImmediate();
@@ -58,7 +67,7 @@ test("category save trims edits, sends null for empty values, and refetches on s
         question: "Why join?", question_type: "text", category: null,
     }]);
     assert.equal(calls[1][1], "Category updated!");
-    assert.deepEqual(calls.slice(2).map(([kind]) => kind), ["loading", "get", "questions", "loading"]);
+    assert.deepEqual(calls.slice(2).map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "get", "questions", "loading"]);
 
     const fallback = setup();
     await fallback.actions.saveQuestionCategory(question);
@@ -66,10 +75,11 @@ test("category save trims edits, sends null for empty values, and refetches on s
 });
 
 test("failed category writes do not refetch and preserve error messages", async () => {
+    // Verify failed category writes do not refetch and preserve error messages.
     const rejected = setup({ postResponse: { status: "error", message: "Denied" } });
     await rejected.actions.saveQuestionCategory(question);
     assert.equal(rejected.calls[1][1], "Denied");
-    assert.ok(!rejected.calls.some(([kind]) => kind === "get"));
+    assert.ok(!rejected.calls.some(/* Select recorded get calls. */ ([kind]) => kind === "get"));
 
     const offline = setup({ postResponse: new Error("offline") });
     await offline.actions.saveQuestionCategory(question);
@@ -77,6 +87,7 @@ test("failed category writes do not refetch and preserve error messages", async 
 });
 
 test("question load failure preserves its toast and clears loading", async () => {
+    // Verify question load failure preserves its toast and clears loading.
     const { calls, actions } = setup({ getResponse: new Error("offline") });
     await actions.fetchPisQuestions();
     assert.equal(calls[2][1], "Failed to load PIS questions");

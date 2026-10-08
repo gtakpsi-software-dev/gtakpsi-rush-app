@@ -11,6 +11,7 @@ const helperPath = fileURLToPath(new URL(
     import.meta.url,
 ));
 
+// Load helpers with injected dependencies for isolated tests.
 async function loadHelpers() {
     const source = await readFile(helperPath, "utf8");
     const { code } = await transformWithEsbuild(source, helperPath, {
@@ -22,6 +23,7 @@ async function loadHelpers() {
 }
 
 test("voting preview search retains name fallbacks, GTID matching, and raw query spacing", async () => {
+    // Verify voting preview search retains name fallbacks, GTID matching, and raw query spacing.
     const { filterPreviewRushees } = await loadHelpers();
     const rushees = [
         { first_name: "Ada", last_name: "Lovelace", gtid: "1" },
@@ -39,6 +41,7 @@ test("voting preview search retains name fallbacks, GTID matching, and raw query
 });
 
 test("voting preview labels retain primary, legacy, and unknown name fallbacks", async () => {
+    // Verify voting preview labels retain primary, legacy, and unknown name fallbacks.
     const { previewRusheeName } = await loadHelpers();
 
     assert.equal(previewRusheeName({ first_name: "Ada", last_name: "Lovelace" }), "Ada Lovelace");

@@ -6,11 +6,13 @@ import { loadVotingSocketHook } from '../helpers/loadVotingSocketHook.js';
 
 const hookPath = fileURLToPath(new URL('../../src/features/voting/admin/useAdminVotingSocket.ts', import.meta.url));
 
+// Invoke loadVotingSocketHook with the test inputs.
 async function loadHook() {
     return loadVotingSocketHook(hookPath, 'useAdminVotingSocket');
 }
 
 test('admin voting socket gates connection and preserves event payloads', async () => {
+    // Verify admin voting socket gates connection and preserves event payloads.
     const { useAdminVotingSocket, effects, sockets, errors } = await loadHook();
     const statuses = [];
     const votes = [];
@@ -26,9 +28,13 @@ test('admin voting socket gates connection and preserves event payloads', async 
         authorized: false,
         user: { _id: 'brother-1' },
         votingWebSocketUrl: 'ws://voting',
+        // Record set connection status calls for assertions.
         setConnectionStatus: (status) => statuses.push(status),
+        // Record set votes calls for assertions.
         setVotes: (value) => votes.push(value),
+        // Record set rushee calls for assertions.
         setRushee: (value) => rushees.push(value),
+        // Record set question calls for assertions.
         setQuestion: (value) => questions.push(value),
     };
 
@@ -59,6 +65,7 @@ test('admin voting socket gates connection and preserves event payloads', async 
 });
 
 test('admin voting socket retains reconnect backoff, reset, and error close', async () => {
+    // Verify admin voting socket retains reconnect backoff, reset, and error close.
     const { useAdminVotingSocket, effects, sockets, timers } = await loadHook();
     const statuses = [];
     const socketRef = { current: null };
@@ -69,17 +76,23 @@ test('admin voting socket retains reconnect backoff, reset, and error close', as
         user: { _id: 'brother-1' },
         votingWebSocketUrl: 'ws://voting',
         socketRef, reconnectTimeoutRef, reconnectAttemptsRef,
+        // Record set connection status calls for assertions.
         setConnectionStatus: (status) => statuses.push(status),
-        setVotes() {}, setRushee() {}, setQuestion() {},
+        // Provide an inert set votes stub for this test.
+        setVotes() {},
+            /* Provide an inert set rushee stub for this test. */
+            setRushee() {},
+            /* Provide an inert set question stub for this test. */
+            setQuestion() {},
     });
     const cleanup = effects.pop()();
     sockets[0].onclose();
-    assert.deepEqual([...timers.values()].map(({ delay }) => delay), [1000]);
+    assert.deepEqual([...timers.values()].map(/* Return delay to the caller. */ ({ delay }) => delay), [1000]);
     [...timers.values()][0].callback();
     assert.equal(sockets.length, 2);
     assert.equal(timers.size, 0);
     sockets[1].onclose();
-    assert.deepEqual([...timers.values()].map(({ delay }) => delay), [2000]);
+    assert.deepEqual([...timers.values()].map(/* Return delay to the caller. */ ({ delay }) => delay), [2000]);
 
     sockets[1].onopen();
     assert.equal(reconnectAttemptsRef.current, 0);
@@ -92,6 +105,7 @@ test('admin voting socket retains reconnect backoff, reset, and error close', as
 });
 
 test('admin voting socket caps reconnect delay at 30 seconds', async () => {
+    // Verify admin voting socket caps reconnect delay at 30 seconds.
     const { useAdminVotingSocket, effects, sockets, timers } = await loadHook();
     const reconnectAttemptsRef = { current: 7 };
     useAdminVotingSocket({
@@ -101,11 +115,18 @@ test('admin voting socket caps reconnect delay at 30 seconds', async () => {
         socketRef: { current: null },
         reconnectTimeoutRef: { current: null },
         reconnectAttemptsRef,
-        setConnectionStatus() {}, setVotes() {}, setRushee() {}, setQuestion() {},
+        // Provide an inert set connection status stub for this test.
+        setConnectionStatus() {},
+            /* Provide an inert set votes stub for this test. */
+            setVotes() {},
+            /* Provide an inert set rushee stub for this test. */
+            setRushee() {},
+            /* Provide an inert set question stub for this test. */
+            setQuestion() {},
     });
     const cleanup = effects.pop()();
     sockets[0].onclose();
-    assert.deepEqual([...timers.values()].map(({ delay }) => delay), [30000]);
+    assert.deepEqual([...timers.values()].map(/* Return delay to the caller. */ ({ delay }) => delay), [30000]);
     assert.equal(reconnectAttemptsRef.current, 8);
     cleanup();
     assert.equal(timers.size, 0);

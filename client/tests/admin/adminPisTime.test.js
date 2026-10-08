@@ -13,6 +13,7 @@ const slot = { time: { $date: { $numberLong: "1790784000000" } } };
 const nextDay = { time: { $date: { $numberLong: "1790870400000" } } };
 
 test("PIS times retain their existing labels and unscheduled fallback", () => {
+    // Verify PIS times retain their existing labels and unscheduled fallback.
     process.env.TZ = "America/New_York";
 
     assert.equal(formatTimeslot(slot), "Wed, Sep 30, 12:00 PM");
@@ -23,6 +24,7 @@ test("PIS times retain their existing labels and unscheduled fallback", () => {
 });
 
 test("availability groups retain date order and original slot objects", () => {
+    // Verify availability groups retain date order and original slot objects.
     process.env.TZ = "America/New_York";
 
     assert.deepEqual(groupEditSlots([]), {});

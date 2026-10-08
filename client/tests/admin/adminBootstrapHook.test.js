@@ -9,23 +9,29 @@ const hookPath = fileURLToPath(new URL(
 ));
 
 test("admin bootstrap keeps its loading gate, inputs, and effect dependencies", async () => {
+    // Verify admin bootstrap keeps its loading gate, inputs, and effect dependencies.
     const effects = [];
     const calls = [];
+    // Provide an inert verify user stub for this test.
     const verifyUser = () => {};
+    // Provide an inert navigate stub for this test.
     const navigate = () => {};
     const auth = {};
     const db = {};
     const axios = {};
     const toast = {};
+    // Provide an inert collection stub for this test.
     const collection = () => {};
+    // Provide an inert get docs stub for this test.
     const getDocs = () => {};
     const setters = Object.fromEntries([
         "setBrothers", "setRushees", "setAvailableTimeslots", "setPisFormStatus",
         "setBrotherAvailabilities", "setAllPisTimeslots", "setRushAppStatus",
         "setCommentVisibilityStatus", "setLoading",
-    ].map((name) => [name, () => {}]));
+    ].map(/* Return the fixture for this scenario. */ (name) => [name, /* Leave this mocked callback inert. */ () => {}]));
     const Hook = await loadTsxComponent(hookPath, {
         react: { useEffect(effect, dependencies) {
+            // Capture effects so the test can run them explicitly.
             effects.push(Array.from(dependencies));
             effect();
         } },
@@ -34,7 +40,7 @@ test("admin bootstrap keeps its loading gate, inputs, and effect dependencies", 
         "firebase/firestore": { collection, getDocs },
         "../../auth/verifyUser": { verifyUser },
         "../../../firebase": { auth, db },
-        "./loadAdminData": { loadAdminData: (options) => calls.push(options) },
+        "./loadAdminData": { loadAdminData: /* Record load admin data calls for assertions. */ (options) => calls.push(options) },
     });
     const options = {
         navigate,

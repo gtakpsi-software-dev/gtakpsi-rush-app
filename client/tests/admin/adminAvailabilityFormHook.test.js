@@ -9,19 +9,24 @@ const hookPath = fileURLToPath(new URL(
 ));
 
 test("availability form hook keeps lifecycle defaults and view/action boundaries", async () => {
+    // Verify availability form hook keeps lifecycle defaults and view/action boundaries.
     const initialValues = [];
     let actionOptions;
+    // Provide an inert handle send pisform stub for this test.
     const handleSendPISForm = () => {};
     const Hook = await loadTsxComponent(hookPath, {
         react: { useState(initialValue) {
+            // Expose controlled hook state and capture updates for assertions.
             initialValues.push(initialValue);
-            return [initialValue, () => {}];
+            return [initialValue, /* Leave this mocked callback inert. */ () => {}];
         } },
         "./availabilityFormActions": { createAvailabilityFormActions(options) {
+            // Capture action dependencies and return the send-form handler.
             actionOptions = options;
             return { handleSendPISForm };
         } },
     });
+    // Return true from this dependency stub.
     const confirm = () => true;
     const axios = {};
     const toast = {};

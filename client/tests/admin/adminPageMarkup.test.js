@@ -11,6 +11,7 @@ import { loadAdmin } from '../helpers/loadAdminPage.js';
 const fixturePath = fileURLToPath(new URL('../fixtures/adminPageMarkup.json', import.meta.url));
 
 test('admin page keeps loading, ready, and availability-editor layout', async () => {
+    // Verify admin page keeps loading, ready, and availability-editor layout.
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: {},
@@ -27,6 +28,7 @@ test('admin page keeps loading, ready, and availability-editor layout', async ()
 });
 
 test('admin page passes loaded and edited state to the right sections', async () => {
+    // Verify admin page passes loaded and edited state to the right sections.
     const captured = new Map();
     const editingBrotherAvailability = { brother_first_name: 'Ada', brother_last_name: 'Example' };
     const selectedRushee = { first_name: 'Grace', last_name: 'Example' };
