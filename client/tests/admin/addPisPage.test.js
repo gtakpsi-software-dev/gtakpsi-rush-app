@@ -20,7 +20,7 @@ async function loadPage() {
     let cursor = 0;
     const react = {
         ...React,
-        // Expose controlled hook state and capture updates for assertions.
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = cursor++;
             if (!Object.hasOwn(values, index)) values[index] = initial;

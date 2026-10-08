@@ -36,7 +36,7 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
     const noop = () => {};
     const dependencies = {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => [initial, noop],
             // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),

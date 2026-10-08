@@ -30,7 +30,7 @@ function harness(initialScale = 1, initialTranslate = { x: 20, y: 30 }) {
 function wheelEvent(overrides = {}) {
     let prevented = 0;
     const event = {
-        target: { closest: /* Return no value from this dependency stub. */ () => null },
+        target: { closest: /* Return null from this dependency stub. */ () => null },
         deltaX: 4,
         deltaY: 10,
         ctrlKey: false,
@@ -96,7 +96,7 @@ test("right-click outside cards pans from the original pointer and translation",
     let prevented = 0;
     const event = {
         button: 2, clientX: 100, clientY: 200,
-        target: { closest: /* Return no value from this dependency stub. */ () => null },
+        target: { closest: /* Return null from this dependency stub. */ () => null },
         // Update prevented in the test harness.
         preventDefault: () => { prevented += 1; },
     };
@@ -118,7 +118,7 @@ test("left clicks and right clicks on cards cannot begin a pan", () => {
     const { handlers, panState, calls } = harness();
     let prevented = 0;
     const event = {
-        button: 0, target: { closest: /* Return no value from this dependency stub. */ () => null },
+        button: 0, target: { closest: /* Return null from this dependency stub. */ () => null },
         // Update prevented in the test harness.
         preventDefault: () => { prevented += 1; },
     };

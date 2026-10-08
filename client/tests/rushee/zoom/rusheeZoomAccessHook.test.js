@@ -25,7 +25,7 @@ test("Rushee Zoom access stays restricted while loading and forwards the origina
     };
     const hook = await loadTsxComponent(hookPath, {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => [initial, /* Leave this mocked callback inert. */ () => {}],
             // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),

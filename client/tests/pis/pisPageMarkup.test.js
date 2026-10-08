@@ -40,7 +40,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
     const dependencies = {
         react: {
             ...React,
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial, noop];

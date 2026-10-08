@@ -29,7 +29,7 @@ async function loadComponent({ showPreview = false, document = {}, setPreview = 
         // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === "react") {
-                return { ...React, useState: /* Expose controlled hook state and capture updates for assertions. */ () => [showPreview, setPreview] };
+                return { ...React, useState: /* Supply controlled state and a setter without mounting React. */ () => [showPreview, setPreview] };
             }
             if (specifier === "react-webcam") {
                 return function WebcamStub() {

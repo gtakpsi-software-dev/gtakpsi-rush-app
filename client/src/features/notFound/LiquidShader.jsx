@@ -58,7 +58,7 @@ export default function LiquidShader() {
                         ],
                     },
                 }}
-                vertexShader={`
+                vertexShader={/* The vertex main function displaces the plane with animated waves. */ `
                     uniform float uTime;
                     varying vec2 vUv;
 
@@ -74,7 +74,7 @@ export default function LiquidShader() {
                         gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
                     }
                 `}
-                fragmentShader={`
+                fragmentShader={/* The fragment main function blends blue and gold across the moving waves. */ `
                     uniform vec3 uColors[4]; // Array of colors (blue and gold focus)
                     uniform float uTime;
                     varying vec2 vUv;

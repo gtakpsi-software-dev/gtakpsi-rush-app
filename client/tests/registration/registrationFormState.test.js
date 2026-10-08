@@ -21,7 +21,7 @@ test("registration form state keeps hook order and pairs each field with its set
     };
     const useRegistrationFormState = await loadTsxComponent(hookPath, {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = initials.push(initial) - 1;
                 // Provide an inert setter stub for this test.

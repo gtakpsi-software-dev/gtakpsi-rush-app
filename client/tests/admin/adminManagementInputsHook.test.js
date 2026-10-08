@@ -19,7 +19,7 @@ test("management inputs keep their initial values and one question fetch effect"
     const saveQuestionCategory = () => {};
     const Hook = await loadTsxComponent(hookPath, {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initialValue) {
                 initialValues.push(initialValue);
                 return [initialValue, /* Leave this mocked callback inert. */ () => {}];
@@ -70,7 +70,7 @@ test("management inputs use the initial fetch for the mount effect across rerend
     const updatedFetch = () => calls.push("updated fetch");
     const Hook = await loadTsxComponent(hookPath, {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initialValue) {
                 const index = stateIndex++;
                 return [render === 1 && index === 6 ? { edited: "notes" } : initialValue, /* Leave this mocked callback inert. */ () => {}];

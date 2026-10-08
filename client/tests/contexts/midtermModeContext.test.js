@@ -31,7 +31,7 @@ async function loadContext(get) {
         useContext(context) {
             return context.value;
         },
-        // Expose controlled hook state and capture updates for assertions.
+        // Supply controlled state and a setter without mounting React.
         useState: (value) => [value, /* Record callback arguments for assertions. */ (next) => updates.push(next)],
         // Keep the callback callable without a React render cycle.
         useCallback: (callback) => callback,

@@ -32,7 +32,7 @@ async function loadQuestion({ question = "Current?", editing = true, inputValue 
             const dependencies = {
                 react: {
                     ...React,
-                    // Expose controlled hook state and capture updates for assertions.
+                    // Supply controlled state and a setter without mounting React.
                     useState(initial) {
                         const index = stateIndex++;
                         return [states[index] ?? initial, /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];

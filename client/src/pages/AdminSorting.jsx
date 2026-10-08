@@ -62,7 +62,7 @@ export default function AdminSorting() {
         getCancelDragState: () => cancelDragState,
     });
 
-    // Send WebSocket message helper
+    // Send a JSON message when the sorting WebSocket is open.
     const wsSend = useCallback((msg) => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify(msg));

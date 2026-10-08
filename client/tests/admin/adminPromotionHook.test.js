@@ -16,7 +16,7 @@ test("promotion hook passes its four state setters to the existing actions", asy
     const handleSelectBrother = () => {};
     const Hook = await loadTsxComponent(hookPath, {
         react: { useState(initialValue) {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             initialValues.push(initialValue);
             return [initialValue, /* Leave this mocked callback inert. */ () => {}];
         } },

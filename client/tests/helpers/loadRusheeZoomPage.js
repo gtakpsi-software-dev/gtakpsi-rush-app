@@ -61,7 +61,7 @@ export async function loadRusheeZoomPage(state = {}, captured = new Map(), runti
     const actions = () => new Proxy({}, { get: /* Provide an inert handler for the test. */ () => noop });
     const reactHooks = {
         ...React,
-        // Expose controlled hook state and capture updates for assertions.
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = stateIndex++;
             const value = Object.hasOwn(state, index)

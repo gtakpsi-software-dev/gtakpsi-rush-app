@@ -35,7 +35,7 @@ async function loadComponent({ copied = false, navigator = {}, setCopied =
         // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === "react") {
-                return { ...React, useState: /* Expose controlled hook state and capture updates for assertions. */ () => [copied, setCopied] };
+                return { ...React, useState: /* Supply controlled state and a setter without mounting React. */ () => [copied, setCopied] };
             }
             return requireFromComponent(specifier);
         },

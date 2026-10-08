@@ -44,7 +44,7 @@ async function loadModal(states, options = {}) {
             if (specifier === 'react') {
                 return {
                     ...React,
-                    // Expose controlled hook state and capture updates for assertions.
+                    // Supply controlled state and a setter without mounting React.
                     useState: () => {
                         const index = stateIndex++;
                         return [states[index],

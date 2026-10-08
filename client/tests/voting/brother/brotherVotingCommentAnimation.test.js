@@ -28,7 +28,7 @@ async function renderComments(rushee) {
             ...React,
             // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => [initial, /* Leave this mocked callback inert. */ () => {}],
             // Capture effects so the test can run them explicitly.
             useEffect: (callback, values) => effects.push({ callback, values }),
@@ -36,7 +36,7 @@ async function renderComments(rushee) {
         "./BrotherVotingContext": { useBrotherVotingContext:
             /* Return the use brother voting context fixture for this scenario. */
             () => ({ rushee }) },
-        // Return no value from this dependency stub.
+        // Return null from this dependency stub.
         "../../../components/Badge": () => null,
         gsap: { fromTo: /* Record from to calls for assertions. */ (...args) => animations.push(args) },
         "../../comments/ratingDisplay": {
@@ -57,7 +57,7 @@ async function renderComments(rushee) {
     runInNewContext(compiled.code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: /* Return no value from this dependency stub. */ () => null },
+        localStorage: { getItem: /* Return null from this dependency stub. */ () => null },
         // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];

@@ -19,7 +19,6 @@ const rushee = {
 
 // Keep the badge stub independent of the shared component while comparing page markup.
 // eslint-disable-next-line react/prop-types
-// Render a lightweight React element for component assertions.
 const Badges = ({ text }) => React.createElement("span", { "data-badge": text }, text);
 
 test("PIS profile header retains attendee and no-attendance markup", async () => {

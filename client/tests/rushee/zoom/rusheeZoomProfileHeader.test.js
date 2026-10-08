@@ -17,7 +17,6 @@ const rushee = {
 };
 // The badge stub keeps the baseline markup independent of the shared component.
 // eslint-disable-next-line react/prop-types
-// Render a lightweight React element for component assertions.
 const Badges = ({ text }) => React.createElement("span", { "data-badge": text }, text);
 
 test("normal and bid committee profile headers retain original rendered markup", async () => {

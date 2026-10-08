@@ -25,9 +25,9 @@ async function loadPage({ loading = false, loginSuccess = true, verify = /* Retu
         return React.createElement("a", { "data-to": to }, children);
     }
     LinkStub.propTypes = { to:
-        /* Return no value from this dependency stub. */
+        /* Return null from this dependency stub. */
         () => null, children:
-        /* Return no value from this dependency stub. */
+        /* Return null from this dependency stub. */
         () => null };
     // Render a lightweight React element for component assertions.
     function NavbarStub() {
@@ -48,7 +48,7 @@ async function loadPage({ loading = false, loginSuccess = true, verify = /* Retu
     const Page = await loadTsxComponent(pagePath, {
         react: {
             ...React,
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => [loading ?? initial, /* Record callback arguments for assertions. */ (value) => updates.push(value)],
             // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),

@@ -28,7 +28,7 @@ function Content() {
 
   const storedUser: string | null = localStorage.getItem('user');
 
-  // Memoize user to prevent WebSocket reconnecting on every render
+  // Parse the stored user once per value so renders do not reconnect the WebSocket.
   const user: Brother | null = useMemo(() => {
     return storedUser ? JSON.parse(storedUser) : null;
   }, [storedUser]);

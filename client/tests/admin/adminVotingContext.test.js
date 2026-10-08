@@ -25,7 +25,7 @@ test("admin voting provider retains its initial context and fetch transition", a
              return children; } }),
         // Return current context to the caller.
         useContext: () => currentContext,
-        // Expose controlled hook state and capture updates for assertions.
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = initialStates.push(initial) - 1;
             return [initial, /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
@@ -68,7 +68,7 @@ test("admin voting provider retains its initial context and fetch transition", a
 test("admin voting context rejects use outside its provider", async () => {
     // Verify admin voting context rejects use outside its provider.
     const context = await loadTsxModule(contextPath, {
-        react: { ...React, useContext: /* Return no value from this dependency stub. */ () => null },
+        react: { ...React, useContext: /* Return null from this dependency stub. */ () => null },
         "../../brothers/getAllBrothers": { getAllBrothers: /* Return the all brothers fixture for this scenario. */ async () => [] },
     });
 

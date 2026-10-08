@@ -44,7 +44,7 @@ for (const field of fields) {
                 ...React,
                 // Provide a mutable ref without mounting a React component.
                 useRef: (initial) => ({ current: initial }),
-                // Expose controlled hook state and capture updates for assertions.
+                // Supply controlled state and a setter without mounting React.
                 useState: (initial) => [initial, noOp],
                 // Capture effects so the test can run them explicitly.
                 useEffect: (effect, dependencies) => {
@@ -59,7 +59,7 @@ for (const field of fields) {
                 activeCursorsForField: () => [],
             },
             './activeCursorsForField.js': { activeCursorsForField: /* Return the active cursors for field fixture for this scenario. */ () => [] },
-            // Return no value from this dependency stub.
+            // Return null from this dependency stub.
             [field.viewImport]: () => null,
             '../features/collaboration/reconcileRemoteFieldUpdate.js': {
                 reconcileRemoteFieldUpdate: RemoteHelper,

@@ -16,7 +16,7 @@ test("availability form hook keeps lifecycle defaults and view/action boundaries
     const handleSendPISForm = () => {};
     const Hook = await loadTsxComponent(hookPath, {
         react: { useState(initialValue) {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             initialValues.push(initialValue);
             return [initialValue, /* Leave this mocked callback inert. */ () => {}];
         } },

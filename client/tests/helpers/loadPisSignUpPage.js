@@ -42,7 +42,7 @@ export async function loadPage(states, get = /* Leave this mocked callback inert
         // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === 'react') return {
-                // Expose controlled hook state and capture updates for assertions.
+                // Supply controlled state and a setter without mounting React.
                 useState: () => {
                     const index = stateIndex++;
                     // Record setter calls for assertions.

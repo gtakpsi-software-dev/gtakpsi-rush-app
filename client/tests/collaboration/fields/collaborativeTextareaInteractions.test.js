@@ -46,7 +46,7 @@ async function loadTextarea({ cursors = [] } = {}) {
                     ...React,
                     // Provide a mutable ref without mounting a React component.
                     useRef: (initial) => ({ current: initial }),
-                    // Expose controlled hook state and capture updates for assertions.
+                    // Supply controlled state and a setter without mounting React.
                     useState: (initial) => [initial, /* Record callback arguments for assertions. */ (value) => stateChanges.push(value)],
                     // Provide an inert use effect stub for this test.
                     useEffect: () => {},
@@ -57,7 +57,7 @@ async function loadTextarea({ cursors = [] } = {}) {
             if (specifier === "./activeCursorsForField.js") {
                 return { activeCursorsForField: /* Return cursors to the caller. */ () => cursors };
             }
-            if (specifier === "./CollaborativeTextareaView") return /* Return no value from this dependency stub. */ () => null;
+            if (specifier === "./CollaborativeTextareaView") return /* Return null from this dependency stub. */ () => null;
             if (specifier === "./reconcileRemoteFieldUpdate.js") {
                 return { reconcileRemoteFieldUpdate: /* Provide an inert reconcile remote field update stub for this test. */ () => {} };
             }

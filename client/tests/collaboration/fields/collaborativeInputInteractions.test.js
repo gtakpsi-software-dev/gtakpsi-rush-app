@@ -50,7 +50,7 @@ async function loadInput() {
                     ...React,
                     // Provide a mutable ref without mounting a React component.
                     useRef: (initial) => ({ current: initial }),
-                    // Expose controlled hook state and capture updates for assertions.
+                    // Supply controlled state and a setter without mounting React.
                     useState: (initial) => [initial, /* Record callback arguments for assertions. */ (value) => stateChanges.push(value)],
                     // Provide an inert use effect stub for this test.
                     useEffect: () => {},
@@ -61,7 +61,7 @@ async function loadInput() {
             if (specifier === "./activeCursorsForField.js") {
                 return { activeCursorsForField: /* Return the active cursors for field fixture for this scenario. */ () => [] };
             }
-            if (specifier === "./CollaborativeInputView") return /* Return no value from this dependency stub. */ () => null;
+            if (specifier === "./CollaborativeInputView") return /* Return null from this dependency stub. */ () => null;
             if (specifier === "./reconcileRemoteFieldUpdate.js") {
                 return { reconcileRemoteFieldUpdate: /* Provide an inert reconcile remote field update stub for this test. */ () => {} };
             }

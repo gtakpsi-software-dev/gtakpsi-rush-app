@@ -53,7 +53,7 @@ async function loadBanner({ user = storedUser, hasVoted = false } = {}) {
     const dependencies = {
         react: {
             ...React,
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const value = stateIndex++ === 0 ? hasVoted : initial;
                 return [value, noop];

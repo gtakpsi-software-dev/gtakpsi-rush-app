@@ -23,7 +23,7 @@ async function renderComments(rushee) {
             useEffect: (callback, dependencies) => effects.push({ callback, dependencies }),
         },
         "./AdminVotingContext": { useAdminVotingContext: /* Return the use admin voting context fixture for this scenario. */ () => ({ rushee }) },
-        // Return no value from this dependency stub.
+        // Return null from this dependency stub.
         "../../../components/Badge": () => null,
         gsap: { fromTo: /* Record from to calls for assertions. */ (...args) => animations.push(args) },
         "../../comments/ratingDisplay": { formatRatingValue: String },

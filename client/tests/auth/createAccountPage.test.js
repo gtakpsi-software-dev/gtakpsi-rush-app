@@ -32,9 +32,9 @@ async function loadPage(loading) {
         return React.createElement("a", { "data-to": to }, children);
     }
     Link.propTypes = { to:
-        /* Return no value from this dependency stub. */
+        /* Return null from this dependency stub. */
         () => null, children:
-        /* Return no value from this dependency stub. */
+        /* Return null from this dependency stub. */
         () => null };
     // Render a lightweight React element for component assertions.
     function Navbar() {
@@ -50,7 +50,7 @@ async function loadPage(loading) {
     const dependencies = {
         react: {
             ...React,
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: () => [loading, setLoading],
             // Provide a mutable ref without mounting a React component.
             useRef: () => {

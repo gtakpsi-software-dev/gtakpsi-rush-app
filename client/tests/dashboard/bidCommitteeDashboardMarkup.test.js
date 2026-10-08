@@ -39,7 +39,6 @@ async function loadDashboard({ state = {}, open = /* Leave this mocked callback 
     };
     // Test doubles render only the fields needed to pin dashboard markup.
     // eslint-disable-next-line react/prop-types
-    // Render a lightweight React element for component assertions.
     const Badges = ({ text }) => React.createElement('span', { 'data-stub': 'badge' }, text);
     const Card = await loadTsxComponent(cardPath, {
         '../../components/Badge': Badges,
@@ -67,7 +66,7 @@ async function loadDashboard({ state = {}, open = /* Leave this mocked callback 
     const dependencies = {
         react: {
             ...React,
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial, /* Leave this mocked callback inert. */ () => {}];
@@ -94,7 +93,7 @@ async function loadDashboard({ state = {}, open = /* Leave this mocked callback 
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
         },
-        localStorage: { getItem: /* Return no value from this dependency stub. */ () => null },
+        localStorage: { getItem: /* Return null from this dependency stub. */ () => null },
         window: { open }
     }, { filename: pagePath });
 

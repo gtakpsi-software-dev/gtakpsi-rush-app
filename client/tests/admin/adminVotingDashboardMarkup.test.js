@@ -27,7 +27,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     let stateIndex = 0;
     const react = {
         ...React,
-        // Expose controlled hook state and capture updates for assertions.
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, /* Leave this mocked callback inert. */ () => {}];

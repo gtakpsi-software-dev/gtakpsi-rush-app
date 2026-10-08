@@ -17,7 +17,7 @@ async function loadPage(navigate = /* Leave this mocked callback inert. */ () =>
             // Render a lightweight React element for component assertions.
             Canvas: () => React.createElement("span", { "data-stub": "canvas" }),
         },
-        // Return no value from this dependency stub.
+        // Return null from this dependency stub.
         "../features/notFound/LiquidShader": () => null,
     });
 }

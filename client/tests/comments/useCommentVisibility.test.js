@@ -30,7 +30,7 @@ async function loadHook({ status, user, requestError } = {}) {
     };
     const dependencies = {
         react: {
-            // Expose controlled hook state and capture updates for assertions.
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
                 return [initial, /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];

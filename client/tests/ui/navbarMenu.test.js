@@ -15,7 +15,6 @@ const fixturePath = fileURLToPath(new URL("../fixtures/navbarMenu.json", import.
 
 // The link stub keeps snapshots focused on Navbar's markup, independent of router internals.
 // eslint-disable-next-line react/prop-types
-// Render a lightweight React element for component assertions.
 const Link = ({ to, children, ...props }) => React.createElement("a", { ...props, href: to }, children);
 
 // Load navbar menu with injected dependencies for isolated tests.
