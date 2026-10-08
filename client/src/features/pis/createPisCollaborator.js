@@ -1,5 +1,6 @@
 import { getStableUserId } from "./stableUserId.js";
 
+// Build a stable collaborator identity from Firebase and stored user data.
 export function createPisCollaborator(firebaseUser, storedUser, stableUserId = getStableUserId) {
     const parsedStoredUser = storedUser ? JSON.parse(storedUser) : null;
     const userId = stableUserId(firebaseUser?.uid || parsedStoredUser?._id);

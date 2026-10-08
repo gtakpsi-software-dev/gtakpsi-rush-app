@@ -12,6 +12,7 @@ type CollaborativeFieldPresenceOptions<T extends HTMLInputElement | HTMLTextArea
     isFieldLocked: boolean;
 };
 
+// Provide focus, blur, and mouse handlers for collaborative field ownership.
 export function useCollaborativeFieldPresence<T extends HTMLInputElement | HTMLTextAreaElement>({
     fieldKey,
     collaboration,
@@ -21,6 +22,7 @@ export function useCollaborativeFieldPresence<T extends HTMLInputElement | HTMLT
     isFieldLocked,
 }: CollaborativeFieldPresenceOptions<T>) {
     const handleFocus = useCallback((e: FocusEvent<T>) => {
+        // Reject focus on a remotely owned field or broadcast local typing and cursor presence.
         // INVARIANT: a remote cursor owns the field until that user's presence clears.
         if (isFieldLocked) {
             e.target.blur();
@@ -32,6 +34,7 @@ export function useCollaborativeFieldPresence<T extends HTMLInputElement | HTMLT
     }, [collaboration, fieldKey, isFieldLocked]);
 
     const handleBlur = useCallback(() => {
+        // Clear local presence and flush the current field value when connected.
         collaboration.sendTypingIndicator(fieldKey, false);
         // Release the remote lock before flushing the current DOM value.
         if (collaboration.clearCursorPosition) {
@@ -45,6 +48,7 @@ export function useCollaborativeFieldPresence<T extends HTMLInputElement | HTMLT
     }, [collaboration, fieldKey, localValue, fieldRef, lastSentValueRef]);
 
     const handleMouseDown = useCallback((e: MouseEvent<T>) => {
+        // Prevent mouse focus while another collaborator owns the field.
         if (isFieldLocked) {
             e.preventDefault();
         }

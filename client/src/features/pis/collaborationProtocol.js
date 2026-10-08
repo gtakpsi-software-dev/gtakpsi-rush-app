@@ -1,3 +1,4 @@
+// Accept newer remote text versions, excluding local echoes and fields awaiting resend.
 export function acceptRemoteTextUpdate(data, userId, knownVersions, resendingFields) {
     if (data.userId === userId) {
         return null;
@@ -23,6 +24,7 @@ export function acceptRemoteTextUpdate(data, userId, knownVersions, resendingFie
     return { ...data, version: incomingVersion };
 }
 
+// Clear a pending text update only when its acknowledgement ID matches.
 export function acknowledgeTextUpdate(ack, knownVersions, pendingUpdates, resendingFields) {
     const { field, version, clientUpdateId } = ack;
     const pending = pendingUpdates[field];
@@ -34,13 +36,14 @@ export function acknowledgeTextUpdate(ack, knownVersions, pendingUpdates, resend
     }
 }
 
+// Rebase a rejected pending edit or return the server value when no matching edit remains.
 export function rejectTextUpdate(
     rejection,
     currentUser,
     knownVersions,
     pendingUpdates,
     resendingFields,
-    createId = () => Math.random().toString(36).substr(2, 9)
+    createId = /* Generate a new client update ID for the rebased edit. */ () => Math.random().toString(36).substr(2, 9)
 ) {
     const { field, serverValue, serverVersion, clientUpdateId } = rejection;
     knownVersions[field] = serverVersion;
@@ -69,6 +72,7 @@ export function rejectTextUpdate(
     };
 }
 
+// Separate document values and versions, accepting both current and legacy payloads.
 export function normalizeDocumentState(state) {
     const values = {};
     const versions = {};

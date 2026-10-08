@@ -1,11 +1,12 @@
 import { SAVE_STATUS } from "./saveStatus.js";
 
+// Save interview answers and brother names, then show temporary success or error status.
 export async function performPisAutosave({
     questions, answers, brotherA, brotherB, gtid, api, axios,
     setSaveStatus, setLastSaved,
-    now = () => new Date(),
+    now = /* Return the current save-completion time. */ () => new Date(),
     schedule = setTimeout,
-    logError = (...values) => console.error(...values),
+    logError = /* Log an autosave error with its context. */ (...values) => console.error(...values),
 }) {
     // Do not post an incomplete interview before its questions and rushee ID load.
     if (!questions.length || !gtid) return;
@@ -13,7 +14,7 @@ export async function performPisAutosave({
     setSaveStatus(SAVE_STATUS.SAVING);
 
     try {
-        const pis_responses = questions.map((question) => ({
+        const pis_responses = questions.map(/* Build a question-answer entry, using an empty string for an unanswered question. */ (question) => ({
             question: question.question,
             answer: answers[question.question] || "",
         }));
@@ -34,6 +35,7 @@ export async function performPisAutosave({
 
         // Retain the existing two-second success feedback before returning to idle.
         schedule(() => {
+            // Return the successful save indicator to idle.
             setSaveStatus(SAVE_STATUS.IDLE);
         }, 2000);
     } catch (error) {
@@ -42,6 +44,7 @@ export async function performPisAutosave({
 
         // Keep failures visible longer than successful saves.
         schedule(() => {
+            // Return the failed save indicator to idle.
             setSaveStatus(SAVE_STATUS.IDLE);
         }, 3000);
     }

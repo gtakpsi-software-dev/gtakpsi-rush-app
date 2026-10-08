@@ -15,6 +15,7 @@ type Props = {
     };
 };
 
+// Display the interviewee’s photo, contact details, GTID, and attendance.
 export default function PisProfileHeader({ rushee }: Props) {
     return (
         <div className="card-apple p-6 mb-6">
@@ -30,7 +31,7 @@ export default function PisProfileHeader({ rushee }: Props) {
                             {rushee.first_name} {rushee.last_name}
                         </h1>
                         <div className="flex flex-wrap gap-2">
-                            {rushee.attendance.map((event, idx) => (
+                            {rushee.attendance.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                                 <Badges text={event.name} key={idx} />
                             ))}
                         </div>

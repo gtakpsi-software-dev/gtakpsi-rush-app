@@ -18,6 +18,7 @@ type CollaborativeInputViewProps = {
     handleMouseDown: NonNullable<InputProps['onMouseDown']>;
 };
 
+// Render a collaborative input and its remote-owner typing overlay.
 export default function CollaborativeInputView({
     inputRef, className, placeholder, localValue, disabled, required,
     isFieldLocked, lockedByUser, handleTextChange, handleCursorChange,

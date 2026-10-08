@@ -1,3 +1,4 @@
+// Synchronize parent values while preserving remote-operation and pending-local-edit guards.
 export function syncPropValue({
     value,
     localValue,

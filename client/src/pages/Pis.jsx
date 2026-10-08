@@ -15,6 +15,7 @@ import { usePisPageBootstrap } from "../features/pis/usePisPageBootstrap";
 import { usePisRevealPolling } from "../features/pis/usePisRevealPolling";
 import { createPisAnswerHandlers } from "../features/pis/createPisAnswerHandlers";
 
+// Manage interview loading, reveal polling, collaborative answers, and autosave.
 export default function Pis() {
     const { gtid } = useParams();
 
@@ -58,11 +59,12 @@ export default function Pis() {
 
     // Handle brother field changes (WebSocket sync is handled by CollaborativeInput)
     const handleBrotherAChange = (field, value) => {
-        setBrotherA(prev => ({ ...prev, [field]: value }));
+        setBrotherA(/* Merge the first interviewer’s edited name field. */ prev => ({ ...prev, [field]: value }));
     };
 
+    // Update a name field for the second interviewer.
     const handleBrotherBChange = (field, value) => {
-        setBrotherB(prev => ({ ...prev, [field]: value }));
+        setBrotherB(/* Merge the second interviewer’s edited name field. */ prev => ({ ...prev, [field]: value }));
     };
 
     usePisAutosave({

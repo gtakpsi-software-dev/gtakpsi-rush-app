@@ -1,5 +1,6 @@
 import { parseServerDate } from "./parseServerDate.js";
 
+// Apply returned questions, availability, and reveal time, or invoke the failure action.
 export function applyPisQuestionsResponse(response, {
     setQuestions, setQuestionsAvailable, setRevealAt, onFailure,
 }) {

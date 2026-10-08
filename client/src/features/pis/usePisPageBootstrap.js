@@ -5,6 +5,7 @@ import { verifyUser } from '../auth/verifyUser';
 import { auth } from '../../firebase';
 import { loadPisPageData } from './loadPisPageData';
 
+// Load interview data while the page is in its initial loading state.
 export function usePisPageBootstrap({
     loading,
     navigate,
@@ -25,6 +26,7 @@ export function usePisPageBootstrap({
     const errorDescription = 'Default Error Description';
 
     useEffect(() => {
+        // Start the session verification and interview-loading sequence.
         if (loading) {
             loadPisPageData({
                 verifyUser,
@@ -33,8 +35,10 @@ export function usePisPageBootstrap({
                 errorDescription,
                 currentUser,
                 auth,
+                // Read the stored brother identity.
                 getStoredUser: () => localStorage.getItem('user'),
                 setCurrentUser,
+                // Forward an interview data request through Axios.
                 get: (...args) => axios.get(...args),
                 api,
                 gtid,
@@ -46,6 +50,7 @@ export function usePisPageBootstrap({
                 setQuestionsAvailable,
                 setRevealAt,
                 setLoading,
+                // Log an interview bootstrap error.
                 logError: (error) => console.log(error),
             });
         }

@@ -11,6 +11,7 @@ type Props = {
     currentUser: unknown;
 };
 
+// Render multiple-choice or collaborative text inputs for each interview question.
 export default function PisQuestionResponses({
     questions, answers, handleMCChange, handleAnswerChange,
     collaboration, currentUser,
@@ -18,7 +19,7 @@ export default function PisQuestionResponses({
     return (
         <>
             {questions.length > 0 ? (
-                questions.map((question, idx) => (
+                questions.map(/* Render one numbered question with the appropriate answer control. */ (question, idx) => (
                     <div key={idx} className="mb-8">
                         <p className="text-apple-body text-black font-normal mb-4">
                             {idx + 1}. {question.question}
@@ -32,7 +33,9 @@ export default function PisQuestionResponses({
                                         name={question.question}
                                         value="Yes"
                                         checked={answers[question.question] === "Yes"}
-                                        onChange={(e) => handleMCChange(question.question, e.target.value)}
+                                        onChange={
+                                            /* Store the selected Yes answer for this question. */
+                                            (e) => handleMCChange(question.question, e.target.value)}
                                         className="mr-3 w-4 h-4 text-black focus:ring-black focus:ring-2"
                                     />
                                     Yes
@@ -43,7 +46,9 @@ export default function PisQuestionResponses({
                                         name={question.question}
                                         value="No"
                                         checked={answers[question.question] === "No"}
-                                        onChange={(e) => handleMCChange(question.question, e.target.value)}
+                                        onChange={
+                                            /* Store the selected No answer for this question. */
+                                            (e) => handleMCChange(question.question, e.target.value)}
                                         className="mr-3 w-4 h-4 text-black focus:ring-black focus:ring-2"
                                     />
                                     No

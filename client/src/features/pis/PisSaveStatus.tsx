@@ -2,6 +2,7 @@ import { SAVE_STATUS } from "./saveStatus";
 
 type Props = { saveStatus: string; lastSaved: Date | null };
 
+// Display saving, saved, error, or last-saved feedback for interview autosave.
 export default function PisSaveStatus({ saveStatus, lastSaved }: Props) {
     switch (saveStatus) {
         case SAVE_STATUS.SAVING:

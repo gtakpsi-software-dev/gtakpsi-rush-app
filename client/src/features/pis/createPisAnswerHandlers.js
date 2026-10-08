@@ -1,6 +1,8 @@
+// Create handlers for free-text and multiple-choice interview answers.
 export function createPisAnswerHandlers({ setAnswers, collaboration }) {
+    // Store the answer and broadcast voice-originated changes when connected.
     const handleAnswerChange = (question, answer, meta = {}) => {
-        setAnswers((prev) => ({
+        setAnswers(/* Replace this question’s answer while preserving the others. */ (prev) => ({
             ...prev,
             [question]: answer,
         }));
@@ -11,8 +13,9 @@ export function createPisAnswerHandlers({ setAnswers, collaboration }) {
         }
     };
 
+    // Store and broadcast a multiple-choice answer when connected.
     const handleMCChange = (question, answer) => {
-        setAnswers((prev) => ({
+        setAnswers(/* Replace this question’s answer while preserving the others. */ (prev) => ({
             ...prev,
             [question]: answer,
         }));
