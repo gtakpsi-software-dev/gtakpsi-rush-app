@@ -5,9 +5,9 @@ use serde_json::json;
 use super::payload;
 use crate::{
     controllers::rushee,
-    integration_tests::fixtures::{path, register, reset, GTID},
     models::rush_nights::RushNight,
     storage::db,
+    tests::integration::mongodb::fixtures::{path, register, reset, GTID},
 };
 
 pub(super) async fn check_contracts() {

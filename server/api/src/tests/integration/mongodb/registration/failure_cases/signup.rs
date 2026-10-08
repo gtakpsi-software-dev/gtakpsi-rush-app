@@ -1,6 +1,6 @@
 use super::*;
 
-pub(in crate::integration_tests::registration) async fn check_signup_insert_failure() {
+pub(in crate::tests::integration::mongodb::registration) async fn check_signup_insert_failure() {
     let new_gtid = "900000002";
     let before = capacity(SLOT).await;
     let database = db::get_mongo_client().await.database("rush-app");

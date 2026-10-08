@@ -12,9 +12,6 @@ mod voter_socket;
 #[cfg(test)]
 mod tests;
 
-#[cfg(all(test, feature = "integration-tests"))]
-mod integration_tests;
-
 use clients::ClientMap;
 use std::{env, net::SocketAddr, sync::Arc};
 use voter_socket::spawn_pubsub_listener;

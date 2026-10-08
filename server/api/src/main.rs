@@ -10,11 +10,8 @@ mod routes;
 mod services;
 mod storage;
 
-#[cfg(all(test, feature = "integration-tests"))]
-mod integration_tests;
-
-#[cfg(all(test, feature = "redis-integration-tests"))]
-mod redis_integration_tests;
+#[cfg(test)]
+mod tests;
 
 #[tokio::main]
 async fn main() {

@@ -1,6 +1,6 @@
 use super::*;
 
-pub(in crate::integration_tests::registration) async fn check_reschedule_write_failure(
+pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_write_failure(
     old_slot: &str,
 ) {
     let new_slot = "2030-01-04T18:00:00Z";
@@ -37,7 +37,7 @@ pub(in crate::integration_tests::registration) async fn check_reschedule_write_f
         .unwrap();
 }
 
-pub(in crate::integration_tests::registration) async fn check_reschedule_missing_rushee_and_old_slot(
+pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_missing_rushee_and_old_slot(
     old_slot: &str,
 ) {
     let new_slot = "2030-01-05T18:00:00Z";
@@ -81,7 +81,7 @@ pub(in crate::integration_tests::registration) async fn check_reschedule_missing
     assert_eq!(stored.pis_signup.time, stored.pis_timeslot);
 }
 
-pub(in crate::integration_tests::registration) async fn check_reschedule_old_slot_write_failure(
+pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_old_slot_write_failure(
     old_slot: &str,
 ) {
     let new_slot = "2030-01-06T18:00:00Z";
@@ -121,7 +121,7 @@ pub(in crate::integration_tests::registration) async fn check_reschedule_old_slo
         .unwrap();
 }
 
-pub(in crate::integration_tests::registration) async fn check_reschedule_new_slot_write_failure(
+pub(in crate::tests::integration::mongodb::registration) async fn check_reschedule_new_slot_write_failure(
     old_slot: &str,
 ) {
     let new_slot = "2030-01-07T18:00:00Z";
