@@ -29,10 +29,15 @@ export async function login(credentials) {
         signInWithEmailAndPassword,
         signOut,
         checkRushAppAccess,
+        // Read the configured API base URL for the login access check.
         getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
+        // Read the shared API key for the login access check.
         getApiKey: () => import.meta.env.VITE_API_KEY,
+        // Send access-check requests through the browser fetch API.
         fetchRequest: (...args) => fetch(...args),
+        // Persist the authenticated user in browser storage.
         storeUser: (...args) => localStorage.setItem(...args),
+        // Remove the locally stored user after access is denied.
         removeStoredUser: () => localStorage.removeItem('user'),
         toast,
         logger: console,
@@ -53,12 +58,14 @@ export async function createAccount(credentials) {
         db,
         doc,
         setDoc,
+        // Persist the newly created user in browser storage.
         storeUser: (...args) => localStorage.setItem(...args),
         toast,
         logger: console,
     });
 }
 
+// Send a password-reset email using the configured Firebase and notification services.
 export function resetPassword(email) {
     return resetPasswordWithServices(email, {
         auth,
@@ -69,10 +76,12 @@ export function resetPassword(email) {
     });
 }
 
+// Sign out through Firebase and clear the local user after success.
 export function logout() {
     return logoutWithServices({
         auth,
         signOut,
+        // Remove the local user after Firebase sign-out succeeds.
         removeStoredUser: () => localStorage.removeItem('user'),
         logger: console,
     });

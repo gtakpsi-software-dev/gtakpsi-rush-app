@@ -5,6 +5,7 @@ type AdminDataActionsProps = {
     handleRequest: (endpoint: string, body: object, method: string, message: string) => Promise<void>;
 };
 
+// Render CSV export buttons and PIS data-fetch controls.
 export default function AdminDataActions({
     exportRusheeNumbers,
     exportPISSchedule,
@@ -58,7 +59,9 @@ export default function AdminDataActions({
                     View all current PIS questions in console
                 </p>
                 <button
-                    onClick={() => handleRequest("get_pis_questions", {}, "get", "Check console for questions")}
+                    onClick={
+                        /* Request the current PIS questions through the general admin action. */
+                        () => handleRequest("get_pis_questions", {}, "get", "Check console for questions")}
                     className="w-full bg-apple-gray-100 text-black py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-200 transition-all duration-200 border border-apple-gray-200"
                 >
                     Fetch Questions
@@ -71,7 +74,9 @@ export default function AdminDataActions({
                     View all current PIS timeslots in console
                 </p>
                 <button
-                    onClick={() => handleRequest("get_pis_timeslots", {}, "get", "Check console for timeslots")}
+                    onClick={
+                        /* Request the current PIS timeslots through the general admin action. */
+                        () => handleRequest("get_pis_timeslots", {}, "get", "Check console for timeslots")}
                     className="w-full bg-apple-gray-100 text-black py-3 px-4 rounded-apple-xl text-apple-body font-light hover:bg-apple-gray-200 transition-all duration-200 border border-apple-gray-200"
                 >
                     Fetch Timeslots

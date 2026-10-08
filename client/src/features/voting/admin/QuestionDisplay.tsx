@@ -3,6 +3,7 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import { adminPost } from "../../admin/api";
 import { toast } from "react-toastify";
 
+// Display and edit the active voting question with submission and cancellation controls.
 export default function QuestionDisplay() {
 
     const { question } = useAdminVotingContext();
@@ -12,12 +13,14 @@ export default function QuestionDisplay() {
 
     const lambdaURL = import.meta.env.VITE_API_PREFIX;
 
+    // Submit a changed question, clear prior votes, and close the editor.
     const handleSendQuestion = async () => {
         if (inputValue.trim() !== question) {
             const payload = { question: inputValue };
 
             await toast.promise(
                 (async () => {
+                    // Post the new question before clearing votes that belong to the previous question.
                     await adminPost(`${lambdaURL}/admin/voting/post-question`, payload);
                     
                     // Existing votes refer to the prior question and must be cleared after the update.
@@ -39,11 +42,13 @@ export default function QuestionDisplay() {
         setEditing(false);
     };
 
+    // Restore the current question and close the editor.
     const handleCancel = () => {
         setInputValue(question || "");
         setEditing(false);
     };
 
+    // Submit on Enter or cancel editing on Escape.
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSendQuestion();
@@ -52,9 +57,10 @@ export default function QuestionDisplay() {
         }
     };
 
+    // Open the question editor and schedule input focus.
     const handleClick = () => {
         setEditing(true);
-        setTimeout(() => inputRef.current?.focus(), 0);
+        setTimeout(/* Focus the question input after the editor renders. */ () => inputRef.current?.focus(), 0);
     };
 
     return (
@@ -71,7 +77,7 @@ export default function QuestionDisplay() {
                     <input
                         ref={inputRef}
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        onChange={/* Update the draft question text. */ (e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyPress}
                         className="w-full text-apple-title1 text-black bg-transparent outline-none border-b border-apple-gray-300 focus:border-black transition-all duration-150"
                         placeholder="Enter your question..."

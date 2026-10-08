@@ -1,6 +1,7 @@
 use super::*;
 use serde_json::{json, Value};
 
+// Build a stored rushee fixture without newer optional fields.
 fn legacy_rushee() -> Value {
     json!({
         "first_name": "Test", "last_name": "Rushee", "housing": "Campus",
@@ -21,6 +22,7 @@ fn legacy_rushee() -> Value {
     })
 }
 
+// Verify legacy defaults and exclusion of stored derived interaction counts.
 #[test]
 fn legacy_documents_keep_sorting_defaults_and_discard_persisted_interaction_counts() {
     let mut document = legacy_rushee();
@@ -36,6 +38,7 @@ fn legacy_documents_keep_sorting_defaults_and_discard_persisted_interaction_coun
     assert!(rushee.interactions_by_night.is_empty());
 }
 
+// Verify that self-service responses omit private brother and committee data.
 #[test]
 fn self_view_serializes_only_the_existing_public_fields() {
     let mut document = legacy_rushee();
@@ -64,6 +67,7 @@ fn self_view_serializes_only_the_existing_public_fields() {
     assert_eq!(actual, Value::Object(expected));
 }
 
+// Verify list-view serialization, including explicit null optional values.
 #[test]
 fn list_view_keeps_null_timeslot_and_interaction_fields() {
     let view = StrippedRushee {
@@ -111,6 +115,7 @@ fn list_view_keeps_null_timeslot_and_interaction_fields() {
     );
 }
 
+// Verify exact vote names and rejection of lowercase alternatives.
 #[test]
 fn vote_option_wire_names_remain_case_sensitive() {
     assert_eq!(
@@ -124,6 +129,7 @@ fn vote_option_wire_names_remain_case_sensitive() {
     assert!(serde_json::from_value::<VoteOption>(json!("yes")).is_err());
 }
 
+// Verify that incoming and stored votes use the expected JSON fields.
 #[test]
 fn incoming_and_stored_votes_keep_their_wire_fields() {
     let incoming = json!({

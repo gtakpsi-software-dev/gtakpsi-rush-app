@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify that protected routes reject unauthenticated requests before reaching handlers.
 #[tokio::test]
 async fn protected_routes_reject_missing_bearer_tokens_before_database_access() {
     for (method, path) in [
@@ -25,6 +26,7 @@ async fn protected_routes_reject_missing_bearer_tokens_before_database_access() 
     }
 }
 
+// Verify authentication requirements across voting administration routes.
 #[tokio::test]
 async fn voting_routes_keep_their_methods_and_admin_auth_boundary() {
     let router = app();
@@ -46,6 +48,7 @@ async fn voting_routes_keep_their_methods_and_admin_auth_boundary() {
     }
 }
 
+// Verify authentication requirements across PIS availability management routes.
 #[tokio::test]
 async fn admin_pis_availability_routes_keep_admin_auth_boundary() {
     for (method, path) in [
@@ -65,6 +68,7 @@ async fn admin_pis_availability_routes_keep_admin_auth_boundary() {
     }
 }
 
+// Verify rejection of malformed authorization before remote certificate lookup.
 #[tokio::test]
 async fn malformed_authorization_is_rejected_without_fetching_firebase_keys() {
     for authorization in ["Basic invalid", "Bearer malformed", "bearer malformed"] {

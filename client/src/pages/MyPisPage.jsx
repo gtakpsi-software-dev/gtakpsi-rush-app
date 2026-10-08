@@ -7,6 +7,7 @@ import { verifyUser } from "../features/auth/verifyUser";
 import { sortPisAppointments } from "../features/brotherPis/appointments";
 import { adminPost } from "../features/admin/api";
 
+// Load the current brother’s assigned PIS appointments and display their status.
 export default function MyPisPage() {
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -23,8 +24,10 @@ export default function MyPisPage() {
     const initialFetch = useRef({ user, navigate, api });
 
     useEffect(() => {
+        // Load appointments using the user and routing context captured on mount.
         const { user, navigate, api } = initialFetch.current;
 
+        // Verify access and fetch chronologically sorted PIS appointments, reporting failures.
         async function fetchData() {
             setLoading(true);
 

@@ -1,5 +1,6 @@
 import { createAvailabilityAssignmentActions } from "./createAvailabilityAssignmentActions.js";
 
+// Create actions to activate, reset, deactivate, and assign from the availability form.
 export function createAvailabilityFormActions({
     apiBase,
     pisFormStatus,
@@ -10,6 +11,7 @@ export function createAvailabilityFormActions({
     toast,
     confirm,
 }) {
+    // Submit a form-management request, apply successful state, and report the outcome.
     const submitForm = async ({ endpoint, onSuccess, successMessage, failureMessage }) => {
         setPisFormLoading(true);
         try {
@@ -39,13 +41,16 @@ export function createAvailabilityFormActions({
         }
     };
 
+    // Activate the PIS availability form for brothers.
     const handleSendPISForm = () => submitForm({
         endpoint: "send-form",
+        // Mark the form active with the current sent timestamp.
         onSuccess: () => setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() }),
         successMessage: "PIS availability form sent to all brothers!",
         failureMessage: "Failed to send form",
     });
 
+    // Confirm clearing submissions and request a fresh availability form.
     const handleClearAndResendPISForm = async () => {
         // Confirm destructive form and assignment changes before any state or network work.
         if (!confirm("This will clear all existing brother availability submissions and resend the form. Continue?")) {
@@ -53,6 +58,7 @@ export function createAvailabilityFormActions({
         }
         await submitForm({
             endpoint: "clear-and-resend",
+            // Mark the resent form active and clear the displayed submissions.
             onSuccess: () => {
                 setPisFormStatus({ is_active: true, sent_at: new Date().toISOString() });
                 setBrotherAvailabilities([]);
@@ -62,6 +68,7 @@ export function createAvailabilityFormActions({
         });
     };
 
+    // Deactivate the availability form and update its local status.
     const handleDeactivatePISForm = async () => {
         setPisFormLoading(true);
         try {

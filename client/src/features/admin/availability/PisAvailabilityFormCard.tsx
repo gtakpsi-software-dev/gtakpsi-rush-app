@@ -13,6 +13,7 @@ type PisAvailabilityFormCardProps = {
     onClearAndResendPISForm: () => Promise<void>;
 };
 
+// Format the form’s BSON or plain sent timestamp in local time.
 function formatSentAt(sentAt: string | ExtendedDate) {
     // The API sends this timestamp as either extended JSON or an ISO string.
     const value = (sentAt as ExtendedDate).$date
@@ -21,6 +22,7 @@ function formatSentAt(sentAt: string | ExtendedDate) {
     return new Date(value as string | number).toLocaleString();
 }
 
+// Display availability form status and activation, deactivation, or reset controls.
 export default function PisAvailabilityFormCard({
     pisFormStatus,
     pisFormLoading,

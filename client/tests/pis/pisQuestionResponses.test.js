@@ -10,6 +10,7 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const componentPath = fileURLToPath(new URL("../../src/features/pis/PisQuestionResponses.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("../fixtures/pisQuestionResponses.json", import.meta.url));
+// Render a lightweight React element for component assertions.
 const CollaborativeTextarea = () => React.createElement("textarea", { "data-stub": "collaborative" });
 const questions = [
     { question: "Can you attend?", question_type: "MC" },
@@ -18,11 +19,14 @@ const questions = [
 const collaboration = { isConnected: true };
 const currentUser = { id: "u1" };
 
+// Build component props with test-specific overrides.
 function props(overrides = {}) {
     return {
         questions,
         answers: { "Can you attend?": "Yes", "Why join?": "Draft" },
+        // Provide an inert handle mcchange stub for this test.
         handleMCChange() {},
+        // Provide an inert handle answer change stub for this test.
         handleAnswerChange() {},
         collaboration,
         currentUser,
@@ -30,9 +34,10 @@ function props(overrides = {}) {
     };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         collect(node.props.children, elements);
@@ -41,6 +46,7 @@ function collect(node, elements = []) {
 }
 
 test("PIS question controls retain yes, no, text, and empty markup", async () => {
+    // Verify PIS question controls retain yes, no, text, and empty markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const PisQuestionResponses = await loadTsxComponent(componentPath, {
         "../collaboration/CollaborativeTextarea": CollaborativeTextarea,
@@ -57,18 +63,21 @@ test("PIS question controls retain yes, no, text, and empty markup", async () =>
 });
 
 test("multiple-choice changes and collaborative text props retain original routes", async () => {
+    // Verify multiple-choice changes and collaborative text props retain original routes.
     const PisQuestionResponses = await loadTsxComponent(componentPath, {
         "../collaboration/CollaborativeTextarea": CollaborativeTextarea,
     });
     const calls = [];
+    // Record on answer change calls for assertions.
     const onAnswerChange = (...args) => calls.push(["text", ...args]);
     const tree = PisQuestionResponses(props({
+        // Record handle mcchange calls for assertions.
         handleMCChange: (question, answer) => calls.push(["mc", question, answer]),
         handleAnswerChange: onAnswerChange,
     }));
     const nodes = collect(tree);
-    const radios = nodes.filter((node) => node.type === "input" && node.props.type === "radio");
-    assert.deepEqual(radios.map((node) => [
+    const radios = nodes.filter(/* Find the input with type radio. */ (node) => node.type === "input" && node.props.type === "radio");
+    assert.deepEqual(radios.map(/* Return the fixture for this scenario. */ (node) => [
         node.props.name, node.props.value, node.props.checked,
     ]), [
         ["Can you attend?", "Yes", true],
@@ -77,7 +86,7 @@ test("multiple-choice changes and collaborative text props retain original route
     radios[0].props.onChange({ target: { value: "Yes" } });
     radios[1].props.onChange({ target: { value: "No" } });
 
-    const textarea = nodes.find((node) => node.type === CollaborativeTextarea);
+    const textarea = nodes.find(/* Match node.type to CollaborativeTextarea. */ (node) => node.type === CollaborativeTextarea);
     assert.equal(textarea.props.questionKey, "Why join?");
     assert.equal(textarea.props.value, "Draft");
     assert.equal(textarea.props.onChange, onAnswerChange);

@@ -30,8 +30,11 @@ const rushee = {
     ratings: [{ name: 'Leadership', value: 4.5 }]
 };
 
-async function loadDashboard({ state = {}, open = () => {} } = {}) {
+// Load dashboard with injected dependencies for isolated tests.
+async function loadDashboard({ state = {}, open = /* Leave this mocked callback inert. */ () => {} } = {}) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub() {
+        // Capture component props and render a placeholder element.
         return React.createElement('span', { 'data-stub': name });
     };
     // Test doubles render only the fields needed to pin dashboard markup.
@@ -44,6 +47,7 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
     const Filters = await loadTsxComponent(filtersPath);
     const View = await loadTsxComponent(viewPath, {
         '../../components/Navbar': stub('navbar'),
+        // Render a lightweight React element for component assertions.
         '../../components/Error': ({ title, description }) => React.createElement('span', { 'data-stub': 'error' }, `${title}: ${description}`),
         '../../components/Loader': stub('loader'),
         './BidCommitteeRusheeCard': Card,
@@ -62,15 +66,21 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => {
                 const index = stateIndex++;
-                return [Object.hasOwn(state, index) ? state[index] : initial, () => {}];
+                return [Object.hasOwn(state, index) ? state[index] : initial, /* Leave this mocked callback inert. */ () => {}];
             },
+            // Provide an inert use effect stub for this test.
             useEffect: () => {}
         },
         axios: {},
-        'react-router-dom': { useNavigate: () => () => {} },
-        '../features/auth/verifyUser': { verifyUser() {} },
+        'react-router-dom': { useNavigate:
+            /* Provide the callback used by this dependency stub. */
+            () =>
+            /* Leave this mocked callback inert. */
+            () => {} },
+        '../features/auth/verifyUser': { /* Provide an inert verify user stub for this test. */ verifyUser() {} },
         '../features/dashboard/bidCommitteeList': { filterBidCommitteeRushees },
         '../features/dashboard/BidCommitteeDashboardView': View
     };
@@ -78,11 +88,12 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
         },
-        localStorage: { getItem: () => null },
+        localStorage: { getItem: /* Return null from this dependency stub. */ () => null },
         window: { open }
     }, { filename: pagePath });
 
@@ -90,6 +101,7 @@ async function loadDashboard({ state = {}, open = () => {} } = {}) {
 }
 
 test('bid committee dashboard retains loading, error, empty, and numbered-card markup', async () => {
+    // Verify bid committee dashboard retains loading, error, empty, and numbered-card markup.
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: {},
@@ -107,6 +119,8 @@ test('bid committee dashboard retains loading, error, empty, and numbered-card m
 });
 
 test('numbered cards keep the profile URL and missing-number fallback', async () => {
+    // Verify numbered cards keep the profile URL and missing-number fallback.
+    // Find the rendered card for the fixture rushee.
     function findCard(node) {
         if (Array.isArray(node)) return node.map(findCard).find(Boolean);
         if (!React.isValidElement(node)) return undefined;
@@ -122,6 +136,7 @@ test('numbered cards keep the profile URL and missing-number fallback', async ()
         const opens = [];
         const Dashboard = await loadDashboard({
             state: { 1: false, 5: [rushee], 6: [rushee], 11: numberMap },
+            // Record open calls for assertions.
             open: (...args) => opens.push(args)
         });
         const card = findCard(Dashboard({ user: { uid: 'brother-1' } }));
@@ -136,22 +151,29 @@ test('numbered cards keep the profile URL and missing-number fallback', async ()
 });
 
 test('bid committee filters keep GTID input rules, options, and callbacks', async () => {
+    // Verify bid committee filters keep GTID input rules, options, and callbacks.
     const Filters = await loadTsxComponent(filtersPath);
     const calls = [];
     const tree = Filters({
         query: '900000001',
+        // Record handle search calls for assertions.
         handleSearch: (event) => calls.push(['search', event.target.value]),
         rushees: [rushee, { ...rushee, major: 'Engineering', class: '2027' }, rushee],
         selectedMajor: 'All',
+        // Record set selected major calls for assertions.
         setSelectedMajor: (value) => calls.push(['major', value]),
         selectedClass: 'All',
+        // Record set selected class calls for assertions.
         setSelectedClass: (value) => calls.push(['class', value]),
         selectedSort: 'none',
+        // Record set selected sort calls for assertions.
         setSelectedSort: (value) => calls.push(['sort', value]),
+        // Record on shuffle calls for assertions.
         onShuffle: () => calls.push(['shuffle'])
     });
     const elements = [];
 
+    // Walk the rendered element tree to collect nodes for assertions.
     function collect(node) {
         if (Array.isArray(node)) node.forEach(collect);
         else if (React.isValidElement(node)) {
@@ -161,9 +183,9 @@ test('bid committee filters keep GTID input rules, options, and callbacks', asyn
     }
     collect(tree);
 
-    const input = elements.find((element) => element.type === 'input');
-    const selects = elements.filter((element) => element.type === 'select');
-    const button = elements.find((element) => element.type === 'button');
+    const input = elements.find(/* Identify rendered input elements. */ (element) => element.type === 'input');
+    const selects = elements.filter(/* Identify rendered select elements. */ (element) => element.type === 'select');
+    const button = elements.find(/* Identify rendered button elements. */ (element) => element.type === 'button');
     assert.equal(input.props.maxLength, '9');
     assert.equal(input.props.pattern, '[0-9]{9}');
     input.props.onChange({ target: { value: '900000002' } });

@@ -1,6 +1,7 @@
+// Hydrate the interview profile, saved answers, and assigned brothers from the API response.
 export function applyPisRusheeResponse(response, {
     setRushee, setAnswers, setBrotherA, setBrotherB, navigate, errorTitle,
-    log = (...values) => console.log(...values),
+    log = /* Log interview hydration details. */ (...values) => console.log(...values),
 }) {
     if (response.data.status === "success") {
         const rusheeData = response.data.payload;
@@ -8,15 +9,17 @@ export function applyPisRusheeResponse(response, {
 
         const existingAnswers = {};
         rusheeData.pis?.forEach((pis) => {
+            // Index each saved PIS answer by question text.
             existingAnswers[pis.question] = pis.answer;
         });
         // Database answers replace matching live values during initial hydration.
-        setAnswers((prev) => ({ ...prev, ...existingAnswers }));
+        setAnswers(/* Merge saved database answers over matching current answers. */ (prev) => ({ ...prev, ...existingAnswers }));
 
         if (rusheeData.pis_signup) {
             const signup = rusheeData.pis_signup;
 
             // The API uses "none" and empty names to mean no assigned brother.
+            // Accept nonblank brother names other than the unassigned sentinel.
             const isValidName = (val) => val && val.trim() && val.trim().toLowerCase() !== "none";
 
             const brotherAFirst = isValidName(signup.first_brother_first_name) ? signup.first_brother_first_name.trim() : '';

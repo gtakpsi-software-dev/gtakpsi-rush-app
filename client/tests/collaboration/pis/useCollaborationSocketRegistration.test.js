@@ -13,6 +13,7 @@ import { registerCollaborationTextEvents } from '../../../src/features/pis/regis
 const hookPath = fileURLToPath(new URL('../../../src/features/pis/useCollaboration.js', import.meta.url));
 
 test('collaboration hook keeps socket listener order and cleanup', async () => {
+    // Verify collaboration hook keeps socket listener order and cleanup.
     const source = await readFile(hookPath, 'utf8');
     const { code } = await transformWithEsbuild(source, hookPath, {
         loader: 'js', format: 'cjs',
@@ -24,19 +25,28 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
     const listeners = new Map();
     let commandOptions;
     const socket = {
+        // Register a socket event handler for explicit test dispatch.
         on(name, handler) { listeners.set(name, handler); },
+        // Record disconnect calls for assertions.
         disconnect() { calls.push('disconnect'); },
+        // Record remove all listeners calls for assertions.
         removeAllListeners() { calls.push('remove-listeners'); },
     };
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
+            // Supply controlled state and a setter without mounting React.
             useState: (initial) => [initial, noop],
+            // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),
+            // Keep the callback callable without a React render cycle.
             useCallback: (callback) => callback,
         },
         'socket.io-client': {
+            // Record socket connection options and return the fake socket.
             io(url, options) {
                 calls.push(['connect', url, options.forceNew]);
                 return socket;
@@ -54,6 +64,7 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
             getActiveCursors: noop,
         },
         './useCollaborationCommands.js': {
+            // Capture command dependencies and return inert collaboration commands.
             useCollaborationCommands(options) {
                 commandOptions = options;
                 return {
@@ -68,6 +79,7 @@ test('collaboration hook keeps socket listener order and cleanup', async () => {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromHook(specifier);

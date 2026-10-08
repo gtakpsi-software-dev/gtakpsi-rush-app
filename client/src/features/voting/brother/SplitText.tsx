@@ -20,6 +20,7 @@ export interface SplitTextProps {
     onLetterAnimationComplete?: () => void;
 }
 
+// Choose the split lines, words, or characters to animate.
 function getAnimationTargets(splitter: GSAPSplitText, splitType: SplitTextProps["splitType"]): Element[] {
     switch (splitType) {
         case "lines":
@@ -31,6 +32,7 @@ function getAnimationTargets(splitter: GSAPSplitText, splitType: SplitTextProps[
     }
 }
 
+// Convert visibility threshold and root margin into a GSAP scroll-start expression.
 function getScrollStart(threshold: number, rootMargin: string): string {
     const startPct = (1 - threshold) * 100;
     const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
@@ -40,6 +42,7 @@ function getScrollStart(threshold: number, rootMargin: string): string {
     return `top ${startPct}%${sign}`;
 }
 
+// Render text with a staggered, scroll-triggered entrance animation.
 const SplitText: React.FC<SplitTextProps> = ({
     text,
     className = "",
@@ -58,6 +61,7 @@ const SplitText: React.FC<SplitTextProps> = ({
     const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
     useEffect(() => {
+        // Split and animate the text, returning cleanup for generated elements and animations.
         if (typeof window === "undefined" || !ref.current || !text) return;
 
         const el = ref.current;
@@ -86,6 +90,7 @@ const SplitText: React.FC<SplitTextProps> = ({
         }
 
         targets.forEach((t) => {
+            // Prepare this text fragment for transform and opacity animation.
             (t as HTMLElement).style.willChange = "transform, opacity";
         });
 
@@ -97,11 +102,13 @@ const SplitText: React.FC<SplitTextProps> = ({
                 start,
                 toggleActions: "play none none none",
                 once: true,
+                // Retain the active scroll trigger for cleanup.
                 onToggle: (self) => {
                     scrollTriggerRef.current = self;
                 },
             },
             smoothChildTiming: true,
+            // Apply final styles, clear animation hints, and notify completion.
             onComplete: () => {
                 gsap.set(targets, {
                     ...to,
@@ -122,6 +129,7 @@ const SplitText: React.FC<SplitTextProps> = ({
         });
 
         return () => {
+            // Stop the timeline and tweens, remove the trigger, and restore unsplit text.
             tl.kill();
             if (scrollTriggerRef.current) {
                 scrollTriggerRef.current.kill();

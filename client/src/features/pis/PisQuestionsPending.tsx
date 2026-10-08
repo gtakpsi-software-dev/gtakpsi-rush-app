@@ -5,6 +5,7 @@ type Props = {
     revealAt: Date | null;
 };
 
+// Display the question unlock time and fixed questions available before reveal.
 export default function PisQuestionsPending({ questions, revealAt }: Props) {
     return (
         <div className="min-h-screen w-full bg-white overflow-y-auto">
@@ -25,7 +26,7 @@ export default function PisQuestionsPending({ questions, revealAt }: Props) {
                     {questions.length > 0 && (
                         <div className="text-left bg-apple-gray-50 rounded-apple-xl p-5 space-y-3">
                             <h2 className="text-apple-headline font-normal text-black mb-2">Available now</h2>
-                            {questions.map((q, idx) => (
+                            {questions.map(/* Display an already-available interview question. */ (q, idx) => (
                                 <p key={idx} className="text-apple-body text-apple-gray-700">{q.question}</p>
                             ))}
                         </div>

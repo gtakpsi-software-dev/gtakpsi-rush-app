@@ -1,3 +1,4 @@
+// Build the local user record with both supported name-field conventions.
 function storedUser(uid, email, displayName, firstName, lastName) {
     // Keep both name conventions because the voting UI and newer screens read different keys.
     return {
@@ -12,6 +13,7 @@ function storedUser(uid, email, displayName, firstName, lastName) {
     };
 }
 
+// Build a local session record from a signed-in Firebase user.
 export function loginStoredUser(user) {
     const nameParts = user.displayName?.split(' ') || ['', ''];
     const firstName = nameParts[0] || '';
@@ -20,6 +22,7 @@ export function loginStoredUser(user) {
     return storedUser(user.uid, user.email, user.displayName, firstName, lastName);
 }
 
+// Build a local session record from a newly created account and its submitted names.
 export function createdStoredUser(user, credentials, displayName) {
     return storedUser(
         user.uid,

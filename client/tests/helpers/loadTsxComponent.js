@@ -4,6 +4,7 @@ import { runInNewContext } from "node:vm";
 
 import { transformWithEsbuild } from "vite";
 
+// Load tsx module with injected dependencies for isolated tests.
 export async function loadTsxModule(componentPath, dependencies = {}, globals = {}) {
     const source = await readFile(componentPath, "utf8");
     const compiled = await transformWithEsbuild(source, componentPath, {
@@ -18,6 +19,7 @@ export async function loadTsxModule(componentPath, dependencies = {}, globals = 
         ...globals,
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromComponent(specifier);
@@ -27,6 +29,7 @@ export async function loadTsxModule(componentPath, dependencies = {}, globals = 
     return module.exports;
 }
 
+// Load tsx component with injected dependencies for isolated tests.
 export async function loadTsxComponent(componentPath, dependencies = {}, globals = {}) {
     const component = await loadTsxModule(componentPath, dependencies, globals);
     return component.default;

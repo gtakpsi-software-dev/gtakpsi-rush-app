@@ -9,6 +9,7 @@ pub struct RusheeError {
 }
 
 impl fmt::Display for RusheeError {
+    // Format a rushee lookup error as its code and message.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}: {}", self.code, self.message)
     }
@@ -16,6 +17,7 @@ impl fmt::Display for RusheeError {
 
 impl std::error::Error for RusheeError {}
 
+// Find a rushee by GTID, distinguishing a missing record from a database failure.
 pub async fn fetch_rushee(gtid: String) -> Result<RusheeModel, RusheeError> {
     let connection = db::get_rushee_collection().await;
 

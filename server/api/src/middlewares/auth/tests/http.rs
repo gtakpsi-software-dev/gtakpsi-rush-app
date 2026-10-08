@@ -12,6 +12,7 @@ use axum::{
 use std::sync::Arc;
 use tower::ServiceExt;
 
+// Build test routes protected by each authentication middleware.
 async fn app(allowlist: Option<&str>) -> Router {
     let auth = Arc::new(auth(allowlist).await);
     Router::new()
@@ -36,12 +37,14 @@ async fn app(allowlist: Option<&str>) -> Router {
         .with_state(auth)
 }
 
+// Return the verified identity attached by authentication middleware.
 async fn identity(Extension(user): Extension<FirebaseUser>) -> Json<Value> {
     Json(
         json!({"uid": user.uid, "email": user.email, "admin": user.is_admin, "bidcom": user.is_bidcom}),
     )
 }
 
+// Send an in-process request and collect its status and response bytes.
 async fn request(app: &Router, path: &str, authorization: Option<&str>) -> (StatusCode, Vec<u8>) {
     let mut request = Request::builder().uri(path);
     if let Some(value) = authorization {
@@ -61,6 +64,7 @@ async fn request(app: &Router, path: &str, authorization: Option<&str>) -> (Stat
     (status, bytes)
 }
 
+// Verify each role gate and the identity received by permitted handlers.
 #[tokio::test]
 async fn middleware_gates_roles_and_passes_verified_identity_to_handlers() {
     for (admin, bidcom, allowlisted) in [
@@ -101,6 +105,7 @@ async fn middleware_gates_roles_and_passes_verified_identity_to_handlers() {
     }
 }
 
+// Verify accepted authorization prefixes and rejection of malformed headers.
 #[tokio::test]
 async fn bearer_parsing_preserves_supported_case_and_whitespace_rules() {
     let app = app(None).await;
@@ -136,6 +141,7 @@ async fn bearer_parsing_preserves_supported_case_and_whitespace_rules() {
     }
 }
 
+// Verify that ordinary brothers and bid committee members cannot reset the season.
 #[tokio::test]
 async fn season_reset_rejects_authenticated_non_admins() {
     let app = crate::routes::create_router(Arc::new(auth(None).await));

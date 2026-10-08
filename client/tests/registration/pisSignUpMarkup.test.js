@@ -7,9 +7,12 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadPage, textOf, walk } from '../helpers/loadPisSignUpPage.js';
 
+// Return the slot fixture for this scenario.
 const slot = (time, label, num_available) => ({
     time: {
+        // Return time to the caller.
         toLocaleTimeString: () => time,
+        // Return label to the caller.
         toLocaleString: () => label,
     },
     num_available,
@@ -25,8 +28,11 @@ const days = new Map([
 const props = {
     selectedSlot: null,
     flexWindow: false,
+    // Provide an inert set selected slot stub for this test.
     setSelectedSlot: () => {},
+    // Provide an inert set flex window stub for this test.
     setFlexWindow: () => {},
+    // Provide an inert on continue stub for this test.
     onContinue: () => {},
 };
 
@@ -42,6 +48,7 @@ const scenarios = [
 
 for (const [name, states, overrides, expectedHash] of scenarios) {
     test(`PIS signup retains ${name} markup`, async () => {
+        // Verify signup markup against the scenario snapshot.
         const { Page } = await loadPage(states);
         const html = renderToStaticMarkup(React.createElement(Page, { ...props, ...overrides }));
         const hash = createHash('sha256').update(html).digest('hex');
@@ -50,22 +57,28 @@ for (const [name, states, overrides, expectedHash] of scenarios) {
 }
 
 test('PIS signup keeps slot, Monday, flexibility, and continue callbacks', async () => {
+    // Verify PIS signup keeps slot, Monday, flexibility, and continue callbacks.
     const selected = [];
     const flexibility = [];
     let continued = 0;
     const { Page, setters } = await loadPage([false, false, days, false]);
     const elements = walk(Page({
         ...props,
+        // Record set selected slot calls for assertions.
         setSelectedSlot: (value) => selected.push(value),
+        // Record set flex window calls for assertions.
         setFlexWindow: (value) => flexibility.push(value),
+        // Update continued in the test harness.
         onContinue: () => { continued += 1; },
     }));
-    const buttons = elements.filter((element) => element.type === 'button');
+    const buttons = elements.filter(/* Identify rendered button elements. */ (element) => element.type === 'button');
 
-    const openSlot = buttons.find((button) => textOf(button).includes('09:00 AM'));
-    const fullSlot = buttons.find((button) => textOf(button).includes('10:00 AM'));
-    const reveal = buttons.find((button) => textOf(button).includes('show Monday times'));
-    const continueButton = buttons.find((button) => textOf(button).includes('Continue to Complete Registration'));
+    const openSlot = buttons.find(/* Match textOf(button).includes('09:00 AM'). */ (button) => textOf(button).includes('09:00 AM'));
+    const fullSlot = buttons.find(/* Match textOf(button).includes('10:00 AM'). */ (button) => textOf(button).includes('10:00 AM'));
+    const reveal = buttons.find(/* Match textOf(button).includes('show Monday times'). */ (button) => textOf(button).includes('show Monday times'));
+    const continueButton = buttons.find(
+        /* Match textOf(button).includes('Continue to Complete Registration'). */
+        (button) => textOf(button).includes('Continue to Complete Registration'));
 
     assert.equal(fullSlot.props.disabled, true);
     assert.equal(continueButton.props.disabled, true);
@@ -78,11 +91,17 @@ test('PIS signup keeps slot, Monday, flexibility, and continue callbacks', async
     const selectedElements = walk(SelectedPage({
         ...props,
         selectedSlot: mondayOpen,
+        // Update continued in the test harness.
         onContinue: () => { continued += 1; },
+        // Record set flex window calls for assertions.
         setFlexWindow: (value) => flexibility.push(value),
     }));
-    const checkbox = selectedElements.find((element) => element.type === 'input' && element.props.type === 'checkbox');
-    const selectedContinue = selectedElements.find((element) => element.type === 'button' && textOf(element).includes('Continue to Complete Registration'));
+    const checkbox = selectedElements.find(
+        /* Find the input with type checkbox. */
+        (element) => element.type === 'input' && element.props.type === 'checkbox');
+    const selectedContinue = selectedElements.find(
+        /* Identify rendered button elements. */
+        (element) => element.type === 'button' && textOf(element).includes('Continue to Complete Registration'));
     assert.equal(selectedContinue.props.disabled, false);
     checkbox.props.onChange({ target: { checked: true } });
     selectedContinue.props.onClick();
@@ -91,17 +110,19 @@ test('PIS signup keeps slot, Monday, flexibility, and continue callbacks', async
 });
 
 test('PIS signup fetch keeps its endpoint, day grouping, and per-slot updates', async () => {
+    // Verify PIS signup fetch keeps its endpoint, day grouping, and per-slot updates.
     const requests = [];
     const firstTime = Date.parse('2026-01-04T09:00:00-05:00');
     const secondTime = Date.parse('2026-01-04T10:00:00-05:00');
     const mondayTime = Date.parse('2026-01-05T11:00:00-05:00');
-    const payload = [firstTime, secondTime, mondayTime].map((time, index) => ({
+    const payload = [firstTime, secondTime, mondayTime].map(/* Return the fixture for this scenario. */ (time, index) => ({
         time: { $date: { $numberLong: String(time) } },
         num_available: index + 1,
     }));
     const { Page, setters, effects } = await loadPage(
         [false, true, new Map(), false],
         (url) => {
+            // Record availability lookup and resolve with its payload.
             requests.push(url);
             return Promise.resolve({ data: { status: 'success', payload } });
         },
@@ -112,21 +133,22 @@ test('PIS signup fetch keeps its endpoint, day grouping, and per-slot updates', 
     await new Promise(setImmediate);
 
     assert.deepEqual(requests, ['/api/admin/get_pis_timeslots']);
-    assert.deepEqual(setters.map(([index]) => index), [2, 2, 2, 1]);
+    assert.deepEqual(setters.map(/* Return index to the caller. */ ([index]) => index), [2, 2, 2, 1]);
     const grouped = setters[2][1];
     assert.equal(grouped.size, 2);
     assert.deepEqual(
-        Array.from(grouped.values(), (daySlots) =>
-            Array.from(daySlots, (item) => [item.time.getTime(), item.num_available])),
+        Array.from(grouped.values(), /* Invoke Array.from with the test inputs. */ (daySlots) =>
+            Array.from(daySlots, /* Return the fixture for this scenario. */ (item) => [item.time.getTime(), item.num_available])),
         [[[firstTime, 1], [secondTime, 2]], [[mondayTime, 3]]],
     );
     assert.equal(setters[3][1], false);
 });
 
 test('PIS signup failed status sets error before ending loading', async () => {
+    // Verify PIS signup failed status sets error before ending loading.
     const { Page, setters, effects } = await loadPage(
         [false, true, new Map(), false],
-        () => Promise.resolve({ data: { status: 'error' } }),
+        /* Invoke Promise.resolve with the test inputs. */ () => Promise.resolve({ data: { status: 'error' } }),
     );
 
     Page(props);

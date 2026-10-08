@@ -14,6 +14,7 @@ type BidCommitteeRusheeCardProps = {
     onOpen: () => void;
 };
 
+// Display an anonymous rushee card with attendance, interactions, and ratings.
 export default function BidCommitteeRusheeCard({
     rushee,
     rusheeId,
@@ -35,7 +36,7 @@ export default function BidCommitteeRusheeCard({
                     <h2 className="text-apple-title1 font-normal text-black truncate">
                         Rushee #{rusheeId}
                     </h2>
-                    {rushee.attendance.map((event, idx) => (
+                    {rushee.attendance.map(/* Render a badge for an attended rush event. */ (event, idx) => (
                         <Badges text={event.name} key={idx} />
                     ))}
                 </div>
@@ -47,7 +48,7 @@ export default function BidCommitteeRusheeCard({
                 />
 
                 <div className="flex flex-wrap gap-2 mt-2">
-                    {rushee.ratings.map((rating, rIdx) => (
+                    {rushee.ratings.map(/* Render an aggregate rating rounded to two decimal places. */ (rating, rIdx) => (
                         <span
                             key={rIdx}
                             className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"

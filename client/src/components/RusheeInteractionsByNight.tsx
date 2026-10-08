@@ -14,6 +14,7 @@ type RusheeInteractionsByNightProps = {
     compact?: boolean;
 };
 
+// Display per-night interaction summaries, deriving them when precomputed values are absent.
 export default function RusheeInteractionsByNight({
     nights: nightsProp,
     attendance,
@@ -24,6 +25,7 @@ export default function RusheeInteractionsByNight({
     const [rushNights, setRushNights] = useState<object[] | null>(null);
 
     useEffect(() => {
+        // Fetch rush nights only when local attendance or comments need derived summaries.
         // Precomputed summaries avoid a second rush-night request on list cards.
         if (nightsProp?.length) {
             return;
@@ -36,14 +38,16 @@ export default function RusheeInteractionsByNight({
         axios
             .get(`${api}/rushee/rush-nights`)
             .then((res) => {
+                // Store the schedule from a successful rush-night response.
                 if (res.data.status === "success") {
                     setRushNights(res.data.payload);
                 }
             })
-            .catch(() => {});
+            .catch(/* Leave summaries unchanged if the schedule request fails. */ () => {});
     }, [nightsProp, attendance, comments]);
 
     const nights = useMemo(() => {
+        // Choose supplied summaries or derive them from the loaded schedule.
         if (nightsProp?.length) {
             return nightsProp;
         }
@@ -59,7 +63,7 @@ export default function RusheeInteractionsByNight({
 
     return (
         <div className={`space-y-0.5 ${className}`.trim()}>
-            {nights.map((night) => (
+            {nights.map(/* Render one formatted interaction summary for a rush night. */ (night) => (
                 <p
                     key={`${night.name}-${night.night_index}`}
                     className={

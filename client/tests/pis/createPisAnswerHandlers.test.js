@@ -3,23 +3,27 @@ import test from "node:test";
 
 import { createPisAnswerHandlers } from "../../src/features/pis/createPisAnswerHandlers.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(isConnected) {
     let answers = { existing: "kept" };
     const events = [];
     const handlers = createPisAnswerHandlers({
+        // Apply an answer updater and capture the resulting answer snapshot.
         setAnswers(updater) {
             answers = updater(answers);
             events.push(["answers", { ...answers }]);
         },
         collaboration: {
             isConnected,
+            // Record send text update calls for assertions.
             sendTextUpdate: (...args) => events.push(["send", ...args]),
         },
     });
-    return { handlers, events, answers: () => answers };
+    return { handlers, events, answers: /* Return answers to the caller. */ () => answers };
 }
 
 test("text answers stay local for typing and send only voice-originated changes", () => {
+    // Verify text answers stay local for typing and send only voice-originated changes.
     const { handlers, events, answers } = harness(true);
     handlers.handleAnswerChange("question", "typed");
     handlers.handleAnswerChange("question", "still typed", { source: "typing" });
@@ -35,6 +39,7 @@ test("text answers stay local for typing and send only voice-originated changes"
 });
 
 test("multiple choice sends immediately when connected and both handlers stay local offline", () => {
+    // Verify multiple choice sends immediately when connected and both handlers stay local offline.
     const online = harness(true);
     online.handlers.handleMCChange("choice", "B");
     assert.deepEqual(online.events, [

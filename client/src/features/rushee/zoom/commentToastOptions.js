@@ -1,3 +1,4 @@
+// Return the shared toast options for comment feedback.
 export function createCommentToastOptions() {
     return {
         position: "top-center",

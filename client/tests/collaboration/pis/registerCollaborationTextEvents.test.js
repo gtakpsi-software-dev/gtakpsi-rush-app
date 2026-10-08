@@ -3,11 +3,14 @@ import test from 'node:test';
 
 import { registerCollaborationTextEvents } from '../../../src/features/pis/registerCollaborationTextEvents.js';
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup(initialUpdates = [], initialOperations = []) {
     const handlers = new Map();
     const emitted = [];
     const socket = {
+        // Invoke handlers.set with the test inputs.
         on: (name, handler) => handlers.set(name, handler),
+        // Record emit calls for assertions.
         emit: (name, payload) => emitted.push([name, payload]),
     };
     const knownVersionsRef = { current: {} };
@@ -23,20 +26,25 @@ function setup(initialUpdates = [], initialOperations = []) {
         knownVersionsRef,
         pendingUpdatesRef,
         resendingFieldsRef,
+        // Update remoteOperations in the test harness.
         setRemoteOperations: (update) => { remoteOperations = update(remoteOperations); },
+        // Update remoteUpdates in the test harness.
         setRemoteUpdates: (update) => { remoteUpdates = update(remoteUpdates); },
     });
 
     return {
         handlers, emitted, knownVersionsRef, pendingUpdatesRef,
         resendingFieldsRef,
+        // Return remote operations to the caller.
         getRemoteOperations: () => remoteOperations,
+        // Return remote updates to the caller.
         getRemoteUpdates: () => remoteUpdates,
     };
 }
 
 test('registers text listeners in order and bounds accepted remote history', () => {
-    const initial = Array.from({ length: 100 }, (_, index) => ({ field: 'old', value: index }));
+    // Verify registers text listeners in order and bounds accepted remote history.
+    const initial = Array.from({ length: 100 }, /* Return the fixture for this scenario. */ (_, index) => ({ field: 'old', value: index }));
     const state = setup(initial);
     assert.deepEqual([...state.handlers.keys()], [
         'text-operation', 'text-update', 'text-ack', 'text-reject',
@@ -54,7 +62,8 @@ test('registers text listeners in order and bounds accepted remote history', () 
 });
 
 test('ignores self and duplicate operations while retaining the latest 50', () => {
-    const initial = Array.from({ length: 50 }, (_, index) => ({
+    // Verify ignores self and duplicate operations while retaining the latest 50.
+    const initial = Array.from({ length: 50 }, /* Return the fixture for this scenario. */ (_, index) => ({
         id: `operation-${index}`, userId: 'other',
     }));
     const state = setup([], initial);
@@ -71,6 +80,7 @@ test('ignores self and duplicate operations while retaining the latest 50', () =
 });
 
 test('rejected local text rebases, resends, and clears after matching acknowledgement', () => {
+    // Verify rejected local text rebases, resends, and clears after matching acknowledgement.
     const state = setup();
     state.pendingUpdatesRef.current.answer = { clientUpdateId: 'old', value: 'local' };
 
@@ -95,6 +105,7 @@ test('rejected local text rebases, resends, and clears after matching acknowledg
 });
 
 test('unmatched rejection exposes the server value as a remote update', () => {
+    // Verify unmatched rejection exposes the server value as a remote update.
     const state = setup();
     state.pendingUpdatesRef.current.answer = { clientUpdateId: 'new', value: 'local' };
 

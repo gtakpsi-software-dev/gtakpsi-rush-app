@@ -1,3 +1,4 @@
+// Normalize a text update and reject payloads missing a field, version, or update ID.
 function parseTextUpdate(payload) {
     const field = payload?.field;
     const value = typeof payload?.value === 'string' ? payload.value : '';

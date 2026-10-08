@@ -9,6 +9,7 @@ const comments = [
 ];
 
 test('comment visibility retains every restriction and role combination', () => {
+    // Verify comment visibility retains every restriction and role combination.
     for (const requireCommentToView of [false, true]) {
         for (const isAdmin of [false, true]) {
             for (const isBidcom of [false, true]) {
@@ -22,6 +23,7 @@ test('comment visibility retains every restriction and role combination', () => 
 });
 
 test('restricted visibility matches the full stored brother name exactly', () => {
+    // Verify restricted visibility matches the full stored brother name exactly.
     const options = { requireCommentToView: true, isAdmin: false, isBidcom: false };
     assert.deepEqual(getVisibleComments(comments, null, options), []);
     assert.deepEqual(getVisibleComments(comments, { firstname: 'alex', lastname: 'Brother' }, options), []);
@@ -34,5 +36,6 @@ test('restricted visibility matches the full stored brother name exactly', () =>
 });
 
 test('unrestricted access returns the original array even without a current user', () => {
+    // Verify unrestricted access returns the original array even without a current user.
     assert.equal(getVisibleComments(comments, null, { requireCommentToView: false }), comments);
 });

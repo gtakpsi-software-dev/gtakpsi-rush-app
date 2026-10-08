@@ -1,6 +1,7 @@
 use super::*;
 use serde_json::json;
 
+// Verify required camelCase sorting update fields and signed positions.
 #[test]
 fn sorting_updates_require_the_existing_camel_case_request_fields() {
     let payload: UpdateSortingPayload = serde_json::from_value(json!({
@@ -15,6 +16,7 @@ fn sorting_updates_require_the_existing_camel_case_request_fields() {
     .is_err());
 }
 
+// Verify exact sorting column names and rejection of unsupported values.
 #[test]
 fn sorting_statuses_are_case_sensitive_and_reject_unknown_columns() {
     for status in [
@@ -32,6 +34,7 @@ fn sorting_statuses_are_case_sensitive_and_reject_unknown_columns() {
     }
 }
 
+// Verify the JSON field names returned for sorting cards.
 #[test]
 fn sorting_summary_keeps_existing_camel_case_wire_fields() {
     let rushee = SortingRushee {
@@ -51,6 +54,7 @@ fn sorting_summary_keeps_existing_camel_case_wire_fields() {
     );
 }
 
+// Verify required note text and the empty default for omitted tags.
 #[test]
 fn notes_payload_defaults_missing_tags_and_requires_notes() {
     let payload: NotesPayload =
@@ -60,6 +64,7 @@ fn notes_payload_defaults_missing_tags_and_requires_notes() {
     assert!(serde_json::from_value::<NotesPayload>(json!({"sortingTags": []})).is_err());
 }
 
+// Verify signed move positions and unchanged reorder ID sequences.
 #[test]
 fn sorting_move_and_reorder_payloads_preserve_order_and_signed_indices() {
     let movement: MoveRusheePayload = serde_json::from_value(json!({

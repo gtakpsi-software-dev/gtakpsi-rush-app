@@ -199,6 +199,20 @@ collections cleared. The script also enforces a September rush-period date guard
 
 ## Testing
 
+Rust unit tests live beside the modules they test. Multi-file test modules keep
+their entrypoint inside the directory as `mod.rs`.
+
+| Location | Coverage |
+| --- | --- |
+| `server/api/src/tests/integration/mongodb/` | API operations backed by MongoDB |
+| `server/api/src/tests/integration/redis/` | API voting state and Redis broadcasts |
+| `server/websockets/voting/src/tests/` | Voting protocol and Redis-backed socket integration |
+| `server/websockets/sorting/src/tests/` | Sorting protocol and socket integration |
+| `server/websockets/pis/tests/` | Socket.IO collaboration and text operations |
+
+The database suites have separate feature gates because they require different
+services. Use the integration runners below to provision isolated test instances.
+
 Run from the repository root:
 
 ```bash

@@ -9,6 +9,7 @@ const toastOptions = {
     progress: undefined, theme: "dark",
 };
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(overrides = {}) {
     const events = [];
     const storage = { name: "storage" };
@@ -19,26 +20,36 @@ function harness(overrides = {}) {
         gtid: "123456789",
         api: "/api",
         storage,
+        // Return a fixed value to keep the test deterministic.
         now: () => 12345,
+        // Record set loading calls for assertions.
         setLoading: (value) => events.push(["loading", value]),
+        // Record storage lookup and return the upload target fixture.
         makeStorageRef: (client, path) => { events.push(["ref", client, path]); return storageRef; },
+        // Record image conversion and return the blob fixture.
         toBlob: (image) => { events.push(["blob", image]); return blob; },
+        // Record upload calls for assertions.
         upload: async (target, value) => { events.push(["upload", target, value]); },
+        // Record URL retrieval and return the uploaded-photo URL.
         getDownloadUrl: async (target) => { events.push(["download", target]); return "https://files.example/photo"; },
+        // Record the photo update request and return success.
         post: async (path, payload) => {
             events.push(["post", path, payload]);
             return { data: { status: "success" } };
         },
-        toast: { error: (message, options) => events.push(["error", message, options]) },
+        toast: { error: /* Record error calls for assertions. */ (message, options) => events.push(["error", message, options]) },
+        // Record reload calls for assertions.
         reload: () => events.push(["reload"]),
+        // Record navigate calls for assertions.
         navigate: (path) => events.push(["navigate", path]),
-        logger: { error: (message, error) => events.push(["log", message, error]) },
+        logger: { error: /* Record error calls for assertions. */ (message, error) => events.push(["log", message, error]) },
         ...overrides,
     };
     return { deps, events, storage, storageRef, blob };
 }
 
 test("photo upload keeps the timestamp path, Storage URL, update payload, and reload order", async () => {
+    // Verify photo upload keeps the timestamp path, Storage URL, update payload, and reload order.
     const { deps, events, storage, storageRef, blob } = harness();
     await submitRusheePhoto(deps);
     assert.deepEqual(events, [
@@ -55,7 +66,9 @@ test("photo upload keeps the timestamp path, Storage URL, update payload, and re
 });
 
 test("unsuccessful update reports its message and clears loading without reload", async () => {
+    // Verify unsuccessful update reports its message and clears loading without reload.
     const { deps, events } = harness({
+        // Record the photo update request and return the configured rejection.
         post: async (path, payload) => {
             events.push(["post", path, payload]);
             return { data: { status: "error", message: "Photo rejected" } };
@@ -65,21 +78,27 @@ test("unsuccessful update reports its message and clears loading without reload"
     assert.deepEqual(events.slice(-2), [
         ["error", "Photo rejected", toastOptions], ["loading", false],
     ]);
-    assert.equal(events.some(([type]) => type === "reload"), false);
+    assert.equal(events.some(/* Match type to "reload". */ ([type]) => type === "reload"), false);
 });
 
 test("update request failures use the network toast and still clear loading", async () => {
-    const { deps, events } = harness({ post: async () => { throw new Error("offline"); } });
+    // Verify update request failures use the network toast and still clear loading.
+    const { deps, events } = harness({ post: async () => {
+        // Simulate a dependency failure for this scenario.
+         throw new Error("offline"); } });
     await submitRusheePhoto(deps);
     assert.deepEqual(events.slice(-2), [
         ["error", "Some internal network error occurred", toastOptions],
         ["loading", false],
     ]);
-    assert.equal(events.some(([type]) => type === "navigate"), false);
+    assert.equal(events.some(/* Match type to "navigate". */ ([type]) => type === "navigate"), false);
 });
 
 test("reload exceptions follow the existing inner network-error catch", async () => {
-    const { deps, events } = harness({ reload: () => { throw new Error("reload failed"); } });
+    // Verify reload exceptions follow the existing inner network-error catch.
+    const { deps, events } = harness({ reload: () => {
+        // Simulate a dependency failure for this scenario.
+         throw new Error("reload failed"); } });
     await submitRusheePhoto(deps);
     assert.deepEqual(events.slice(-2), [
         ["error", "Some internal network error occurred", toastOptions],
@@ -88,11 +107,18 @@ test("reload exceptions follow the existing inner network-error catch", async ()
 });
 
 test("conversion, upload, and URL failures log and navigate without clearing loading", async () => {
+    // Verify conversion, upload, and URL failures log and navigate without clearing loading.
     const failed = new Error("storage failed");
     for (const override of [
-        { toBlob: () => { throw failed; } },
-        { upload: async () => { throw failed; } },
-        { getDownloadUrl: async () => { throw failed; } },
+        { toBlob: () => {
+            // Simulate a dependency failure for this scenario.
+             throw failed; } },
+        { upload: async () => {
+            // Simulate a dependency failure for this scenario.
+             throw failed; } },
+        { getDownloadUrl: async () => {
+            // Simulate a dependency failure for this scenario.
+             throw failed; } },
     ]) {
         const { deps, events } = harness(override);
         await submitRusheePhoto(deps);
@@ -100,7 +126,7 @@ test("conversion, upload, and URL failures log and navigate without clearing loa
             ["log", "Error uploading image:", failed],
             ["navigate", "/error/Uh Oh! Something Unexpected Occurred../There was an error uploading your image to the cloud."],
         ]);
-        assert.equal(events.some(([type]) => type === "post"), false);
-        assert.equal(events.some(([type, value]) => type === "loading" && value === false), false);
+        assert.equal(events.some(/* Match type to "post". */ ([type]) => type === "post"), false);
+        assert.equal(events.some(/* Match type to "loading" and value to false. */ ([type, value]) => type === "loading" && value === false), false);
     }
 });

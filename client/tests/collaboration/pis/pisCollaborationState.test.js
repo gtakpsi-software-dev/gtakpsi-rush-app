@@ -6,6 +6,7 @@ import {
     applyRemoteUpdates,
 } from "../../../src/features/pis/collaborationState.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function stateHarness(initial = {}) {
     const state = {
         brotherA: initial.brotherA ?? { firstName: "Old A", lastName: "Old Last A" },
@@ -14,14 +15,18 @@ function stateHarness(initial = {}) {
     };
     const calls = [];
     const setters = {
+        // Apply and record the first interviewer state update.
         setBrotherA(update) { calls.push("A"); state.brotherA = update(state.brotherA); },
+        // Apply and record the second interviewer state update.
         setBrotherB(update) { calls.push("B"); state.brotherB = update(state.brotherB); },
+        // Apply and record the answer state update.
         setAnswers(update) { calls.push("answers"); state.answers = update(state.answers); },
     };
     return { state, calls, setters };
 }
 
 test("empty document snapshots leave every local state untouched", () => {
+    // Verify empty document snapshots leave every local state untouched.
     const harness = stateHarness();
     for (const documentState of [null, undefined, {}]) {
         applyDocumentState(documentState, harness.setters);
@@ -30,6 +35,7 @@ test("empty document snapshots leave every local state untouched", () => {
 });
 
 test("document snapshots merge brother fields in order and skip empty names", () => {
+    // Verify document snapshots merge brother fields in order and skip empty names.
     const harness = stateHarness();
     applyDocumentState({
         _brotherA_firstName: "Ari",
@@ -46,6 +52,7 @@ test("document snapshots merge brother fields in order and skip empty names", ()
 });
 
 test("unchanged snapshot values keep state object identity", () => {
+    // Verify unchanged snapshot values keep state object identity.
     const harness = stateHarness({
         brotherA: { firstName: "Ari", lastName: "One" },
         answers: { question: "Yes" },
@@ -59,6 +66,7 @@ test("unchanged snapshot values keep state object identity", () => {
 });
 
 test("live updates apply only the latest event and allow brother names to clear", () => {
+    // Verify live updates apply only the latest event and allow brother names to clear.
     const harness = stateHarness();
     applyRemoteUpdates([
         { field: "question", value: "ignored" },
@@ -70,6 +78,7 @@ test("live updates apply only the latest event and allow brother names to clear"
 });
 
 test("live answers retain identity on no-op and accept unknown field names", () => {
+    // Verify live answers retain identity on no-op and accept unknown field names.
     const harness = stateHarness({ answers: { question: "Yes" } });
     const original = harness.state.answers;
     applyRemoteUpdates([{ field: "question", value: "Yes" }], harness.setters);
@@ -80,6 +89,7 @@ test("live answers retain identity on no-op and accept unknown field names", () 
 });
 
 test("missing or empty live update lists cause no state setter calls", () => {
+    // Verify missing or empty live update lists cause no state setter calls.
     const harness = stateHarness();
     applyRemoteUpdates(null, harness.setters);
     applyRemoteUpdates([], harness.setters);

@@ -7,14 +7,17 @@ import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 const viewPath = fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeTextareaView.tsx', import.meta.url));
 
 test('textarea view preserves input handlers, cursor positions, and cursor colors', async () => {
+    // Verify textarea view preserves input handlers, cursor positions, and cursor colors.
     const caretCalls = [];
     const View = await loadTsxComponent(viewPath, {
+        // Record caret lookup and return coordinates derived from its position.
         'textarea-caret': (element, position) => {
             caretCalls.push([element, position]);
             return { left: position * 2, top: position * 3 };
         },
     });
     const field = { value: 'Initial' };
+    // Provide an inert handler stub for this test.
     const handler = () => {};
     const props = {
         textareaRef: { current: field },

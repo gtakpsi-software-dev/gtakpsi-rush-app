@@ -3,12 +3,18 @@ const test = require('node:test');
 const { registerPresenceHandlers } = require('../src/handlers/presence');
 
 test('presence ignores unjoined and missing-room sockets', () => {
+    // Verify that missing memberships and rooms suppress presence broadcasts.
     const listeners = new Map();
     const emitted = [];
     const socket = {
         id: 'socket-1',
+        // Capture presence listeners for direct invocation.
         on: (name, handler) => listeners.set(name, handler),
-        to: (roomId) => ({ emit: (name, payload) => emitted.push([roomId, name, payload]) }),
+        // Create a recorder for room broadcasts.
+        to: (roomId) => ({
+            // Record the room, presence event, and payload.
+            emit: (name, payload) => emitted.push([roomId, name, payload]),
+        }),
     };
     const rooms = new Map();
     const membershipsBySocket = new Map();
@@ -25,14 +31,20 @@ test('presence ignores unjoined and missing-room sockets', () => {
 });
 
 test('both presence events use joined identity and update room activity', (t) => {
+    // Verify joined-user identity and refreshed activity for cursor and typing events.
     const now = Date.parse('2026-09-30T12:00:00Z');
-    t.mock.method(Date, 'now', () => now);
+    t.mock.method(Date, 'now', /* Return a fixed clock value for deterministic presence timestamps. */ () => now);
     const listeners = new Map();
     const emitted = [];
     const socket = {
         id: 'socket-1',
+        // Capture presence listeners for direct invocation.
         on: (name, handler) => listeners.set(name, handler),
-        to: (roomId) => ({ emit: (name, payload) => emitted.push([roomId, name, payload]) }),
+        // Create a recorder for room broadcasts.
+        to: (roomId) => ({
+            // Record the room, presence event, and payload.
+            emit: (name, payload) => emitted.push([roomId, name, payload]),
+        }),
     };
     const room = { lastActivity: 'old' };
     const rooms = new Map([['pis-1', room]]);

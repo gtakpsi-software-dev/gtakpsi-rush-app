@@ -4,6 +4,7 @@ use axum::middleware;
 use axum::{http::StatusCode, routing::get, Router};
 use std::sync::Arc;
 
+// Build sorting routes accessible to bid committee members and administrators.
 pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
     Router::new()
         .route(

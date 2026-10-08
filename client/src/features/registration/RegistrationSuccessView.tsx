@@ -7,6 +7,7 @@ type RegistrationSuccessViewProps = {
     gtid: string;
 };
 
+// Display registration confirmation and the personal profile link.
 export default function RegistrationSuccessView({
     title,
     description,
@@ -15,10 +16,12 @@ export default function RegistrationSuccessView({
 }: RegistrationSuccessViewProps) {
     const [copied, setCopied] = useState(false);
 
+    // Copy the personal profile link, including its access code, to the clipboard.
     const handleCopy = () => {
         navigator.clipboard.writeText(`${window.location.origin}/rushee/${gtid}/${accessCode}`).then(() => {
+            // Show copy confirmation and schedule its dismissal.
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setTimeout(/* Clear the copy confirmation after two seconds. */ () => setCopied(false), 2000);
         });
     };
 

@@ -11,6 +11,7 @@ import {
     getActiveCursors,
 } from './collaborationPresence.js';
 
+// Manage the PIS socket, remote document state, text updates, and collaborator presence.
 export const useCollaboration = (roomId, currentUser) => {
     const [socket, setSocket] = useState(null);
     const [connectedUsers, setConnectedUsers] = useState([]);
@@ -31,6 +32,7 @@ export const useCollaboration = (roomId, currentUser) => {
     const pisCollaborationUrl = realtimeBaseUrls.pisCollaboration;
 
     useEffect(() => {
+        // Connect a valid room and user when no socket is already registered.
         if (!roomId || !currentUser || !currentUser.id) {
             return;
         }
@@ -39,6 +41,7 @@ export const useCollaboration = (roomId, currentUser) => {
             return;
         }
 
+        // Create a socket and attach room, presence, and text synchronization handlers.
         const connectSocket = () => {
             socketRef.current = io(pisCollaborationUrl, {
                 forceNew: true,
@@ -55,7 +58,8 @@ export const useCollaboration = (roomId, currentUser) => {
             });
 
             socketRef.current.on('users-updated', (users) => {
-                setConnectedUsers(users.filter(user => user.id !== currentUser.id));
+                // Replace the connected-user list with remote collaborators.
+                setConnectedUsers(users.filter(/* Exclude the current user from the remote-user list. */ user => user.id !== currentUser.id));
             });
 
             registerCollaborationTextEvents({
@@ -85,6 +89,7 @@ export const useCollaboration = (roomId, currentUser) => {
         connectSocket();
 
         return () => {
+            // Cancel reconnect work, disconnect the socket, and remove listeners.
             // The disconnect listener can schedule a retry after mount; clear its latest timer.
             // eslint-disable-next-line react-hooks/exhaustive-deps
             if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
@@ -113,17 +118,20 @@ export const useCollaboration = (roomId, currentUser) => {
     });
 
     useEffect(() => {
+        // Start periodic cleanup of expired typing indicators and cursors.
         const interval = setInterval(() => {
+            // Prune stale presence using the current timestamp.
             const now = Date.now();
 
-            setTypingUsers(prev => pruneTypingUsers(prev, now));
-            setConnectedUsers(prev => clearStaleCursors(prev, now));
+            setTypingUsers(/* Remove expired typing indicators. */ prev => pruneTypingUsers(prev, now));
+            setConnectedUsers(/* Clear expired cursor ownership. */ prev => clearStaleCursors(prev, now));
         }, 1000);
 
-        return () => clearInterval(interval);
+        return /* Stop the presence-cleanup interval. */ () => clearInterval(interval);
     }, []);
 
     const getActiveCursorsForField = useCallback((field) => {
+        // Return active remote cursors for the requested field.
         return getActiveCursors(connectedUsers, field);
     }, [connectedUsers]);
 

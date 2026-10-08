@@ -2,6 +2,7 @@ use super::*;
 use crate::models::pis::PISSignup;
 use bson::DateTime;
 
+// Build a signup fixture with two specified interviewer slots.
 fn signup(first: (&str, &str), second: (&str, &str)) -> PISSignup {
     PISSignup {
         time: DateTime::from_millis(0),
@@ -16,6 +17,7 @@ fn signup(first: (&str, &str), second: (&str, &str)) -> PISSignup {
     }
 }
 
+// Provide two named interviewers for assignment tests.
 fn brothers() -> Vec<BrotherName> {
     vec![
         ("Ada".into(), "Lovelace".into()),
@@ -23,6 +25,7 @@ fn brothers() -> Vec<BrotherName> {
     ]
 }
 
+// Verify name trimming, blank-name filtering, and availability order.
 #[test]
 fn availability_preserves_submission_order_and_skips_blank_names() {
     let make = |first: &str, last: &str, slots: Vec<i64>| BrotherPISAvailability {
@@ -51,6 +54,7 @@ fn availability_preserves_submission_order_and_skips_blank_names() {
     assert_eq!(indexed.get(&2).unwrap(), &vec![brothers()[0].clone()]);
 }
 
+// Verify workload balancing and prevention of repeated timeslot assignments.
 #[test]
 fn planning_balances_load_and_reserves_brothers_per_timeslot() {
     let mut planner = AssignmentPlanner::default();
@@ -66,6 +70,7 @@ fn planning_balances_load_and_reserves_brothers_per_timeslot() {
     assert!(next.still_missing_first && next.still_missing_second);
 }
 
+// Verify that occupied interviewers are excluded and unfilled slots remain marked missing.
 #[test]
 fn existing_assignments_block_conflicts_and_keep_partial_failure() {
     let mut planner = AssignmentPlanner::default();
@@ -77,6 +82,7 @@ fn existing_assignments_block_conflicts_and_keep_partial_failure() {
     assert!(!plan.still_missing_first && plan.still_missing_second);
 }
 
+// Verify selection of a distinct second interviewer in availability order.
 #[test]
 fn second_only_assignment_excludes_existing_first_and_uses_tie_order() {
     let mut planner = AssignmentPlanner::default();
@@ -96,6 +102,7 @@ fn second_only_assignment_excludes_existing_first_and_uses_tie_order() {
     assert!(!plan.still_missing_first && !plan.still_missing_second);
 }
 
+// Verify that duplicate availability entries do not create duplicate assignments.
 #[test]
 fn duplicate_availability_cannot_assign_one_brother_twice_in_a_slot() {
     let mut planner = AssignmentPlanner::default();
@@ -113,6 +120,7 @@ fn duplicate_availability_cannot_assign_one_brother_twice_in_a_slot() {
     assert!(next.first.is_none() && next.second.is_none());
 }
 
+// Verify duplicate detection when interviewer names contain surrounding whitespace.
 #[test]
 fn second_choice_excludes_trimmed_first_even_when_availability_is_not_normalized() {
     let mut planner = AssignmentPlanner::default();
@@ -124,6 +132,7 @@ fn second_choice_excludes_trimmed_first_even_when_availability_is_not_normalized
     assert!(!plan.still_missing_first && plan.still_missing_second);
 }
 
+// Verify stable tie selection as interviewer workloads change.
 #[test]
 fn least_assigned_choice_keeps_availability_order_for_ties() {
     let mut planner = AssignmentPlanner::default();

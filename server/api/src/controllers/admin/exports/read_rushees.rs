@@ -7,6 +7,7 @@ use crate::{
     storage::{cursor_rows::for_each_strict_row, db},
 };
 
+// Map all rushee records into export rows, failing on query or decoding errors.
 pub(super) async fn map_rushees(
     mut map: impl FnMut(RusheeModel) -> Value,
 ) -> Result<Vec<Value>, Json<Value>> {

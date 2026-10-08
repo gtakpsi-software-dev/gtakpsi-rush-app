@@ -7,10 +7,12 @@ use axum::{extract::Path, http::StatusCode, response::Json};
 use mongodb::bson::{doc, to_bson};
 use serde_json::{json, Value};
 
+// Build a comment-deletion error response with the supplied message.
 fn deletion_error(message: &'static str) -> Result<Json<Value>, StatusCode> {
     Ok(Json(json!({ "status": "error", "message": message })))
 }
 
+// Remove matching brother-and-night comments, then recalculate their affected rating categories.
 pub async fn delete_comment(
     Path(id): Path<String>,
     Json(payload): Json<Comment>,

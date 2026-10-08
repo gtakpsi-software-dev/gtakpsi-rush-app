@@ -2,6 +2,7 @@ use super::websocket_support::{receive, send, TestServer};
 use super::*;
 use tokio_tungstenite::connect_async;
 
+// Exercises drag snapshots, ownership conflicts, and release events over real sockets.
 #[tokio::test]
 async fn sockets_receive_drag_snapshots_conflicts_and_disconnect_releases() {
     let server = TestServer::start();
@@ -56,6 +57,7 @@ async fn sockets_receive_drag_snapshots_conflicts_and_disconnect_releases() {
     other.close(None).await.unwrap();
 }
 
+// Checks that reconnecting clients can claim cards released by their old session.
 #[tokio::test]
 async fn reconnect_after_owner_disconnect_can_reacquire_the_released_card() {
     let server = TestServer::start();
@@ -114,6 +116,7 @@ async fn reconnect_after_owner_disconnect_can_reacquire_the_released_card() {
     observer.close(None).await.unwrap();
 }
 
+// Checks that a demoted owner can finish a drag but cannot announce card saves.
 #[tokio::test]
 async fn role_change_preserves_drag_ownership_but_gates_new_save_broadcasts() {
     let server = TestServer::start();

@@ -1,3 +1,4 @@
+// Return toast options for profile-update notifications.
 function toastOptions() {
     return {
         position: "top-center",
@@ -11,6 +12,7 @@ function toastOptions() {
     };
 }
 
+// Validate changed profile fields, submit their updates, and redirect after success.
 export async function submitProfileChanges(e, {
     rushee, initialRushee, api, gtid, link, setLoading,
     toast, verifyInfo, post, location, logger,
@@ -50,8 +52,8 @@ export async function submitProfileChanges(e, {
     }
 
     const payload = Object.keys(rushee)
-        .filter((key) => rushee[key] !== initialRushee[key])
-        .map((key) => ({
+        .filter(/* Keep fields whose values differ from the saved profile. */ (key) => rushee[key] !== initialRushee[key])
+        .map(/* Convert a changed field into the API’s field-update payload. */ (key) => ({
             field: key,
             new_value: rushee[key],
         }));

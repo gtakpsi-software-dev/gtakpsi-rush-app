@@ -6,6 +6,7 @@ interface Props {
     midtermMode?: boolean;
 }
 
+// Display the current rushee’s identity and interactions in rush or midterm layout.
 export default function RusheePreviewCard({ midtermMode = false }: Props) {
     const { rushee } = useBrotherVotingContext();
 

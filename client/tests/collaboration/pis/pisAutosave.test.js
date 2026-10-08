@@ -4,6 +4,7 @@ import test from "node:test";
 import { performPisAutosave } from "../../../src/features/pis/performPisAutosave.js";
 import { SAVE_STATUS } from "../../../src/features/pis/saveStatus.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup(overrides = {}) {
     const calls = [];
     const scheduled = [];
@@ -18,11 +19,18 @@ function setup(overrides = {}) {
         brotherB: { firstName: "Bea", lastName: "Two" },
         gtid: "123",
         api: "/api",
-        axios: { post: async (...request) => { calls.push(["post", ...request]); } },
+        axios: { post: async (...request) => {
+            // Record post calls for assertions.
+             calls.push(["post", ...request]); } },
+        // Record set save status calls for assertions.
         setSaveStatus: (status) => calls.push(["status", status]),
+        // Record set last saved calls for assertions.
         setLastSaved: (date) => calls.push(["savedAt", date]),
+        // Return saved at to the caller.
         now: () => savedAt,
+        // Record schedule calls for assertions.
         schedule: (callback, delay) => scheduled.push({ callback, delay }),
+        // Record log error calls for assertions.
         logError: (...values) => calls.push(["log", ...values]),
         ...overrides,
     };
@@ -30,6 +38,7 @@ function setup(overrides = {}) {
 }
 
 test("autosave skips missing questions or GTID without changing state", async () => {
+    // Verify autosave skips missing questions or GTID without changing state.
     for (const overrides of [{ questions: [] }, { gtid: null }]) {
         const { args, calls, scheduled } = setup(overrides);
         await performPisAutosave(args);
@@ -39,6 +48,7 @@ test("autosave skips missing questions or GTID without changing state", async ()
 });
 
 test("autosave retains request fields, success transition, and two-second reset", async () => {
+    // Verify autosave retains request fields, success transition, and two-second reset.
     const { args, calls, scheduled, savedAt } = setup();
     await performPisAutosave(args);
     assert.deepEqual(calls, [
@@ -63,9 +73,12 @@ test("autosave retains request fields, success transition, and two-second reset"
 });
 
 test("failed request logs the error, reports failure, and resets after three seconds", async () => {
+    // Verify failed request logs the error, reports failure, and resets after three seconds.
     const error = new Error("offline");
     const { args, calls, scheduled } = setup({
-        axios: { post: async () => { throw error; } },
+        axios: { post: async () => {
+            // Simulate a dependency failure for this scenario.
+             throw error; } },
     });
     await performPisAutosave(args);
     assert.deepEqual(calls, [

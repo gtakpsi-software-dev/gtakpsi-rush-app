@@ -22,6 +22,7 @@ type Props = {
   onOpenProfile: (gtid: string) => void;
 };
 
+// Display the brother’s comments grouped by rushee, with ratings and profile links.
 export default function CommentsView({ loading, error, commentsData, onOpenProfile }: Props) {
   return (
     <div className="min-h-screen w-full bg-white overflow-y-auto">
@@ -49,7 +50,7 @@ export default function CommentsView({ loading, error, commentsData, onOpenProfi
             </div>
           ) : (
             <div className="space-y-6">
-              {commentsData.map((entry, idx) => (
+              {commentsData.map(/* Render one rushee’s profile summary and comments. */ (entry, idx) => (
                 <div
                   key={idx}
                   className="card-apple p-6 hover:border-apple-gray-300 transition-all duration-200"
@@ -72,14 +73,14 @@ export default function CommentsView({ loading, error, commentsData, onOpenProfi
                         )}
                       </div>
 
-                      {entry.comments.map((comment, cidx) => (
+                      {entry.comments.map(/* Render a comment and its rating badges. */ (comment, cidx) => (
                         <div key={cidx} className="mb-6 last:mb-4">
                           <div className="flex flex-col gap-3 mb-3">
                             <div className="flex items-start gap-3">
                               <p className="text-apple-body text-black font-light flex-1">{comment.comment}</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {comment.ratings && comment.ratings.map((rating, rIdx) => (
+                              {comment.ratings && comment.ratings.map(/* Render a formatted rating badge. */ (rating, rIdx) => (
                                 <span
                                   key={rIdx}
                                   className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"
@@ -92,7 +93,7 @@ export default function CommentsView({ loading, error, commentsData, onOpenProfi
                         </div>
                       ))}
                       <button
-                        onClick={() => onOpenProfile(entry.rushee.gtid)}
+                        onClick={/* Open the profile for this comment’s rushee. */ () => onOpenProfile(entry.rushee.gtid)}
                         className="btn-apple px-6 py-3 text-apple-body font-light"
                       >
                         View full profile

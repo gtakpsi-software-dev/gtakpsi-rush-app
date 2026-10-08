@@ -2,8 +2,10 @@ const { joinedRoom } = require('./joinedRoom');
 const { parseTextUpdate } = require('./parseTextUpdate');
 const { applyVersionedTextUpdate } = require('../operations/versionedText');
 
+// Register the versioned text-update listener for this socket.
 function registerUpdateHandlers(socket, rooms, membershipsBySocket) {
     socket.on('text-update', (payload) => {
+        // Reject stale edits or acknowledge and broadcast an accepted document update.
         const joined = joinedRoom(socket, rooms, membershipsBySocket);
         if (!joined) return;
         const { roomId, room } = joined;

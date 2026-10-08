@@ -11,6 +11,7 @@ pub struct ChangeEligibilityPayload {
 
 pub(super) const INELIGIBLE_BROTHERS: &str = "ineligible_brothers";
 
+// Remove a brother's GTID from the Redis ineligibility set.
 pub async fn make_eligible(
     Json(payload): Json<ChangeEligibilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -30,6 +31,7 @@ pub async fn make_eligible(
     })))
 }
 
+// Add a brother's GTID to the Redis ineligibility set.
 pub async fn make_ineligible(
     Json(payload): Json<ChangeEligibilityPayload>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -51,6 +53,7 @@ pub async fn make_ineligible(
     })))
 }
 
+// Return the GTIDs currently marked ineligible to vote.
 pub async fn get_eligibility() -> Result<Json<Value>, StatusCode> {
     let mut conn = get_redis_manager().await.as_ref().clone();
 

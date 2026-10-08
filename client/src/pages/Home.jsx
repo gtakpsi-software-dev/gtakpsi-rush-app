@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useMidtermMode } from "../contexts/MidtermModeContext";
 
+// Display the rush or midterm welcome page and its entry actions.
 export default function Home() {
 
     const navigate = useNavigate();
@@ -39,14 +40,14 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-slide-up" style={{animationDelay: '1.5s', animationFillMode: 'forwards'}}>
                     {!isMidtermMode && (
                         <button 
-                            onClick={() => navigate('/register')} 
+                            onClick={/* Open rush registration. */ () => navigate('/register')}
                             className="inline-flex items-center justify-center px-8 py-4 text-apple-body font-light text-white bg-black rounded-apple-2xl transition-all duration-200 ease-out border-0 cursor-pointer select-none hover:bg-apple-gray-800 focus:outline-none focus:ring-2 focus:ring-apple-gray-400 focus:ring-offset-2 active:scale-95 active:bg-apple-gray-900"
                         >
                             Register for Rush
                         </button>
                     )}
                     <button 
-                        onClick={() => navigate("/login")} 
+                        onClick={/* Open brother login. */ () => navigate("/login")}
                         className="inline-flex items-center justify-center px-8 py-4 text-apple-body font-light text-black bg-apple-gray-100 rounded-apple-2xl transition-all duration-200 ease-out border-0 cursor-pointer select-none hover:bg-apple-gray-200 focus:outline-none focus:ring-2 focus:ring-apple-gray-400 focus:ring-offset-2 active:scale-95 active:bg-apple-gray-300"
                     >
                         Brother Login

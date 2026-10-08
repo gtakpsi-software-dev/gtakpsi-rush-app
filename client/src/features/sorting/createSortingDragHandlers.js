@@ -1,13 +1,16 @@
+// Create drag lifecycle handlers with remote-lock checks and throttled broadcasts.
 export function createSortingDragHandlers({
     lockedCards, draggingRef, dragPositionRef, throttleRef,
     setDragging, setHoverIndex, wsSend, now = Date.now,
 }) {
+    // Clear local dragging and hover state without broadcasting.
     const resetDragState = () => {
         setDragging(null);
         setHoverIndex({ column: null, index: null });
         draggingRef.current = null;
     };
 
+    // Broadcast the end of the current drag and clear local drag state.
     const endDrag = () => {
         if (draggingRef.current?.id) {
             wsSend({ type: "drag_end", rushee_id: draggingRef.current.id });
@@ -15,6 +18,7 @@ export function createSortingDragHandlers({
         resetDragState();
     };
 
+    // Reject locked cards or start and broadcast a drag from the card’s position.
     const handleDragStart = (rushee, fromColumn, index, e) => {
         const lockedBy = lockedCards[rushee.id];
         if (lockedBy && draggingRef.current?.id !== rushee.id) {
@@ -39,6 +43,7 @@ export function createSortingDragHandlers({
         });
     };
 
+    // Update the drop indicator and throttle outgoing drag-position updates.
     const handleDragOver = (e, columnKey, index) => {
         e.preventDefault();
         setHoverIndex({ column: columnKey, index });

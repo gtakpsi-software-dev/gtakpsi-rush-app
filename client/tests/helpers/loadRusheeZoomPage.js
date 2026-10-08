@@ -22,8 +22,11 @@ const actionsPath = fileURLToPath(new URL("../../src/features/rushee/zoom/Rushee
 const layoutPath = fileURLToPath(new URL("../../src/features/rushee/zoom/RusheeZoomView.tsx", import.meta.url));
 const accessPath = fileURLToPath(new URL("../../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
 
+// Load rushee zoom page with injected dependencies for isolated tests.
 export async function loadRusheeZoomPage(state = {}, captured = new Map(), runtime = {}) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
     };
@@ -32,10 +35,12 @@ export async function loadRusheeZoomPage(state = {}, captured = new Map(), runti
         "./ExistingCommentList": stub("existing-comments"),
     });
     const Actions = await loadTsxComponent(actionsPath, {});
+    // Capture comments-view props before rendering the real component.
     const ViewWithCapture = (props) => {
         captured.set("comments-view", props);
         return React.createElement(View, props);
     };
+    // Capture action props before rendering the real component.
     const ActionsWithCapture = (props) => {
         captured.set("actions", props);
         return React.createElement(Actions, props);
@@ -49,17 +54,20 @@ export async function loadRusheeZoomPage(state = {}, captured = new Map(), runti
         "./RusheeCommentsView": ViewWithCapture,
         "./RusheeActions": ActionsWithCapture,
     });
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     let stateIndex = 0;
-    const actions = () => new Proxy({}, { get: () => noop });
+    // Provide inert action handlers for any requested property.
+    const actions = () => new Proxy({}, { get: /* Provide an inert handler for the test. */ () => noop });
     const reactHooks = {
         ...React,
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = stateIndex++;
             const value = Object.hasOwn(state, index)
                 ? state[index]
                 : typeof initial === "function" ? initial() : initial;
-            return [value, (next) => runtime.onStateChange?.(index, next)];
+            return [value, /* Forward state updates to the optional runtime observer. */ (next) => runtime.onStateChange?.(index, next)];
         },
         useEffect: noop,
     };
@@ -77,8 +85,11 @@ export async function loadRusheeZoomPage(state = {}, captured = new Map(), runti
         react: reactHooks,
         axios: {},
         "react-router-dom": {
+            // Provide an inert handler for the test.
             useNavigate: () => noop,
+            // Return the route-parameter fixture for this scenario.
             useParams: () => ({ gtid: "123" }),
+            // Return the route-location fixture for this scenario.
             useLocation: () => ({ pathname: "/brother/rushee/123", search: "" }),
         },
         "../features/rushee/zoom/commentCreateActions": { createCommentCreateActions: actions },
@@ -105,9 +116,10 @@ export async function loadRusheeZoomPage(state = {}, captured = new Map(), runti
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => '{"firstname":"Sam","lastname":"Brother"}' },
+        localStorage: { getItem: /* Return the fixed item fixture. */ () => '{"firstname":"Sam","lastname":"Brother"}' },
         document: { referrer: "" },
         ...runtime.globals,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);

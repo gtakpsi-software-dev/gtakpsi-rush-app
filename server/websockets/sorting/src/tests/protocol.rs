@@ -1,5 +1,6 @@
 use super::*;
 
+// Checks join metadata updates and counts admins among connected viewers.
 #[tokio::test]
 async fn joins_update_existing_clients_and_viewer_count_includes_admins() {
     let (state, mut broadcasts) = state();
@@ -22,6 +23,7 @@ async fn joins_update_existing_clients_and_viewer_count_includes_admins() {
     );
 }
 
+// Verifies that invalid messages leave the board and broadcast channel untouched.
 #[tokio::test]
 async fn malformed_and_unknown_messages_do_not_change_state_or_emit_events() {
     let (state, mut broadcasts) = state();
@@ -40,6 +42,7 @@ async fn malformed_and_unknown_messages_do_not_change_state_or_emit_events() {
     assert_empty(&mut direct);
 }
 
+// Checks that viewer messages cannot claim cards or announce saved moves.
 #[tokio::test]
 async fn viewers_cannot_start_drags_or_notify_card_saves() {
     let (state, mut broadcasts) = state();
@@ -57,6 +60,7 @@ async fn viewers_cannot_start_drags_or_notify_card_saves() {
     assert_empty(&mut broadcasts);
 }
 
+// Verifies that save notifications preserve status text and retain active drags.
 #[tokio::test]
 async fn admin_saved_notifications_preserve_status_verbatim_without_releasing_drag() {
     let (state, mut broadcasts) = state();

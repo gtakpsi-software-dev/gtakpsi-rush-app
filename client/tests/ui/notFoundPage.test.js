@@ -9,17 +9,21 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../../src/pages/NotFound.jsx", import.meta.url));
 
-async function loadPage(navigate = () => {}) {
+// Load page with injected dependencies for isolated tests.
+async function loadPage(navigate = /* Leave this mocked callback inert. */ () => {}) {
     return loadTsxComponent(pagePath, {
-        "react-router-dom": { useNavigate: () => navigate },
+        "react-router-dom": { useNavigate: /* Return navigate to the caller. */ () => navigate },
         "@react-three/fiber": {
+            // Render a lightweight React element for component assertions.
             Canvas: () => React.createElement("span", { "data-stub": "canvas" }),
         },
+        // Return null from this dependency stub.
         "../features/notFound/LiquidShader": () => null,
     });
 }
 
 test("404 overlay retains the previous markup", async () => {
+    // Verify 404 overlay retains the previous markup.
     const Page = await loadPage();
     const html = renderToStaticMarkup(React.createElement(Page));
     const hash = createHash("sha256").update(html).digest("hex");
@@ -28,10 +32,12 @@ test("404 overlay retains the previous markup", async () => {
 });
 
 test("404 canvas settings and Go Back destination stay the same", async () => {
+    // Verify 404 canvas settings and Go Back destination stay the same.
     const paths = [];
-    const Page = await loadPage((path) => paths.push(path));
+    const Page = await loadPage(/* Record callback arguments for assertions. */ (path) => paths.push(path));
     const tree = Page();
     const elements = [];
+    // Walk the rendered element tree to collect nodes for assertions.
     function collect(node) {
         if (!React.isValidElement(node)) return;
         elements.push(node);
@@ -39,8 +45,8 @@ test("404 canvas settings and Go Back destination stay the same", async () => {
     }
     collect(tree);
 
-    const canvas = elements.find((node) => node.props.camera);
-    const button = elements.find((node) => node.type === "button");
+    const canvas = elements.find(/* Match node.props.camera. */ (node) => node.props.camera);
+    const button = elements.find(/* Identify rendered button elements. */ (node) => node.type === "button");
     assert.deepEqual(Array.from(canvas.props.camera.position), [0, 0, 1]);
     assert.equal(canvas.props.className, "absolute top-0 left-0 w-full h-full");
     button.props.onClick();

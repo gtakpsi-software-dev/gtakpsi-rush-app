@@ -5,6 +5,7 @@ type SortingZoomControlsProps = {
     onResetView: () => void;
 };
 
+// Render zoom-out, zoom-in, scale percentage, and reset controls.
 export default function SortingZoomControls({
     scale,
     onZoomOut,

@@ -8,12 +8,14 @@ use serde_json::{json, Value};
 
 use crate::services::pis_signup::{select_signup_slot, SignupSlot};
 
+// Build a MongoDB update that sets one string field.
 fn set_field_update(field: &str, value: &str) -> Document {
     let mut fields = Document::new();
     fields.insert(field, value);
     doc! { "$set": fields }
 }
 
+// Build separate first-name and last-name updates for the chosen interviewer slot.
 fn signup_updates(slot: SignupSlot, payload: &IncomingPISSignup) -> (Document, Document) {
     let (first_field, last_field) = slot.fields();
     (
@@ -22,6 +24,7 @@ fn signup_updates(slot: SignupSlot, payload: &IncomingPISSignup) -> (Document, D
     )
 }
 
+// Persist an interviewer's first and last names in two sequential writes.
 async fn write_signup(
     collection: &Collection<RusheeModel>,
     id: &str,
@@ -48,6 +51,7 @@ async fn write_signup(
     Ok(())
 }
 
+// Find an available interviewer slot for the rushee and save the brother's name.
 pub async fn brother_pis_sign_up(
     Path(id): Path<String>,
     Json(payload): Json<IncomingPISSignup>,
@@ -96,6 +100,7 @@ pub async fn brother_pis_sign_up(
 mod tests {
     use super::*;
 
+    // Verify separate name updates with the supplied whitespace preserved.
     #[test]
     fn signup_keeps_separate_untrimmed_first_and_last_name_updates() {
         let payload = IncomingPISSignup {

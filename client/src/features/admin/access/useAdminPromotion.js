@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createPromotionActions } from "./promotionActions";
 
+// Manage the selected brother’s role flags and connect role-update actions.
 export default function useAdminPromotion({
     apiBase,
     setBrotherSearch,

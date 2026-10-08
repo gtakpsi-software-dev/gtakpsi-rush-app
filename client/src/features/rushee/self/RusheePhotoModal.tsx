@@ -11,6 +11,7 @@ type Props = {
     onCapture: () => void;
 };
 
+// Display the photo editor with camera capture, preview, retake, and save controls.
 export default function RusheePhotoModal({
     showPreview, image, webcamRef, onClose, onRetake, onSave, onCapture,
 }: Props) {

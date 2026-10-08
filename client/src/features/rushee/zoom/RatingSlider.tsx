@@ -7,6 +7,7 @@ type RatingSliderProps = {
     onNotSeenChange: (notSeen: boolean) => void;
 };
 
+// Render a rating slider that is disabled when the category is marked not seen.
 export default function RatingSlider({
     label,
     value,
@@ -24,7 +25,7 @@ export default function RatingSlider({
                     <input
                         type="checkbox"
                         checked={notSeen}
-                        onChange={(e) => onNotSeenChange(e.target.checked)}
+                        onChange={/* Update the category’s not-seen flag. */ (e) => onNotSeenChange(e.target.checked)}
                         className="rounded border-apple-gray-300"
                     />
                     Not seen
@@ -38,7 +39,7 @@ export default function RatingSlider({
                     step="1"
                     value={value}
                     disabled={notSeen}
-                    onChange={(e) => onValueChange(Number(e.target.value))}
+                    onChange={/* Pass the selected rating as a number. */ (e) => onValueChange(Number(e.target.value))}
                     className="flex-1 h-2 accent-black cursor-pointer disabled:cursor-not-allowed"
                 />
                 <span className="text-apple-footnote font-medium text-black w-8 text-right tabular-nums">

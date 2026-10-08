@@ -2,6 +2,7 @@ import axios from "axios";
 
 const api = import.meta.env.VITE_API_PREFIX;
 
+// Check that a GTID contains exactly nine digits.
 export function verifyGTID(gtid) {
     if (gtid.length != 9) {
         return false;
@@ -14,6 +15,7 @@ export function verifyGTID(gtid) {
     return true;
 }
 
+// Validate GTID, phone, and Georgia Tech email, then check duplicates for new GTIDs.
 export async function verifyInfo(gtid, email, phone, isNewGTID) {
     console.log(gtid.length);
     if (gtid.length != 9) {

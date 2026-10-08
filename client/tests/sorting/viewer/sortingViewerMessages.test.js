@@ -3,16 +3,20 @@ import test from "node:test";
 
 import { handleSortingViewerMessage } from "../../../src/features/sorting/handleSortingViewerMessage.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness() {
     const calls = [];
     const state = { viewerCount: null, ghostCards: {} };
     const ghostTimestampsRef = { current: {} };
-    const fetchDataRef = { current: () => calls.push("fetch") };
+    const fetchDataRef = { current: /* Record current calls for assertions. */ () => calls.push("fetch") };
     const deps = {
         ghostTimestampsRef,
         fetchDataRef,
+        // Record viewer-count updates and store the latest count.
         setViewerCount: (count) => { calls.push("viewers"); state.viewerCount = count; },
+        // Apply and record ghost-card updates.
         setGhostCards: (update) => { calls.push("ghosts"); state.ghostCards = update(state.ghostCards); },
+        // Record clock reads and return a fixed timestamp.
         now: () => { calls.push("now"); return 12345; },
     };
     return { calls, state, ghostTimestampsRef, fetchDataRef, deps };
@@ -24,6 +28,7 @@ const drag = {
 };
 
 test("viewer count and drag start retain updates while redacting the rushee name", () => {
+    // Verify viewer count and drag start retain updates while redacting the rushee name.
     const { calls, state, ghostTimestampsRef, deps } = harness();
     handleSortingViewerMessage({ type: "viewer_count", count: 4 }, deps);
     handleSortingViewerMessage({ type: "drag_start", ...drag }, deps);
@@ -36,6 +41,7 @@ test("viewer count and drag start retain updates while redacting the rushee name
 });
 
 test("drag movement refreshes timestamps even when its ghost has not arrived", () => {
+    // Verify drag movement refreshes timestamps even when its ghost has not arrived.
     const { calls, state, ghostTimestampsRef, deps } = harness();
     const originalGhosts = state.ghostCards;
     handleSortingViewerMessage({ type: "drag_move", rushee_id: "r1", x: 30, y: 40 }, deps);
@@ -51,6 +57,7 @@ test("drag movement refreshes timestamps even when its ghost has not arrived", (
 });
 
 test("drag end clears the ghost and timestamp but missing ghosts keep state identity", () => {
+    // Verify drag end clears the ghost and timestamp but missing ghosts keep state identity.
     const { state, ghostTimestampsRef, deps } = harness();
     handleSortingViewerMessage({ type: "drag_start", ...drag }, deps);
     handleSortingViewerMessage({ type: "drag_end", rushee_id: "r1" }, deps);
@@ -63,6 +70,7 @@ test("drag end clears the ghost and timestamp but missing ghosts keep state iden
 });
 
 test("card movement clears its stale ghost and refreshes even without an ID", () => {
+    // Verify card movement clears its stale ghost and refreshes even without an ID.
     const { calls, state, ghostTimestampsRef, deps } = harness();
     handleSortingViewerMessage({ type: "drag_start", ...drag }, deps);
     handleSortingViewerMessage({ type: "card_moved", rushee_id: "r1" }, deps);
@@ -77,6 +85,7 @@ test("card movement clears its stale ghost and refreshes even without an ID", ()
 });
 
 test("current active drag is redacted; inactive and unknown messages have no effect", () => {
+    // Verify current active drag is redacted; inactive and unknown messages have no effect.
     const { calls, state, ghostTimestampsRef, deps } = harness();
     handleSortingViewerMessage({ type: "current_drag", active: false, ...drag }, deps);
     handleSortingViewerMessage({ type: "unknown", ...drag }, deps);
@@ -90,6 +99,7 @@ test("current active drag is redacted; inactive and unknown messages have no eff
 });
 
 test("inactive current drag leaves an existing viewer ghost untouched", () => {
+    // Verify inactive current drag leaves an existing viewer ghost untouched.
     const { calls, state, ghostTimestampsRef, deps } = harness();
     handleSortingViewerMessage({ type: "drag_start", ...drag }, deps);
     const ghosts = state.ghostCards;
@@ -103,6 +113,7 @@ test("inactive current drag leaves an existing viewer ghost untouched", () => {
 });
 
 test("brother viewers retain the message-supplied rushee name for both drag events", () => {
+    // Verify brother viewers retain the message-supplied rushee name for both drag events.
     const { state, deps } = harness();
     handleSortingViewerMessage({ type: "drag_start", ...drag }, {
         ...deps, showRusheeNames: true,

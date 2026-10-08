@@ -1,5 +1,6 @@
 import { clearSortingGhost, moveSortingGhost, showSortingGhost } from "./sortingGhostState.js";
 
+// Apply viewer counts, remote drags, drag denials, and persisted-move refreshes.
 export function handleAdminSortingMessage(msg, {
     draggingRef, ghostTimestampsRef, fetchDataRef,
     setViewerCount, setGhostCards, setLockedCards, cancelDragState,
@@ -28,7 +29,7 @@ export function handleAdminSortingMessage(msg, {
             });
             break;
         case "drag_denied":
-            setLockedCards((prev) => ({
+            setLockedCards(/* Record the remote owner of a card whose drag was denied. */ (prev) => ({
                 ...prev,
                 [msg.rushee_id]: msg.dragger_name,
             }));

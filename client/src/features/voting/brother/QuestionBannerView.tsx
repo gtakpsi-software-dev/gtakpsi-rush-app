@@ -9,11 +9,12 @@ type Props = {
     onVote: (vote: string) => void;
 };
 
+// Display the animated question and vote controls in rush or midterm layout.
 export default function QuestionBannerView({ midtermMode, question, hasVoted, onVote }: Props) {
     if (midtermMode) {
         return (
             <div className="relative flex flex-col h-full p-8 gap-6 overflow-hidden rounded-apple-xl bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md">
-                {Array.from({ length: 20 }).map((_, idx) => (
+                {Array.from({ length: 20 }).map(/* Render a randomly positioned decorative question mark for midterm mode. */ (_, idx) => (
                     <span
                         key={idx}
                         className="absolute text-[20px] sm:text-[28px] text-apple-gray-700 opacity-30 animate-float pointer-events-none select-none"
@@ -50,10 +51,10 @@ export default function QuestionBannerView({ midtermMode, question, hasVoted, on
                             <span className="text-green-800 font-semibold text-xl">Voted</span>
                         </div>
                     ) : (
-                        votingOptions.map((option) => (
+                        votingOptions.map(/* Render a midterm vote-option button. */ (option) => (
                             <button
                                 key={option}
-                                onClick={() => onVote(option)}
+                                onClick={/* Submit this vote option. */ () => onVote(option)}
                                 className="flex-1 py-5 rounded-apple-xl bg-apple-gray-100 hover:bg-apple-gray-200 active:scale-[0.97] transition text-apple-gray-800 font-semibold text-xl border border-apple-gray-200"
                             >
                                 {option}
@@ -67,7 +68,7 @@ export default function QuestionBannerView({ midtermMode, question, hasVoted, on
 
     return (
         <div className="relative w-full rounded-apple-xl overflow-hidden bg-gradient-to-br from-apple-gray-100 via-white to-apple-gray-50 shadow-md flex-shrink-0">
-            {Array.from({ length: 8 }).map((_, idx) => (
+            {Array.from({ length: 8 }).map(/* Render a randomly positioned decorative question mark for rush mode. */ (_, idx) => (
                 <span
                     key={idx}
                     className="absolute text-[20px] sm:text-[28px] text-apple-gray-700 opacity-30 animate-float pointer-events-none select-none"
@@ -105,10 +106,10 @@ export default function QuestionBannerView({ midtermMode, question, hasVoted, on
                             </span>
                         </div>
                     ) : (
-                        votingOptions.map((option) => (
+                        votingOptions.map(/* Render a rush vote-option button. */ (option) => (
                             <button
                                 key={option}
-                                onClick={() => onVote(option)}
+                                onClick={/* Submit this vote option. */ () => onVote(option)}
                                 className="px-6 py-3 rounded-apple bg-apple-gray-200 hover:bg-apple-gray-300 active:scale-[0.97] transition text-apple-gray-800 font-semibold text-lg"
                             >
                                 {option}

@@ -116,10 +116,12 @@ pub struct RusheeModel {
     pub interactions_by_night: Vec<NightInteractionSummary>,
 }
 
+// Use UNSORTED when a stored rushee has no sorting status.
 fn default_sorting_status() -> String {
     "UNSORTED".to_string()
 }
 
+// Use zero when a stored rushee has no sorting position.
 fn default_sorting_order() -> i32 {
     0
 }

@@ -2,6 +2,7 @@ use super::*;
 use crate::models::rushee::RusheeModel;
 use serde_json::json;
 
+// Build a legacy rushee fixture for sorting projections.
 fn rushee() -> RusheeModel {
     serde_json::from_value(json!({
         "first_name": "Test", "last_name": "Rushee", "housing": "Campus",
@@ -23,6 +24,7 @@ fn rushee() -> RusheeModel {
     .unwrap()
 }
 
+// Verify that only administrator board cards reveal rush numbers.
 #[test]
 fn sorting_projection_preserves_admin_number_and_redacts_public_number() {
     let mut document = rushee();
@@ -58,6 +60,7 @@ fn sorting_projection_preserves_admin_number_and_redacts_public_number() {
     }
 }
 
+// Verify fallback values and deterministic board ordering.
 #[test]
 fn sorting_projection_keeps_legacy_fallbacks_and_ordering() {
     let mut document = rushee();

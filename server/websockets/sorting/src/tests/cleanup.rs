@@ -2,6 +2,7 @@ use super::*;
 use crate::state::DragState;
 use std::time::{Duration, Instant};
 
+// Builds a drag fixture with a chosen last-update time.
 fn drag(id: &str, last_update: Instant) -> DragState {
     DragState {
         dragger_id: "owner".to_string(),
@@ -14,6 +15,7 @@ fn drag(id: &str, last_update: Instant) -> DragState {
     }
 }
 
+// Checks the cleanup interval and ensures recent drags remain active.
 #[tokio::test(start_paused = true)]
 async fn cleanup_waits_for_its_interval_and_releases_only_stale_drags() {
     let (state, mut broadcasts) = state();

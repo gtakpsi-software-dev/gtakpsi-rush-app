@@ -19,6 +19,7 @@ type AvailabilityEditorModalProps = {
     onSave: () => void;
 };
 
+// Render grouped timeslot selections for editing a brother’s availability.
 export default function AvailabilityEditorModal({
     editingBrotherAvailability,
     allPisTimeslots,
@@ -83,13 +84,14 @@ export default function AvailabilityEditorModal({
                             </div>
 
                             <div className="space-y-6">
-                                {Object.entries(groupedEditSlots).map(([dateKey, slots]) => (
+                                {Object.entries(groupedEditSlots).map(/* Render one day’s editable availability slots. */ ([dateKey, slots]) => (
                                     <div key={dateKey}>
                                         <h3 className="text-apple-footnote font-medium text-black mb-3 border-b border-apple-gray-200 pb-2">
                                             {dateKey}
                                         </h3>
                                         <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                                             {slots.map((slot, idx) => {
+                                                // Render a slot button using its ISO key and selected state.
                                                 const slotIso = new Date(parseInt(slot.time.$date.$numberLong)).toISOString();
                                                 const isSelected = editingSlots.has(slotIso);
                                                 const { time } = formatSlotTime(slot);
@@ -97,7 +99,7 @@ export default function AvailabilityEditorModal({
                                                 return (
                                                     <button
                                                         key={idx}
-                                                        onClick={() => onToggleSlot(slotIso)}
+                                                        onClick={/* Toggle this availability slot. */ () => onToggleSlot(slotIso)}
                                                         className={`
                                                                     px-2 py-2 rounded-apple-lg text-apple-footnote font-light
                                                                     transition-all duration-150

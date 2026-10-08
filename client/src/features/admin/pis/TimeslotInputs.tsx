@@ -7,9 +7,11 @@ type TimeslotInputsProps = {
     setTimeslotChange: (value: number) => void;
 };
 
+// Render a datetime input, capacity input, and formatted selection preview.
 export default function TimeslotInputs({
     timeslotTime, setTimeslotTime, timeslotChange, setTimeslotChange,
 }: TimeslotInputsProps) {
+    // Return formatted date and time labels, or null for an empty input.
     const formatSelectedTime = (dateTimeStr: string) => {
         if (!dateTimeStr) return null;
         const date = new Date(dateTimeStr);
@@ -33,7 +35,7 @@ export default function TimeslotInputs({
                                  transition duration-200 bg-white shadow-sm
                                  hover:border-blue-400"
                         value={timeslotTime}
-                        onChange={(e) => setTimeslotTime(e.target.value)}
+                        onChange={/* Update the selected timeslot datetime. */ (e) => setTimeslotTime(e.target.value)}
                     />
                     {timeslotTime && (
                         <div className="mt-4 bg-blue-50 rounded-xl p-4 border-2 border-blue-100">
@@ -70,7 +72,7 @@ export default function TimeslotInputs({
                                  transition duration-200 bg-white shadow-sm
                                  hover:border-blue-400"
                         value={timeslotChange}
-                        onChange={(e) => setTimeslotChange(Number(e.target.value))}
+                        onChange={/* Store the requested capacity as a number. */ (e) => setTimeslotChange(Number(e.target.value))}
                     />
                 </div>
             </div>

@@ -13,6 +13,7 @@ type LoginViewProps = {
     handleKeyPress: KeyboardEventHandler<HTMLInputElement>;
 };
 
+// Render the login form or its initial loading indicator.
 export default function LoginView(props: LoginViewProps) {
     return (
         <div className="bg-white min-h-screen">

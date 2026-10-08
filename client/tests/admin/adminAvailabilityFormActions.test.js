@@ -3,18 +3,23 @@ import test from "node:test";
 
 import { createAvailabilityFormActions } from "../../src/features/admin/availability/availabilityFormActions.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup(response = { status: "success" }, confirmed = true, failingStatusSetter = false) {
     const calls = [];
     const actions = createAvailabilityFormActions({
         apiBase: "/api/admin",
         pisFormStatus: { is_active: true, sent_at: "previous" },
+        // Record the status update and optionally simulate a setter failure.
         setPisFormStatus: (value) => {
             calls.push(["status", value]);
             if (failingStatusSetter) throw new Error("setter failed");
         },
+        // Record set pis form loading calls for assertions.
         setPisFormLoading: (value) => calls.push(["loading", value]),
+        // Record set brother availabilities calls for assertions.
         setBrotherAvailabilities: (value) => calls.push(["availabilities", value]),
         axios: {
+            // Record the POST request and return or throw its configured response.
             post: async (url) => {
                 calls.push(["post", url]);
                 if (response instanceof Error) throw response;
@@ -22,9 +27,12 @@ function setup(response = { status: "success" }, confirmed = true, failingStatus
             },
         },
         toast: {
+            // Record success calls for assertions.
             success: (message, options) => calls.push(["success", message, options]),
+            // Record error calls for assertions.
             error: (message, options) => calls.push(["error", message, options]),
         },
+        // Record the confirmation prompt and return the configured choice.
         confirm: (message) => {
             calls.push(["confirm", message]);
             return confirmed;
@@ -34,9 +42,10 @@ function setup(response = { status: "success" }, confirmed = true, failingStatus
 }
 
 test("sending and deactivating the form keep request order, state, and toasts", async () => {
+    // Verify sending and deactivating the form keep request order, state, and toasts.
     const sent = setup();
     await sent.actions.handleSendPISForm();
-    assert.deepEqual(sent.calls.map(([kind]) => kind), ["loading", "post", "status", "success", "loading"]);
+    assert.deepEqual(sent.calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "post", "status", "success", "loading"]);
     assert.deepEqual(sent.calls[1], ["post", "/api/admin/pis-availability/send-form"]);
     assert.equal(sent.calls[2][1].is_active, true);
     assert.ok(!Number.isNaN(Date.parse(sent.calls[2][1].sent_at)));
@@ -51,6 +60,7 @@ test("sending and deactivating the form keep request order, state, and toasts", 
 });
 
 test("clear and resend requires confirmation and clears submissions only on success", async () => {
+    // Verify clear and resend requires confirmation and clears submissions only on success.
     const cancelled = setup(undefined, false);
     await cancelled.actions.handleClearAndResendPISForm();
     assert.equal(cancelled.calls.length, 1);
@@ -58,7 +68,7 @@ test("clear and resend requires confirmation and clears submissions only on succ
 
     const accepted = setup();
     await accepted.actions.handleClearAndResendPISForm();
-    assert.deepEqual(accepted.calls.map(([kind]) => kind), [
+    assert.deepEqual(accepted.calls.map(/* Return kind to the caller. */ ([kind]) => kind), [
         "confirm", "loading", "post", "status", "availabilities", "success", "loading",
     ]);
     assert.deepEqual(accepted.calls[2], ["post", "/api/admin/pis-availability/clear-and-resend"]);
@@ -66,6 +76,7 @@ test("clear and resend requires confirmation and clears submissions only on succ
 });
 
 test("assignment actions retain confirmation, endpoints, and response messages", async () => {
+    // Verify assignment actions retain confirmation, endpoints, and response messages.
     const assigned = setup({ status: "success", message: "Assigned two brothers" });
     await assigned.actions.handleAutoAssignBrothers();
     assert.match(assigned.calls[0][1], /automatically assign available brothers/);
@@ -82,13 +93,15 @@ test("assignment actions retain confirmation, endpoints, and response messages",
 });
 
 test("clearing assignments stops before state or network work when cancelled", async () => {
+    // Verify clearing assignments stops before state or network work when cancelled.
     const cancelled = setup(undefined, false);
     await cancelled.actions.handleClearAssignments();
-    assert.deepEqual(cancelled.calls.map(([kind]) => kind), ["confirm"]);
+    assert.deepEqual(cancelled.calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["confirm"]);
     assert.match(cancelled.calls[0][1], /clear all brother assignments from PIS slots/);
 });
 
 test("request failures keep each action's fallback and clear loading", async () => {
+    // Verify request failures keep each action's fallback and clear loading.
     const sent = setup(new Error("offline"));
     await sent.actions.handleSendPISForm();
     assert.equal(sent.calls[2][1], "Failed to send form");
@@ -101,6 +114,7 @@ test("request failures keep each action's fallback and clear loading", async () 
 });
 
 test("assignment responses keep distinct fallbacks and success timeouts", async () => {
+    // Verify assignment responses keep distinct fallbacks and success timeouts.
     const rejected = setup({ status: "error" });
     await rejected.actions.handleAutoAssignBrothers();
     assert.equal(rejected.calls[3][1], "Failed to auto-assign");
@@ -120,18 +134,19 @@ test("assignment responses keep distinct fallbacks and success timeouts", async 
 });
 
 test("form failures preserve silent deactivation and caught state-update errors", async () => {
+    // Verify form failures preserve silent deactivation and caught state-update errors.
     const unsent = setup({ status: "error" });
     await unsent.actions.handleSendPISForm();
-    assert.deepEqual(unsent.calls.map(([kind]) => kind), ["loading", "post", "error", "loading"]);
+    assert.deepEqual(unsent.calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "post", "error", "loading"]);
     assert.equal(unsent.calls[2][1], "Failed to send form");
 
     const inactive = setup({ status: "error", message: "Denied" });
     await inactive.actions.handleDeactivatePISForm();
-    assert.deepEqual(inactive.calls.map(([kind]) => kind), ["loading", "post", "loading"]);
+    assert.deepEqual(inactive.calls.map(/* Return kind to the caller. */ ([kind]) => kind), ["loading", "post", "loading"]);
 
     const failedClear = setup({ status: "success" }, true, true);
     await failedClear.actions.handleClearAndResendPISForm();
-    assert.deepEqual(failedClear.calls.map(([kind]) => kind), [
+    assert.deepEqual(failedClear.calls.map(/* Return kind to the caller. */ ([kind]) => kind), [
         "confirm", "loading", "post", "status", "error", "loading",
     ]);
     assert.equal(failedClear.calls[4][1], "Failed to clear and resend");

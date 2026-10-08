@@ -3,9 +3,10 @@ import test from "node:test";
 
 import { connectSortingViewer } from "../../../src/features/sorting/connectSortingViewer.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(
     showRusheeNames,
-    getCurrentUser = () => ({ displayName: "Brother One", email: "brother@example.com" }),
+    getCurrentUser = /* Return the fixture for this scenario. */ () => ({ displayName: "Brother One", email: "brother@example.com" }),
 ) {
     const sockets = [];
     const reconnects = [];
@@ -14,9 +15,10 @@ function harness(
     const wsRef = { current: null };
     const ghostTimestampsRef = { current: {} };
     const fetches = [];
-    const fetchDataRef = { current: () => fetches.push("refresh") };
+    const fetchDataRef = { current: /* Record current calls for assertions. */ () => fetches.push("refresh") };
 
     class FakeWebSocket {
+        // Register a fake socket with recorded outbound messages and close state.
         constructor(url) {
             this.url = url;
             this.sent = [];
@@ -24,7 +26,9 @@ function harness(
             sockets.push(this);
         }
 
+        // Record send calls for assertions.
         send(message) { this.sent.push(JSON.parse(message)); }
+        // Update this.closed in the test harness.
         close() { this.closed = true; }
     }
 
@@ -34,15 +38,22 @@ function harness(
         getCurrentUser,
         ghostTimestampsRef,
         fetchDataRef,
+        // Update state.connected in the test harness.
         setWsConnected: (value) => { state.connected = value; },
+        // Update state.viewerCount in the test harness.
         setViewerCount: (value) => { state.viewerCount = value; },
+        // Update state.ghostCards in the test harness.
         setGhostCards: (update) => {
             state.ghostCards = typeof update === "function" ? update(state.ghostCards) : update;
         },
         showRusheeNames,
+        // Create a fake socket for the requested URL.
         createWebSocket: (url) => new FakeWebSocket(url),
+        // Record schedule reconnect calls for assertions.
         scheduleReconnect: (callback, delay) => reconnects.push({ callback, delay }),
+        // Provide an inert log stub for this test.
         log: () => {},
+        // Record log error calls for assertions.
         logError: (...args) => errors.push(args),
     });
 
@@ -51,6 +62,7 @@ function harness(
 
 for (const [showRusheeNames, expectedName] of [[false, "Rushee"], [true, "Private Name"]]) {
     test(`viewer socket retains ${showRusheeNames ? "brother" : "bid committee"} name visibility and reconnect timing`, () => {
+        // Verify viewer connection, privacy filtering, refresh, and reconnect behavior.
         const { sockets, reconnects, state, wsRef, fetches } = harness(showRusheeNames);
         const first = sockets[0];
         assert.equal(first.url, "wss://sorting.example/ws");
@@ -83,6 +95,7 @@ for (const [showRusheeNames, expectedName] of [[false, "Rushee"], [true, "Privat
 }
 
 test("viewer socket closes on error and reports malformed messages", () => {
+    // Verify viewer socket closes on error and reports malformed messages.
     const { sockets, errors } = harness(false);
     sockets[0].onmessage({ data: "bad json" });
     assert.equal(errors[0][0], "Failed to parse WS message");
@@ -94,8 +107,9 @@ test("viewer socket closes on error and reports malformed messages", () => {
 });
 
 test("viewer join name uses current user on each open and keeps the existing fallbacks", () => {
+    // Verify viewer join name uses current user on each open and keeps the existing fallbacks.
     let user = { email: "brother@example.com" };
-    const { sockets, reconnects } = harness(false, () => user);
+    const { sockets, reconnects } = harness(false, /* Return user to the caller. */ () => user);
     sockets[0].onopen();
     assert.equal(sockets[0].sent[0].name, "brother");
 

@@ -9,6 +9,7 @@ pub(crate) struct AssignmentCounts {
     pub assignment_failures: i32,
 }
 
+// Plan and persist missing interviewers, counting successful writes and unfilled signups.
 pub(crate) async fn assign_rushees(
     collection: &Collection<RusheeModel>,
     rushees: &[RusheeModel],

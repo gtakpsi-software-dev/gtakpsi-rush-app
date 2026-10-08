@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import LiquidShader from "../features/notFound/LiquidShader";
 
+// Display the animated not-found screen and home navigation.
 export default function NotFound() {
     const navigate = useNavigate();
 
@@ -40,6 +41,7 @@ export default function NotFound() {
                 <p className="text-lg text-white mt-3 text-center max-w-xl">Sorry, we {"couldn't"} find this page!</p>
 
                 <button onClick={() => {
+                    // Return to the home page.
                     navigate("/");
                 }} className="mt-3 px-6 py-3 bg-orange-300 text-white font-semibold rounded-lg shadow-md hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                     Go Back

@@ -9,16 +9,18 @@ interface VoteSummaryProps {
   showBreakdown?: boolean;
 }
 
+// Display total votes, the Yes/No breakdown, abstentions, and the clear-votes action.
 export default function VoteSummary({ showBreakdown = true }: VoteSummaryProps) {
   const { votes } = useAdminVotingContext();
 
   const total = votes.length;
-  const yes = votes.filter((v) => v.vote === "Yes").length;
-  const no = votes.filter((v) => v.vote === "No").length;
-  const abstain = votes.filter((v) => v.vote === "Abstain").length;
+  const yes = votes.filter(/* Count votes cast as Yes. */ (v) => v.vote === "Yes").length;
+  const no = votes.filter(/* Count votes cast as No. */ (v) => v.vote === "No").length;
+  const abstain = votes.filter(/* Count votes cast as Abstain. */ (v) => v.vote === "Abstain").length;
 
   const api = import.meta.env.VITE_API_PREFIX;
 
+  // Clear the current votes and show request feedback.
   const handleClearVotes = async () => {
     await toast.promise(
       adminPost(`${api}/admin/voting/clear-votes`, {}),

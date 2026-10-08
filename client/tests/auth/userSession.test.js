@@ -8,6 +8,7 @@ import {
 } from "../../src/features/auth/errorMessages.js";
 
 test("login storage keeps legacy and current name fields and split behavior", () => {
+    // Verify login storage keeps legacy and current name fields and split behavior.
     assert.deepEqual(loginStoredUser({
         uid: "brother-1", email: "ada@example.org", displayName: "Ada  Lovelace",
     }), {
@@ -21,6 +22,7 @@ test("login storage keeps legacy and current name fields and split behavior", ()
 });
 
 test("account storage retains provided names and empty-name fallbacks", () => {
+    // Verify account storage retains provided names and empty-name fallbacks.
     assert.deepEqual(createdStoredUser(
         { uid: "brother-1", email: "ada@example.org" },
         { firstName: "Ada", lastName: "Lovelace" },
@@ -34,6 +36,7 @@ test("account storage retains provided names and empty-name fallbacks", () => {
 });
 
 test("auth errors preserve each displayed message and the generic fallback", () => {
+    // Verify auth errors preserve each displayed message and the generic fallback.
     assert.deepEqual([
         loginErrorMessage("auth/invalid-email"),
         loginErrorMessage("auth/user-disabled"),

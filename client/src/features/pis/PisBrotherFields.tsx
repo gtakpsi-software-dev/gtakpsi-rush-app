@@ -19,6 +19,7 @@ type Props = {
     handleBrotherBChange: (field: string, value: string) => void;
 };
 
+// Display assigned brothers and collaborative interviewer-name inputs.
 export default function PisBrotherFields({
     rushee, brotherA, brotherB, collaboration, currentUser,
     handleBrotherAChange, handleBrotherBChange,
@@ -51,7 +52,7 @@ export default function PisBrotherFields({
                         fieldKey="_brotherA_firstName"
                         placeholder="First Name"
                         value={brotherA.firstName}
-                        onChange={(value) => handleBrotherAChange('firstName', value)}
+                        onChange={/* Update the first interviewer’s first name. */ (value) => handleBrotherAChange('firstName', value)}
                         className="input-apple text-apple-footnote"
                         collaboration={collaboration}
                         currentUser={currentUser}
@@ -61,7 +62,7 @@ export default function PisBrotherFields({
                         fieldKey="_brotherA_lastName"
                         placeholder="Last Name"
                         value={brotherA.lastName}
-                        onChange={(value) => handleBrotherAChange('lastName', value)}
+                        onChange={/* Update the first interviewer’s last name. */ (value) => handleBrotherAChange('lastName', value)}
                         className="input-apple text-apple-footnote"
                         collaboration={collaboration}
                         currentUser={currentUser}
@@ -77,7 +78,7 @@ export default function PisBrotherFields({
                         fieldKey="_brotherB_firstName"
                         placeholder="First Name"
                         value={brotherB.firstName}
-                        onChange={(value) => handleBrotherBChange('firstName', value)}
+                        onChange={/* Update the second interviewer’s first name. */ (value) => handleBrotherBChange('firstName', value)}
                         className="input-apple text-apple-footnote"
                         collaboration={collaboration}
                         currentUser={currentUser}
@@ -86,7 +87,7 @@ export default function PisBrotherFields({
                         fieldKey="_brotherB_lastName"
                         placeholder="Last Name"
                         value={brotherB.lastName}
-                        onChange={(value) => handleBrotherBChange('lastName', value)}
+                        onChange={/* Update the second interviewer’s last name. */ (value) => handleBrotherBChange('lastName', value)}
                         className="input-apple text-apple-footnote"
                         collaboration={collaboration}
                         currentUser={currentUser}

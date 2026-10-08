@@ -30,6 +30,7 @@ import AdminSorting from './pages/AdminSorting';
 import BidCommitteeSorting from './pages/BidCommitteeSorting';
 import BrotherSorting from './pages/BrotherSorting';
 
+// Render application routes and the contact footer when midterm mode is off.
 function AppInner() {
   const { isMidtermMode } = useMidtermMode();
 
@@ -84,6 +85,7 @@ function AppInner() {
   );
 }
 
+// Provide routing, shared midterm state, and toast notifications for the app.
 function App() {
   return (
     <div className='m-0 p-0 h-screen w-screen overflow-y-scroll no-scrollbar'>

@@ -3,6 +3,7 @@ type NavbarMoreItemsProps = {
     isAdmin: boolean;
 };
 
+// Render additional brother links and the bid committee sorting link when applicable.
 export default function NavbarMoreItems({ isBidcom, isAdmin }: NavbarMoreItemsProps) {
     return (
         <ul className="absolute left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50">

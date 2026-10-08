@@ -1,3 +1,4 @@
+// Return the toast options used for registration warnings.
 const warningOptions = () => ({
     position: "top-center",
     autoClose: 5000,
@@ -9,6 +10,7 @@ const warningOptions = () => ({
     theme: "colored",
 });
 
+// Create a handler that validates input refs and advances registration.
 export function createBasicInfoSubmit({
     fields,
     gtid,
@@ -21,6 +23,7 @@ export function createBasicInfoSubmit({
     logError,
 }) {
     return async () => {
+        // Check required fields, verify registration details, and update loading state.
         setCurrLoading(true);
 
         for (const [input] of fields) {
@@ -31,6 +34,7 @@ export function createBasicInfoSubmit({
             }
         }
 
+        // Save verified field values and advance to photo capture, or show the validation error.
         const handleVerificationResponse = (response) => {
             if (response.status === "success") {
                 for (const [input, setValue] of fields) {
@@ -42,6 +46,7 @@ export function createBasicInfoSubmit({
             }
         };
 
+        // Log verification or field-update failures and show an internal-error warning.
         const handleVerificationFailure = (error) => {
             // Field-setter failures use the same warning path as rejected verification.
             logError(error);

@@ -4,6 +4,7 @@ use crate::snapshot::load_field;
 use axum::extract::ws::Message;
 use redis::{aio::ConnectionManager, AsyncCommands};
 
+// Loads the current vote log, selected rushee, and question for a new admin.
 pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Message> {
     let mut initial_messages = Vec::new();
 

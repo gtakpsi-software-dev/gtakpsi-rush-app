@@ -5,6 +5,7 @@ type RusheeActionsProps = {
     onCopyLink: () => void;
 };
 
+// Render actions to open the interview form and copy the personal edit link.
 export default function RusheeActions({
     gtid,
     copied,
@@ -14,7 +15,7 @@ export default function RusheeActions({
     return (
         <div className="card-apple p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <button
-                onClick={() => onSubmitPis(`/pis/${gtid}`)}
+                onClick={/* Open the selected rushee’s PIS form. */ () => onSubmitPis(`/pis/${gtid}`)}
                 className="btn-apple px-6 py-4 text-apple-headline font-light"
             >
                 Submit PIS

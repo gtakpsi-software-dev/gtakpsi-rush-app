@@ -6,6 +6,7 @@ use crate::models::{
 use bson::{doc, DateTime};
 use std::collections::HashMap;
 
+// Build a comment fixture containing the supplied category ratings.
 fn comment(ratings: &[(&str, f32)]) -> Comment {
     Comment {
         brother_id: String::new(),
@@ -25,6 +26,7 @@ fn comment(ratings: &[(&str, f32)]) -> Comment {
     }
 }
 
+// Verify that only finite ratings from one through five contribute to averages.
 #[test]
 fn averaging_accepts_the_closed_one_to_five_range_including_fractional_values() {
     for value in [1.0, 1.5, 3.0, 5.0] {
@@ -43,6 +45,7 @@ fn averaging_accepts_the_closed_one_to_five_range_including_fractional_values() 
     }
 }
 
+// Verify first-match category selection and inclusion of a new rating.
 #[test]
 fn rating_average_uses_first_matching_rating_per_comment_and_appends_new_value_last() {
     let comments = [
@@ -56,6 +59,7 @@ fn rating_average_uses_first_matching_rating_per_comment_and_appends_new_value_l
     assert_eq!(average_rating_value(&comments, "other", None), Some(4.0));
 }
 
+// Verify invalid-rating filtering and the absence of an average without valid values.
 #[test]
 fn rating_average_excludes_legacy_and_invalid_values_and_preserves_empty_result() {
     let comments = [comment(&[("fit", 0.0)]), comment(&[("fit", f32::NAN)])];
@@ -65,6 +69,7 @@ fn rating_average_excludes_legacy_and_invalid_values_and_preserves_empty_result(
     assert_eq!(average_rating_value(&comments, "fit", Some(2.5)), Some(2.5));
 }
 
+// Verify MongoDB filters and updates for existing and new rating categories.
 #[test]
 fn rating_updates_keep_existing_and_new_category_filters_and_operators() {
     let rating = Rating {
@@ -88,6 +93,7 @@ fn rating_updates_keep_existing_and_new_category_filters_and_operators() {
     );
 }
 
+// Verify that deletion recalculates only affected categories from surviving comments.
 #[test]
 fn deletion_recalculates_only_deleted_categories_after_same_day_filtering() {
     let mut earlier = comment(&[("fit", 1.0), ("other", 3.0)]);
@@ -112,6 +118,7 @@ fn deletion_recalculates_only_deleted_categories_after_same_day_filtering() {
     assert_eq!(values["new"], Some(5.0));
 }
 
+// Verify that a category without valid surviving ratings is marked for removal.
 #[test]
 fn deletion_removes_a_category_when_no_valid_rating_remains() {
     let mut deleted = comment(&[("fit", 3.0), ("fit", 5.0)]);
@@ -123,6 +130,7 @@ fn deletion_removes_a_category_when_no_valid_rating_remains() {
     assert_eq!(values, vec![("fit".to_string(), None)]);
 }
 
+// Verify the positional update and error message for a recalculated average.
 #[test]
 fn deletion_updates_existing_rating_with_the_original_positional_filter() {
     let (filter, update, error) =
@@ -133,6 +141,7 @@ fn deletion_updates_existing_rating_with_the_original_positional_filter() {
     assert_eq!(error, "error updating ratings after comment deletion");
 }
 
+// Verify the removal update and error message for an empty rating category.
 #[test]
 fn deletion_removes_empty_rating_category_with_the_original_pull() {
     let (filter, update, error) = deletion_plan::rating_update_for_deletion("123", "fit", None);

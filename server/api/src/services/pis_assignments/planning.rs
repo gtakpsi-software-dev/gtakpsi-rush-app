@@ -17,6 +17,7 @@ pub(crate) struct AssignmentPlan {
 }
 
 impl AssignmentPlanner {
+    // Count existing assignments and reserve their interviewers at the given timeslot.
     pub fn register_existing(&mut self, timeslot: i64, signup: &PISSignup) {
         let assigned = self.assigned_by_timeslot.entry(timeslot).or_default();
 
@@ -38,6 +39,7 @@ impl AssignmentPlanner {
         }
     }
 
+    // Fill missing interviewer slots with available brothers while balancing assignment counts.
     pub fn plan(
         &mut self,
         timeslot: i64,
@@ -83,6 +85,7 @@ impl AssignmentPlanner {
     }
 }
 
+// Select an eligible interviewer and immediately reserve their timeslot and workload.
 fn reserve_available(
     available: &[BrotherName],
     assigned: &mut HashSet<String>,
@@ -99,6 +102,7 @@ fn reserve_available(
     Some(chosen)
 }
 
+// Choose the least-assigned eligible interviewer, retaining availability order for ties.
 fn least_assigned_available(
     available: &[BrotherName],
     assigned: &HashSet<String>,

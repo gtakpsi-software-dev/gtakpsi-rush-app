@@ -22,6 +22,7 @@ const rushee = {
 const Badges = ({ text }) => React.createElement("span", { "data-badge": text }, text);
 
 test("PIS profile header retains attendee and no-attendance markup", async () => {
+    // Verify PIS profile header retains attendee and no-attendance markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const PisProfileHeader = await loadTsxComponent(componentPath, {
         "../../components/Badge": Badges,

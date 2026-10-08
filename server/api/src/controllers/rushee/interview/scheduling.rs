@@ -6,6 +6,7 @@ use serde_json::{json, Value};
 
 use super::super::read_rows::map_rushee_rows;
 
+// Return the PIS signup records for all rushees.
 pub async fn get_signup_timeslots() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_rushee_collection().await;
     match map_rushee_rows(connection, |rushee| rushee.pis_signup).await {

@@ -3,6 +3,7 @@ import { useAdminVotingContext } from "./AdminVotingContext";
 import Loader from "../../../components/Loader";
 import { adminGet, adminPost } from "../../admin/api";
 
+// Display each brother’s voting status and eligibility controls.
 export default function BrotherList() {
   const { brothers, votes } = useAdminVotingContext();
   const [eligibilityMap, setEligibilityMap] = useState<Record<string, boolean> | null>(null);
@@ -12,6 +13,8 @@ export default function BrotherList() {
   const lambdaURL = import.meta.env.VITE_API_PREFIX;
 
   useEffect(() => {
+      // Refresh eligibility when the brother directory or API URL changes.
+    // Fetch ineligible IDs and derive each listed brother’s eligibility.
     const fetchEligibility = async () => {
       try {
         const response = await adminGet(`${lambdaURL}/admin/voting/get-eligibility`);
@@ -19,6 +22,7 @@ export default function BrotherList() {
           const ineligibleIds: string[] = response.data.ineligible_ids;
           const map: Record<string, boolean> = {};
           brothers.forEach((b) => {
+              // Mark this brother eligible unless their ID is in the ineligible list.
             map[b._id] = !ineligibleIds.includes(b._id);
           });
           setEligibilityMap(map);
@@ -33,10 +37,12 @@ export default function BrotherList() {
     fetchEligibility();
   }, [brothers, lambdaURL]);
 
+  // Check whether the current vote list includes this brother ID.
   const hasVoted = (gtid: string) => {
-    return votes.some((v) => v.brother_id === gtid);
+    return votes.some(/* Match a vote to the requested brother ID. */ (v) => v.brother_id === gtid);
   };
 
+  // Request the opposite eligibility state and update local feedback.
   const toggleEligibility = async (gtid: string) => {
     try {
       setToggling(gtid);
@@ -46,6 +52,7 @@ export default function BrotherList() {
       await adminPost(`${lambdaURL}/admin/voting/${route}`, { gtid });
 
       setEligibilityMap((prev) => {
+          // Invert the selected brother’s eligibility in the existing map.
         if (!prev) return prev;
         return {
           ...prev,
@@ -63,7 +70,7 @@ export default function BrotherList() {
 
   return (
     <div className="pt-4 space-y-3">
-      {brothers.map((brother) => (
+      {brothers.map(/* Render a brother’s vote status and eligibility button. */ (brother) => (
         <div
           key={brother._id}
           className="card-apple p-4 border border-apple-gray-200 rounded-apple shadow-sm hover:shadow-md transition-all duration-150"
@@ -87,7 +94,7 @@ export default function BrotherList() {
 
               <button
                 disabled={toggling === brother._id}
-                onClick={() => toggleEligibility(brother._id)}
+                onClick={/* Toggle this brother’s voting eligibility. */ () => toggleEligibility(brother._id)}
                 className={`px-3 py-1 rounded-full text-apple-footnote font-medium border transition-all duration-150 ${
                   eligibilityMap[brother._id]
                     ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"

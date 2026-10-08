@@ -5,6 +5,7 @@ import { verifyUser } from "../features/auth/verifyUser";
 import { createAddTimeslotActions } from "../features/admin/pis/createAddTimeslotActions";
 import AddTimeslotForm from "../features/admin/pis/AddTimeslotForm";
 
+// Verify the session and connect the timeslot form to its submission action.
 export default function AddTimeslotPage() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function AddTimeslotPage() {
     const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
+        // Check the session while the page is loading.
+        // Verify access, navigate on failure, and reveal the form after a resolved check.
         async function checkAuth() {
             try {
                 const isValid = await verifyUser();

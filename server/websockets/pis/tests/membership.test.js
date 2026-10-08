@@ -2,27 +2,43 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const { registerMembershipHandlers } = require('../src/handlers/membership');
 
+// Build fake sockets and room state for membership-handler tests.
 function setup() {
     const handlers = new Map();
     const direct = [];
     const broadcasts = [];
     const socket = {
         id: 'socket-1',
+        // Capture registered membership listeners.
         on: (name, handler) => handlers.set(name, handler),
+        // Record the room joined by the fake socket.
         join: (roomId) => broadcasts.push(['join', roomId]),
+        // Record events sent directly to the fake socket.
         emit: (name, payload) => direct.push([name, payload]),
-        to: (roomId) => ({ emit: (name, payload) => broadcasts.push([roomId, name, payload]) }),
+        // Create a recorder for peer broadcasts to a room.
+        to: (roomId) => ({
+            // Record a peer broadcast with its room and payload.
+            emit: (name, payload) => broadcasts.push([roomId, name, payload]),
+        }),
     };
     const io = {
-        to: (roomId) => ({ emit: (name, payload) => broadcasts.push([roomId, name, payload]) }),
+        // Create a recorder for server broadcasts to a room.
+        to: (roomId) => ({
+            // Record a server broadcast with its room and payload.
+            emit: (name, payload) => broadcasts.push([roomId, name, payload]),
+        }),
     };
     const rooms = new Map();
     const membershipsBySocket = new Map();
-    registerMembershipHandlers(io, socket, rooms, membershipsBySocket, { setTimeout() {} });
+    registerMembershipHandlers(io, socket, rooms, membershipsBySocket, {
+        // Ignore cleanup scheduling in membership tests.
+        setTimeout() {},
+    });
     return { handlers, direct, broadcasts, rooms, membershipsBySocket };
 }
 
 test('join and explicit requests serialize the same document fields and legacy version zero', () => {
+    // Verify that joining and explicit requests produce matching document snapshots.
     const state = setup();
     const room = {
         users: new Map(), operations: [],
@@ -53,6 +69,7 @@ test('join and explicit requests serialize the same document fields and legacy v
 });
 
 test('document-state requests without a joined room remain silent', () => {
+    // Verify that document requests without a valid room produce no response.
     const state = setup();
     state.handlers.get('request-document-state')();
     state.membershipsBySocket.set('socket-1', { roomId: 'missing' });
@@ -61,6 +78,7 @@ test('document-state requests without a joined room remain silent', () => {
 });
 
 test('joining a new room initializes independent text, version, and presence state', () => {
+    // Verify that newly created rooms do not share document or presence state.
     const state = setup();
     state.handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother-1', userName: 'Brother One' });
     state.handlers.get('join-room')({ roomId: 'pis-2', userId: 'brother-2', userName: 'Brother Two' });
@@ -76,12 +94,13 @@ test('joining a new room initializes independent text, version, and presence sta
     assert.notEqual(first.document, second.document);
     assert.notEqual(first.versions, second.versions);
     assert.ok(Number.isFinite(Date.parse(first.lastActivity)));
-    assert.deepEqual(state.direct.map(([name, payload]) => [name, payload]), [
+    assert.deepEqual(state.direct.map(/* Copy recorded event names and payloads for comparison. */ ([name, payload]) => [name, payload]), [
         ['document-state', {}], ['document-state', {}],
     ]);
 });
 
 test('disconnect after joining another room removes only the latest membership', () => {
+    // Verify that disconnect removes only the socket's latest membership.
     const state = setup();
     state.handlers.get('join-room')({ roomId: 'pis-1', userId: 'brother-1', userName: 'Brother One' });
     state.handlers.get('join-room')({ roomId: 'pis-2', userId: 'brother-2', userName: 'Brother Two' });
@@ -95,6 +114,7 @@ test('disconnect after joining another room removes only the latest membership',
 });
 
 test('disconnect clears stale membership after its room has already expired', () => {
+    // Verify removal of stale membership when its room is already gone.
     const state = setup();
     state.membershipsBySocket.set('socket-1', {
         roomId: 'expired',

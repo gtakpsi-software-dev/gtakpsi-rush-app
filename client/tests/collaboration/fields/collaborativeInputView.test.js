@@ -7,7 +7,9 @@ import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 const viewPath = fileURLToPath(new URL('../../../src/features/collaboration/CollaborativeInputView.tsx', import.meta.url));
 
 test('input view keeps field handlers, state, and lock label attached', async () => {
+    // Verify input view keeps field handlers, state, and lock label attached.
     const View = await loadTsxComponent(viewPath);
+    // Provide an inert handler stub for this test.
     const handler = () => {};
     const props = {
         inputRef: { current: null },

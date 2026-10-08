@@ -8,6 +8,7 @@ use serde_json::{json, Value};
 mod signup;
 pub use signup::brother_pis_sign_up;
 
+// Check whether either interviewer slot exactly matches the supplied brother name.
 fn signed_up_with(signup: &PISSignup, brother: &IncomingBrotherName) -> bool {
     (signup.first_brother_first_name.eq(&brother.first_name)
         && signup.first_brother_last_name.eq(&brother.last_name))
@@ -15,6 +16,7 @@ fn signed_up_with(signup: &PISSignup, brother: &IncomingBrotherName) -> bool {
             && signup.second_brother_last_name.eq(&brother.last_name))
 }
 
+// Return list summaries for rushees assigned to the supplied brother name.
 pub async fn get_brother_pis(
     Json(payload): Json<IncomingBrotherName>,
 ) -> Result<Json<Value>, StatusCode> {

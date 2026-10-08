@@ -24,11 +24,13 @@ type Props = {
     openNotes: (card: Card) => void;
 };
 
+// Render an editable sorting column with drag targets, ownership locks, and tags.
 export default function SortingColumn({
     col, columns, hoverIndex, dragging, draggingRef, lockedCards,
     setHoverIndex, handleDragOver, handleDrop, handleDragStart,
     handleDragEnd, openNotes,
 }: Props) {
+    // Render the insertion marker for the current drop position.
     const DropIndicator = () => (
         <div className="h-1 bg-blue-500 rounded-full my-1 shadow-lg shadow-blue-500/50 animate-pulse" />
     );
@@ -43,9 +45,12 @@ export default function SortingColumn({
             className={`bg-white/90 backdrop-blur-sm border-2 rounded-apple-xl shadow-sm p-4 w-64 transition-colors ${
                 isHoveringThisColumn && dragging ? "border-blue-400 bg-blue-50/50" : "border-apple-gray-200"
             }`}
-            onDragOver={(e) => handleDragOver(e, col.key, items.length)}
-            onDrop={() => handleDrop(col.key, hoverIndex.column === col.key ? hoverIndex.index : items.length)}
+            onDragOver={/* Track dragging over the column’s trailing insertion position. */ (e) => handleDragOver(e, col.key, items.length)}
+            onDrop={
+                /* Drop into the hovered position or the end of this column. */
+                () => handleDrop(col.key, hoverIndex.column === col.key ? hoverIndex.index : items.length)}
             onDragLeave={() => {
+                // Clear the drop indicator when dragging leaves this column.
                 if (hoverIndex.column === col.key) {
                     setHoverIndex({ column: null, index: null });
                 }
@@ -56,9 +61,10 @@ export default function SortingColumn({
                 <div className="text-apple-caption2 text-apple-gray-600 bg-apple-gray-100 px-2 py-0.5 rounded-full">{items.length}</div>
             </div>
             <div className="space-y-1 min-h-[60px]">
-                {items.map((r, idx) => (
+                {items.map(/* Render a card and its insertion indicators. */ (r, idx) => (
                     <React.Fragment key={r.id}>
                         {(() => {
+                            // Derive remote lock state and render the card’s drag controls.
                             const lockedBy = lockedCards[r.id];
                             const isLockedByOther = Boolean(lockedBy) && draggingRef.current?.id !== r.id;
                             return (
@@ -69,9 +75,12 @@ export default function SortingColumn({
                                     <div
                                         data-card
                                         draggable={!isLockedByOther}
-                                        onDragStart={(e) => handleDragStart(r, col.key, idx, e)}
+                                        onDragStart={
+                                            /* Start dragging this card from its column position. */
+                                            (e) => handleDragStart(r, col.key, idx, e)}
                                         onDragEnd={handleDragEnd}
                                         onDragOver={(e) => {
+                                            // Choose insertion above or below the hovered card’s midpoint.
                                             e.preventDefault();
                                             e.stopPropagation();
                                             // Use the midpoint to select an insertion position above or below the card.
@@ -81,10 +90,11 @@ export default function SortingColumn({
                                             setHoverIndex({ column: col.key, index: insertIndex });
                                         }}
                                         onDrop={(e) => {
+                                            // Drop at the current card position without bubbling to the column.
                                             e.stopPropagation();
                                             handleDrop(col.key, hoverIndex.index);
                                         }}
-                                        onClick={() => openNotes(r)}
+                                        onClick={/* Open this card’s sorting notes. */ () => openNotes(r)}
                                         className={`p-3 rounded-apple-lg border-2 bg-white hover:shadow-md select-none transition-all ${
                                             dragging?.id === r.id
                                                 ? "opacity-50 border-dashed border-apple-gray-300 bg-apple-gray-50"
@@ -104,7 +114,10 @@ export default function SortingColumn({
                                         {r.sortingTags && r.sortingTags.length > 0 && (
                                             <div className="flex flex-wrap gap-1 mt-2">
                                                 {r.sortingTags.map((tagKey) => {
-                                                    const tagInfo = TAGS.find((t) => t.key === tagKey);
+                                                    // Render a recognized sorting tag badge.
+                                                    const tagInfo = TAGS.find(
+                                                        /* Find the display metadata for this tag key. */
+                                                        (t) => t.key === tagKey);
                                                     if (!tagInfo) return null;
                                                     return (
                                                         <span

@@ -6,21 +6,29 @@ import { createPromotionActions } from "../../src/features/admin/access/promotio
 
 const brother = { uid: "uid-1", id: "fallback", email: "ada@example.com", firstname: "Ada", lastname: "Example" };
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup({ selectedBrother = brother, statusResponse = { status: "success", admin: true, bidcom: false }, roleResponse = { status: "success" }, failingAdminSetter = false } = {}) {
     const calls = [];
     const actions = createPromotionActions({
         apiBase: "/api/admin",
         selectedBrother,
+        // Record set selected brother calls for assertions.
         setSelectedBrother: (value) => calls.push(["selected", value]),
+        // Record set brother search calls for assertions.
         setBrotherSearch: (value) => calls.push(["search", value]),
+        // Record set filtered brothers calls for assertions.
         setFilteredBrothers: (value) => calls.push(["filtered", value]),
+        // Record administrator status updates and optionally fail the setter.
         setBrotherAdminStatus: (value) => {
             calls.push(["adminStatus", value]);
             if (failingAdminSetter) throw new Error("setter failed");
         },
+        // Record set brother bidcom status calls for assertions.
         setBrotherBidcomStatus: (value) => calls.push(["bidcomStatus", value]),
+        // Record set is promoting calls for assertions.
         setIsPromoting: (value) => calls.push(["promoting", value]),
         axios: {
+            // Select the status or role response for the recorded POST request.
             post: async (url, payload) => {
                 calls.push(["post", url, payload]);
                 const response = url.endsWith("get-admin-status") ? statusResponse : roleResponse;
@@ -29,7 +37,9 @@ function setup({ selectedBrother = brother, statusResponse = { status: "success"
             },
         },
         toast: {
+            // Record success calls for assertions.
             success: (message, options) => calls.push(["success", message, options]),
+            // Record error calls for assertions.
             error: (message, options) => calls.push(["error", message, options]),
         },
     });
@@ -37,6 +47,7 @@ function setup({ selectedBrother = brother, statusResponse = { status: "success"
 }
 
 test("brother selection preserves display name, UID precedence, and strict role status", async () => {
+    // Verify brother selection preserves display name, UID precedence, and strict role status.
     const { calls, actions } = setup();
     actions.handleSelectBrother(brother);
     await setImmediate();
@@ -56,6 +67,7 @@ test("brother selection preserves display name, UID precedence, and strict role 
 });
 
 test("missing identity and failed status lookup clear both displayed roles", async () => {
+    // Verify missing identity and failed status lookup clear both displayed roles.
     const missing = setup();
     await missing.actions.fetchBrotherAdminStatus({});
     assert.deepEqual(missing.calls, [["adminStatus", null], ["bidcomStatus", null]]);
@@ -66,6 +78,7 @@ test("missing identity and failed status lookup clear both displayed roles", asy
 });
 
 test("admin and bid committee changes keep payloads, labels, and loading cleanup", async () => {
+    // Verify admin and bid committee changes keep payloads, labels, and loading cleanup.
     const admin = setup();
     await admin.actions.handleSetAdmin(true);
     assert.deepEqual(admin.calls[0], ["promoting", true]);
@@ -83,6 +96,7 @@ test("admin and bid committee changes keep payloads, labels, and loading cleanup
 });
 
 test("role gates and failures do not update privileges", async () => {
+    // Verify role gates and failures do not update privileges.
     const missing = setup({ selectedBrother: null });
     await missing.actions.handleSetAdmin(true);
     assert.deepEqual(missing.calls, [["error", "Select a brother first", undefined]]);
@@ -94,7 +108,7 @@ test("role gates and failures do not update privileges", async () => {
     const denied = setup({ roleResponse: { status: "error", message: "Denied" } });
     await denied.actions.handleSetAdmin(false);
     assert.equal(denied.calls[2][1], "Denied");
-    assert.ok(!denied.calls.some(([kind]) => kind === "adminStatus"));
+    assert.ok(!denied.calls.some(/* Select recorded adminStatus calls. */ ([kind]) => kind === "adminStatus"));
     assert.deepEqual(denied.calls.at(-1), ["promoting", false]);
 
     const offline = setup({ roleResponse: new Error("offline") });
@@ -104,6 +118,7 @@ test("role gates and failures do not update privileges", async () => {
 });
 
 test("server-provided and setter errors keep their toasts and loading cleanup", async () => {
+    // Verify server-provided and setter errors keep their toasts and loading cleanup.
     const rejected = new Error("request failed");
     rejected.response = { data: { message: "Claim update denied" } };
     const server = setup({ roleResponse: rejected });
@@ -113,7 +128,7 @@ test("server-provided and setter errors keep their toasts and loading cleanup", 
 
     const setter = setup({ failingAdminSetter: true });
     await setter.actions.handleSetAdmin(true);
-    assert.deepEqual(setter.calls.map(([kind]) => kind), [
+    assert.deepEqual(setter.calls.map(/* Return kind to the caller. */ ([kind]) => kind), [
         "promoting", "post", "adminStatus", "error", "promoting",
     ]);
     assert.equal(setter.calls[3][1], "Failed to update admin");

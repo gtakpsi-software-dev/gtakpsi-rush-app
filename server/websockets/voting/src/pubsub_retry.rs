@@ -3,6 +3,7 @@ use std::{error::Error, future::Future, time::Duration};
 
 type ListenerResult = Result<(), Box<dyn Error + Send + Sync>>;
 
+// Runs a Redis listener in the background with delayed reconnects.
 pub(crate) fn spawn_reconnecting_listener<F, Fut>(clients: ClientMap, role: &'static str, run: F)
 where
     F: FnMut(ClientMap) -> Fut + Send + 'static,
@@ -11,6 +12,7 @@ where
     tokio::spawn(run_reconnecting_listener(clients, role, run));
 }
 
+// Restarts the listener after an error or ended stream, waiting three seconds.
 async fn run_reconnecting_listener<F, Fut>(clients: ClientMap, role: &str, mut run: F)
 where
     F: FnMut(ClientMap) -> Fut,
@@ -37,6 +39,7 @@ mod tests {
     use std::{sync::Arc, time::Duration};
     use tokio::sync::mpsc;
 
+    // Checks that both listener failures and normal endings wait before retrying.
     async fn assert_retry_delay(ends_normally: bool) {
         let clients: ClientMap = Arc::new(DashMap::new());
         let expected_clients = clients.clone();
@@ -70,11 +73,13 @@ mod tests {
         task.abort();
     }
 
+    // Verifies that listener errors trigger a delayed retry.
     #[tokio::test(start_paused = true)]
     async fn errors_retry_only_after_the_existing_three_second_delay() {
         assert_retry_delay(false).await;
     }
 
+    // Verifies that an ended subscription stream triggers a delayed retry.
     #[tokio::test(start_paused = true)]
     async fn ended_streams_retry_only_after_the_existing_three_second_delay() {
         assert_retry_delay(true).await;

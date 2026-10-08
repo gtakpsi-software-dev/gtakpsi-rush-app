@@ -10,6 +10,7 @@ const contextPath = fileURLToPath(new URL("../../src/features/voting/admin/Admin
 const providerPath = fileURLToPath(new URL("../../src/features/voting/admin/AdminVotingContextProvider.tsx", import.meta.url));
 
 test("admin voting provider retains its initial context and fetch transition", async () => {
+    // Verify admin voting provider retains its initial context and fetch transition.
     const initialStates = [];
     const updates = [];
     const requests = [];
@@ -18,12 +19,18 @@ test("admin voting provider retains its initial context and fetch transition", a
 
     const react = {
         ...React,
-        createContext: () => ({ Provider: function Provider({ children }) { return children; } }),
+        // Return the create context fixture for this scenario.
+        createContext: () => ({ Provider: function Provider({ children }) {
+            // Return children to the caller.
+             return children; } }),
+        // Return current context to the caller.
         useContext: () => currentContext,
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = initialStates.push(initial) - 1;
-            return [initial, (value) => updates.push([index, value])];
+            return [initial, /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
         },
+        // Update effect in the test harness.
         useEffect: (callback) => { effect = callback; },
     };
     const context = await loadTsxModule(contextPath, { react });
@@ -31,6 +38,7 @@ test("admin voting provider retains its initial context and fetch transition", a
         react,
         "./AdminVotingContext": { AdminVotingContext: context.AdminVotingContext },
         "../../brothers/getAllBrothers": {
+            // Record brother loading and return the brother fixture.
             getAllBrothers: async () => {
                 requests.push("brothers");
                 return [{ _id: "brother-1" }];
@@ -58,10 +66,13 @@ test("admin voting provider retains its initial context and fetch transition", a
 });
 
 test("admin voting context rejects use outside its provider", async () => {
+    // Verify admin voting context rejects use outside its provider.
     const context = await loadTsxModule(contextPath, {
-        react: { ...React, useContext: () => null },
-        "../../brothers/getAllBrothers": { getAllBrothers: async () => [] },
+        react: { ...React, useContext: /* Return null from this dependency stub. */ () => null },
+        "../../brothers/getAllBrothers": { getAllBrothers: /* Return the all brothers fixture for this scenario. */ async () => [] },
     });
 
-    assert.throws(() => context.useAdminVotingContext(), /MUST use context within some provider/);
+    assert.throws(
+        /* Invoke the operation whose failure is being asserted. */
+        () => context.useAdminVotingContext(), /MUST use context within some provider/);
 });

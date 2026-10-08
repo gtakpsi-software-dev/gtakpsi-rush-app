@@ -1,5 +1,6 @@
 use super::*;
 
+// Build a rush-night fixture from a name and RFC 3339 timestamp.
 fn night(name: &str, time: &str) -> RushNight {
     RushNight {
         name: name.to_string(),
@@ -7,6 +8,7 @@ fn night(name: &str, time: &str) -> RushNight {
     }
 }
 
+// Build a brother comment fixture for the specified night.
 fn comment(name: &str, night: &RushNight) -> Comment {
     Comment {
         brother_id: name.to_string(),
@@ -17,11 +19,13 @@ fn comment(name: &str, night: &RushNight) -> Comment {
     }
 }
 
+// Verify that an empty schedule has no current rush night.
 #[test]
 fn empty_schedule_has_no_current_night() {
     assert!(current_rush_night(&[], DateTime::from_millis(0)).is_none());
 }
 
+// Verify event selection before, between, and after rush nights.
 #[test]
 fn current_night_uses_lead_in_boundary_and_keeps_previous_night_after_midnight() {
     let first = night("Night 1", "2026-09-09T23:00:00Z");
@@ -40,6 +44,7 @@ fn current_night_uses_lead_in_boundary_and_keeps_previous_night_after_midnight()
     assert_eq!(nights[0].name, "Night 2");
 }
 
+// Verify case-insensitive names and timezone-aware date matching.
 #[test]
 fn names_match_without_trimming_and_dates_use_the_rush_timezone() {
     let first = night("Night 1", "2026-09-09T23:00:00Z");
@@ -61,6 +66,7 @@ fn names_match_without_trimming_and_dates_use_the_rush_timezone() {
     ));
 }
 
+// Verify that stored dates take priority while missing nights are added.
 #[test]
 fn merging_keeps_database_dates_and_adds_missing_canonical_and_comment_nights() {
     let first = night("Night 1", "2026-09-08T23:00:00Z");
@@ -76,6 +82,7 @@ fn merging_keeps_database_dates_and_adds_missing_canonical_and_comment_nights() 
     assert_eq!(nights[0].time, first.time);
 }
 
+// Verify unique brother counts and attendance-dependent visibility.
 #[test]
 fn interactions_deduplicate_names_and_require_attendance_except_for_development_nights() {
     let first = night("Night 1", "2026-09-09T23:00:00Z");

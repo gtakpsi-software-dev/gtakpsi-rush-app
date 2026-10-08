@@ -13,15 +13,19 @@ const providerPath = fileURLToPath(new URL(
 ));
 
 test("voter context retains its initial values and provider contract", async () => {
+    // Verify voter context retains its initial values and provider contract.
     const initialValues = [];
     let currentContext;
     const react = {
         ...React,
-        createContext: () => ({ Provider: ({ children }) => children }),
+        // Return the create context fixture for this scenario.
+        createContext: () => ({ Provider: /* Return children to the caller. */ ({ children }) => children }),
+        // Return current context to the caller.
         useContext: () => currentContext,
+        // Supply controlled state and a setter without mounting React.
         useState(value) {
             initialValues.push(value);
-            return [value, () => {}];
+            return [value, /* Leave this mocked callback inert. */ () => {}];
         },
     };
     const context = await loadTsxModule(contextPath, { react });
@@ -42,9 +46,10 @@ test("voter context retains its initial values and provider contract", async () 
 });
 
 test("voter context rejects use without its provider", async () => {
+    // Verify voter context rejects use without its provider.
     const context = await loadTsxModule(contextPath, {
-        react: { ...React, useContext: () => null },
+        react: { ...React, useContext: /* Return null from this dependency stub. */ () => null },
     });
-    assert.throws(() => context.useBrotherVotingContext(),
+    assert.throws(/* Invoke the operation whose failure is being asserted. */ () => context.useBrotherVotingContext(),
         /MUST use context within some provider/);
 });

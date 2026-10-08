@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { createSortingViewportHandlers } from "../../../src/features/sorting/createSortingViewportHandlers.js";
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(initialScale = 1, initialTranslate = { x: 20, y: 30 }) {
     const calls = [];
     const state = { scale: initialScale, translate: initialTranslate };
@@ -11,10 +12,12 @@ function harness(initialScale = 1, initialTranslate = { x: 20, y: 30 }) {
         scaleLimits: { min: 0.5, max: 2 },
         panState,
         translate: initialTranslate,
+        // Apply direct or functional scale updates and capture the result.
         setScale: (update) => {
             state.scale = typeof update === "function" ? update(state.scale) : update;
             calls.push(["scale", state.scale]);
         },
+        // Apply direct or functional translation updates and capture the result.
         setTranslate: (update) => {
             state.translate = typeof update === "function" ? update(state.translate) : update;
             calls.push(["translate", state.translate]);
@@ -23,29 +26,33 @@ function harness(initialScale = 1, initialTranslate = { x: 20, y: 30 }) {
     return { calls, state, panState, handlers };
 }
 
+// Build a wheel event fixture with a captured prevent-default count.
 function wheelEvent(overrides = {}) {
     let prevented = 0;
     const event = {
-        target: { closest: () => null },
+        target: { closest: /* Return null from this dependency stub. */ () => null },
         deltaX: 4,
         deltaY: 10,
         ctrlKey: false,
         metaKey: false,
+        // Update prevented in the test harness.
         preventDefault: () => { prevented += 1; },
         ...overrides,
     };
-    return { event, prevented: () => prevented };
+    return { event, prevented: /* Return prevented to the caller. */ () => prevented };
 }
 
 test("wheel events inside notes keep native scrolling and state untouched", () => {
+    // Verify wheel events inside notes keep native scrolling and state untouched.
     const { handlers, calls } = harness();
-    const { event, prevented } = wheelEvent({ target: { closest: () => ({}) }, ctrlKey: true });
+    const { event, prevented } = wheelEvent({ target: { closest: /* Return the closest fixture for this scenario. */ () => ({}) }, ctrlKey: true });
     handlers.handleWheel(event);
     assert.equal(prevented(), 0);
     assert.deepEqual(calls, []);
 });
 
 test("control and command wheel zoom use the original delta and bounds", () => {
+    // Verify control and command wheel zoom use the original delta and bounds.
     const { handlers, state, calls } = harness(1.95);
     const control = wheelEvent({ ctrlKey: true, deltaY: -100 });
     handlers.handleWheel(control.event);
@@ -60,6 +67,7 @@ test("control and command wheel zoom use the original delta and bounds", () => {
 });
 
 test("plain wheel pans opposite the scroll deltas", () => {
+    // Verify plain wheel pans opposite the scroll deltas.
     const { handlers, state, calls } = harness();
     const { event, prevented } = wheelEvent();
     handlers.handleWheel(event);
@@ -69,6 +77,7 @@ test("plain wheel pans opposite the scroll deltas", () => {
 });
 
 test("zoom buttons preserve step sizes, clamping, and reset coordinates", () => {
+    // Verify zoom buttons preserve step sizes, clamping, and reset coordinates.
     const { handlers, state, calls } = harness(1.95);
     handlers.zoomIn();
     assert.equal(state.scale, 2);
@@ -82,11 +91,13 @@ test("zoom buttons preserve step sizes, clamping, and reset coordinates", () => 
 });
 
 test("right-click outside cards pans from the original pointer and translation", () => {
+    // Verify right-click outside cards pans from the original pointer and translation.
     const { handlers, state, panState } = harness();
     let prevented = 0;
     const event = {
         button: 2, clientX: 100, clientY: 200,
-        target: { closest: () => null },
+        target: { closest: /* Return null from this dependency stub. */ () => null },
+        // Update prevented in the test harness.
         preventDefault: () => { prevented += 1; },
     };
     handlers.onMouseDown(event);
@@ -103,22 +114,27 @@ test("right-click outside cards pans from the original pointer and translation",
 });
 
 test("left clicks and right clicks on cards cannot begin a pan", () => {
+    // Verify left clicks and right clicks on cards cannot begin a pan.
     const { handlers, panState, calls } = harness();
     let prevented = 0;
     const event = {
-        button: 0, target: { closest: () => null },
+        button: 0, target: { closest: /* Return null from this dependency stub. */ () => null },
+        // Update prevented in the test harness.
         preventDefault: () => { prevented += 1; },
     };
     handlers.onMouseDown(event);
-    handlers.onMouseDown({ ...event, button: 2, target: { closest: () => ({}) } });
+    handlers.onMouseDown({ ...event, button: 2, target: { closest: /* Return the closest fixture for this scenario. */ () => ({}) } });
     assert.equal(prevented, 0);
     assert.equal(panState.current.panning, false);
     assert.deepEqual(calls, []);
 });
 
 test("context menu always prevents its browser default", () => {
+    // Verify context menu always prevents its browser default.
     const { handlers } = harness();
     let prevented = false;
-    handlers.onContextMenu({ preventDefault: () => { prevented = true; } });
+    handlers.onContextMenu({ preventDefault: () => {
+        // Update prevented in the test harness.
+         prevented = true; } });
     assert.equal(prevented, true);
 });

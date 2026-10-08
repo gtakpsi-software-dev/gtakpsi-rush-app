@@ -1,3 +1,4 @@
+// Decode a base64 data URL into an image Blob with the requested MIME type.
 export function base64ToBlob(base64, contentType = 'image/jpeg') {
     const byteCharacters = atob(base64.split(',')[1]);
     const byteArrays = [];

@@ -2,6 +2,7 @@ type NavbarAdminItemsProps = {
     isMidtermMode: boolean;
 };
 
+// Render administrator menu links according to midterm mode.
 export default function NavbarAdminItems({ isMidtermMode }: NavbarAdminItemsProps) {
     return (
         <ul className="absolute left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-48 z-50">

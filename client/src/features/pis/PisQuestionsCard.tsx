@@ -8,6 +8,7 @@ type Props = ComponentProps<typeof PisBrotherFields>
     & ComponentProps<typeof PisSaveStatus>
     & { collaboration: { isConnected: boolean } };
 
+// Render interviewers, questions, collaboration guidance, and autosave status.
 export default function PisQuestionsCard({
     rushee,
     brotherA,

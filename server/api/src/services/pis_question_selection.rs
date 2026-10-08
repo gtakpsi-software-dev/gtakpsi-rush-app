@@ -2,6 +2,7 @@ use crate::models::pis::PISQuestion;
 use rand::Rng;
 use std::collections::HashMap;
 
+// Group categorized questions while preserving their order within each category.
 pub(crate) fn category_buckets(questions: Vec<PISQuestion>) -> HashMap<String, Vec<PISQuestion>> {
     let mut by_category: HashMap<String, Vec<PISQuestion>> = HashMap::new();
     for question in questions.into_iter() {
@@ -15,6 +16,7 @@ pub(crate) fn category_buckets(questions: Vec<PISQuestion>) -> HashMap<String, V
     by_category
 }
 
+// Use the supplied random generator to choose one question per nonempty category.
 pub(crate) fn draw_one_per_bucket<R: Rng + ?Sized>(
     by_category: HashMap<String, Vec<PISQuestion>>,
     rng: &mut R,
@@ -35,6 +37,7 @@ mod tests {
     use super::*;
     use rand::rngs::mock::StepRng;
 
+    // Build a question fixture with an optional category.
     fn question(text: &str, category: Option<&str>) -> PISQuestion {
         PISQuestion {
             question: text.to_string(),
@@ -44,6 +47,7 @@ mod tests {
         }
     }
 
+    // Verify that category buckets retain question order and omit uncategorized questions.
     #[test]
     fn buckets_keep_category_order_and_exclude_fixed_questions() {
         let buckets = category_buckets(vec![
@@ -64,6 +68,7 @@ mod tests {
         assert_eq!(buckets[""].len(), 1);
     }
 
+    // Verify category selection with a deterministic random generator.
     #[test]
     fn draw_selects_one_per_nonempty_bucket_with_injected_rng() {
         let mut buckets = category_buckets(vec![

@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 mod drag;
 
+// Checks the role supplied by the client’s latest join message.
 fn joined_as_admin(state: &AppState, client_id: &str) -> bool {
     // Unjoined clients remain viewers until a join message supplies their role.
     state
@@ -15,6 +16,7 @@ fn joined_as_admin(state: &AppState, client_id: &str) -> bool {
         .unwrap_or(false)
 }
 
+// Dispatches sorting messages to role-gated drag and card-save handlers.
 pub(crate) async fn handle_message(text: &str, client_id: &str, state: &Arc<AppState>) {
     let msg: Result<IncomingMessage, _> = serde_json::from_str(text);
 

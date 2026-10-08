@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createAccessSettingsActions } from "./accessSettingsActions";
 
+// Manage access-setting values, loading flags, and their update actions.
 export default function useAdminAccessSettings({ apiBase, axios, toast, auth }) {
     const [rushAppStatus, setRushAppStatus] = useState({
         disable_bidcom: false,

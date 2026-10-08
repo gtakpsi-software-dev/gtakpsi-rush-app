@@ -36,6 +36,7 @@ static SORTING_COLUMN_LOCKS: Lazy<HashMap<String, Arc<Mutex<()>>>> = Lazy::new(|
     map
 });
 
+// Check whether a status exactly matches a supported sorting column.
 fn validate_status(status: &str) -> bool {
     SORTING_STATUSES.iter().any(|s| s == &status)
 }

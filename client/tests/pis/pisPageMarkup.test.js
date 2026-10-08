@@ -16,8 +16,11 @@ const cardPath = fileURLToPath(new URL("../../src/features/pis/PisQuestionsCard.
 const viewPath = fileURLToPath(new URL("../../src/features/pis/PisInterviewView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("../fixtures/pisPageMarkup.json", import.meta.url));
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(state = {}, connected = true, captured = new Map()) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
     };
@@ -32,21 +35,26 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
         "./PisQuestionsCard": Card,
     });
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial, noop];
             },
             useEffect: noop,
+            // Provide a mutable ref without mounting a React component.
             useRef: (initial) => ({ current: initial }),
+            // Keep the callback callable without a React render cycle.
             useCallback: (callback) => callback,
         },
         "../components/Loader": stub("loader"),
         axios: { get: noop },
         "../features/pis/usePisCollaborationState": {
+            // Capture collaboration options and expose the configured connection state.
             usePisCollaborationState: (options) => {
                 captured.set("collaboration-options", options);
                 const collaboration = {
@@ -60,22 +68,30 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
                 return collaboration;
             },
         },
-        "react-router-dom": { useNavigate: () => noop, useParams: () => ({ gtid: "123" }) },
+        "react-router-dom": { useNavigate:
+            /* Provide an inert handler for the test. */
+            () => noop, useParams:
+            /* Return the route-parameter fixture for this scenario. */
+            () => ({ gtid: "123" }) },
         "react-toastify/dist/ReactToastify.css": {},
         "../features/pis/PisInterviewView": View,
         "../features/pis/PisQuestionsPending": stub("pending"),
         "../features/pis/saveStatus": { SAVE_STATUS: { IDLE: "idle" } },
         "../features/pis/performPisAutosave": { performPisAutosave: noop },
         "../features/pis/usePisAutosave": {
+            // Invoke captured.set with the test inputs.
             usePisAutosave: (props) => captured.set("autosave", props),
         },
         "../features/pis/usePisPageBootstrap": {
+            // Invoke captured.set with the test inputs.
             usePisPageBootstrap: (props) => captured.set("bootstrap", props),
         },
         "../features/pis/usePisRevealPolling": {
+            // Invoke captured.set with the test inputs.
             usePisRevealPolling: (props) => captured.set("reveal-polling", props),
         },
         "../features/pis/createPisAnswerHandlers": {
+            // Return the create pis answer handlers fixture for this scenario.
             createPisAnswerHandlers: () => ({ handleAnswerChange: noop, handleMCChange: noop }),
         },
     };
@@ -90,6 +106,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -100,6 +117,7 @@ async function loadPage(state = {}, connected = true, captured = new Map()) {
 }
 
 test("PIS page retains its loading, pending, online, and offline markup", async () => {
+    // Verify PIS page retains its loading, pending, online, and offline markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         loading: [{}, true],
@@ -118,6 +136,7 @@ test("PIS page retains its loading, pending, online, and offline markup", async 
 });
 
 test("PIS questions retain answer, brother, collaboration, and save props", async () => {
+    // Verify PIS questions retain answer, brother, collaboration, and save props.
     const captured = new Map();
     const rushee = { first_name: "Ada" };
     const questions = [{ id: "q1" }];

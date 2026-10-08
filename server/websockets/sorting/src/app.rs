@@ -3,6 +3,7 @@ use axum::{routing::get, Router};
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
+// Builds the sorting health and WebSocket routes with shared board state.
 pub(crate) fn create_router(state: Arc<AppState>) -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any)

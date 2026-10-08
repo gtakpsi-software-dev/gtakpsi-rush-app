@@ -18,6 +18,7 @@ type Props = {
     isBidCommitteeMode: () => boolean;
 };
 
+// Arrange profile details, permitted actions, ratings, PIS responses, comments, and modals.
 export default function RusheeZoomView({
     modals,
     profile,

@@ -13,6 +13,7 @@ import { loadPage } from "../../helpers/loadViewerSortingPage.js";
 const fixturePath = fileURLToPath(new URL("../../fixtures/viewerSortingPageMarkup.json", import.meta.url));
 
 test("brother and bid-committee viewer pages retain their loading and board markup", async () => {
+    // Verify brother and bid-committee viewer pages retain their loading and board markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         BrotherSorting: { loading: {}, ready: { 0: false }, details: { 0: false, 2: { id: "r1" } } },
@@ -32,6 +33,7 @@ test("brother and bid-committee viewer pages retain their loading and board mark
 });
 
 test("viewer pages pass the original board state and audience to their controls", async () => {
+    // Verify viewer pages pass the original board state and audience to their controls.
     const columns = { ...createEmptyColumns(), UNSORTED: [{ id: "r1" }] };
     const selected = { id: "r1", rushNumber: 7 };
     const cases = [
@@ -74,6 +76,7 @@ test("viewer pages pass the original board state and audience to their controls"
 });
 
 test("brother sorting wires its notes request and details callbacks", async () => {
+    // Verify brother sorting wires its notes request and details callbacks.
     const captured = new Map();
     const Page = await loadPage("BrotherSorting", {
         0: false,
@@ -91,6 +94,7 @@ test("brother sorting wires its notes request and details callbacks", async () =
 });
 
 test("bid-committee sorting wires its auth subscription and socket setup", async () => {
+    // Verify bid-committee sorting wires its auth subscription and socket setup.
     const captured = new Map();
     const Page = await loadPage("BidCommitteeSorting", { 1: false }, captured);
     renderToStaticMarkup(React.createElement(Page));
@@ -107,6 +111,7 @@ test("bid-committee sorting wires its auth subscription and socket setup", async
 });
 
 test("brother sorting retains its two-dependency auth listener", async () => {
+    // Verify brother sorting retains its two-dependency auth listener.
     const captured = new Map();
     const Page = await loadPage("BrotherSorting", {}, captured);
     renderToStaticMarkup(React.createElement(Page));

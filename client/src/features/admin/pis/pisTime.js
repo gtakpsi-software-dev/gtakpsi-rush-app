@@ -1,3 +1,4 @@
+// Format a BSON timeslot as a local US date and time label.
 export function formatTimeslot(timeslot) {
     const dateNum = parseInt(timeslot.time.$date.$numberLong);
     const date = new Date(dateNum);
@@ -11,6 +12,7 @@ export function formatTimeslot(timeslot) {
     });
 }
 
+// Format a rushee’s current PIS time or return the unscheduled fallback.
 export function formatCurrentPISTime(rushee) {
     if (!rushee.pis_timeslot) return "Not scheduled";
     try {
@@ -29,6 +31,7 @@ export function formatCurrentPISTime(rushee) {
     }
 }
 
+// Return separate local US date and time labels for a timeslot.
 export function formatSlotTime(slot) {
     const date = new Date(parseInt(slot.time.$date.$numberLong));
     return {
@@ -45,8 +48,10 @@ export function formatSlotTime(slot) {
     };
 }
 
+// Group PIS timeslots by their local calendar-date labels.
 export function groupEditSlots(allPisTimeslots) {
     return allPisTimeslots.reduce((groups, slot) => {
+        // Append a timeslot to its day’s availability group.
         const date = new Date(parseInt(slot.time.$date.$numberLong));
         const dateKey = date.toLocaleDateString('en-US', {
             weekday: 'long',

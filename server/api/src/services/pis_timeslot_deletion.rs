@@ -4,6 +4,7 @@ pub(crate) enum DeletionPlan {
     Update(i32),
 }
 
+// Choose deletion or a capacity update using the requested signed change.
 pub(crate) fn plan_deletion(num_available: i32, change: i32) -> DeletionPlan {
     // INVARIANT: the current API compares strictly, then adds the signed change.
     // Altering this arithmetic changes stored capacity for legacy callers.
@@ -18,6 +19,7 @@ pub(crate) fn plan_deletion(num_available: i32, change: i32) -> DeletionPlan {
 mod tests {
     use super::{plan_deletion, DeletionPlan};
 
+    // Verify the deletion boundary and signed capacity adjustment.
     #[test]
     fn deletion_plan_retains_strict_comparison_and_signed_addition() {
         assert_eq!(plan_deletion(2, 3), DeletionPlan::Delete);

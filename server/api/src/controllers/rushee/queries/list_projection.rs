@@ -2,6 +2,7 @@ use crate::models::rush_nights::RushNight;
 use crate::models::rushee::{RusheeModel, StrippedRushee};
 use crate::services::rush_nights::interactions_by_night;
 
+// Build a rushee list summary with registration order and derived interaction counts.
 pub(super) fn project_list_rushee(
     record: RusheeModel,
     rush_nights: &[RushNight],

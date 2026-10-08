@@ -31,6 +31,7 @@ pub(crate) struct AppState {
     pub(crate) broadcast_tx: broadcast::Sender<String>,
 }
 
+// Creates empty client and drag registries with a shared broadcast channel.
 pub(crate) fn new_state() -> Arc<AppState> {
     let (broadcast_tx, _) = broadcast::channel::<String>(1000);
 

@@ -5,6 +5,7 @@ type AuthEmailFieldProps = {
     handleKeyPress: KeyboardEventHandler<HTMLInputElement>;
 };
 
+// Render the shared email input with its ref and keyboard handler.
 export default function AuthEmailField({ email, handleKeyPress }: AuthEmailFieldProps) {
     return (
         <div>

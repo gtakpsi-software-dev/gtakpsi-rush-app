@@ -1,5 +1,6 @@
 import { clearSortingGhost, moveSortingGhost, showSortingGhost } from "./sortingGhostState.js";
 
+// Apply viewer counts and remote drag state, refreshing rows after persisted moves.
 export function handleSortingViewerMessage(msg, {
     ghostTimestampsRef, fetchDataRef, setViewerCount, setGhostCards,
     showRusheeNames = false, now = Date.now,

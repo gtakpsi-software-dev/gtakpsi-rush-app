@@ -10,12 +10,10 @@ mod routes;
 mod services;
 mod storage;
 
-#[cfg(all(test, feature = "integration-tests"))]
-mod integration_tests;
+#[cfg(test)]
+mod tests;
 
-#[cfg(all(test, feature = "redis-integration-tests"))]
-mod redis_integration_tests;
-
+// Initialize configuration, authentication, and tracing, then serve the API on the configured port.
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()

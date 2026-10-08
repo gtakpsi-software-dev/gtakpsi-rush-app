@@ -5,6 +5,7 @@ use crate::{
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
+// Sends active drag positions to a newly connected client.
 pub(super) async fn send_current_drags(state: &Arc<AppState>, tx: &broadcast::Sender<String>) {
     // New viewers need in-progress positions before processing their own messages.
     let drag = state.drag_state.read().await;
@@ -21,6 +22,7 @@ pub(super) async fn send_current_drags(state: &Arc<AppState>, tx: &broadcast::Se
     }
 }
 
+// Removes a disconnected client’s drags and announces each released card.
 pub(super) async fn release_client_drags(state: &Arc<AppState>, client_id: &str) {
     // Release owned cards before removing the client so peers can acquire them on reconnect.
     let released = {

@@ -19,6 +19,7 @@ type VotingSocketOptions<TRushee, TVote> = {
     | { role: 'voter'; setVotes?: never }
 );
 
+// Manage the role-specific voting socket, live updates, and exponential reconnect retries.
 export function useVotingSocket<TRushee, TVote>({
     authorized,
     user,
@@ -33,6 +34,7 @@ export function useVotingSocket<TRushee, TVote>({
     setQuestion,
 }: VotingSocketOptions<TRushee, TVote>) {
     const connectWebSocket = useCallback(() => {
+        // Connect an authorized user and replace any pending reconnect timer.
         if (!authorized || !user) return;
 
         if (reconnectTimeoutRef.current) {
@@ -45,12 +47,14 @@ export function useVotingSocket<TRushee, TVote>({
         socketRef.current = ws;
 
         ws.onopen = () => {
+            // Mark the socket connected and reset the retry counter.
             console.log('WebSocket connected');
             setConnectionStatus('connected');
             reconnectAttemptsRef.current = 0;
         };
 
         ws.onmessage = (event) => {
+            // Apply vote, rushee, and question messages, logging invalid payloads.
             try {
                 const msg = JSON.parse(event.data);
                 console.log(msg);
@@ -76,6 +80,7 @@ export function useVotingSocket<TRushee, TVote>({
         };
 
         ws.onclose = () => {
+            // Mark disconnection and schedule the next reconnect with capped exponential backoff.
             console.log('WebSocket closed');
             setConnectionStatus('disconnected');
 
@@ -85,11 +90,13 @@ export function useVotingSocket<TRushee, TVote>({
 
             console.log(`Reconnecting in ${backoffMs}ms (attempt ${reconnectAttemptsRef.current})`);
             reconnectTimeoutRef.current = setTimeout(() => {
+                // Retry the voting connection after the backoff delay.
                 connectWebSocket();
             }, backoffMs);
         };
 
         ws.onerror = (error) => {
+            // Log a socket error and close the failed connection.
             console.error('WebSocket error', error);
             ws.close();
         };
@@ -99,11 +106,13 @@ export function useVotingSocket<TRushee, TVote>({
     ]);
 
     useEffect(() => {
+        // Connect the current authorized user and register socket cleanup.
         if (!authorized || !user) return;
 
         connectWebSocket();
 
         return () => {
+            // Cancel the current reconnect timer and close the active socket.
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
             }

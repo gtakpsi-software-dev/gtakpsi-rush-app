@@ -18,6 +18,7 @@ type Props = {
     navigate: (path: string) => void;
 };
 
+// Display assigned PIS appointments with loading, error, and empty states.
 export default function MyPisPageView({
     rushees, loading, error, errorTitle, errorDescription, navigate,
 }: Props) {
@@ -60,6 +61,7 @@ export default function MyPisPageView({
                     ) : (
                         <div className="space-y-6">
                             {rushees.map((rushee, idx) => {
+                                // Render an appointment card with its scheduled and relative times.
                                 const relativeTime = getPisAppointmentRelativeTime(rushee.pis_timeslot);
 
                                 return (
@@ -68,7 +70,7 @@ export default function MyPisPageView({
                                         rushee={rushee}
                                         formattedTime={formatPisAppointmentTime(rushee.pis_timeslot)}
                                         relativeTime={relativeTime}
-                                        onView={() => navigate(`/brother/rushee/${rushee.gtid}`)}
+                                        onView={/* Open this appointment’s rushee profile. */ () => navigate(`/brother/rushee/${rushee.gtid}`)}
                                     />
                                 );
                             })}

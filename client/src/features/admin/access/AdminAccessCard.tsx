@@ -23,6 +23,7 @@ type AdminAccessCardProps = {
     handleSetBidcom: (makeBidcom: boolean) => Promise<void>;
 };
 
+// Render brother search and administrator or bid committee role controls.
 export default function AdminAccessCard({
     brotherSearch,
     setBrotherSearch,
@@ -49,6 +50,7 @@ export default function AdminAccessCard({
                     className="input-apple text-apple-body"
                     value={brotherSearch}
                     onChange={(e) => {
+                        // Update the search and clear the selected brother if it differs from their email.
                         setBrotherSearch(e.target.value);
                         if (selectedBrother && e.target.value !== (selectedBrother.email || "")) {
                             setSelectedBrother(null);
@@ -58,12 +60,13 @@ export default function AdminAccessCard({
                 {filteredBrothers.length > 0 && !selectedBrother && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-apple-gray-200 rounded-apple-lg shadow-lg max-h-60 overflow-y-auto">
                         {filteredBrothers.map((brother) => {
+                            // Render a brother search result using their name or email.
                             const fullName = `${brother.firstname || brother.firstName || ""} ${brother.lastname || brother.lastName || ""}`.trim();
                             return (
                                 <div
                                     key={brother.uid || brother.id || brother._id}
                                     className="px-4 py-3 hover:bg-apple-gray-100 cursor-pointer border-b border-apple-gray-100 last:border-b-0"
-                                    onClick={() => handleSelectBrother(brother)}
+                                    onClick={/* Select this brother for role management. */ () => handleSelectBrother(brother)}
                                 >
                                     <div className="text-apple-body font-normal text-black">
                                         {fullName || brother.email}
@@ -108,14 +111,14 @@ export default function AdminAccessCard({
                 <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Admin Access</div>
                 <div className="flex gap-3">
                     <button
-                        onClick={() => handleSetAdmin(true)}
+                        onClick={/* Grant administrator access to the selected brother. */ () => handleSetAdmin(true)}
                         disabled={isPromoting || !selectedBrother || brotherAdminStatus}
                         className="flex-1 bg-black text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-apple-gray-800 transition-all duration-200 disabled:opacity-60"
                     >
                         {isPromoting ? "..." : "Grant Admin"}
                     </button>
                     <button
-                        onClick={() => handleSetAdmin(false)}
+                        onClick={/* Remove administrator access from the selected brother. */ () => handleSetAdmin(false)}
                         disabled={isPromoting || !selectedBrother || !brotherAdminStatus}
                         className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
                     >
@@ -128,14 +131,14 @@ export default function AdminAccessCard({
                 <div className="text-apple-caption1 font-medium text-apple-gray-600 mb-2">Bid Committee Access</div>
                 <div className="flex gap-3">
                     <button
-                        onClick={() => handleSetBidcom(true)}
+                        onClick={/* Grant bid committee access to the selected brother. */ () => handleSetBidcom(true)}
                         disabled={isPromoting || !selectedBrother || brotherBidcomStatus}
                         className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light hover:bg-blue-700 transition-all duration-200 disabled:opacity-60"
                     >
                         {isPromoting ? "..." : "Grant Bid Com"}
                     </button>
                     <button
-                        onClick={() => handleSetBidcom(false)}
+                        onClick={/* Remove bid committee access from the selected brother. */ () => handleSetBidcom(false)}
                         disabled={isPromoting || !selectedBrother || !brotherBidcomStatus}
                         className="flex-1 bg-white text-black py-2.5 px-4 rounded-apple-xl text-apple-footnote font-light border border-apple-gray-200 hover:bg-apple-gray-50 transition-all duration-200 disabled:opacity-60"
                     >

@@ -6,6 +6,7 @@ use serde_json::{json, Value};
 use crate::models::pis::PISQuestion;
 use crate::storage::{cursor_rows::collect_strict_rows, db};
 
+// Build an exact-match filter for a question and its type.
 fn question_identity_filter(question: &str, question_type: &str) -> Document {
     // INVARIANT: update and delete match the same exact question/type pair.
     doc! {"$and": [
@@ -14,10 +15,12 @@ fn question_identity_filter(question: &str, question_type: &str) -> Document {
     ]}
 }
 
+// Build a PIS question response containing a status and message.
 fn question_message(status: &str, message: &str) -> Json<Value> {
     Json(json!({"status": status, "message": message}))
 }
 
+// Insert a PIS question and report whether the database write succeeded.
 pub async fn add_pis_question(Json(payload): Json<PISQuestion>) -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_questions_collection().await;
     let result = connection.insert_one(payload).await;
@@ -38,6 +41,7 @@ pub struct UpdatePisQuestionCategoryPayload {
     pub category: Option<String>,
 }
 
+// Set or remove the category of the matching PIS question.
 pub async fn update_pis_question_category(
     Json(payload): Json<UpdatePisQuestionCategoryPayload>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -66,6 +70,7 @@ pub async fn update_pis_question_category(
     }
 }
 
+// Delete one PIS question matching the supplied text and type.
 pub async fn delete_pis_question(
     Json(payload): Json<PISQuestion>,
 ) -> Result<Json<Value>, StatusCode> {
@@ -84,6 +89,7 @@ pub async fn delete_pis_question(
     }
 }
 
+// Return all PIS questions, reporting query or row-decoding failures.
 pub async fn get_pis_questions() -> Result<Json<Value>, StatusCode> {
     let connection = db::get_pis_questions_collection().await;
     let cursor = match connection.find(doc! {}).await {

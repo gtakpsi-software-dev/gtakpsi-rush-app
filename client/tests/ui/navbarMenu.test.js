@@ -17,6 +17,7 @@ const fixturePath = fileURLToPath(new URL("../fixtures/navbarMenu.json", import.
 // eslint-disable-next-line react/prop-types
 const Link = ({ to, children, ...props }) => React.createElement("a", { ...props, href: to }, children);
 
+// Load navbar menu with injected dependencies for isolated tests.
 async function loadNavbarMenu() {
     const MoreItems = await loadTsxComponent(moreItemsPath);
     const AdminItems = await loadTsxComponent(adminItemsPath);
@@ -27,6 +28,7 @@ async function loadNavbarMenu() {
     });
 }
 
+// Build component props with test-specific overrides.
 function props(overrides = {}) {
     return {
         stripped: false,
@@ -35,17 +37,22 @@ function props(overrides = {}) {
         isAdmin: false,
         showMore: false,
         showAdmin: false,
+        // Provide an inert set show more stub for this test.
         setShowMore() {},
+        // Provide an inert set show admin stub for this test.
         setShowAdmin() {},
+        // Provide an inert logout stub for this test.
         logout() {},
+        // Provide an inert reload stub for this test.
         reload() {},
         ...overrides,
     };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         collect(node.props.children, elements);
@@ -54,6 +61,7 @@ function collect(node, elements = []) {
 }
 
 test("Navbar menu preserves regular, role, midterm, and stripped markup", async () => {
+    // Verify Navbar menu preserves regular, role, midterm, and stripped markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const NavbarMenu = await loadNavbarMenu();
     const scenarios = {
@@ -73,22 +81,28 @@ test("Navbar menu preserves regular, role, midterm, and stripped markup", async 
 });
 
 test("menu buttons retain toggle ordering and logout calls before reload", async () => {
+    // Verify menu buttons retain toggle ordering and logout calls before reload.
     const NavbarMenu = await loadNavbarMenu();
     const calls = [];
     const elements = collect(NavbarMenu(props({
         isAdmin: true,
         showAdmin: true,
+        // Record set show more calls for assertions.
         setShowMore: (value) => calls.push(["more", value]),
+        // Record set show admin calls for assertions.
         setShowAdmin: (value) => calls.push(["admin", value]),
+        // Record logout calls for assertions.
         logout: () => calls.push(["logout"]),
+        // Record reload calls for assertions.
         reload: () => calls.push(["reload"]),
     })));
 
-    const button = (label) => elements.find((element) =>
+    // Invoke elements.find with the test inputs.
+    const button = (label) => elements.find(/* Find the button with label label. */ (element) =>
         element.type === "button" && element.props.children === label);
     button("More ▾").props.onClick();
     button("Admin ▾").props.onClick();
-    elements.find((element) => element.type === "p" && element.props.children === "Logout")
+    elements.find(/* Find the p with label Logout. */ (element) => element.type === "p" && element.props.children === "Logout")
         .props.onClick();
 
     assert.deepEqual(calls, [

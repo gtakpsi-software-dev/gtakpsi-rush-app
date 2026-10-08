@@ -39,6 +39,7 @@ type Props = {
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 };
 
+// Render the self-service profile, PIS time, edit form, and optional photo modal.
 export default function RusheeSelfPageView({
     loading, rushee, initialRushee, formattedPisTime,
     isModalOpen, showPreview, image, webcamRef,

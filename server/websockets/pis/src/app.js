@@ -25,6 +25,7 @@ function createCollaborationServer({ timers = globalThis } = {}) {
 
     registerRoutes(app, rooms);
     io.on('connection', (socket) => {
+        // Attach collaboration, membership, and presence handlers to each connected socket.
         registerMembershipHandlers(io, socket, rooms, membershipsBySocket, timers);
         registerLegacyTextOperationHandlers(socket, rooms, membershipsBySocket);
         registerUpdateHandlers(socket, rooms, membershipsBySocket);

@@ -7,29 +7,41 @@ import { loadTsxModule } from '../helpers/loadTsxComponent.js';
 const hookPath = fileURLToPath(new URL('../../src/features/pis/usePisRevealPolling.js', import.meta.url));
 
 test('PIS reveal effect retains its gates, dependencies, polling inputs, and cleanup', async () => {
+    // Verify PIS reveal effect retains its gates, dependencies, polling inputs, and cleanup.
     const effects = [];
     const calls = [];
+    // Record cleanup calls for assertions.
     const cleanup = () => calls.push(['cleanup']);
-    const axios = { get: (...args) => calls.push(['get', ...args]) };
+    const axios = { get: /* Record get calls for assertions. */ (...args) => calls.push(['get', ...args]) };
     const { usePisRevealPolling } = await loadTsxModule(hookPath, {
-        react: { useEffect: (effect, dependencies) => effects.push({ effect, dependencies }) },
+        react: { useEffect:
+            /* Capture effects so the test can run them explicitly. */
+            (effect, dependencies) => effects.push({ effect, dependencies }) },
         axios,
         './startPisRevealPolling': {
+            // Capture polling options and return the cleanup callback.
             startPisRevealPolling: (options) => {
                 calls.push(['start', options]);
                 return cleanup;
             },
         },
     }, {
-        Date: { now: () => 123 },
+        Date: { now: /* Return a fixed value to keep the test deterministic. */ () => 123 },
+        // Record scheduling and return a fixed timer ID.
         setInterval: (callback, delay) => {
             calls.push(['schedule', callback, delay]);
             return 42;
         },
+        // Record clear interval calls for assertions.
         clearInterval: (id) => calls.push(['clear', id]),
     });
     const setters = {
-        setQuestions: () => {}, setQuestionsAvailable: () => {}, setRevealAt: () => {},
+        // Provide an inert set questions stub for this test.
+        setQuestions: () => {}, setQuestionsAvailable:
+            /* Provide an inert set questions available stub for this test. */
+            () => {}, setRevealAt:
+            /* Provide an inert set reveal at stub for this test. */
+            () => {},
     };
     const revealAt = new Date('2026-10-01T12:00:00Z');
     const options = {
@@ -61,6 +73,7 @@ test('PIS reveal effect retains its gates, dependencies, polling inputs, and cle
     polling.get('/api/rushee/get-pis-questions/123');
     assert.deepEqual(calls[1], ['get', '/api/rushee/get-pis-questions/123']);
     assert.equal(polling.now(), 123);
+    // Provide an inert tick stub for this test.
     const tick = () => {};
     assert.equal(polling.scheduleInterval(tick, 1000), 42);
     polling.clearScheduledInterval(42);

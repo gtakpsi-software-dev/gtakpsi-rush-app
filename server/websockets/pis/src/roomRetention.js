@@ -4,8 +4,10 @@ const EMPTY_ROOM_GRACE_MS = 5 * 60 * 1000;
 const IDLE_ROOM_LIMIT_MS = 60 * 60 * 1000;
 const ROOM_SWEEP_INTERVAL_MS = 10 * 60 * 1000;
 
+// Schedule removal of a room that remains empty after the reconnect grace period.
 function scheduleEmptyRoomRemoval(rooms, roomId, timers) {
     timers.setTimeout(() => {
+        // Remove the room only if it still exists and has no users.
         const currentRoom = rooms.get(roomId);
         if (currentRoom && currentRoom.users.size === 0) {
             rooms.delete(roomId);
@@ -13,8 +15,10 @@ function scheduleEmptyRoomRemoval(rooms, roomId, timers) {
     }, EMPTY_ROOM_GRACE_MS);
 }
 
+// Schedule periodic removal of inactive, empty rooms.
 function scheduleRoomCleanup(rooms, timers) {
     timers.setInterval(() => {
+        // Remove empty rooms whose last activity is more than an hour old.
         const now = Date.now();
         const idleBefore = now - IDLE_ROOM_LIMIT_MS;
 

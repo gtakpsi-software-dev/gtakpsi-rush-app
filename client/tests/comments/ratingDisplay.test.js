@@ -3,6 +3,7 @@ import test from 'node:test';
 import { formatRatingValue, ratingBadgeClass } from '../../src/features/comments/ratingDisplay.js';
 
 test('ratings preserve legacy zero labels, rounding, coercion, and fallback text', () => {
+    // Verify ratings preserve legacy zero labels, rounding, coercion, and fallback text.
     for (const [value, expected] of [
         [0, 'Unsatisfactory'], ['0', 'Unsatisfactory'], [null, 'Unsatisfactory'],
         [1, '1/5'], [3.5, '4/5'], ['5', '5/5'], [6, '6'], ['unknown', 'unknown'],
@@ -12,6 +13,7 @@ test('ratings preserve legacy zero labels, rounding, coercion, and fallback text
 });
 
 test('badge colors retain existing threshold behavior for out-of-range ratings', () => {
+    // Verify badge colors retain existing threshold behavior for out-of-range ratings.
     for (const [value, expected] of [
         [0, 'bg-red-100 text-red-700'], [2.9, 'bg-red-50 text-red-600'],
         [3, 'bg-apple-gray-100 text-apple-gray-700'], [3.9, 'bg-apple-gray-100 text-apple-gray-700'],

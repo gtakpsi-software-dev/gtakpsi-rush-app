@@ -12,13 +12,16 @@ const pagePath = fileURLToPath(new URL("../../src/pages/ForgotPassword.tsx", imp
 const viewPath = fileURLToPath(new URL("../../src/features/auth/ForgotPasswordView.tsx", import.meta.url));
 const emailFieldPath = fileURLToPath(new URL("../../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage({ state = {}, email = "sam@example.edu", success = true } = {}) {
     const updates = [];
     const requests = [];
     let stateIndex = 0;
+    // Render a lightweight React element for component assertions.
     function LinkStub() {
         return React.createElement("a", { "data-stub": "link" });
     }
+    // Render a lightweight React element for component assertions.
     function NavbarStub() {
         return React.createElement("span", { "data-stub": "navbar" });
     }
@@ -31,15 +34,18 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
     const Page = await loadTsxComponent(pagePath, {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial,
-                    (value) => updates.push([index, value])];
+                    /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
             },
+            // Provide a mutable ref without mounting a React component.
             useRef: () => ({ current: { value: email } }),
         },
         "react-router-dom": { Link: LinkStub },
         "../features/auth/account": {
+            // Record the reset request and return its configured success state.
             resetPassword: async (value) => {
                 requests.push(value);
                 return success;
@@ -51,18 +57,20 @@ async function loadPage({ state = {}, email = "sam@example.edu", success = true 
     return { Page, updates, requests };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (!React.isValidElement(node)) return elements;
     elements.push(node);
     if (typeof node.type === "function") {
         collect(node.type(node.props), elements);
     } else {
-        React.Children.forEach(node.props.children, (child) => collect(child, elements));
+        React.Children.forEach(node.props.children, /* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     }
     return elements;
 }
 
 test("password reset retains form, sending, and sent markup", async () => {
+    // Verify password reset retains form, sending, and sent markup.
     const actual = {};
     for (const [name, state] of Object.entries({
         form: {}, loading: { 0: true }, sent: { 1: true },
@@ -80,8 +88,9 @@ test("password reset retains form, sending, and sent markup", async () => {
 });
 
 test("reset button retains the email request and state-update order", async () => {
+    // Verify reset button retains the email request and state-update order.
     const { Page, updates, requests } = await loadPage();
-    const button = collect(Page()).find((node) => node.type === "button");
+    const button = collect(Page()).find(/* Identify rendered button elements. */ (node) => node.type === "button");
     await button.props.onClick();
 
     assert.deepEqual(requests, ["sam@example.edu"]);
@@ -89,8 +98,9 @@ test("reset button retains the email request and state-update order", async () =
 });
 
 test("failed reset clears sending without showing the sent state", async () => {
+    // Verify failed reset clears sending without showing the sent state.
     const { Page, updates, requests } = await loadPage({ success: false });
-    const button = collect(Page()).find((node) => node.type === "button");
+    const button = collect(Page()).find(/* Identify rendered button elements. */ (node) => node.type === "button");
     await button.props.onClick();
 
     assert.deepEqual(requests, ["sam@example.edu"]);
@@ -98,24 +108,26 @@ test("failed reset clears sending without showing the sent state", async () => {
 });
 
 test("empty email skips reset and Enter submits a filled email", async () => {
+    // Verify empty email skips reset and Enter submits a filled email.
     const empty = await loadPage({ email: "" });
-    const emptyButton = collect(empty.Page()).find((node) => node.type === "button");
+    const emptyButton = collect(empty.Page()).find(/* Identify rendered button elements. */ (node) => node.type === "button");
     await emptyButton.props.onClick();
     assert.deepEqual(empty.requests, []);
     assert.deepEqual(empty.updates, []);
 
     const filled = await loadPage();
-    const input = collect(filled.Page()).find((node) => node.type === "input");
+    const input = collect(filled.Page()).find(/* Identify rendered input elements. */ (node) => node.type === "input");
     input.props.onKeyPress({ key: "Enter" });
     await setImmediate();
     assert.deepEqual(filled.requests, ["sam@example.edu"]);
 });
 
 test("sent state retains Try Again and sign-in route", async () => {
+    // Verify sent state retains Try Again and sign-in route.
     const { Page, updates } = await loadPage({ state: { 1: true } });
     const elements = collect(Page());
-    const button = elements.find((node) => node.type === "button");
-    const link = elements.find((node) => node.props.to === "/login");
+    const button = elements.find(/* Identify rendered button elements. */ (node) => node.type === "button");
+    const link = elements.find(/* Match node.props.to to "/login". */ (node) => node.props.to === "/login");
 
     button.props.onClick();
     assert.deepEqual(updates, [[1, false]]);

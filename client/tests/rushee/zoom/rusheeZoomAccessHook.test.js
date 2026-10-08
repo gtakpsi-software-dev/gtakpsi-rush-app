@@ -8,19 +8,26 @@ import { loadTsxComponent } from "../../helpers/loadTsxComponent.js";
 const hookPath = fileURLToPath(new URL("../../../src/features/rushee/zoom/useRusheeZoomAccess.js", import.meta.url));
 
 test("Rushee Zoom access stays restricted while loading and forwards the original fetch dependencies", async () => {
+    // Verify Rushee Zoom access stays restricted while loading and forwards the original fetch dependencies.
     const effects = [];
     const requests = [];
     const auth = {};
     const axios = {};
+    // Provide an inert verify user stub for this test.
     const verifyUser = () => {};
     const setters = {
+        // Provide an inert set rushee stub for this test.
         setRushee: () => {},
+        // Provide an inert set error stub for this test.
         setError: () => {},
+        // Provide an inert set loading stub for this test.
         setLoading: () => {},
     };
     const hook = await loadTsxComponent(hookPath, {
         react: {
-            useState: (initial) => [initial, () => {}],
+            // Supply controlled state and a setter without mounting React.
+            useState: (initial) => [initial, /* Leave this mocked callback inert. */ () => {}],
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect) => effects.push(effect),
         },
         axios,
@@ -29,10 +36,13 @@ test("Rushee Zoom access stays restricted while loading and forwards the origina
             getVisibleComments, hasOwnComment, shouldShowAllComments,
         },
         "../../auth/verifyUser": { verifyUser },
-        "./loadRusheeZoom": { loadRusheeZoom: (deps) => { requests.push(deps); } },
+        "./loadRusheeZoom": { loadRusheeZoom: (deps) => {
+            // Record load rushee zoom calls for assertions.
+             requests.push(deps); } },
     });
     const args = {
         loading: true,
+        // Provide an inert navigate stub for this test.
         navigate: () => {},
         errorTitle: "title",
         errorDescription: "description",

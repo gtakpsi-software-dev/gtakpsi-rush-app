@@ -1,3 +1,4 @@
+// Register connection status, room joining, and reconnect behavior for the PIS socket.
 export function registerCollaborationConnectionEvents({
     socket,
     socketRef,
@@ -9,6 +10,7 @@ export function registerCollaborationConnectionEvents({
     setTimer = setTimeout,
 }) {
     socket.on('connect', () => {
+        // Mark the connection active and join the rushee’s room with collaborator identity.
         setIsConnected(true);
 
         socketRef.current.emit('join-room', {
@@ -19,9 +21,11 @@ export function registerCollaborationConnectionEvents({
     });
 
     socket.on('disconnect', () => {
+        // Mark the socket disconnected and schedule a retry.
         setIsConnected(false);
 
         reconnectTimeoutRef.current = setTimer(() => {
+            // Reconnect only if a replacement socket has not already connected.
             // A connected replacement socket makes the scheduled retry unnecessary.
             if (!socketRef.current?.connected) {
                 reconnect();
@@ -30,6 +34,7 @@ export function registerCollaborationConnectionEvents({
     });
 
     socket.on('connect_error', () => {
+        // Mark the collaboration connection unavailable after a connection error.
         setIsConnected(false);
     });
 }

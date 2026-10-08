@@ -2,6 +2,7 @@ use super::average_rating_value;
 use crate::models::rushee::{Rating, RusheeModel};
 use mongodb::bson::{doc, Document};
 
+// Build a MongoDB update to replace an existing rating or append a new category.
 pub(crate) fn build_rating_update(
     id: &str,
     rating: &Rating,
@@ -21,6 +22,7 @@ pub(crate) fn build_rating_update(
     }
 }
 
+// Recalculate and persist each supplied category using the original rushee snapshot.
 pub(crate) async fn update_global_ratings(
     connection: &mongodb::Collection<RusheeModel>,
     id: &str,

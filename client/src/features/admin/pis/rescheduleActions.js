@@ -1,3 +1,4 @@
+// Create rushee selection and PIS rescheduling actions.
 export function createRescheduleActions({
     rusheeApiBase,
     selectedRushee,
@@ -11,12 +12,14 @@ export function createRescheduleActions({
     toast,
     logError,
 }) {
+    // Select a rushee and replace search results with their name.
     const handleSelectRushee = (rushee) => {
         setSelectedRushee(rushee);
         setRusheeSearch(rushee.name);
         setFilteredRushees([]);
     };
 
+    // Validate the selection, reschedule PIS, then clear the form and refresh capacity.
     const handleReschedulePIS = async () => {
         if (!selectedRushee || !selectedNewTimeslot) {
             toast.error("Please select a rushee and a new timeslot", {

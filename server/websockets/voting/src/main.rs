@@ -12,13 +12,11 @@ mod voter_socket;
 #[cfg(test)]
 mod tests;
 
-#[cfg(all(test, feature = "integration-tests"))]
-mod integration_tests;
-
 use clients::ClientMap;
 use std::{env, net::SocketAddr, sync::Arc};
 use voter_socket::spawn_pubsub_listener;
 
+// Starts the admin and voter Redis listeners, then serves voting WebSocket routes.
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();

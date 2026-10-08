@@ -1,6 +1,7 @@
 import { accountErrorMessage } from "./errorMessages.js";
 import { createdStoredUser } from "./userSession.js";
 
+// Create an allowed brother account, save its Firestore profile, and persist the local session.
 export async function createAccountWithServices(credentials, {
     isEmailAllowed,
     auth,

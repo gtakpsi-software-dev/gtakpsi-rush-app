@@ -13,6 +13,7 @@ type RegistrationStageViewProps = {
     pisProps: ComponentProps<typeof PisSignUpStep>;
 };
 
+// Select the basic-information, photo, PIS, or loading view for the current stage.
 export default function RegistrationStageView({
     page,
     loading,

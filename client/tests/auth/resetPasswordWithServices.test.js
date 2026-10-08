@@ -8,26 +8,31 @@ import { resetPasswordWithServices } from "../../src/features/auth/resetPassword
 
 const accountPath = fileURLToPath(new URL("../../src/features/auth/account.js", import.meta.url));
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness({ failure } = {}) {
     const calls = [];
     const auth = { name: "test auth" };
     const services = {
         auth,
+        // Record the reset email request and optionally throw the configured error.
         sendPasswordResetEmail: async (passedAuth, email) => {
             calls.push(["send", passedAuth, email]);
             if (failure) throw failure;
         },
         toast: {
+            // Record success calls for assertions.
             success: (...args) => calls.push(["success", ...args]),
+            // Record error calls for assertions.
             error: (...args) => calls.push(["error", ...args]),
         },
         resetErrorMessage,
-        logger: { error: (...args) => calls.push(["log", ...args]) },
+        logger: { error: /* Record error calls for assertions. */ (...args) => calls.push(["log", ...args]) },
     };
     return { calls, auth, services };
 }
 
 test("password reset sends through Firebase before showing the success toast", async () => {
+    // Verify password reset sends through Firebase before showing the success toast.
     const { calls, auth, services } = harness();
     assert.equal(await resetPasswordWithServices("ada@example.edu", services), true);
     assert.deepEqual(calls, [
@@ -39,6 +44,7 @@ test("password reset sends through Firebase before showing the success toast", a
 });
 
 test("password reset preserves the mapped error toast and logging order", async () => {
+    // Verify password reset preserves the mapped error toast and logging order.
     const failure = { code: "auth/user-not-found" };
     const { calls, auth, services } = harness({ failure });
     assert.equal(await resetPasswordWithServices("missing@example.edu", services), false);
@@ -53,15 +59,18 @@ test("password reset preserves the mapped error toast and logging order", async 
 });
 
 test("unknown password reset errors retain the generic message", async () => {
+    // Verify unknown password reset errors retain the generic message.
     const { calls, services } = harness({ failure: { code: "auth/other" } });
     assert.equal(await resetPasswordWithServices("ada@example.edu", services), false);
     assert.equal(calls[2][1], "Some error occurred. Try again later");
 });
 
 test("the account API wires password reset to Firebase and the shared toast", async () => {
+    // Verify the account API wires password reset to Firebase and the shared toast.
     const calls = [];
     const auth = {};
     const toast = {
+        // Record success calls for assertions.
         success: (...args) => calls.push(["toast", ...args]),
     };
     const account = await loadTsxModule(accountPath, {
@@ -69,6 +78,7 @@ test("the account API wires password reset to Firebase and the shared toast", as
         "react-toastify/dist/ReactToastify.css": {},
         "../../firebase": {
             auth,
+            // Record send password reset email calls for assertions.
             sendPasswordResetEmail: async (...args) => calls.push(["send", ...args]),
         },
         "../../data/allowedEmails": {},

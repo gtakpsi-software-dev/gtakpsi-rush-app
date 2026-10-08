@@ -23,8 +23,11 @@ const rushee = {
     housing: "Campus", pis_timeslot: { $date: { $numberLong: "123456789" } },
 };
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(state = {}, captured = new Map()) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
     };
@@ -32,6 +35,7 @@ async function loadPage(state = {}, captured = new Map()) {
         "../../../components/Badge": stub("badge"),
         "react-icons/fa": { FaRegEdit: stub("edit-icon") },
     });
+    // Capture summary props before rendering the real component.
     const SummaryWithCapture = (props) => {
         captured.set("summary", props);
         return React.createElement(Summary, props);
@@ -44,19 +48,27 @@ async function loadPage(state = {}, captured = new Map()) {
         "./RusheeProfileSummary": SummaryWithCapture,
     });
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
+                // Invoke captured.set with the test inputs.
                 const setter = (value) => captured.set(`state-${index}`, value);
                 return [Object.hasOwn(state, index) ? state[index] : initial, setter];
             },
             useEffect: noop,
+            // Provide a mutable ref without mounting a React component.
             useRef: () => ({ current: null }),
         },
-        "react-router-dom": { useNavigate: () => noop, useParams: () => ({ gtid: "123", link: "code" }) },
+        "react-router-dom": { useNavigate:
+            /* Provide an inert handler for the test. */
+            () => noop, useParams:
+            /* Return the route-parameter fixture for this scenario. */
+            () => ({ gtid: "123", link: "code" }) },
         "../components/Badge": stub("badge"),
         axios: { get: noop, post: noop },
         "react-toastify": { toast: {} },
@@ -82,8 +94,10 @@ async function loadPage(state = {}, captured = new Map()) {
         module,
         exports: module.exports,
         Date: class extends Date {
+            // Return the fixed to locale string fixture.
             toLocaleString() { return "Scheduled Time"; }
         },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -94,6 +108,7 @@ async function loadPage(state = {}, captured = new Map()) {
 }
 
 test("self-profile page retains loading, ready, and photo-modal markup", async () => {
+    // Verify self-profile page retains loading, ready, and photo-modal markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         loading: {},
@@ -111,6 +126,7 @@ test("self-profile page retains loading, ready, and photo-modal markup", async (
 });
 
 test("self-profile summary receives the fetched profile and opens photo editing", async () => {
+    // Verify self-profile summary receives the fetched profile and opens photo editing.
     const captured = new Map();
     const Page = await loadPage({ 0: rushee, 1: rushee, 2: false }, captured);
     renderToStaticMarkup(React.createElement(Page));
@@ -123,6 +139,7 @@ test("self-profile summary receives the fetched profile and opens photo editing"
 });
 
 test("photo modal retains close and retake state updates", async () => {
+    // Verify photo modal retains close and retake state updates.
     const captured = new Map();
     const Page = await loadPage({
         0: rushee, 1: rushee, 2: false, 3: true, 4: true, 5: "preview",

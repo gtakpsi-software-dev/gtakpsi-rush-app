@@ -28,6 +28,7 @@ type Props = {
     };
 };
 
+// Render the bid committee dashboard with filters, anonymous cards, and status screens.
 export default function BidCommitteeDashboardView({ status, filters, cards }: Props) {
     return (
         <div>
@@ -49,13 +50,16 @@ export default function BidCommitteeDashboardView({ status, filters, cards }: Pr
                                 <div className="container mx-auto px-4 max-w-7xl">
                                     <div className="grid gap-6 mt-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {cards.rushees.map((rushee) => {
+                                            // Render a rushee card using the committee-facing rushee ID.
                                             const rusheeId = cards.getRusheeId(rushee.gtid);
                                             return (
                                                 <BidCommitteeRusheeCard
                                                     key={rushee.id}
                                                     rushee={rushee}
                                                     rusheeId={rusheeId}
-                                                    onOpen={() => cards.onOpen(rushee)}
+                                                    onOpen={
+                                                        /* Open the selected rushee through the committee dashboard action. */
+                                                        () => cards.onOpen(rushee)}
                                                 />
                                             );
                                         })}

@@ -4,6 +4,7 @@ type VotePieChartProps = {
   abstain: number;
 };
 
+// Display a Yes/No pie chart with abstentions reported outside the percentage denominator.
 export default function VotePieChart({ yes, no, abstain }: VotePieChartProps) {
   // Abstentions remain outside the chart denominator and its percentages.
   const yesNoTotal = yes + no;
@@ -19,6 +20,7 @@ export default function VotePieChart({ yes, no, abstain }: VotePieChartProps) {
   const yesPercentage = (yes / yesNoTotal) * 100;
   const noPercentage = (no / yesNoTotal) * 100;
 
+  // Build the conic gradient for the nonzero Yes and No vote slices.
   const generateGradient = () => {
     let gradient = "conic-gradient(";
 
@@ -49,7 +51,7 @@ export default function VotePieChart({ yes, no, abstain }: VotePieChartProps) {
       />
 
       <div className="flex flex-wrap justify-center gap-4">
-        {slices.map((slice, index) => (
+        {slices.map(/* Render a vote-slice legend with count and percentage. */ (slice, index) => (
           <div key={index} className="flex items-center gap-2">
             <div
               className="w-3 h-3 rounded-full border border-gray-300"

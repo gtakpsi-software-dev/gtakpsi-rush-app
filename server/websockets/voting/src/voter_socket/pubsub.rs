@@ -4,10 +4,12 @@ use crate::protocol::shared_update;
 use crate::pubsub_retry::spawn_reconnecting_listener;
 use futures_util::StreamExt;
 
+// Starts the background subscription loop for voter updates.
 pub async fn spawn_pubsub_listener(clients: ClientMap) {
     spawn_reconnecting_listener(clients, "Voter", run_voter_pubsub_listener);
 }
 
+// Forwards selected-rushee and question changes to connected voters.
 async fn run_voter_pubsub_listener(
     clients: ClientMap,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {

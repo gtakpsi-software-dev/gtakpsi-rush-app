@@ -3,6 +3,7 @@ import type { Vote, Rushee, Brother } from "./types";
 import { getAllBrothers } from "../../brothers/getAllBrothers";
 import { AdminVotingContext } from "./AdminVotingContext";
 
+// Provide voting state and load the brother directory for the admin dashboard.
 export const AdminVotingContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [rushee, setRushee] = useState<Rushee | null>(null);
@@ -11,6 +12,8 @@ export const AdminVotingContextProvider: React.FC<{ children: React.ReactNode }>
   const [, setLoading] = useState(true);
 
   useEffect(() => {
+      // Fetch the brother directory when the provider mounts.
+    // Load brothers into voting state and finish the loading flag even on failure.
     const fetchBrothers = async () => {
       try {
         const brothersList = await getAllBrothers();

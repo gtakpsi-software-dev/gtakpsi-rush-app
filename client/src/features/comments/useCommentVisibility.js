@@ -15,8 +15,10 @@ export function useCommentVisibility() {
     const [isBidcom, setIsBidcom] = useState(false);
 
     useEffect(() => {
+        // Load visibility settings and role claims while guarding against updates after cleanup.
         let cancelled = false;
 
+        // Fetch the restriction setting and refresh the current user’s privileged-role claims.
         async function load() {
             const api = import.meta.env.VITE_API_PREFIX;
             try {
@@ -44,6 +46,7 @@ export function useCommentVisibility() {
 
         load();
         return () => {
+            // Prevent pending requests from updating state after the effect is cleaned up.
             cancelled = true;
         };
     }, []);

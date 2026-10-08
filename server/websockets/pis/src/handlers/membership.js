@@ -2,6 +2,7 @@ const { createRoom, snapshotDocument } = require('../rooms');
 const { scheduleEmptyRoomRemoval } = require('../roomRetention');
 const { joinedRoom } = require('./joinedRoom');
 
+// Join a room, register the user, and send the current document and presence list.
 function joinRoom(io, socket, rooms, membershipsBySocket, { roomId, userId, userName }) {
     socket.join(roomId);
 
@@ -28,6 +29,7 @@ function joinRoom(io, socket, rooms, membershipsBySocket, { roomId, userId, user
     io.to(roomId).emit('users-updated', userList);
 }
 
+// Remove the latest room membership and schedule cleanup when the room becomes empty.
 function disconnectRoom(socket, rooms, membershipsBySocket, timers) {
     const membership = membershipsBySocket.get(socket.id);
     if (!membership) {
@@ -53,12 +55,15 @@ function disconnectRoom(socket, rooms, membershipsBySocket, timers) {
     membershipsBySocket.delete(socket.id);
 }
 
+// Register room joining, document snapshot, and disconnect listeners.
 function registerMembershipHandlers(io, socket, rooms, membershipsBySocket, timers) {
     socket.on('join-room', (membership) => {
+        // Join the requested room using the supplied membership details.
         joinRoom(io, socket, rooms, membershipsBySocket, membership);
     });
 
     socket.on('request-document-state', () => {
+        // Send the current document snapshot to a joined socket.
         const joined = joinedRoom(socket, rooms, membershipsBySocket);
         if (!joined) return;
         const { room } = joined;
@@ -67,6 +72,7 @@ function registerMembershipHandlers(io, socket, rooms, membershipsBySocket, time
     });
 
     socket.on('disconnect', () => {
+        // Remove this socket's membership after disconnection.
         disconnectRoom(socket, rooms, membershipsBySocket, timers);
     });
 }

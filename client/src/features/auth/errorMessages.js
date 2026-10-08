@@ -1,3 +1,4 @@
+// Translate Firebase sign-in errors into user-facing messages.
 export function loginErrorMessage(code) {
     switch (code) {
         case 'auth/invalid-email':
@@ -17,6 +18,7 @@ export function loginErrorMessage(code) {
     }
 }
 
+// Translate Firebase account-creation errors into user-facing messages.
 export function accountErrorMessage(code) {
     switch (code) {
         case 'auth/email-already-in-use':
@@ -32,6 +34,7 @@ export function accountErrorMessage(code) {
     }
 }
 
+// Translate Firebase password-reset errors into user-facing messages.
 export function resetErrorMessage(code) {
     switch (code) {
         case 'auth/invalid-email':

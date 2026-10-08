@@ -11,6 +11,7 @@ type BrotherVotingSocketOptions = Pick<BrotherVotingContextType, 'setRushee' | '
     setConnectionStatus: Dispatch<SetStateAction<ConnectionStatus>>;
 };
 
+// Connect the voting socket with the voter role.
 export function useBrotherVotingSocket(options: BrotherVotingSocketOptions) {
     useVotingSocket({ ...options, role: 'voter', authorized: true });
 }

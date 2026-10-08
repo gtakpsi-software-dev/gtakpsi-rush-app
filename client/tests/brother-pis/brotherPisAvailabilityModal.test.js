@@ -21,6 +21,7 @@ const fixturePath = fileURLToPath(new URL('../fixtures/brotherPisAvailabilityMod
 const slot = { time: { $date: { $numberLong: String(new Date(2030, 0, 1, 13, 30).getTime()) } } };
 const slotIso = timeslots.timeslotIso(slot);
 
+// Load modal with injected dependencies for isolated tests.
 async function loadModal(states, options = {}) {
     const View = await loadTsxComponent(viewPath, { './timeslots': timeslots });
     const source = (await readFile(componentPath, 'utf8'))
@@ -38,14 +39,19 @@ async function loadModal(states, options = {}) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (specifier === 'react') {
                 return {
                     ...React,
+                    // Supply controlled state and a setter without mounting React.
                     useState: () => {
                         const index = stateIndex++;
-                        return [states[index], (value) => options.setState?.(index, value)];
+                        return [states[index],
+                            /* Forward state updates to the optional test observer. */
+                            (value) => options.setState?.(index, value)];
                     },
+                    // Capture effects so the test can run them explicitly.
                     useEffect: (callback) => effects.push(callback)
                 };
             }
@@ -63,6 +69,7 @@ async function loadModal(states, options = {}) {
 }
 
 test('brother availability modal retains loading, empty, selected, and submitting markup', async () => {
+    // Verify brother availability modal retains loading, empty, selected, and submitting markup.
     const expected = JSON.parse(await readFile(fixturePath, 'utf8'));
     const scenarios = {
         loading: [[], new Set(), true, false],
@@ -76,6 +83,7 @@ test('brother availability modal retains loading, empty, selected, and submittin
         const Modal = await loadModal(states);
         const html = renderToStaticMarkup(React.createElement(Modal, {
             user: { firstName: 'Ada', lastName: 'Example' },
+            // Provide an inert on submit stub for this test.
             onSubmit() {}
         }));
         const hash = createHash('sha256').update(html).digest('hex');
@@ -84,6 +92,7 @@ test('brother availability modal retains loading, empty, selected, and submittin
 });
 
 test('brother availability fetch keeps request, payload sorting, and loading order', async () => {
+    // Verify brother availability fetch keeps request, payload sorting, and loading order.
     const calls = [];
     const effects = [];
     const later = { time: { $date: { $numberLong: String(new Date(2030, 0, 2).getTime()) } } };
@@ -91,14 +100,16 @@ test('brother availability fetch keeps request, payload sorting, and loading ord
     const Modal = await loadModal([[], new Set(), true, false], {
         effects,
         axios: {
+            // Record availability lookup and return the configured payload.
             get: async (url) => {
                 calls.push(['get', url]);
                 return { data: { status: 'success', payload } };
             }
         },
+        // Record set state calls for assertions.
         setState: (index, value) => calls.push(['state', index, value])
     });
-    Modal({ user: {}, onSubmit() {} });
+    Modal({ user: {}, /* Provide an inert on submit stub for this test. */ onSubmit() {} });
     assert.equal(effects.length, 1);
     effects[0]();
     await new Promise(setImmediate);
@@ -112,31 +123,37 @@ test('brother availability fetch keeps request, payload sorting, and loading ord
 });
 
 test('brother availability fetch leaves slots unchanged on non-success', async () => {
+    // Verify brother availability fetch leaves slots unchanged on non-success.
     const calls = [];
     const effects = [];
     const Modal = await loadModal([[], new Set(), true, false], {
         effects,
-        axios: { get: async () => ({ data: { status: 'error', payload: [slot] } }) },
+        axios: { get: /* Return the get fixture for this scenario. */ async () => ({ data: { status: 'error', payload: [slot] } }) },
+        // Record set state calls for assertions.
         setState: (index, value) => calls.push(['state', index, value])
     });
-    Modal({ user: {}, onSubmit() {} });
+    Modal({ user: {}, /* Provide an inert on submit stub for this test. */ onSubmit() {} });
     effects[0]();
     await new Promise(setImmediate);
     assert.deepEqual(calls, [['state', 2, false]]);
 });
 
 test('brother availability fetch reports transport failures and clears loading', async () => {
+    // Verify brother availability fetch reports transport failures and clears loading.
     const calls = [];
     const effects = [];
     const failure = new Error('offline');
     const Modal = await loadModal([[], new Set(), true, false], {
         effects,
-        axios: { get: async () => { throw failure; } },
-        toast: { error: (message) => calls.push(['toast', message]) },
-        console: { error: (...args) => calls.push(['log', ...args]) },
+        axios: { get: async () => {
+            // Simulate a dependency failure for this scenario.
+             throw failure; } },
+        toast: { error: /* Record error calls for assertions. */ (message) => calls.push(['toast', message]) },
+        console: { error: /* Record error calls for assertions. */ (...args) => calls.push(['log', ...args]) },
+        // Record set state calls for assertions.
         setState: (index, value) => calls.push(['state', index, value])
     });
-    Modal({ user: {}, onSubmit() {} });
+    Modal({ user: {}, /* Provide an inert on submit stub for this test. */ onSubmit() {} });
     effects[0]();
     await new Promise(setImmediate);
 
@@ -148,6 +165,7 @@ test('brother availability fetch reports transport failures and clears loading',
 });
 
 test('brother availability view keeps bulk, slot, and submit callbacks', async () => {
+    // Verify brother availability view keeps bulk, slot, and submit callbacks.
     const View = await loadTsxComponent(viewPath, { './timeslots': timeslots });
     const calls = [];
     const tree = View({
@@ -156,13 +174,18 @@ test('brother availability view keeps bulk, slot, and submit callbacks', async (
         selectedSlots: new Set(),
         submitting: false,
         groupedSlots: timeslots.groupTimeslots([slot]),
+        // Record select all calls for assertions.
         selectAll: () => calls.push('all'),
+        // Record clear all calls for assertions.
         clearAll: () => calls.push('clear'),
+        // Record toggle slot calls for assertions.
         toggleSlot: (value) => calls.push(value),
+        // Record handle submit calls for assertions.
         handleSubmit: () => calls.push('submit')
     });
     const buttons = [];
 
+    // Walk the rendered element tree to collect nodes for assertions.
     function collect(node) {
         if (Array.isArray(node)) node.forEach(collect);
         else if (React.isValidElement(node)) {
@@ -171,7 +194,8 @@ test('brother availability view keeps bulk, slot, and submit callbacks', async (
         }
     }
     collect(tree);
-    const button = (label) => buttons.find((element) => element.props.children === label);
+    // Invoke buttons.find with the test inputs.
+    const button = (label) => buttons.find(/* Match the control by its displayed label. */ (element) => element.props.children === label);
 
     button('Select All').props.onClick();
     button('Clear All').props.onClick();

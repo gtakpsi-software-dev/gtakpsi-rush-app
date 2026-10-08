@@ -6,6 +6,7 @@ use axum::{
 };
 use std::sync::Arc;
 
+// Extract a token from either supported Bearer authorization prefix.
 fn extract_bearer(headers: &HeaderMap) -> Option<String> {
     let value = headers.get(axum::http::header::AUTHORIZATION)?;
     let value = value.to_str().ok()?;
@@ -15,6 +16,7 @@ fn extract_bearer(headers: &HeaderMap) -> Option<String> {
         .map(str::to_string)
 }
 
+// Verify administrator access and attach the authenticated identity to the request.
 pub async fn require_admin<B>(
     State(auth): State<Arc<FirebaseAuth>>,
     mut req: axum::http::Request<B>,

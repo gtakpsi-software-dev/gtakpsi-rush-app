@@ -1,6 +1,7 @@
 import React from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
 
+// Display the current rushee’s interview responses or the appropriate empty state.
 export default function RusheePisInfo() {
     const { rushee } = useBrotherVotingContext();
 
@@ -22,7 +23,7 @@ export default function RusheePisInfo() {
 
     return (
         <div className="space-y-5">
-            {rushee.pis.map((pisItem, idx) => (
+            {rushee.pis.map(/* Render one numbered interview question and its answer. */ (pisItem, idx) => (
                 <div
                     key={idx}
                     className="bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple"

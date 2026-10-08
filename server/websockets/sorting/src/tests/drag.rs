@@ -1,5 +1,6 @@
 use super::*;
 
+// Verifies that drag ownership survives a role change and excludes other clients.
 #[tokio::test]
 async fn only_the_owner_can_move_and_end_a_drag_even_after_role_changes() {
     let (state, mut broadcasts) = state();
@@ -54,6 +55,7 @@ async fn only_the_owner_can_move_and_end_a_drag_even_after_role_changes() {
     assert_empty(&mut broadcasts);
 }
 
+// Checks targeted conflict replies and allows the current owner to restart a drag.
 #[tokio::test]
 async fn conflicting_drag_is_denied_only_to_requester_and_same_owner_can_restart() {
     let (state, mut broadcasts) = state();
@@ -80,6 +82,7 @@ async fn conflicting_drag_is_denied_only_to_requester_and_same_owner_can_restart
     assert_eq!(state.drag_state.read().await.len(), 2);
 }
 
+// Checks that unknown clients or cards cannot alter drag state.
 #[tokio::test]
 async fn missing_clients_and_unknown_cards_cannot_move_or_end_drags() {
     let (state, mut broadcasts) = state();

@@ -13,10 +13,12 @@ pub const REDIS_CALL_TIMEOUT: Duration = Duration::from_secs(3);
 
 static REDIS_CLIENT: RwLock<Option<Arc<ConnectionManager>>> = RwLock::const_new(None);
 
+// Reads the Redis connection URL, falling back to the local development instance.
 fn redis_url() -> String {
     env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379".to_string())
 }
 
+// Opens a dedicated Redis connection for channel subscriptions.
 pub async fn get_redis_pubsub() -> redis::aio::PubSub {
     let client = redis::Client::open(redis_url()).expect("Invalid Redis URL");
     let conn = client

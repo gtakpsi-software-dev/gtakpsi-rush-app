@@ -14,6 +14,7 @@ const rushee = {
 };
 
 test("rushee zoom retains loading, admin, copied-link, and restricted markup", async () => {
+    // Verify rushee zoom retains loading, admin, copied-link, and restricted markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         loading: {},
@@ -32,6 +33,7 @@ test("rushee zoom retains loading, admin, copied-link, and restricted markup", a
 });
 
 test("comment view receives the original visibility and form/list props", async () => {
+    // Verify comment view receives the original visibility and form/list props.
     const admin = new Map();
     const AdminPage = await loadRusheeZoomPage({ 0: false, 8: rushee, 15: true }, admin);
     renderToStaticMarkup(React.createElement(AdminPage));
@@ -51,21 +53,25 @@ test("comment view receives the original visibility and form/list props", async 
 });
 
 test("copy link writes the current rushee URL and resets copied state after two seconds", async () => {
+    // Verify copy link writes the current rushee URL and resets copied state after two seconds.
     const captured = new Map();
     const calls = [];
     let reset;
     const Page = await loadRusheeZoomPage({ 0: false, 8: rushee }, captured, {
+        // Record on state change calls for assertions.
         onStateChange: (index, value) => calls.push([index, value]),
         globals: {
             window: { location: { origin: "https://rush.example" } },
             navigator: {
                 clipboard: {
+                    // Record copied text and resolve the clipboard request.
                     writeText: (value) => {
                         calls.push(["clipboard", value]);
                         return Promise.resolve();
                     },
                 },
             },
+            // Capture the copy-status reset callback and its delay.
             setTimeout: (callback, delay) => {
                 calls.push(["timer", delay]);
                 reset = callback;

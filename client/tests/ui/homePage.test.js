@@ -9,17 +9,21 @@ import { loadTsxComponent } from "../helpers/loadTsxComponent.js";
 
 const pagePath = fileURLToPath(new URL("../../src/pages/Home.jsx", import.meta.url));
 
+// Load home with injected dependencies for isolated tests.
 async function loadHome(isMidtermMode, navigations = []) {
     return loadTsxComponent(pagePath, {
         "react-router-dom": {
-            useNavigate: () => (path) => navigations.push(path),
+            // Provide the callback used by this dependency stub.
+            useNavigate: () => /* Record callback arguments for assertions. */ (path) => navigations.push(path),
         },
         "../contexts/MidtermModeContext": {
+            // Return the use midterm mode fixture for this scenario.
             useMidtermMode: () => ({ isMidtermMode }),
         },
     });
 }
 
+// Collect buttons from the rendered element tree.
 function buttons(node) {
     if (!React.isValidElement(node)) return [];
     return [
@@ -29,9 +33,11 @@ function buttons(node) {
 }
 
 test("Home retains regular and midterm markup", async () => {
+    // Verify Home retains regular and midterm markup.
     const regular = await loadHome(false);
     const midterm = await loadHome(true);
     const hashes = [regular, midterm].map((Page) => {
+        // Render each home page and hash its markup.
         const html = renderToStaticMarkup(React.createElement(Page));
         return createHash("sha256").update(html).digest("hex");
     });
@@ -43,11 +49,12 @@ test("Home retains regular and midterm markup", async () => {
 });
 
 test("Home retains rush registration and login navigation", async () => {
+    // Verify Home retains rush registration and login navigation.
     const regularPaths = [];
     const RegularHome = await loadHome(false, regularPaths);
     const regularButtons = buttons(RegularHome());
     assert.equal(regularButtons.length, 2);
-    regularButtons.forEach((button) => button.props.onClick());
+    regularButtons.forEach(/* Invoke button.props.onClick with the test inputs. */ (button) => button.props.onClick());
     assert.deepEqual(regularPaths, ["/register", "/login"]);
 
     const midtermPaths = [];

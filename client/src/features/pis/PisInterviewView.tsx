@@ -10,6 +10,7 @@ type Props = ComponentProps<typeof PisQuestionsCard> & ComponentProps<typeof Pis
     };
 };
 
+// Render collaborator presence, the rushee profile, and interview questions.
 export default function PisInterviewView(props: Props) {
     const { collaboration, rushee } = props;
 

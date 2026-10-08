@@ -11,6 +11,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 
+// Sends initial Redis snapshots, registers the client, and forwards live events until disconnect.
 pub(crate) async fn handle_socket<F, Fut>(
     socket: WebSocket,
     addr: SocketAddr,

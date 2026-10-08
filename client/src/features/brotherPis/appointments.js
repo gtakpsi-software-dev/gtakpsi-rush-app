@@ -1,19 +1,23 @@
 import dayjs from "dayjs";
 
+// Sort appointments in place by scheduled time, treating missing times as zero.
 export function sortPisAppointments(appointments) {
     return appointments.sort((a, b) => {
+        // Compare appointment timestamps from their BSON date fields.
         const timeA = parseInt(a.pis_timeslot?.$date?.$numberLong || "0");
         const timeB = parseInt(b.pis_timeslot?.$date?.$numberLong || "0");
         return timeA - timeB;
     });
 }
 
+// Format an appointment timestamp or return the unscheduled label.
 export function formatPisAppointmentTime(timeslot) {
     if (!timeslot?.$date?.$numberLong) return "No time scheduled";
     const timestamp = parseInt(timeslot.$date.$numberLong);
     return dayjs(timestamp).format("ddd, MMM D, YYYY [at] h:mm A");
 }
 
+// Return a relative-time label and color for an appointment, or null if unscheduled.
 export function getPisAppointmentRelativeTime(timeslot, clock = dayjs) {
     if (!timeslot?.$date?.$numberLong) return null;
     const timestamp = parseInt(timeslot.$date.$numberLong);

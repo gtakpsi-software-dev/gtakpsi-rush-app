@@ -1,5 +1,6 @@
 use super::*;
 
+// Verify compatibility with questions that omit category and display order.
 #[test]
 fn existing_questions_can_omit_category_and_order() {
     let question: PISQuestion = serde_json::from_value(json!({
@@ -17,6 +18,7 @@ fn existing_questions_can_omit_category_and_order() {
     );
 }
 
+// Verify that an empty category string differs from an absent category.
 #[test]
 fn category_updates_distinguish_empty_category_from_clearing_it() {
     for (category, expected) in [
@@ -32,6 +34,7 @@ fn category_updates_distinguish_empty_category_from_clearing_it() {
     }
 }
 
+// Verify exact question identity matching, including surrounding whitespace.
 #[test]
 fn question_identity_uses_exact_question_and_type_in_both_mutations() {
     assert_eq!(
@@ -43,6 +46,7 @@ fn question_identity_uses_exact_question_and_type_in_both_mutations() {
     );
 }
 
+// Verify status and message fields in question responses.
 #[test]
 fn question_messages_keep_the_existing_json_contract() {
     let Json(body) = question_message("error", "no matching pis question found");

@@ -11,20 +11,32 @@ const pagePath = fileURLToPath(new URL("../../src/pages/CreateAccount.jsx", impo
 const viewPath = fileURLToPath(new URL("../../src/features/auth/CreateAccountView.tsx", import.meta.url));
 const emailFieldPath = fileURLToPath(new URL("../../src/features/auth/AuthEmailField.tsx", import.meta.url));
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(loading) {
     const refs = [];
     const actions = [];
+    // Provide an inert navigate stub for this test.
     const navigate = () => {};
     const toast = {};
+    // Provide an inert set loading stub for this test.
     const setLoading = () => {};
+    // Provide an inert create account stub for this test.
     const createAccount = () => {};
+    // Provide an inert handle create account stub for this test.
     const handleCreateAccount = () => {};
+    // Provide an inert handle key press stub for this test.
     const handleKeyPress = () => {};
 
+    // Render a lightweight React element for component assertions.
     function Link({ to, children }) {
         return React.createElement("a", { "data-to": to }, children);
     }
-    Link.propTypes = { to: () => null, children: () => null };
+    Link.propTypes = { to:
+        /* Return null from this dependency stub. */
+        () => null, children:
+        /* Return null from this dependency stub. */
+        () => null };
+    // Render a lightweight React element for component assertions.
     function Navbar() {
         return React.createElement("span", { "data-stub": "navbar" });
     }
@@ -38,17 +50,20 @@ async function loadPage(loading) {
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState: () => [loading, setLoading],
+            // Provide a mutable ref without mounting a React component.
             useRef: () => {
                 const ref = { current: { value: `field-${refs.length}` } };
                 refs.push(ref);
                 return ref;
             },
         },
-        "react-router-dom": { Link, useNavigate: () => navigate },
+        "react-router-dom": { Link, useNavigate: /* Return navigate to the caller. */ () => navigate },
         "react-toastify": { toast },
         "../features/auth/account": { createAccount },
         "../features/auth/createAccountFormActions": {
+            // Capture form dependencies and return controlled account handlers.
             createAccountFormActions: (options) => {
                 actions.push(options);
                 return { handleCreateAccount, handleKeyPress };
@@ -66,6 +81,7 @@ async function loadPage(loading) {
 }
 
 test("account creation retains idle and loading markup", async () => {
+    // Verify account creation retains idle and loading markup.
     const hashes = [];
     for (const loading of [false, true]) {
         const { Page } = await loadPage(loading);
@@ -79,6 +95,7 @@ test("account creation retains idle and loading markup", async () => {
 });
 
 test("account creation keeps field refs and actions in form order", async () => {
+    // Verify account creation keeps field refs and actions in form order.
     const page = await loadPage(false);
     renderToStaticMarkup(React.createElement(page.Page));
 

@@ -5,6 +5,7 @@ use crate::models::{
 };
 use bson::DateTime;
 
+// Build a new rushee record with registration fields, matching PIS details, and empty review data.
 pub(super) fn build_registration_record(
     payload: &IncomingRushee,
     pis_timeslot: DateTime,
@@ -62,6 +63,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
+    // Verify matching signup details and initial review and sorting defaults.
     #[test]
     fn registration_record_keeps_pis_shadow_fields_and_defaults() {
         let payload: IncomingRushee = serde_json::from_value(json!({

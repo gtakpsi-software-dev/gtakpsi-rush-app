@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createQuestionActions } from "../pis/questionActions";
 
+// Manage question, timeslot, and rush-night inputs and load initial PIS questions.
 export default function useAdminManagementInputs({ apiBase, axios, toast }) {
     const [question, setQuestion] = useState("");
     const [questionType, setQuestionType] = useState("");
@@ -26,6 +27,7 @@ export default function useAdminManagementInputs({ apiBase, axios, toast }) {
     // Keep the mount-only request bound to its first render as category edits change.
     const initialFetchPisQuestions = useRef(fetchPisQuestions);
     useEffect(() => {
+        // Load PIS questions using the action captured on the first render.
         initialFetchPisQuestions.current();
     }, []);
 

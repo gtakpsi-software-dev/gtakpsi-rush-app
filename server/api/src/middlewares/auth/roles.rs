@@ -10,6 +10,7 @@ mod tests;
 const IDENTITY_TOOLKIT_BASE_URL: &str = "https://identitytoolkit.googleapis.com";
 
 impl FirebaseAuth {
+    // Build a Firebase account-action URL using the service account project when supplied.
     fn identity_toolkit_url(&self, sa: &ServiceAccount, action: &str) -> String {
         let project_id = sa.project_id.as_deref().unwrap_or(&self.project_id);
         #[cfg(test)]
@@ -23,6 +24,7 @@ impl FirebaseAuth {
         format!("{base_url}/v1/projects/{project_id}/accounts:{action}")
     }
 
+    // Fetch a user's custom claims through the service-account-authenticated Firebase API.
     async fn get_custom_claims(&self, uid: &str) -> Result<HashMap<String, Value>, AuthError> {
         let sa = self
             .service_account
@@ -55,6 +57,7 @@ impl FirebaseAuth {
         Ok(claims_from_lookup_response(data))
     }
 
+    // Write one role flag, retaining fetched claims or using an empty map if lookup fails.
     async fn update_custom_claim(
         &self,
         uid: &str,
@@ -99,14 +102,17 @@ impl FirebaseAuth {
         }
     }
 
+    // Set the user's Firebase administrator flag.
     pub async fn set_admin_claim(&self, uid: &str, make_admin: bool) -> Result<(), AuthError> {
         self.update_custom_claim(uid, "admin", make_admin).await
     }
 
+    // Set the user's Firebase bid committee flag.
     pub async fn set_bidcom_claim(&self, uid: &str, make_bidcom: bool) -> Result<(), AuthError> {
         self.update_custom_claim(uid, "bidcom", make_bidcom).await
     }
 
+    // Read the user's administrator and bid committee flags from Firebase.
     pub async fn get_user_roles(&self, uid: &str) -> Result<(bool, bool), AuthError> {
         let claims = self.get_custom_claims(uid).await?;
         let is_admin = role_enabled(&claims, "admin");

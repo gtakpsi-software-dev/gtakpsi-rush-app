@@ -7,6 +7,7 @@ use mongodb::{
 };
 use serde_json::{json, Value};
 
+// Replace form status with a newly timestamped active form.
 async fn replace_active_form(collection: &Collection<PISAvailabilityFormStatus>) -> bool {
     // INVARIANT: delete before insert; an insert failure leaves no active form.
     // The deletion error remains ignored to preserve the existing response path.
@@ -20,6 +21,7 @@ async fn replace_active_form(collection: &Collection<PISAvailabilityFormStatus>)
     collection.insert_one(status).await.is_ok()
 }
 
+// Activate the PIS availability form for brothers.
 pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_pis_availability_form_status_collection().await;
 
@@ -36,6 +38,7 @@ pub async fn send_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     }
 }
 
+// Clear availability submissions and reactivate the form.
 pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     // A failed submission clear must stop before the form status is replaced.
     let availability_collection = db::get_brother_pis_availability_collection().await;
@@ -64,6 +67,7 @@ pub async fn clear_and_resend_pis_availability_form() -> Result<Json<Value>, Sta
     }
 }
 
+// Mark all stored PIS availability form records inactive.
 pub async fn deactivate_pis_availability_form() -> Result<Json<Value>, StatusCode> {
     let collection = db::get_pis_availability_form_status_collection().await;
 

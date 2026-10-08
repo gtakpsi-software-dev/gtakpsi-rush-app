@@ -24,18 +24,21 @@ const selected = {
     interactions_by_night: [], attendance: [],
 };
 
+// Find the first rendered element matching the predicate.
 function findElement(node, predicate) {
-    if (Array.isArray(node)) return node.map((child) => findElement(child, predicate)).find(Boolean);
+    if (Array.isArray(node)) return node.map(/* Invoke findElement with the test inputs. */ (child) => findElement(child, predicate)).find(Boolean);
     if (!React.isValidElement(node)) return null;
     if (predicate(node)) return node;
     if (typeof node.type === "function") return findElement(node.type(node.props), predicate);
     return findElement(node.props.children, predicate);
 }
 
+// Load card with injected dependencies for isolated tests.
 async function loadCard({ state = {}, rushee = null } = {}) {
     const updates = [];
     const gets = [];
     const posts = [];
+    // Render a lightweight React element for component assertions.
     const interactions = () => React.createElement("span", { "data-stub": "interactions" });
     const search = await loadTsxComponent(searchPath, {
         "./previewRusheeSearch": { previewRusheeName },
@@ -47,24 +50,28 @@ async function loadCard({ state = {}, rushee = null } = {}) {
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial,
-                    (value) => updates.push([index, value])];
+                    /* Record callback arguments for assertions. */ (value) => updates.push([index, value])];
             },
+            // Invoke calculate with the test inputs.
             useMemo: (calculate) => calculate(),
         },
-        "./AdminVotingContext": { useAdminVotingContext: () => ({ rushee }) },
+        "./AdminVotingContext": { useAdminVotingContext: /* Return the use admin voting context fixture for this scenario. */ () => ({ rushee }) },
         "../../../components/RusheeInteractionsByNight": interactions,
         axios: { get: async (url) => {
+            // Record preview lookup and return the selected rushee.
             gets.push(url);
             return { data: { status: "success", payload: [selected] } };
         } },
         "../../admin/api": { adminPost: (url, payload) => {
+            // Record the preview action and resolve successfully.
             posts.push({ url, payload });
             return Promise.resolve();
         } },
-        "react-toastify": { toast: { promise: (request) => request } },
+        "react-toastify": { toast: { promise: /* Return request to the caller. */ (request) => request } },
         "./previewRusheeSearch": { filterPreviewRushees, previewRusheeName },
         "./RusheePreviewSearch": search,
         "./CurrentRusheePreview": current,
@@ -79,7 +86,8 @@ async function loadCard({ state = {}, rushee = null } = {}) {
     runInNewContext(compiled.code, {
         module,
         exports: module.exports,
-        console: { log() {}, error() {} },
+        console: { /* Provide an inert log stub for this test. */ log() {}, /* Provide an inert error stub for this test. */ error() {} },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -90,6 +98,7 @@ async function loadCard({ state = {}, rushee = null } = {}) {
 }
 
 test("rushee preview keeps empty, selected, loading, results, and no-match markup", async () => {
+    // Verify rushee preview keeps empty, selected, loading, results, and no-match markup.
     const scenarios = {
         empty: {},
         selected: { rushee: selected },
@@ -113,18 +122,19 @@ test("rushee preview keeps empty, selected, loading, results, and no-match marku
 });
 
 test("rushee preview retains search request and selection action order", async () => {
+    // Verify rushee preview retains search request and selection action order.
     const search = await loadCard();
-    const input = findElement(search.Card(), (node) => node.type === "input");
+    const input = findElement(search.Card(), /* Identify an input element. */ (node) => node.type === "input");
     await input.props.onFocus();
-    assert.deepEqual(search.updates.map(([index]) => index), [0, 3, 2, 3]);
+    assert.deepEqual(search.updates.map(/* Return index to the caller. */ ([index]) => index), [0, 3, 2, 3]);
     assert.deepEqual(search.gets, ["/api/rushee/get-rushees"]);
     assert.equal(search.updates[2][1][0], selected);
 
     const results = await loadCard({ state: { 0: true, 1: "sam", 2: [selected] } });
-    const row = findElement(results.Card(), (node) => node.type === "li");
+    const row = findElement(results.Card(), /* Identify a list item. */ (node) => node.type === "li");
     await row.props.onClick();
     assert.equal(results.posts.length, 1);
     assert.equal(results.posts[0].url, "/api/admin/voting/change-rushee");
     assert.equal(results.posts[0].payload.gtid, "123");
-    assert.deepEqual(results.updates.map(([index, value]) => [index, value]), [[0, false], [1, ""]]);
+    assert.deepEqual(results.updates.map(/* Return the fixture for this scenario. */ ([index, value]) => [index, value]), [[0, false], [1, ""]]);
 });

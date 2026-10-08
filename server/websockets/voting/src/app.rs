@@ -1,6 +1,7 @@
 use crate::{admin_socket, clients::ClientMap, voter_socket};
 use axum::{routing::get, Router};
 
+// Builds health and role-specific voting WebSocket routes.
 pub fn create_router(voters: ClientMap, admins: ClientMap) -> Router {
     Router::new()
         .route("/", get(|| async { "ok" }))

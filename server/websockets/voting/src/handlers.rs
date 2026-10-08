@@ -9,6 +9,7 @@ pub(crate) enum SocketRole {
 }
 
 impl SocketRole {
+    // Returns the role name used in connection logs.
     pub(crate) fn label(self) -> &'static str {
         match self {
             Self::Admin => "Admin",
@@ -17,6 +18,7 @@ impl SocketRole {
     }
 }
 
+// Responds to ping frames and ends processing when the client closes or errors.
 pub(crate) async fn handle_incoming_frames(
     mut receiver: SplitStream<WebSocket>,
     tx: mpsc::UnboundedSender<Message>,

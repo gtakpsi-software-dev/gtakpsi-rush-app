@@ -1,5 +1,6 @@
 import { groupSortingRows } from "./board.js";
 
+// Require admin or allowlist access before loading and grouping sorting rows.
 export async function loadAdminSortingData({
     auth, navigate, allowlist, apiBase, getSorting,
     setColumns, setLoading, setAuthChecked, showError,

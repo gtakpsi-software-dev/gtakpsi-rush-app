@@ -4,6 +4,7 @@ use crate::{
 };
 use std::{sync::Arc, time::Duration};
 
+// Periodically releases inactive card drags and notifies connected viewers.
 pub(crate) async fn run(cleanup_state: Arc<AppState>) {
     // Release abandoned drags after the existing inactivity window, even if their socket stays open.
     let stale_threshold = Duration::from_secs(60);

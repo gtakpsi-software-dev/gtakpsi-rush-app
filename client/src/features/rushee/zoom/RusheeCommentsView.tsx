@@ -10,6 +10,7 @@ type Props = {
     showVisibilityNotice: boolean;
 };
 
+// Render permitted commenter names, comment creation, visible comments, and access guidance.
 export default function RusheeCommentsView({
     rusheeComments,
     showAllComments,
@@ -25,7 +26,7 @@ export default function RusheeCommentsView({
                         Brothers Who Commented
                     </h2>
                     <div className="flex flex-wrap gap-2">
-                        {rusheeComments.map((comment, idx) => (
+                        {rusheeComments.map(/* Render a commenting brother’s name. */ (comment, idx) => (
                             <div
                                 key={idx}
                                 className="bg-apple-gray-100 text-apple-gray-700 px-3 py-2 rounded-apple hover:bg-apple-gray-200 cursor-pointer transform transition-all duration-200 ease-in-out hover:scale-105 text-apple-footnote font-light"

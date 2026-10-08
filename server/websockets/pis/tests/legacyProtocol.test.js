@@ -3,6 +3,7 @@ const test = require('node:test');
 const { startServer, event, documentState } = require('./helpers/server');
 
 test('legacy operations broadcast transformed positions but apply original positions to stored text', async (t) => {
+    // Verify transformed broadcast positions and original-position storage for legacy edits.
     const service = await startServer(t);
     const first = await service.client();
     const second = await service.client('brother-2');
@@ -22,6 +23,7 @@ test('legacy operations broadcast transformed positions but apply original posit
 });
 
 test('legacy replacements and unknown operation types preserve stored text and version zero', async (t) => {
+    // Verify legacy replacement behavior and unchanged version zero.
     const service = await startServer(t);
     const client = await service.client();
     for (const operation of [
@@ -39,6 +41,7 @@ test('legacy replacements and unknown operation types preserve stored text and v
 });
 
 test('legacy history retains only the last 100 operations', async (t) => {
+    // Verify that stored operation history is capped at the latest 100 edits.
     const service = await startServer(t);
     const client = await service.client();
     for (let index = 0; index < 105; index += 1) {

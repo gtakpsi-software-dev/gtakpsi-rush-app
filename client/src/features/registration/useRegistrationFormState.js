@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 
+// Create registration field refs, captured values, and stage and submission state.
 export default function useRegistrationFormState() {
     // INVARIANT: keep state hooks before input refs so registration stages retain their hook order.
     const [firstnameVal, setFirstnameVal] = useState();

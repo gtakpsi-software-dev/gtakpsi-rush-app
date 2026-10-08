@@ -21,6 +21,7 @@ enum RoleClaim {
     BidCommittee,
 }
 
+// Translate a role-write result into its role-specific response message.
 fn role_update_response(
     outcome: Result<(), AuthError>,
     enabled: bool,
@@ -49,6 +50,7 @@ fn role_update_response(
     Ok(Json(json!({ "status": status, "message": message })))
 }
 
+// Grant or revoke administrator access, defaulting an omitted flag to granting access.
 pub async fn make_admin(
     State(auth): State<std::sync::Arc<FirebaseAuth>>,
     Json(payload): Json<AdminTogglePayload>,
@@ -62,6 +64,7 @@ pub async fn make_admin(
     )
 }
 
+// Return the user's Firebase administrator and bid committee flags.
 pub async fn get_admin_status(
     State(auth): State<std::sync::Arc<FirebaseAuth>>,
     Json(payload): Json<AdminStatusPayload>,
@@ -90,6 +93,7 @@ pub struct BidcomTogglePayload {
     pub make_bidcom: Option<bool>,
 }
 
+// Grant or revoke bid committee access, defaulting an omitted flag to granting access.
 pub async fn make_bidcom(
     State(auth): State<std::sync::Arc<FirebaseAuth>>,
     Json(payload): Json<BidcomTogglePayload>,

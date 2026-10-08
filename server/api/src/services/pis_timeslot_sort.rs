@@ -1,5 +1,6 @@
 use serde_json::Value;
 
+// Sort timeslots by their extended JSON timestamp, retaining order for equal times.
 pub(crate) fn sort_available_timeslots(timeslots: &mut [Value]) {
     timeslots.sort_by(|left, right| {
         let left_time = sort_time(left);
@@ -8,6 +9,7 @@ pub(crate) fn sort_available_timeslots(timeslots: &mut [Value]) {
     });
 }
 
+// Read a string epoch timestamp from extended JSON, falling back to zero.
 fn sort_time(timeslot: &Value) -> i64 {
     // Missing or malformed extended-JSON dates retain the existing zero fallback.
     timeslot["time"]["$date"]["$numberLong"]
@@ -22,6 +24,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
+    // Verify timestamp ordering, zero fallbacks, and stable ties.
     #[test]
     fn available_timeslots_keep_zero_fallback_and_stable_equal_time_order() {
         let mut timeslots = vec![
@@ -41,6 +44,7 @@ mod tests {
         assert_eq!(ids, ["early", "malformed", "missing", "late-a", "late-b"]);
     }
 
+    // Verify that non-string epoch values receive the zero sort key.
     #[test]
     fn non_string_epoch_values_sort_with_the_zero_fallback() {
         let mut timeslots = vec![

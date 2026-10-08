@@ -1,6 +1,7 @@
 import RusheeInteractionsByNight from "../../../components/RusheeInteractionsByNight";
 import type { Rushee } from "./types";
 
+// Display the selected rushee’s details, interactions, and ratings or a selection prompt.
 export default function CurrentRusheePreview({ rushee }: { rushee: Rushee | null }) {
     return (
         <>
@@ -35,7 +36,7 @@ export default function CurrentRusheePreview({ rushee }: { rushee: Rushee | null
 
                         {rushee.ratings && rushee.ratings.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-2">
-                                {rushee.ratings.map((rating, idx) => (
+                                {rushee.ratings.map(/* Render an aggregate rating rounded to two decimal places. */ (rating, idx) => (
                                     <span
                                         key={idx}
                                         className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-caption1 font-light"

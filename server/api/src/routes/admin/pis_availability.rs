@@ -7,6 +7,7 @@ use axum::{
 };
 use std::sync::Arc;
 
+// Add PIS availability and assignment management endpoints to the administrator router.
 pub(super) fn routes(router: Router<Arc<FirebaseAuth>>) -> Router<Arc<FirebaseAuth>> {
     router
         .route(
@@ -52,6 +53,7 @@ mod tests {
     };
     use tower::ServiceExt;
 
+    // Verify allowed preflight methods and rejection of unsupported route methods.
     #[tokio::test]
     async fn route_group_keeps_methods_and_options_without_invoking_handlers() {
         let router: Router = routes(Router::<Arc<FirebaseAuth>>::new()).with_state(Arc::new(

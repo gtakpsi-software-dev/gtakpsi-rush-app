@@ -1,10 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const { transformOperation, applyOperation } = require('./legacyText');
 
+// Record a legacy edit, update stored text, and return the operation rebased against recent edits.
 function recordLegacyTextOperation(room, operation, userInfo, {
     generateId = uuidv4,
     now = Date.now,
-    activityTime = () => new Date().toISOString(),
+    activityTime = /* Provide the current ISO timestamp for room activity. */ () => new Date().toISOString(),
 } = {}) {
     const enhancedOperation = {
         ...operation,

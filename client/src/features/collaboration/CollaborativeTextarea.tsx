@@ -20,6 +20,7 @@ type CollaborativeTextareaProps = {
     disabled?: boolean;
 };
 
+// Manage shared answer text, composition input, remote updates, and collaborator presence.
 const CollaborativeTextarea = ({
     questionKey,
     value,
@@ -42,6 +43,7 @@ const CollaborativeTextarea = ({
     const lastProcessedVersionRef = useRef(0);
 
     const handleTextChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+        // Update local answer text and debounce broadcasts outside active text composition.
         if (processingRemoteOp.current) {
             return;
         }
@@ -69,16 +71,19 @@ const CollaborativeTextarea = ({
     }, [questionKey, onChange, collaboration, isComposing]);
 
     const handleCursorChange = useCallback((e: SyntheticEvent<HTMLTextAreaElement>) => {
+        // Broadcast the textarea cursor unless a remote update is being applied.
         if (!processingRemoteOp.current) {
             collaboration.sendCursorPosition(questionKey, (e.target as HTMLTextAreaElement).selectionStart);
         }
     }, [questionKey, collaboration]);
 
     const handleCompositionStart = useCallback(() => {
+        // Mark text composition active so intermediate changes are not scheduled for sending.
         setIsComposing(true);
     }, []);
 
     const handleCompositionEnd = useCallback((e: CompositionEvent<HTMLTextAreaElement>) => {
+        // Finish composition and immediately broadcast the completed value when connected.
         setIsComposing(false);
         if (collaboration.isConnected) {
             collaboration.sendTextUpdate(questionKey, (e.target as HTMLTextAreaElement).value);
@@ -95,6 +100,7 @@ const CollaborativeTextarea = ({
     });
 
     useEffect(() => {
+        // Reconcile the parent value without replacing a pending local edit.
         syncPropValue({
             value,
             localValue,
@@ -107,6 +113,7 @@ const CollaborativeTextarea = ({
     }, [value, collaboration, questionKey]);
 
     useEffect(() => {
+        // Apply the latest remote answer with a short delay after local typing.
         return reconcileRemoteFieldUpdate({
             remoteUpdates: collaboration.remoteUpdates,
             fieldKey: questionKey,
@@ -117,13 +124,16 @@ const CollaborativeTextarea = ({
             pendingLocalChangeRef,
             lastSentValueRef: lastSentValue,
             setLocalValue,
+            // Forward the accepted value with its remote-change source.
             onRemoteChange: (nextValue) => onChange(questionKey, nextValue, { source: 'remote' }),
             deferMs: 650,
         });
     }, [collaboration.remoteUpdates, questionKey, localValue, onChange]);
 
     useEffect(() => {
+        // Register cleanup for local edit timers.
         return () => {
+            // Cancel pending debounce and local-edit expiration timers on unmount.
             clearLocalChangeTimers({
                 debounceTimerRef, pendingLocalChangeTimeoutRef, cancel: clearTimeout,
             });

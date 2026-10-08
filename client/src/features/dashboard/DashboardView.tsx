@@ -34,6 +34,7 @@ type Props = {
     };
 };
 
+// Render the dashboard, availability modal, filters, and rushee cards for the current status.
 export default function DashboardView({ status, availability, filters, cards }: Props) {
     return (
         <div>
@@ -56,13 +57,13 @@ export default function DashboardView({ status, availability, filters, cards }: 
                                     <DashboardFilters {...filters} />
 
                                     <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                        {cards.rushees.map((rushee) => (
+                                        {cards.rushees.map(/* Render a dashboard card with midterm and rating visibility settings. */ (rushee) => (
                                             <DashboardRusheeCard
                                                 key={rushee.id}
                                                 rushee={rushee}
                                                 isMidtermMode={cards.isMidtermMode}
                                                 showRatings={cards.showRatings}
-                                                onOpen={() => cards.onOpen(rushee)}
+                                                onOpen={/* Open the selected rushee through the dashboard action. */ () => cards.onOpen(rushee)}
                                             />
                                         ))}
                                     </div>

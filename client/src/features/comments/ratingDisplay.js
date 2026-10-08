@@ -9,6 +9,7 @@ export function formatRatingValue(value) {
     return String(value);
 }
 
+// Choose rating badge colors for zero, low, medium, and high scores.
 export function ratingBadgeClass(value) {
     const num = Number(value);
     if (num === 0) return "bg-red-100 text-red-700";

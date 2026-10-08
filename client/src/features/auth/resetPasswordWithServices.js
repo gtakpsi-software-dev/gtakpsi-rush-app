@@ -1,3 +1,4 @@
+// Send a Firebase password-reset email and report success or failure through toasts.
 export async function resetPasswordWithServices(email, {
     auth,
     sendPasswordResetEmail,

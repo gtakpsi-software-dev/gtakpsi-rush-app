@@ -12,6 +12,7 @@ pub(super) struct TestServer {
 }
 
 impl TestServer {
+    // Starts a sorting test server on an available loopback port.
     pub(super) fn start() -> Self {
         let (state, _) = state();
         let app = crate::app::create_router(state);
@@ -33,11 +34,13 @@ impl TestServer {
 }
 
 impl Drop for TestServer {
+    // Stops the test server when its fixture leaves scope.
     fn drop(&mut self) {
         self.task.abort();
     }
 }
 
+// Waits up to five seconds for a JSON socket event.
 pub(super) async fn receive(socket: &mut TestSocket) -> Value {
     // Bound network waits so a missing protocol event fails instead of hanging CI.
     let message = tokio::time::timeout(Duration::from_secs(5), socket.next())
@@ -48,6 +51,7 @@ pub(super) async fn receive(socket: &mut TestSocket) -> Value {
     serde_json::from_str(message.to_text().unwrap()).unwrap()
 }
 
+// Sends a JSON event through the test WebSocket.
 pub(super) async fn send(socket: &mut TestSocket, message: Value) {
     socket
         .send(Message::Text(message.to_string()))

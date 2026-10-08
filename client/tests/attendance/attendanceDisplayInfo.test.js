@@ -12,6 +12,7 @@ const componentPath = fileURLToPath(new URL(
 ));
 
 test("attendance confirmation keeps its profile and action markup", async () => {
+    // Verify attendance confirmation keeps its profile and action markup.
     const DisplayInfo = await loadTsxComponent(componentPath);
     const html = renderToStaticMarkup(React.createElement(DisplayInfo, {
         rushee: {
@@ -24,7 +25,9 @@ test("attendance confirmation keeps its profile and action markup", async () => 
             phone_number: "4045550100",
             housing: "Campus",
         },
+        // Provide an inert go back stub for this test.
         goBack() {},
+        // Provide an inert check in stub for this test.
         checkIn() {},
     }));
 

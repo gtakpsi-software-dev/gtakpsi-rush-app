@@ -23,8 +23,10 @@ type CollaborativeTextareaViewProps = {
     handleCompositionEnd: NonNullable<TextareaProps['onCompositionEnd']>;
 };
 
+// Generate a saturated random hue for a collaborator’s cursor.
 const getRandomColor = () => `hsl(${Math.floor(Math.random() * 360)}, 90%, 50%)`;
 
+// Render the shared textarea, remote-owner overlay, offline state, and cursor markers.
 export default function CollaborativeTextareaView({
     textareaRef, colorMapRef, className, placeholder, localValue,
     disabled, isFieldLocked, isConnected, otherUserCursors,
@@ -65,6 +67,7 @@ export default function CollaborativeTextareaView({
             )}
 
             {otherUserCursors.map((user) => {
+                // Position a remote cursor marker and reuse its assigned color.
                 let leftOffset = 0;
                 let topOffset = 0;
                 if (textareaRef.current) {

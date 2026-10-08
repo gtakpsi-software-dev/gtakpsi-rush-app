@@ -1,5 +1,6 @@
 import { groupSortingRows } from "./board.js";
 
+// Require committee, admin, or allowlist access before loading sorting rows.
 export async function loadBidCommitteeSortingData({
     auth, navigate, allowlist, apiBase, getSorting,
     setColumns, setLoading, setAuthChecked, showError,

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { submitAvailability } from '../../src/features/brotherPisAvailability/submitAvailability.js';
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function harness(overrides = {}) {
     const calls = [];
     const deps = {
@@ -10,17 +11,23 @@ function harness(overrides = {}) {
         selectedSlots: new Set(),
         api: '/api',
         axios: {
+            // Record availability submission and return success.
             post: async (url, payload) => {
                 calls.push(['post', url, payload]);
                 return { data: { status: 'success' } };
             }
         },
         toast: {
+            // Record error calls for assertions.
             error: (message) => calls.push(['error', message]),
+            // Record success calls for assertions.
             success: (message) => calls.push(['success', message])
         },
+        // Record on submit calls for assertions.
         onSubmit: () => calls.push(['onSubmit']),
+        // Record set submitting calls for assertions.
         setSubmitting: (value) => calls.push(['submitting', value]),
+        // Record log error calls for assertions.
         logError: (...args) => calls.push(['log', ...args]),
         ...overrides
     };
@@ -28,6 +35,7 @@ function harness(overrides = {}) {
 }
 
 test('display name fallback and zero-slot submission retain payload and event order', async () => {
+    // Verify display name fallback and zero-slot submission retain payload and event order.
     const { calls, deps } = harness();
     await submitAvailability(deps);
 
@@ -47,6 +55,7 @@ test('display name fallback and zero-slot submission retain payload and event or
 });
 
 test('explicit name fields and selected ISO values retain precedence and order', async () => {
+    // Verify explicit name fields and selected ISO values retain precedence and order.
     const { calls, deps } = harness({
         user: {
             uid: 'brother-1', email: 'ada@example.edu',
@@ -64,15 +73,17 @@ test('explicit name fields and selected ISO values retain precedence and order',
 });
 
 test('missing last name stops before setting submission state or posting', async () => {
+    // Verify missing last name stops before setting submission state or posting.
     const { calls, deps } = harness({ user: { displayName: 'Ada' } });
     await submitAvailability(deps);
     assert.deepEqual(calls, [['error', 'Unable to determine your name. Please contact an admin.']]);
 });
 
 test('server errors use their message or fallback and always clear submission state', async () => {
+    // Verify server errors use their message or fallback and always clear submission state.
     for (const message of ['Try again', '']) {
         const { calls, deps } = harness({
-            axios: { post: async () => ({ data: { status: 'error', message } }) }
+            axios: { post: /* Return the post fixture for this scenario. */ async () => ({ data: { status: 'error', message } }) }
         });
         await submitAvailability(deps);
         assert.deepEqual(calls, [
@@ -84,8 +95,11 @@ test('server errors use their message or fallback and always clear submission st
 });
 
 test('transport failure logs and toasts before clearing submission state', async () => {
+    // Verify transport failure logs and toasts before clearing submission state.
     const failure = new Error('network down');
-    const { calls, deps } = harness({ axios: { post: async () => { throw failure; } } });
+    const { calls, deps } = harness({ axios: { post: async () => {
+        // Simulate a dependency failure for this scenario.
+         throw failure; } } });
     await submitAvailability(deps);
     assert.deepEqual(calls, [
         ['submitting', true],

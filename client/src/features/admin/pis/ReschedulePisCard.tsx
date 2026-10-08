@@ -23,6 +23,7 @@ type ReschedulePisCardProps = {
     handleReschedulePIS: () => Promise<void>;
 };
 
+// Render rushee search, current PIS time, and replacement timeslot controls.
 export default function ReschedulePisCard({
     rusheeSearch,
     setRusheeSearch,
@@ -52,6 +53,7 @@ export default function ReschedulePisCard({
                         className="input-apple text-apple-body"
                         value={rusheeSearch}
                         onChange={(e) => {
+                            // Update the search and clear a selection that no longer matches the entered name.
                             setRusheeSearch(e.target.value);
                             if (selectedRushee && e.target.value !== selectedRushee.name) {
                                 setSelectedRushee(null);
@@ -61,11 +63,11 @@ export default function ReschedulePisCard({
 
                     {filteredRushees.length > 0 && !selectedRushee && (
                         <div className="absolute z-10 w-full mt-1 bg-white border border-apple-gray-200 rounded-apple-lg shadow-lg max-h-60 overflow-y-auto">
-                            {filteredRushees.map((rushee) => (
+                            {filteredRushees.map(/* Render a matching rushee with their GTID. */ (rushee) => (
                                 <div
                                     key={rushee.gtid}
                                     className="px-4 py-3 hover:bg-apple-gray-100 cursor-pointer border-b border-apple-gray-100 last:border-b-0"
-                                    onClick={() => handleSelectRushee(rushee)}
+                                    onClick={/* Select this rushee for PIS rescheduling. */ () => handleSelectRushee(rushee)}
                                 >
                                     <div className="text-apple-body font-normal text-black">
                                         {rushee.name}
@@ -95,6 +97,7 @@ export default function ReschedulePisCard({
                             </div>
                             <button
                                 onClick={() => {
+                                    // Clear the selected rushee and search text.
                                     setSelectedRushee(null);
                                     setRusheeSearch("");
                                 }}
@@ -113,11 +116,11 @@ export default function ReschedulePisCard({
                     <select
                         className="input-apple text-apple-body"
                         value={selectedNewTimeslot}
-                        onChange={(e) => setSelectedNewTimeslot(e.target.value)}
+                        onChange={/* Update the replacement timeslot selection. */ (e) => setSelectedNewTimeslot(e.target.value)}
                         disabled={!selectedRushee}
                     >
                         <option value="">Choose a timeslot...</option>
-                        {availableTimeslots.map((slot, index) => (
+                        {availableTimeslots.map(/* Render an available timeslot with its remaining capacity. */ (slot, index) => (
                             <option
                                 key={index}
                                 value={new Date(parseInt(slot.time.$date.$numberLong)).toISOString()}

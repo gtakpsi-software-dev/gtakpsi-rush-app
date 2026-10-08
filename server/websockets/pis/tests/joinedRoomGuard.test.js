@@ -6,13 +6,20 @@ const { registerUpdateHandlers } = require('../src/handlers/updates');
 const { registerPresenceHandlers } = require('../src/handlers/presence');
 
 test('unjoined and stale sockets cannot send text or presence events', () => {
+    // Verify that unjoined and stale sockets cannot change or broadcast room state.
     const listeners = new Map();
     const emitted = [];
     const socket = {
         id: 'socket-1',
+        // Capture registered listeners for direct invocation.
         on: (name, handler) => listeners.set(name, handler),
+        // Record events sent directly to the fake socket.
         emit: (name, payload) => emitted.push(['direct', name, payload]),
-        to: (roomId) => ({ emit: (name, payload) => emitted.push([roomId, name, payload]) }),
+        // Create a recorder for messages sent to the requested room.
+        to: (roomId) => ({
+            // Record the room, event name, and payload.
+            emit: (name, payload) => emitted.push([roomId, name, payload]),
+        }),
     };
     const rooms = new Map();
     const membershipsBySocket = new Map();

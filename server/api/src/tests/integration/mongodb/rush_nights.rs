@@ -1,0 +1,135 @@
+use axum::Json;
+use bson::{doc, DateTime};
+use serde_json::json;
+
+use super::fixtures::{path, reset, SLOT};
+use crate::{
+    controllers::{admin, rushee},
+    models::rush_nights::{IncomingRushNight, RushNight},
+    storage::db,
+};
+
+// Verify rush-night creation, timestamp-based deletion, and strict handling of malformed schedules.
+pub async fn check_contracts() {
+    reset().await;
+    let collection = db::get_rush_nights_collection().await;
+    let time = DateTime::parse_rfc3339_str(SLOT).unwrap();
+
+    assert_eq!(
+        admin::add_rush_night(Json(IncomingRushNight {
+            time: SLOT.to_string(),
+            name: "Night 1".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "success", "message": "successfully added rush night"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+
+    let wrong_time = DateTime::parse_rfc3339_str("2030-01-02T18:00:00Z").unwrap();
+    assert_eq!(
+        admin::delete_rush_night(Json(RushNight {
+            time: wrong_time,
+            name: "Night 1".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "success", "message": "successfully deleted rush night"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 1);
+
+    let delete = Json(RushNight {
+        time,
+        name: "Different name".to_string(),
+    });
+    assert_eq!(
+        admin::delete_rush_night(delete).await.unwrap().0,
+        json!({"status": "success", "message": "successfully deleted rush night"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+
+    let database = db::get_mongo_client().await.database("rush-app");
+    // Reject the insert to pin the existing error response and unchanged collection.
+    database
+        .run_command(doc! {
+            "collMod": "rush-nights",
+            "validator": { "name": "Allowed" }
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        admin::add_rush_night(Json(IncomingRushNight {
+            time: SLOT.to_string(),
+            name: "Night 2".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({"status": "error", "message": "couldn't add rush night"})
+    );
+    assert_eq!(collection.count_documents(doc! {}).await.unwrap(), 0);
+    database
+        .run_command(doc! { "collMod": "rush-nights", "validator": {} })
+        .await
+        .unwrap();
+
+    check_delete_failure().await;
+
+    // A valid night before a malformed one must not return a partial schedule.
+    collection
+        .insert_one(RushNight {
+            time,
+            name: "Valid Night".to_string(),
+        })
+        .await
+        .unwrap();
+    database
+        .collection::<bson::Document>("rush-nights")
+        .insert_one(doc! { "name": "Malformed", "time": "not-a-date" })
+        .await
+        .unwrap();
+    assert!(crate::services::rush_night_queries::get_rush_nights()
+        .await
+        .is_err());
+    assert_eq!(
+        rushee::get_rush_nights().await.unwrap().0,
+        json!({"status": "error", "message": "could not load rush nights"})
+    );
+    assert_eq!(
+        rushee::update_attendance(path()).await.unwrap().0,
+        json!({"status": "error", "message": "some error occurred"})
+    );
+    reset().await;
+}
+
+// Verify the rush-night deletion error using a read-only fixture view.
+async fn check_delete_failure() {
+    let database = db::get_mongo_client().await.database("rush-app");
+    let collection = db::get_rush_nights_collection().await;
+    collection.drop().await.unwrap();
+
+    // A read-only view makes deletion fail without changing live or shared data.
+    database
+        .run_command(doc! {
+            "create": "rush-nights", "viewOn": "rushees", "pipeline": []
+        })
+        .await
+        .unwrap();
+    let time = DateTime::parse_rfc3339_str(SLOT).unwrap();
+    assert_eq!(
+        admin::delete_rush_night(Json(RushNight {
+            time,
+            name: "Unavailable".to_string(),
+        }))
+        .await
+        .unwrap()
+        .0,
+        json!({
+            "status": "error",
+            "message": "there was an issue while deleting the rush night"
+        })
+    );
+    collection.drop().await.unwrap();
+}

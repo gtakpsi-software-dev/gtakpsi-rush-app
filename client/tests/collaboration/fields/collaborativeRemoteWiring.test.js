@@ -28,29 +28,38 @@ const fields = [
 
 for (const field of fields) {
     test(`${field.name} retains its remote delay and change callback contract`, async () => {
+        // Verify that field effects forward remote updates with the expected options.
         const effects = [];
         const effectDependencies = [];
         const helperCalls = [];
         const changes = [];
+        // Supply an inert callback where this test does not exercise the handler.
         const noOp = () => {};
+        // Record remote helper calls for assertions.
         const RemoteHelper = (options) => {
             helperCalls.push(options);
         };
         const Component = await loadTsxComponent(field.path, {
             react: {
                 ...React,
+                // Provide a mutable ref without mounting a React component.
                 useRef: (initial) => ({ current: initial }),
+                // Supply controlled state and a setter without mounting React.
                 useState: (initial) => [initial, noOp],
+                // Capture effects so the test can run them explicitly.
                 useEffect: (effect, dependencies) => {
                     effects.push(effect);
                     effectDependencies.push(Array.from(dependencies));
                 },
+                // Keep the callback callable without a React render cycle.
                 useCallback: (callback) => callback,
             },
             '../features/collaboration/activeCursorsForField.js': {
+                // Return the active cursors for field fixture for this scenario.
                 activeCursorsForField: () => [],
             },
-            './activeCursorsForField.js': { activeCursorsForField: () => [] },
+            './activeCursorsForField.js': { activeCursorsForField: /* Return the active cursors for field fixture for this scenario. */ () => [] },
+            // Return null from this dependency stub.
             [field.viewImport]: () => null,
             '../features/collaboration/reconcileRemoteFieldUpdate.js': {
                 reconcileRemoteFieldUpdate: RemoteHelper,
@@ -60,6 +69,7 @@ for (const field of fields) {
             './syncPropValue.js': { syncPropValue },
             './scheduleLocalChangeTimers.js': { clearLocalChangeTimers, scheduleLocalChangeTimers },
             './useCollaborativeFieldPresence': {
+                // Return the use collaborative field presence fixture for this scenario.
                 useCollaborativeFieldPresence: () => ({
                     handleFocus: noOp, handleBlur: noOp, handleMouseDown: noOp,
                 }),
@@ -74,6 +84,7 @@ for (const field of fields) {
         Component({
             [field.fieldProp]: 'notes',
             value: 'Old',
+            // Record on change calls for assertions.
             onChange: (...args) => changes.push(args),
             collaboration,
         });

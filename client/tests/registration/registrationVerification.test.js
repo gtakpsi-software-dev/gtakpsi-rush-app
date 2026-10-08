@@ -10,7 +10,8 @@ import { transformWithEsbuild } from "vite";
 const sourcePath = fileURLToPath(new URL("../../src/features/registration/registrationVerification.js", import.meta.url));
 const requireFromSource = createRequire(sourcePath);
 
-async function loadVerifications(get = async () => ({ data: { status: "success" } })) {
+// Load verifications with injected dependencies for isolated tests.
+async function loadVerifications(get = /* Return the fixture for this scenario. */ async () => ({ data: { status: "success" } })) {
     const source = (await readFile(sourcePath, "utf8"))
         .replace("const api = import.meta.env.VITE_API_PREFIX;", 'const api = "/api";');
     const compiled = await transformWithEsbuild(source, sourcePath, { format: "cjs" });
@@ -23,11 +24,16 @@ async function loadVerifications(get = async () => ({ data: { status: "success" 
         module,
         exports: module.exports,
         console: {
+            // Record log calls for assertions.
             log: (value) => logs.push(value),
+            // Record error calls for assertions.
             error: (error) => errors.push(error),
         },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
-            if (specifier === "axios") return { get: (...args) => { calls.push(args); return get(...args); } };
+            if (specifier === "axios") return { get: (...args) => {
+                // Record verification arguments and delegate to the configured GET stub.
+                 calls.push(args); return get(...args); } };
             return requireFromSource(specifier);
         },
     }, { filename: sourcePath });
@@ -35,11 +41,13 @@ async function loadVerifications(get = async () => ({ data: { status: "success" 
     return { ...module.exports, calls, logs, errors };
 }
 
+// Invoke JSON.parse with the test inputs.
 function plain(value) {
     return JSON.parse(JSON.stringify(value));
 }
 
 test("GTID verification accepts exactly nine ASCII digits", async () => {
+    // Verify GTID verification accepts exactly nine ASCII digits.
     const { verifyGTID } = await loadVerifications();
     assert.equal(verifyGTID("123456789"), true);
     assert.equal(verifyGTID("12345678"), false);
@@ -48,6 +56,7 @@ test("GTID verification accepts exactly nine ASCII digits", async () => {
 });
 
 test("registration validation preserves the existing error order and network bypass", async () => {
+    // Verify registration validation preserves the existing error order and network bypass.
     const verification = await loadVerifications();
     const { verifyInfo } = verification;
 
@@ -71,18 +80,21 @@ test("registration validation preserves the existing error order and network byp
 });
 
 test("registration lookup preserves success, duplicate, unexpected, and network responses", async () => {
+    // Verify registration lookup preserves success, duplicate, unexpected, and network responses.
     for (const [data, expected] of [
         [{ status: "success" }, { status: "success" }],
         [{ message: "exists" }, { status: "error", message: "Rushee with GTID 123456789 already exists in our system" }],
         [{ status: "error" }, { status: "error", message: "Some server-based network error occurred" }],
     ]) {
-        const verification = await loadVerifications(async () => ({ data }));
+        const verification = await loadVerifications(/* Return the fixture for this scenario. */ async () => ({ data }));
         assert.deepEqual(plain(await verification.verifyInfo("123456789", "user@gatech.edu", "(404) 555-0100", true)), expected);
         assert.deepEqual(plain(verification.calls), [["/api/rushee/does-rushee-exist/123456789"]]);
     }
 
     const failure = new Error("offline");
-    const verification = await loadVerifications(async () => { throw failure; });
+    const verification = await loadVerifications(async () => {
+        // Simulate a dependency failure for this scenario.
+         throw failure; });
     assert.deepEqual(plain(await verification.verifyInfo("123456789", "user@gatech.edu", "(404) 555-0100", true)), {
         status: "error", message: "Some network error occurred",
     });

@@ -1,3 +1,4 @@
+// Verify the session, derive navigation roles, and finish the loading state.
 export async function loadNavbarAuth({
     verifyUser,
     auth,

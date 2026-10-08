@@ -9,6 +9,7 @@ type AdminManagementSectionProps =
     ComponentProps<typeof AdminSchedulingCards> &
     ComponentProps<typeof ReschedulePisCard>;
 
+// Group PIS questions, scheduling, and rushee rescheduling controls.
 export default function AdminManagementSection(props: AdminManagementSectionProps) {
     const {
         question, setQuestion, questionType, setQuestionType, questionOrder,

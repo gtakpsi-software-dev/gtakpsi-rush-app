@@ -4,6 +4,7 @@ use axum::middleware;
 use axum::{http::StatusCode, routing::post, Router};
 use std::sync::Arc;
 
+// Build PIS assignment routes accessible to any authenticated brother.
 pub(super) fn routes(firebase_auth: Arc<FirebaseAuth>) -> Router {
     Router::new()
         .route(

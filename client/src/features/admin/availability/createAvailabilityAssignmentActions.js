@@ -1,3 +1,4 @@
+// Create actions to automatically assign brothers or clear PIS assignments.
 export function createAvailabilityAssignmentActions({
     apiBase,
     setPisFormLoading,
@@ -5,6 +6,7 @@ export function createAvailabilityAssignmentActions({
     toast,
     confirm,
 }) {
+    // Confirm and submit an assignment operation, showing loading and result feedback.
     const runAssignmentAction = async ({ confirmation, endpoint, successTimeout, failureMessage, requestFailureMessage }) => {
         if (!confirm(confirmation)) {
             return;
@@ -36,6 +38,7 @@ export function createAvailabilityAssignmentActions({
         }
     };
 
+    // Request automatic assignment of available brothers after confirmation.
     const handleAutoAssignBrothers = () => runAssignmentAction({
         confirmation: "This will automatically assign available brothers to all PIS slots. Continue?",
         endpoint: "auto-assign",
@@ -44,6 +47,7 @@ export function createAvailabilityAssignmentActions({
         requestFailureMessage: "Failed to auto-assign brothers",
     });
 
+    // Request removal of all brother PIS assignments after confirmation.
     const handleClearAssignments = () => runAssignmentAction({
         confirmation: "This will clear all brother assignments from PIS slots. Continue?",
         endpoint: "clear-assignments",

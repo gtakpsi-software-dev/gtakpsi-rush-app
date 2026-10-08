@@ -2,6 +2,7 @@ use super::{AuthError, FirebaseAuth, FirebaseClaims, FirebaseUser};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 
 impl FirebaseAuth {
+    // Verify a Firebase token and require administrator access.
     pub async fn verify_token(&self, id_token: &str) -> Result<FirebaseUser, AuthError> {
         let user = self.verify_token_any_brother(id_token).await?;
         if !user.is_admin {
@@ -10,6 +11,7 @@ impl FirebaseAuth {
         Ok(user)
     }
 
+    // Validate a Firebase token and derive its identity and roles without requiring a role.
     pub async fn verify_token_any_brother(
         &self,
         id_token: &str,
@@ -64,6 +66,7 @@ impl FirebaseAuth {
         })
     }
 
+    // Verify a Firebase token and require bid committee or administrator access.
     pub async fn verify_token_bidcom(&self, id_token: &str) -> Result<FirebaseUser, AuthError> {
         let user = self.verify_token_any_brother(id_token).await?;
         if !(user.is_admin || user.is_bidcom) {

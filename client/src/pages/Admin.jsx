@@ -24,6 +24,7 @@ import useAdminManagementInputs from "../features/admin/overview/useAdminManagem
 import { auth } from "../firebase";
 import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
+// Connect admin data, settings, availability, role, and scheduling actions to the panel.
 export default function Admin() {
     const apiBase = import.meta.env.VITE_API_PREFIX + "/admin";
     const rusheeApiBase = import.meta.env.VITE_API_PREFIX + "/rushee";
@@ -40,7 +41,9 @@ export default function Admin() {
     const [selectedNewTimeslot, setSelectedNewTimeslot] = useState("");
 
     const availabilityForm = useAdminAvailabilityForm({
-        apiBase, axios, toast, confirm: (message) => window.confirm(message),
+        apiBase, axios, toast,
+        // Ask for browser confirmation before an availability-management operation.
+        confirm: (message) => window.confirm(message),
     });
     
     const {
@@ -58,6 +61,7 @@ export default function Admin() {
         saveEditedAvailability,
     } = useAdminAvailabilityEditor({
         apiBase,
+        // Return the configured API prefix for availability requests.
         getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
         setBrotherAvailabilities: availabilityForm.setBrotherAvailabilities,
         axios,
@@ -117,6 +121,7 @@ export default function Admin() {
         exportPISWithBrothers,
     } = createAdminDataActions({
         apiBase,
+        // Return the configured API prefix for exports.
         getApiPrefix: () => import.meta.env.VITE_API_PREFIX,
         axios,
         toast,
@@ -134,6 +139,7 @@ export default function Admin() {
         setAvailableTimeslots,
         axios,
         toast,
+        // Log a rescheduling refresh failure with its error.
         logError: (message, error) => console.error(message, error),
     });
 

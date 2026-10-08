@@ -16,10 +16,14 @@ const pagePath = fileURLToPath(new URL("../../src/pages/Register.jsx", import.me
 const hookPath = fileURLToPath(new URL("../../src/features/registration/useRegistrationFormState.js", import.meta.url));
 const stagePath = fileURLToPath(new URL("../../src/features/registration/RegistrationStageView.tsx", import.meta.url));
 const fixturePath = fileURLToPath(new URL("../fixtures/registerPageMarkup.json", import.meta.url));
+// Supply an inert callback where this test does not exercise the handler.
 const noop = () => {};
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(state = {}, captured = new Map()) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
     };
@@ -45,10 +49,12 @@ async function loadPage(state = {}, captured = new Map()) {
     let stateIndex = 0;
     const react = {
         ...React,
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = stateIndex++;
             return [Object.hasOwn(state, index) ? state[index] : initial, noop];
         },
+        // Provide a mutable ref without mounting a React component.
         useRef: () => ({ current: undefined }),
     };
     const formState = await loadTsxComponent(hookPath, { react });
@@ -65,18 +71,19 @@ async function loadPage(state = {}, captured = new Map()) {
         "../components/Loader": loader,
         "react-toastify": { toast: {} },
         "react-toastify/dist/ReactToastify.css": {},
-        "react-router-dom": { useNavigate: () => noop },
+        "react-router-dom": { useNavigate: /* Provide an inert handler for the test. */ () => noop },
         "../features/registration/registrationVerification": { verifyInfo: noop },
         "../firebase": { storage: {} },
         "firebase/storage": { ref: noop, uploadBytes: noop, getDownloadURL: noop },
         "../lib/imageProcessing": { base64ToBlob: noop },
-        "../features/registration/createBasicInfoSubmit": { createBasicInfoSubmit: () => noop },
-        "../features/registration/createPisSubmit": { createPisSubmit: () => noop },
+        "../features/registration/createBasicInfoSubmit": { createBasicInfoSubmit: /* Provide an inert handler for the test. */ () => noop },
+        "../features/registration/createPisSubmit": { createPisSubmit: /* Provide an inert handler for the test. */ () => noop },
     };
 
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -87,6 +94,7 @@ async function loadPage(state = {}, captured = new Map()) {
 }
 
 test("registration page retains each step and loading wrapper", async () => {
+    // Verify registration page retains each step and loading wrapper.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         basicInfo: {},
@@ -107,6 +115,7 @@ test("registration page retains each step and loading wrapper", async () => {
 });
 
 test("registration routes each step's state and callbacks to its view", async () => {
+    // Verify registration routes each step's state and callbacks to its view.
     const photoCaptured = new Map();
     const PhotoPage = await loadPage({ 10: 1, 15: "captured-jpeg" }, photoCaptured);
     renderToStaticMarkup(React.createElement(PhotoPage));

@@ -3,6 +3,7 @@ use super::*;
 use futures_util::SinkExt;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
+// Verifies that save broadcasts use the client’s most recent join role.
 #[tokio::test]
 async fn card_saved_follows_the_latest_join_role() {
     let (state, mut broadcasts) = state();
@@ -35,6 +36,7 @@ async fn card_saved_follows_the_latest_join_role() {
     assert_eq!(super::receive(&mut broadcasts), moved);
 }
 
+// Checks that a connection remains usable after invalid JSON.
 #[tokio::test]
 async fn malformed_text_does_not_close_the_sorting_socket() {
     let server = TestServer::start();
@@ -66,6 +68,7 @@ async fn malformed_text_does_not_close_the_sorting_socket() {
     socket.close(None).await.unwrap();
 }
 
+// Checks that ignored binary frames do not interrupt later text messages.
 #[tokio::test]
 async fn binary_frames_do_not_close_the_sorting_socket() {
     let server = TestServer::start();
@@ -94,6 +97,7 @@ async fn binary_frames_do_not_close_the_sorting_socket() {
     socket.close(None).await.unwrap();
 }
 
+// Verifies viewer restrictions through the WebSocket transport.
 #[tokio::test]
 async fn viewer_messages_do_not_claim_cards_or_emit_save_events() {
     let server = TestServer::start();

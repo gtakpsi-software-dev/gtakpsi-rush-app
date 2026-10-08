@@ -12,6 +12,7 @@ use std::collections::HashMap;
 
 pub(crate) type AvailabilityByTimeslot = HashMap<i64, Vec<BrotherName>>;
 
+// Index interviewer names by timeslot, trimming names and skipping blank entries.
 pub(crate) fn index_availability(
     availabilities: &[BrotherPISAvailability],
 ) -> AvailabilityByTimeslot {

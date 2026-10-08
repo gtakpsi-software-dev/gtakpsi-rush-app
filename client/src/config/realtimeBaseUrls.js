@@ -1,3 +1,4 @@
+// Resolve the PIS, sorting, and voting service URLs from frontend environment settings.
 export function getRealtimeBaseUrls(env) {
     // Preserve deployed variable names and each service's original fallback behavior.
     return {

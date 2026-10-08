@@ -16,6 +16,7 @@ import { base64ToBlob } from "../lib/imageProcessing";
 import { createBasicInfoSubmit } from "../features/registration/createBasicInfoSubmit";
 import { createPisSubmit } from "../features/registration/createPisSubmit";
 
+// Connect registration stages to validation, photo upload, signup, and confirmation.
 export default function Register() {
     const api = import.meta.env.VITE_API_PREFIX;
 
@@ -40,9 +41,11 @@ export default function Register() {
         setCurrLoading,
         setPage,
         toast,
+        // Log a basic-information submission error.
         logError: (error) => console.log(error),
     });
 
+    // Advance from photo capture to PIS selection.
     const handlePhotoContinue = () => {
         setPage(2);
     };
@@ -58,6 +61,7 @@ export default function Register() {
         base64ToBlob,
         uploadBytes,
         getDownloadURL,
+        // Forward the signup request through Axios.
         post: (...args) => axios.post(...args),
         navigate,
         setCurrLoading,
@@ -66,6 +70,7 @@ export default function Register() {
         setErrorDescription,
         setAccessCode,
         setError,
+        // Log a final registration submission error.
         logError: (error) => console.log(error),
     });
 

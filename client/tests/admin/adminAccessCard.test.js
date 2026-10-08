@@ -12,26 +12,33 @@ const fixturePath = fileURLToPath(new URL("../fixtures/adminAccessCard.json", im
 const componentPath = fileURLToPath(new URL("../../src/features/admin/access/AdminAccessCard.tsx", import.meta.url));
 const brother = { id: "brother-1", firstname: "Ada", lastname: "Example", email: "ada@example.org" };
 
+// Build component props with test-specific overrides.
 function props(overrides = {}) {
     return {
         brotherSearch: "",
+        // Provide an inert set brother search stub for this test.
         setBrotherSearch() {},
         selectedBrother: null,
+        // Provide an inert set selected brother stub for this test.
         setSelectedBrother() {},
         filteredBrothers: [],
+        // Provide an inert handle select brother stub for this test.
         handleSelectBrother() {},
         brotherAdminStatus: null,
         brotherBidcomStatus: null,
         isPromoting: false,
+        // Provide an inert handle set admin stub for this test.
         handleSetAdmin() {},
+        // Provide an inert handle set bidcom stub for this test.
         handleSetBidcom() {},
         ...overrides,
     };
 }
 
+// Walk the rendered element tree to collect nodes for assertions.
 function collect(node, elements = []) {
     if (Array.isArray(node)) {
-        node.forEach((child) => collect(child, elements));
+        node.forEach(/* Invoke collect with the test inputs. */ (child) => collect(child, elements));
     } else if (React.isValidElement(node)) {
         elements.push(node);
         collect(node.props.children, elements);
@@ -40,6 +47,7 @@ function collect(node, elements = []) {
 }
 
 test("admin access card retains idle, search, selected, and updating markup", async () => {
+    // Verify admin access card retains idle, search, selected, and updating markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const AdminAccessCard = await loadTsxComponent(componentPath);
     const scenarios = {
@@ -57,15 +65,20 @@ test("admin access card retains idle, search, selected, and updating markup", as
 });
 
 test("admin access search preserves selection and reset behavior", async () => {
+    // Verify admin access search preserves selection and reset behavior.
     const AdminAccessCard = await loadTsxComponent(componentPath);
     const calls = [];
     const elements = collect(AdminAccessCard(props({
         brotherSearch: brother.email,
         selectedBrother: brother,
+        // Record set brother search calls for assertions.
         setBrotherSearch: (value) => calls.push(["search", value]),
+        // Record set selected brother calls for assertions.
         setSelectedBrother: (value) => calls.push(["selected", value]),
     })));
-    const search = elements.find((element) => element.type === "input" && element.props.placeholder === "Search brother by name or email...");
+    const search = elements.find(
+        /* Find the input with placeholder Search brother by name or email.... */
+        (element) => element.type === "input" && element.props.placeholder === "Search brother by name or email...");
 
     search.props.onChange({ target: { value: brother.email } });
     search.props.onChange({ target: { value: "different" } });
@@ -73,25 +86,32 @@ test("admin access search preserves selection and reset behavior", async () => {
 
     const candidates = collect(AdminAccessCard(props({
         filteredBrothers: [brother],
+        // Record handle select brother calls for assertions.
         handleSelectBrother: (value) => calls.push(["choose", value]),
     })));
-    const candidate = candidates.find((element) => element.props.className?.includes("last:border-b-0"));
+    const candidate = candidates.find(
+        /* Identify elements with the expected styling classes. */
+        (element) => element.props.className?.includes("last:border-b-0"));
     candidate.props.onClick();
     assert.equal(calls.at(-1)[1], brother);
 });
 
 test("admin and bid committee buttons retain role actions and disabled states", async () => {
+    // Verify admin and bid committee buttons retain role actions and disabled states.
     const AdminAccessCard = await loadTsxComponent(componentPath);
     const calls = [];
     const elements = collect(AdminAccessCard(props({
         selectedBrother: brother,
         brotherAdminStatus: true,
         brotherBidcomStatus: false,
+        // Record handle set admin calls for assertions.
         handleSetAdmin: (value) => calls.push(["admin", value]),
+        // Record handle set bidcom calls for assertions.
         handleSetBidcom: (value) => calls.push(["bidcom", value]),
     })));
-    const buttons = elements.filter((element) => element.type === "button");
-    const button = (label) => buttons.find((element) => element.props.children === label);
+    const buttons = elements.filter(/* Identify rendered button elements. */ (element) => element.type === "button");
+    // Invoke buttons.find with the test inputs.
+    const button = (label) => buttons.find(/* Match the control by its displayed label. */ (element) => element.props.children === label);
 
     assert.equal(button("Grant Admin").props.disabled, true);
     assert.equal(button("Remove Admin").props.disabled, false);

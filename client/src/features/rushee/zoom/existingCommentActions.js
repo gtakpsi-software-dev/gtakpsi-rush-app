@@ -1,5 +1,6 @@
 import { createCommentToastOptions } from "./commentToastOptions.js";
 
+// Create comment editing, validation, submission, and deletion actions.
 export function createExistingCommentActions({
     rushee,
     error,
@@ -17,6 +18,7 @@ export function createExistingCommentActions({
     reload,
     log,
 }) {
+    // Generate advisory warnings for the edited comment text.
     const validateEditComment = (commentText) => {
         if (!rushee) return;
 
@@ -25,12 +27,14 @@ export function createExistingCommentActions({
         setEditCommentWarnings(warnings);
     };
 
+    // Open an existing comment for editing and clear old warnings.
     const handleEditComment = (comment) => {
         setEditingCommentId(comment.comment);
         setEditedCommentText(comment.comment);
         setEditCommentWarnings([]);
     };
 
+    // Submit edited text with the original ratings and night, then reset edit state.
     const handleSubmitEdit = async (comment) => {
         log(comment);
 
@@ -57,6 +61,7 @@ export function createExistingCommentActions({
 
         await axios.post(`${api}/rushee/edit-comment/${gtid}`, payload)
             .then((response) => {
+                // Reload after a successful edit or show the returned error.
                 if (response.data.status === "success") {
                     reload();
                 } else {
@@ -64,6 +69,7 @@ export function createExistingCommentActions({
                 }
             })
             .catch(() => {
+                // Log the page’s captured error state and show a network-error toast.
                 // Preserve the page's error-state log; the rejected request is not logged here.
                 log(error);
                 toast.error(`Some network error occurred`, createCommentToastOptions());
@@ -75,11 +81,13 @@ export function createExistingCommentActions({
         setLoading(false);
     };
 
+    // Request comment deletion and manage its loading state.
     const handleDeleteComment = async (comment) => {
         setLoading(true);
 
         await axios.post(`${api}/rushee/delete-comment/${gtid}`, comment)
             .then((response) => {
+                // Reload after successful deletion or show the returned error.
                 if (response.data.status === "success") {
                     reload();
                 } else {
@@ -87,6 +95,7 @@ export function createExistingCommentActions({
                 }
             })
             .catch((error) => {
+                // Log a deletion request failure and show a network-error toast.
                 log(error);
 
                 toast.error(`Some network error occurred`, createCommentToastOptions());

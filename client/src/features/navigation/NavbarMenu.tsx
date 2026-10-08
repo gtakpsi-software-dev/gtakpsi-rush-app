@@ -15,6 +15,7 @@ type NavbarMenuProps = {
     reload: () => void;
 };
 
+// Render navigation links, role-specific dropdowns, and logout controls.
 export default function NavbarMenu({
     stripped,
     isMidtermMode,
@@ -95,6 +96,7 @@ export default function NavbarMenu({
                     <li className="relative">
                         <button
                             onClick={() => {
+                                // Toggle the More dropdown and close the Admin dropdown.
                                 setShowMore(!showMore);
                                 setShowAdmin(false);
                             }}
@@ -113,6 +115,7 @@ export default function NavbarMenu({
                 <li className="relative">
                     <button
                         onClick={() => {
+                            // Toggle the Admin dropdown and close the More dropdown.
                             setShowAdmin(!showAdmin);
                             setShowMore(false);
                         }}
@@ -129,6 +132,7 @@ export default function NavbarMenu({
             <li>
                 <p
                     onClick={() => {
+                        // Start sign-out and immediately reload the page.
                         logout();
                         reload();
                     }}

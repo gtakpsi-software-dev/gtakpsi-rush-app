@@ -15,22 +15,30 @@ import { parseAdminAllowlist } from '../../src/features/auth/parseAdminAllowlist
 const pagePath = fileURLToPath(new URL('../../src/pages/AdminVotingDashboard.tsx', import.meta.url));
 const viewPath = fileURLToPath(new URL('../../src/features/voting/admin/AdminVotingDashboardView.tsx', import.meta.url));
 
+// Render the dashboard with controlled state and capture child props.
 async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     const captured = new Map();
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement('span', { 'data-stub': name });
     };
     let stateIndex = 0;
     const react = {
         ...React,
+        // Supply controlled state and a setter without mounting React.
         useState(initial) {
             const index = stateIndex++;
-            return [Object.hasOwn(state, index) ? state[index] : initial, () => {}];
+            return [Object.hasOwn(state, index) ? state[index] : initial, /* Leave this mocked callback inert. */ () => {}];
         },
+        // Provide an inert use effect stub for this test.
         useEffect() {},
+        // Provide a mutable ref without mounting a React component.
         useRef: (initial) => ({ current: initial }),
+        // Invoke compute with the test inputs.
         useMemo: (compute) => compute(),
+        // Keep the callback callable without a React render cycle.
         useCallback: (callback) => callback,
     };
     const View = await loadTsxComponent(viewPath, {
@@ -41,24 +49,37 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
         './VoteSummary': stub('votes'),
         './BrotherList': stub('brothers'),
     });
+    // Capture view props before rendering the real view.
     const ViewWithCapture = (props) => {
         captured.set('view', props);
         return React.createElement(View, props);
     };
     const dependencies = {
         react,
-        'react-router-dom': { useNavigate: () => () => {} },
+        'react-router-dom': { useNavigate:
+            /* Provide the callback used by this dependency stub. */
+            () =>
+            /* Leave this mocked callback inert. */
+            () => {} },
         '../features/voting/admin/AdminVotingContext': {
+            // Return the use admin voting context fixture for this scenario.
             useAdminVotingContext: () => ({
                 votes: [], rushee: null, question: null,
-                setVotes() {}, setRushee() {}, setQuestion() {},
+                // Provide an inert set votes stub for this test.
+                setVotes() {},
+                    /* Provide an inert set rushee stub for this test. */
+                    setRushee() {},
+                    /* Provide an inert set question stub for this test. */
+                    setQuestion() {},
             }),
         },
         '../features/voting/admin/AdminVotingContextProvider': {
+            // Return children to the caller.
             AdminVotingContextProvider: ({ children }) => children,
         },
         '../features/voting/admin/AdminVotingDashboardView': ViewWithCapture,
         '../features/voting/admin/useAdminVotingSocket': {
+            // Invoke captured.set with the test inputs.
             useAdminVotingSocket: (props) => captured.set('socket', props),
         },
         '../firebase': { auth: {} },
@@ -75,7 +96,8 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => storedUser },
+        localStorage: { getItem: /* Return stored user to the caller. */ () => storedUser },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -90,6 +112,7 @@ async function renderDashboard(state = {}, storedUser = '{"_id":"brother-1"}') {
 }
 
 test('admin voting dashboard retains auth gating and three socket-status layouts', async () => {
+    // Verify admin voting dashboard retains auth gating and three socket-status layouts.
     const scenarios = {
         loading: {},
         unauthorized: { 0: false, 1: false },

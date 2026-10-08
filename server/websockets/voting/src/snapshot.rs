@@ -3,6 +3,7 @@ use axum::extract::ws::Message;
 use redis::{aio::ConnectionManager, AsyncCommands};
 use serde_json::{Map, Value};
 
+// Reads a Redis field into a snapshot event, omitting failed or timed-out reads.
 pub async fn load_field(
     conn: &mut ConnectionManager,
     key: &'static str,

@@ -9,20 +9,26 @@ const hookPath = fileURLToPath(new URL(
 ));
 
 test("promotion hook passes its four state setters to the existing actions", async () => {
+    // Verify promotion hook passes its four state setters to the existing actions.
     const initialValues = [];
     let actionOptions;
+    // Provide an inert handle select brother stub for this test.
     const handleSelectBrother = () => {};
     const Hook = await loadTsxComponent(hookPath, {
         react: { useState(initialValue) {
+            // Supply controlled state and a setter without mounting React.
             initialValues.push(initialValue);
-            return [initialValue, () => {}];
+            return [initialValue, /* Leave this mocked callback inert. */ () => {}];
         } },
         "./promotionActions": { createPromotionActions(options) {
+            // Capture promotion dependencies and return the selection handler.
             actionOptions = options;
             return { handleSelectBrother };
         } },
     });
+    // Provide an inert set brother search stub for this test.
     const setBrotherSearch = () => {};
+    // Provide an inert set filtered brothers stub for this test.
     const setFilteredBrothers = () => {};
     const axios = {};
     const toast = {};

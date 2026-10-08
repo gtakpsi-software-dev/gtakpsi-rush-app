@@ -14,23 +14,27 @@ import { loadTsxComponent } from '../helpers/loadTsxComponent.js';
 const summaryPath = fileURLToPath(new URL('../../src/features/voting/admin/VoteSummary.tsx', import.meta.url));
 const chartPath = fileURLToPath(new URL('../../src/features/voting/admin/VotePieChart.tsx', import.meta.url));
 
+// Load summary with injected dependencies for isolated tests.
 async function loadSummary(votes) {
     const posts = [];
     const VotePieChart = await loadTsxComponent(chartPath);
     const dependencies = {
         './AdminVotingContext': {
-            useAdminVotingContext: () => ({ votes, setVotes: () => {} }),
+            // Return the use admin voting context fixture for this scenario.
+            useAdminVotingContext: () => ({ votes, setVotes: /* Provide an inert set votes stub for this test. */ () => {} }),
         },
         'react-icons/fa': {
+            // Render a lightweight React element for component assertions.
             FaSync: () => React.createElement('span', { 'data-icon': 'sync' }),
         },
         '../../admin/api': {
+            // Record the vote-summary request and resolve successfully.
             adminPost: (url, payload) => {
                 posts.push({ url, payload });
                 return Promise.resolve({ status: 'success' });
             },
         },
-        'react-toastify': { toast: { promise: (promise) => promise } },
+        'react-toastify': { toast: { promise: /* Return promise to the caller. */ (promise) => promise } },
         './VotePieChart': VotePieChart,
     };
     const source = (await readFile(summaryPath, 'utf8'))
@@ -43,6 +47,7 @@ async function loadSummary(votes) {
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -53,6 +58,7 @@ async function loadSummary(votes) {
 }
 
 test('vote summary preserves counts, abstain treatment, and empty state', async () => {
+    // Verify vote summary preserves counts, abstain treatment, and empty state.
     const { Summary } = await loadSummary([
         { vote: 'Yes' }, { vote: 'Yes' }, { vote: 'No' }, { vote: 'Abstain' },
     ]);
@@ -74,16 +80,20 @@ test('vote summary preserves counts, abstain treatment, and empty state', async 
 });
 
 test('vote summary clears votes through the existing admin endpoint', async () => {
+    // Verify vote summary clears votes through the existing admin endpoint.
     const { Summary, posts } = await loadSummary([]);
     const tree = Summary({ showBreakdown: false });
-    const button = tree.props.children.find((child) => React.isValidElement(child) && child.type === 'button');
+    const button = tree.props.children.find(
+        /* Identify rendered button elements. */
+        (child) => React.isValidElement(child) && child.type === 'button');
     await button.props.onClick();
-    assert.deepEqual(posts.map(({ url, payload }) => ({ url, payload: { ...payload } })), [
+    assert.deepEqual(posts.map(/* Return the fixture for this scenario. */ ({ url, payload }) => ({ url, payload: { ...payload } })), [
         { url: '/api/admin/voting/clear-votes', payload: {} },
     ]);
 });
 
 test('vote summary keeps single-choice gradients and the abstain-only empty chart', async () => {
+    // Verify vote summary keeps single-choice gradients and the abstain-only empty chart.
     const cases = [
         { votes: [{ vote: 'Yes' }], gradient: 'conic-gradient(#22c55e 0% 100%)' },
         { votes: [{ vote: 'No' }], gradient: 'conic-gradient(#ef4444 0% 100%)' },

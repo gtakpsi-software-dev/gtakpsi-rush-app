@@ -1,3 +1,4 @@
+// Validate the brother’s name and submit selected timeslots, including an empty selection.
 export async function submitAvailability({
     user,
     selectedSlots,

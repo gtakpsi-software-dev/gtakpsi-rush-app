@@ -1,6 +1,7 @@
 
 type Props = { goBack?: () => void };
 
+// Show check-in confirmation and an optional back button.
 export default function SuccessPage(props: Props) {
 
     return (

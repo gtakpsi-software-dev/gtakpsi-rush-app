@@ -1,3 +1,4 @@
+// Build the personal-information CSV with the existing field-specific quote escaping.
 export function buildRusheePersonalInfoCsv(rushees) {
     const csvHeaders = [
         "First Name", "Last Name", "GTID", "Email", "Phone Number",
@@ -6,7 +7,7 @@ export function buildRusheePersonalInfoCsv(rushees) {
     // Keep the original field-specific escaping so downloaded CSV content does not change.
     const csvRows = [
         csvHeaders.join(","),
-        ...rushees.map(r =>
+        ...rushees.map(/* Format one rushee’s personal-information row. */ r =>
             [
                 `"${(r.first_name || '').replace(/"/g, '""')}"`,
                 `"${(r.last_name || '').replace(/"/g, '""')}"`,
@@ -26,21 +27,24 @@ export function buildRusheePersonalInfoCsv(rushees) {
     return csvContent;
 }
 
+// Build the CSV mapping rushee numbers to names and GTIDs.
 export function buildRusheeNumbersCsv(mappings) {
     const csvHeaders = ["Rushee Number", "Name", "GTID"];
     const csvRows = [
         csvHeaders.join(","),
-        ...mappings.map(m => `"${m.rushee_number}","${m.name}","${m.gtid}"`)
+        ...mappings.map(/* Format one rushee-number mapping row. */ m => `"${m.rushee_number}","${m.name}","${m.gtid}"`)
     ];
 
     const csvContent = csvRows.join("\n");
     return csvContent;
 }
 
+// Build a chronological PIS schedule CSV with local date and time labels.
 export function buildPisScheduleCsv(timeslots) {
     const csvHeaders = ["Date", "Time", "Rushee Name", "Flexible"];
 
     const processedSlots = timeslots.map(slot => {
+        // Format an appointment row while retaining its timestamp for sorting.
         const jsDate = new Date(parseInt(slot.time.$date.$numberLong));
         const date = jsDate.toLocaleDateString();
         const time = jsDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -58,17 +62,19 @@ export function buildPisScheduleCsv(timeslots) {
     });
 
     // Sort rendered rows while leaving the server response array in its original order.
-    processedSlots.sort((a, b) => a.originalDate - b.originalDate);
+    processedSlots.sort(/* Compare appointment timestamps chronologically. */ (a, b) => a.originalDate - b.originalDate);
 
-    const csvRows = [csvHeaders.join(","), ...processedSlots.map(slot => slot.csvRow)];
+    const csvRows = [csvHeaders.join(","), ...processedSlots.map(/* Extract the formatted appointment row. */ slot => slot.csvRow)];
     const csvContent = csvRows.join("\n");
     return csvContent;
 }
 
+// Build a chronological PIS assignment CSV, leaving unassigned brother names blank.
 export function buildPisScheduleWithBrothersCsv(data) {
     const csvHeaders = ["Rushee", "Date", "Time", "Brother 1", "Brother 2"];
 
     const processedData = data.map(item => {
+        // Format an assigned appointment from its supported timestamp representation.
         let jsDate;
         if (item.timeslot && item.timeslot.$date && item.timeslot.$date.$numberLong) {
             jsDate = new Date(parseInt(item.timeslot.$date.$numberLong));
@@ -93,9 +99,9 @@ export function buildPisScheduleWithBrothersCsv(data) {
     });
 
     // Keep the download chronological without mutating the assignment response.
-    processedData.sort((a, b) => a.originalDate - b.originalDate);
+    processedData.sort(/* Compare appointment timestamps chronologically. */ (a, b) => a.originalDate - b.originalDate);
 
-    const csvRows = [csvHeaders.join(","), ...processedData.map(d => d.csvRow)];
+    const csvRows = [csvHeaders.join(","), ...processedData.map(/* Extract the formatted assignment row. */ d => d.csvRow)];
     const csvContent = csvRows.join("\n");
     return csvContent;
 }

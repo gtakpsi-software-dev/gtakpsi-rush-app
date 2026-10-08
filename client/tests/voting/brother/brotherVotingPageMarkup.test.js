@@ -14,32 +14,43 @@ import { loadTsxComponent } from '../../helpers/loadTsxComponent.js';
 const pagePath = fileURLToPath(new URL('../../../src/pages/BrotherVotingPage.tsx', import.meta.url));
 const panelPath = fileURLToPath(new URL('../../../src/features/voting/brother/VotingPanel.tsx', import.meta.url));
 
+// Render the voting page with controlled connection state and capture child props.
 async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMode = false, status = 'connecting' } = {}) {
     const VotingPanel = await loadTsxComponent(panelPath);
     const captured = new Map();
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement('span', { 'data-stub': name });
     };
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Supply controlled state and a setter without mounting React.
             useState: () => [status, noop],
+            // Provide a mutable ref without mounting a React component.
             useRef: (current) => ({ current }),
+            // Invoke compute with the test inputs.
             useMemo: (compute) => compute(),
+            // Keep the callback callable without a React render cycle.
             useCallback: (callback) => callback,
             useEffect: noop,
         },
-        'react-router-dom': { useNavigate: () => noop },
+        'react-router-dom': { useNavigate: /* Provide an inert handler for the test. */ () => noop },
         '../components/Navbar': stub('navbar'),
         '../features/voting/brother/BrotherVotingContext': {
+            // Return the use brother voting context fixture for this scenario.
             useBrotherVotingContext: () => ({ setRushee: noop, setQuestion: noop }),
         },
         '../features/voting/brother/BrotherVotingContextProvider': {
+            // Return children to the caller.
             BrotherVotingContextProvider: ({ children }) => children,
         },
         '../features/voting/brother/useBrotherVotingSocket': {
+            // Invoke captured.set with the test inputs.
             useBrotherVotingSocket: (options) => captured.set('socket', options),
         },
         '../features/voting/brother/QuestionBanner': stub('question'),
@@ -49,7 +60,9 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
         '../features/voting/brother/RusheeScores': stub('scores'),
         '../features/voting/brother/RusheeBidCommitteeNotes': stub('notes'),
         '../features/voting/brother/VotingPanel': VotingPanel,
-        '../contexts/MidtermModeContext': { useMidtermMode: () => ({ isMidtermMode: midtermMode }) },
+        '../contexts/MidtermModeContext': { useMidtermMode:
+            /* Return the use midterm mode fixture for this scenario. */
+            () => ({ isMidtermMode: midtermMode }) },
         '../config/realtimeBaseUrls': { realtimeBaseUrls: { voting: 'ws://voting' } },
     };
     const source = await readFile(pagePath, 'utf8');
@@ -61,7 +74,8 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
     runInNewContext(code, {
         module,
         exports: module.exports,
-        localStorage: { getItem: () => storedUser },
+        localStorage: { getItem: /* Return stored user to the caller. */ () => storedUser },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -74,6 +88,7 @@ async function renderVotingPage({ storedUser = '{"_id":"brother-1"}', midtermMod
 }
 
 test('voter page retains empty, midterm, and socket-status layouts', async () => {
+    // Verify voter page retains empty, midterm, and socket-status layouts.
     const scenarios = {
         absentUser: { storedUser: null },
         midterm: { midtermMode: true },

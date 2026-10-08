@@ -17,6 +17,7 @@ const contactPath = fileURLToPath(new URL("../../src/features/registration/Basic
 const expectedHash = "ea94be2a5ee2dd4436a9e19eed43d9388e04c88f6121dcf7d0d3a7df57f4fafd";
 
 test("basic information form keeps its original labels, fields, options, and markup", async () => {
+    // Verify basic information form keeps its original labels, fields, options, and markup.
     const BasicContactFields = await loadTsxComponent(contactPath, {
         "../../lib/formatPhoneInput.js": { formatPhoneInput },
     });
@@ -32,7 +33,8 @@ test("basic information form keeps its original labels, fields, options, and mar
     const refs = Object.fromEntries([
         "firstname", "lastname", "email", "housing", "phone",
         "gtid", "major", "pronouns", "year", "exposure",
-    ].map((name) => [name, { current: null }]));
+    ].map(/* Return the fixture for this scenario. */ (name) => [name, { current: null }]));
+    // Provide an inert on continue stub for this test.
     const onContinue = () => {};
     const html = renderToStaticMarkup(React.createElement(BasicInfoForm, {
         ...refs,
@@ -41,6 +43,7 @@ test("basic information form keeps its original labels, fields, options, and mar
 
     assert.equal(createHash("sha256").update(html).digest("hex"), expectedHash);
 
+    // Find the first button in the rendered element tree.
     const findButton = (node) => {
         if (Array.isArray(node)) return node.map(findButton).find(Boolean);
         if (!React.isValidElement(node)) return null;

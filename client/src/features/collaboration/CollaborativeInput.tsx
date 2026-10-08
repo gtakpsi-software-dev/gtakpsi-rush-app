@@ -21,6 +21,7 @@ type CollaborativeInputProps = {
     required?: boolean;
 };
 
+// Manage a shared text input’s local edits, remote values, cursor presence, and timers.
 const CollaborativeInput = ({
     fieldKey,
     value,
@@ -42,6 +43,7 @@ const CollaborativeInput = ({
     const lastProcessedVersionRef = useRef(0);
 
     const handleTextChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        // Update local input state and debounce its outgoing collaboration update.
         if (processingRemoteOp.current) {
             return;
         }
@@ -69,6 +71,7 @@ const CollaborativeInput = ({
     }, [fieldKey, onChange, collaboration]);
 
     const handleCursorChange = useCallback(() => {
+        // Broadcast the input cursor unless a remote update is being applied.
         if (!processingRemoteOp.current && inputRef.current) {
             collaboration.sendCursorPosition(fieldKey, inputRef.current.selectionStart);
         }
@@ -87,6 +90,7 @@ const CollaborativeInput = ({
     });
 
     useEffect(() => {
+        // Reconcile the parent value with local input state.
         syncPropValue({
             value,
             localValue,
@@ -98,6 +102,7 @@ const CollaborativeInput = ({
     }, [value, localValue]);
 
     useEffect(() => {
+        // Apply the latest remote field value with a short delay after local typing.
         return reconcileRemoteFieldUpdate({
             remoteUpdates: collaboration.remoteUpdates,
             fieldKey,
@@ -108,13 +113,16 @@ const CollaborativeInput = ({
             pendingLocalChangeRef,
             lastSentValueRef: lastSentValue,
             setLocalValue,
+            // Forward the accepted remote value to the parent.
             onRemoteChange: (nextValue) => onChange(nextValue),
             deferMs: 500,
         });
     }, [collaboration.remoteUpdates, fieldKey, localValue, onChange]);
 
     useEffect(() => {
+        // Register cleanup for local edit timers.
         return () => {
+            // Cancel pending debounce and local-edit expiration timers on unmount.
             clearLocalChangeTimers({
                 debounceTimerRef, pendingLocalChangeTimeoutRef, cancel: clearTimeout,
             });

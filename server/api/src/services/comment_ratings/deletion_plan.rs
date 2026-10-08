@@ -4,6 +4,7 @@ use crate::services::rush_time::same_day;
 use mongodb::bson::{doc, Document};
 use std::collections::HashSet;
 
+// Recalculate affected categories after excluding the deleted brother's same-day comments.
 pub(crate) fn rating_recalculations_after_deletion(
     comments: Vec<Comment>,
     deleted: &Comment,
@@ -33,6 +34,7 @@ pub(crate) fn rating_recalculations_after_deletion(
         .collect()
 }
 
+// Build the MongoDB update that replaces an average or removes an empty category.
 pub(crate) fn rating_update_for_deletion(
     id: &str,
     category: &str,

@@ -9,6 +9,7 @@ const hookPath = fileURLToPath(new URL(
 ));
 
 test("registration form state keeps hook order and pairs each field with its setter", async () => {
+    // Verify registration form state keeps hook order and pairs each field with its setter.
     const initials = [];
     const setters = [];
     const refs = [];
@@ -20,12 +21,15 @@ test("registration form state keeps hook order and pairs each field with its set
     };
     const useRegistrationFormState = await loadTsxComponent(hookPath, {
         react: {
+            // Supply controlled state and a setter without mounting React.
             useState(initial) {
                 const index = initials.push(initial) - 1;
+                // Provide an inert setter stub for this test.
                 const setter = () => {};
                 setters.push(setter);
                 return [Object.hasOwn(states, index) ? states[index] : initial, setter];
             },
+            // Provide a mutable ref without mounting a React component.
             useRef() {
                 const ref = { current: `ref-${refs.length}` };
                 refs.push(ref);
@@ -42,9 +46,9 @@ test("registration form state keeps hook order and pairs each field with its set
         "Default Error Message...", undefined, null, false, undefined,
     ]);
     assert.equal(refs.length, 11);
-    assert.deepEqual(Array.from(state.basicInfoFields, ([input, setter]) => [
+    assert.deepEqual(Array.from(state.basicInfoFields, /* Return the fixture for this scenario. */ ([input, setter]) => [
         input.current, setters.indexOf(setter),
-    ]), Array.from({ length: 10 }, (_, index) => [`ref-${index}`, index]));
+    ]), Array.from({ length: 10 }, /* Return the fixture for this scenario. */ (_, index) => [`ref-${index}`, index]));
     assert.deepEqual(Object.keys(state.inputs), [
         "firstname", "lastname", "email", "housing", "phone",
         "gtid", "major", "pronouns", "year", "exposure",
