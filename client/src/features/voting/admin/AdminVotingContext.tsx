@@ -3,6 +3,7 @@ import type { AdminVotingContextType } from "./types";
 
 export const AdminVotingContext = createContext<AdminVotingContextType | null>(null);
 
+// Read admin voting state, rejecting use outside its provider.
 export const useAdminVotingContext = () => {
   const context = useContext(AdminVotingContext);
   if (!context) {

@@ -12,6 +12,7 @@ type Props = {
     handleSelect: (selected: Rushee) => void | Promise<void>;
 };
 
+// Render the rushee search input, result list, and dismissal backdrop.
 export default function RusheePreviewSearch({
     searchQuery,
     setSearchQuery,
@@ -32,7 +33,7 @@ export default function RusheePreviewSearch({
                     type="text"
                     placeholder="Search by name or GTID..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={/* Update the rushee search query. */ (e) => setSearchQuery(e.target.value)}
                     onFocus={handleSearchClick}
                     className="w-full px-4 py-3 border border-apple-gray-300 rounded-apple text-apple-body focus:outline-none focus:border-black transition-colors duration-150"
                 />
@@ -52,10 +53,11 @@ export default function RusheePreviewSearch({
                     ) : filteredRushees && filteredRushees.length > 0 ? (
                         <ul>
                             {filteredRushees.map((r, idx) => {
+                                // Render a selectable search result with its name and GTID.
                                 return (
                                     <li
                                         key={idx}
-                                        onClick={() => handleSelect(r)}
+                                        onClick={/* Select this rushee for voting. */ () => handleSelect(r)}
                                         className="px-4 py-3 hover:bg-apple-gray-50 text-apple-body text-black cursor-pointer border-b border-apple-gray-100 last:border-b-0 flex justify-between items-center"
                                     >
                                         <span>{previewRusheeName(r)}</span>

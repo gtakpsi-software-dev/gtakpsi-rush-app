@@ -6,6 +6,7 @@ import VoteSummary from './VoteSummary';
 import BrotherList from './BrotherList';
 import type { ConnectionStatus } from './types';
 
+// Render voting administration panels and connection-status banners.
 export default function AdminVotingDashboardView({ connectionStatus }: { connectionStatus: ConnectionStatus }) {
     return (
         <div className="w-screen h-screen flex overflow-visible">

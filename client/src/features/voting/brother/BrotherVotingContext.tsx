@@ -3,6 +3,7 @@ import type { BrotherVotingContextType } from "./types";
 
 export const BrotherVotingContext = createContext<BrotherVotingContextType | null>(null);
 
+// Read brother voting state, rejecting use outside its provider.
 export const useBrotherVotingContext = () => {
 
     const context = useContext(BrotherVotingContext);

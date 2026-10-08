@@ -2,6 +2,7 @@ import React from "react";
 import { useBrotherVotingContext } from "./BrotherVotingContext";
 import { useCommentVisibility } from "../../comments/useCommentVisibility";
 
+// Display permitted rating bars and their average score for the current rushee.
 export default function RusheeScores() {
     const { rushee } = useBrotherVotingContext();
     const { showAll } = useCommentVisibility();
@@ -34,6 +35,7 @@ export default function RusheeScores() {
     return (
         <div className="space-y-5">
             {rushee.ratings.map((rating, idx) => {
+                // Render a score bar colored by the existing 40% and 70% thresholds.
                 const percentage = ((rating.value / 5) * 100);
                 const isGood = percentage >= 70;
                 const isMedium = percentage >= 40 && percentage < 70;
@@ -70,7 +72,9 @@ export default function RusheeScores() {
                             Overall Score
                         </span>
                         <span className="text-2xl font-bold text-black">
-                            {(rushee.ratings.reduce((sum, r) => sum + r.value, 0) / rushee.ratings.length).toFixed(2)}/5.00
+                            {(rushee.ratings.reduce(
+                                /* Sum rating values for the overall arithmetic mean. */
+                                (sum, r) => sum + r.value, 0) / rushee.ratings.length).toFixed(2)}/5.00
                         </span>
                     </div>
                 </div>

@@ -11,6 +11,7 @@ import { parseAdminAllowlist } from "../features/auth/parseAdminAllowlist";
 
 const ALLOWLIST = parseAdminAllowlist(import.meta.env.VITE_ADMIN_ALLOWLIST);
 
+// Verify admin access and connect live voting state before rendering the dashboard.
 function Content() {
 
     const { setVotes, setRushee, setQuestion } = useAdminVotingContext();
@@ -33,10 +34,12 @@ function Content() {
     }, [storedUser]);
 
     useEffect(() => {
+        // Subscribe to authentication until the initial admin check is complete.
         // Only run auth check once
         if (authChecked) return;
 
         const unsubscribe = auth.onAuthStateChanged(async (current) => {
+            // Authorize an admin claim or allowlisted email, otherwise redirect to login.
             if (!storedUser || !current) {
                 setAuthLoading(false);
                 setAuthChecked(true);
@@ -63,7 +66,7 @@ function Content() {
                 setAuthLoading(false);
             }
         });
-        return () => unsubscribe();
+        return /* Remove the authentication listener. */ () => unsubscribe();
     }, [storedUser, navigate, authChecked]);
 
     useAdminVotingSocket({
@@ -84,6 +87,7 @@ function Content() {
 
 }
 
+// Provide shared admin voting state around the dashboard.
 export default function AdminVotingDashboard() {
 
     return (

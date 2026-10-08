@@ -5,6 +5,7 @@ type VotingPanelProps = {
   children: ReactNode;
 };
 
+// Render a titled, scrollable panel for voting-page details.
 export default function VotingPanel({ title, children }: VotingPanelProps) {
   return (
     <div className="card-apple flex flex-col min-h-[320px]">

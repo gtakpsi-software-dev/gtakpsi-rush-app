@@ -9,6 +9,7 @@ import RusheePreviewSearch from "./RusheePreviewSearch";
 import { filterPreviewRushees } from "./previewRusheeSearch";
 import type { Rushee } from "./types";
 
+// Manage rushee search and selection for the current voting subject.
 export default function RusheePreviewCard() {
     const { rushee } = useAdminVotingContext();
     const [searchOpen, setSearchOpen] = useState(false);
@@ -19,10 +20,11 @@ export default function RusheePreviewCard() {
     const api = import.meta.env.VITE_API_PREFIX;
 
     const filteredRushees = useMemo(
-        () => filterPreviewRushees(allRushees, searchQuery),
+        /* Filter cached rushees by the current search query. */ () => filterPreviewRushees(allRushees, searchQuery),
         [allRushees, searchQuery],
     );
 
+    // Open search and fetch the rushee list if it has not been loaded.
     const handleSearchClick = async () => {
         setSearchOpen(true);
         if (!allRushees) {
@@ -42,11 +44,13 @@ export default function RusheePreviewCard() {
         }
     };
 
+    // Close search and clear its query.
     const handleCloseSearch = () => {
         setSearchOpen(false);
         setSearchQuery("");
     };
 
+    // Change the current voting rushee, show request feedback, and close search on success.
     const handleSelect = async (selected: Rushee) => {
         const payload = { gtid: selected.gtid };
 

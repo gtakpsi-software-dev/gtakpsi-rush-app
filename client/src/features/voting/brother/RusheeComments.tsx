@@ -7,6 +7,7 @@ import { getVisibleComments, shouldShowAllComments } from "../../comments/commen
 import axios from "axios";
 import { auth } from "../../../firebase";
 
+// Display comments allowed by current role and visibility settings with rating badges.
 export default function RusheeComments() {
     const { rushee } = useBrotherVotingContext();
     const commentsRef = useRef<HTMLDivElement[]>([]);
@@ -18,6 +19,8 @@ export default function RusheeComments() {
     const user = storedUser ? JSON.parse(storedUser) : null;
 
     useEffect(() => {
+        // Load visibility settings and current role claims on mount.
+        // Fetch the comment restriction and refresh administrator or committee claims.
         async function fetchVisibility() {
             const api = import.meta.env.VITE_API_PREFIX;
             try {
@@ -50,6 +53,7 @@ export default function RusheeComments() {
         : [];
 
     useEffect(() => {
+        // Animate visible comment cards when the comments or visible count change.
         if (comments && visibleComments.length > 0) {
             gsap.fromTo(
                 commentsRef.current,
@@ -83,14 +87,15 @@ export default function RusheeComments() {
 
     return (
         <div className="space-y-4">
-            {visibleComments.map((comment, idx) => (
+            {visibleComments.map(/* Render one permitted comment with its night and ratings. */ (comment, idx) => (
                 <div
                     key={idx}
-                    ref={(el) => (commentsRef.current[idx] = el!)}
+                    ref={/* Retain this comment element for entrance animation. */ (el) => (commentsRef.current[idx] = el!)}
                     className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple"
                 >
                     <div className="flex items-center gap-2 mb-3">
                         <Badges text={comment.night ? (() => {
+                            // Choose a rush-night label from supported comment-night representations.
                             if (typeof comment.night === 'string') {
                                 return comment.night;
                             } else if (comment.night && typeof comment.night === 'object') {
@@ -106,7 +111,7 @@ export default function RusheeComments() {
 
                     {comment.ratings && comment.ratings.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-apple-gray-200">
-                            {comment.ratings.map((rating) => (
+                            {comment.ratings.map(/* Render a formatted rating badge colored by score. */ (rating) => (
                                 <span
                                     key={rating.name}
                                     className={`px-3 py-1 rounded-apple text-sm font-medium ${ratingBadgeClass(rating.value)}`}

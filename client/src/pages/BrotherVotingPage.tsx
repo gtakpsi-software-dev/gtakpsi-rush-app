@@ -15,6 +15,7 @@ import { useMidtermMode } from "../contexts/MidtermModeContext";
 import { realtimeBaseUrls } from "../config/realtimeBaseUrls";
 import { useBrotherVotingSocket } from "../features/voting/brother/useBrotherVotingSocket";
 
+// Connect live voting state and render the rush or midterm voting layout.
 function Content() {
   const { setRushee, setQuestion } = useBrotherVotingContext();
   const { isMidtermMode } = useMidtermMode();
@@ -33,6 +34,7 @@ function Content() {
   }, [storedUser]);
 
   useEffect(() => {
+      // Redirect to login when no stored user is available.
     if (!storedUser) {
       navigate("/login");
       return;
@@ -128,6 +130,7 @@ function Content() {
   );
 }
 
+// Provide shared brother voting state around the voting page.
 export default function BrotherVotingPage() {
   return (
     <BrotherVotingContextProvider>

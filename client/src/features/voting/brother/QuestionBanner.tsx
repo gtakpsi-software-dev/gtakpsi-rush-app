@@ -10,6 +10,7 @@ interface Props {
     midtermMode?: boolean;
 }
 
+// Manage vote submission and voted state for the current question.
 export default function QuestionBanner({ midtermMode = false }: Props) {
     const { question } = useBrotherVotingContext();
     const [hasVoted, setHasVoted] = useState(false);
@@ -19,6 +20,7 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
 
     // A missing stored user still renders NotFound, but must not skip a hook.
     useEffect(() => {
+        // Reset local voted state when the question changes.
         setHasVoted(false);
         setSubmittedVote(null);
     }, [question]);
@@ -31,6 +33,7 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
 
     const api = import.meta.env.VITE_API_PREFIX;
 
+    // Require an active question and submit the selected vote with feedback.
     const handleVote = async (vote: string) => {
 
         if (!question) {
@@ -53,6 +56,7 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
 
         await toast.promise(
             (async () => {
+                // Post the vote, handle duplicate or ineligible responses, and update voted state.
 
                 const response = await axios.post(`${api}/rushee/vote`, payload);
                 console.log(response.data)
@@ -82,6 +86,7 @@ export default function QuestionBanner({ midtermMode = false }: Props) {
                 pending: "Sending vote to admin...",
                 success: "Vote sent successfully!",
                 error: {
+                    // Show the vote error’s message or a fallback upload error.
                     render({ data }) {
                         // data is the error object thrown
                         return (data as any).message || "Failed to upload vote.";

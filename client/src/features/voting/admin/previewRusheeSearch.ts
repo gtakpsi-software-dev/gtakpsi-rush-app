@@ -6,11 +6,13 @@ type PreviewRushee = Rushee & {
     name?: string;
 };
 
+// Filter selectable rushees by name or GTID, retaining the full list for blank queries.
 export function filterPreviewRushees(allRushees: Rushee[] | null, searchQuery: string) {
     if (!allRushees || !searchQuery.trim()) return allRushees;
 
     const query = searchQuery.toLowerCase();
     return allRushees.filter((rushee) => {
+        // Match current or legacy name fields and GTID against the search text.
         const legacy = rushee as PreviewRushee;
         const firstName = rushee.first_name || legacy.firstname || "";
         const lastName = rushee.last_name || legacy.lastname || "";
@@ -22,6 +24,7 @@ export function filterPreviewRushees(allRushees: Rushee[] | null, searchQuery: s
     });
 }
 
+// Choose a display name from current or legacy fields, falling back to Unknown Name.
 export function previewRusheeName(rushee: Rushee) {
     const legacy = rushee as PreviewRushee;
     return rushee.first_name && rushee.last_name

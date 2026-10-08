@@ -10,6 +10,7 @@ const TAGS: { [key: string]: { label: string; color: string } } = {
     hard_no: { label: "Hard No", color: "bg-red-100 text-red-600 border-red-200" },
 };
 
+// Display the current rushee’s committee notes and recognized sorting tags.
 export default function RusheeBidCommitteeNotes() {
     const { rushee } = useBrotherVotingContext();
 
@@ -41,6 +42,7 @@ export default function RusheeBidCommitteeNotes() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                         {rushee.sorting_tags!.map((tagKey) => {
+                            // Render a badge when this sorting tag has display metadata.
                             const tagInfo = TAGS[tagKey];
                             if (!tagInfo) return null;
                             return (

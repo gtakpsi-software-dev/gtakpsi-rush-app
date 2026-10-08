@@ -15,6 +15,7 @@ type AdminVotingSocketOptions = Pick<
     setConnectionStatus: Dispatch<SetStateAction<ConnectionStatus>>;
 };
 
+// Connect the voting socket with the administrator role and vote-list updates.
 export function useAdminVotingSocket(options: AdminVotingSocketOptions) {
     useVotingSocket({ ...options, role: 'admin' });
 }

@@ -4,12 +4,14 @@ import Badges from "../../../components/Badge";
 import gsap from "gsap";
 import { formatRatingValue } from "../../comments/ratingDisplay";
 
+// Display the selected rushee’s comments and ratings with entrance animation.
 export default function RusheeComments() {
   const { rushee } = useAdminVotingContext();
   const commentsRef = useRef<HTMLDivElement[]>([]);
   const comments = rushee?.comments;
 
   useEffect(() => {
+      // Animate comment cards when the selected comments change.
     if (comments && comments.length > 0) {
       gsap.fromTo(
         commentsRef.current,
@@ -29,15 +31,16 @@ export default function RusheeComments() {
 
   return (
     <div className="mt-6 space-y-4">
-      {rushee.comments.map((comment, idx) => (
+      {rushee.comments.map(/* Render a comment with its rush-night badge and ratings. */ (comment, idx) => (
         <div
           key={idx}
-          ref={(el) => (commentsRef.current[idx] = el!)}
+          ref={/* Retain this comment element for entrance animation. */ (el) => (commentsRef.current[idx] = el!)}
           className="relative bg-apple-gray-50 border border-apple-gray-200 p-4 rounded-apple hover:bg-apple-gray-100 cursor-pointer transition-all duration-200"
         >
           {/* Night Badge */}
           <div className="flex items-center gap-2 mb-3">
             <Badges text={comment.night ? (() => {
+                // Choose a rush-night label from supported comment-night representations.
               // Handle different night data formats
               if (typeof comment.night === 'string') {
                 return comment.night;
@@ -56,7 +59,7 @@ export default function RusheeComments() {
 
           {/* Ratings */}
           <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-apple-gray-200">
-            {comment.ratings.map((rating) => (
+            {comment.ratings.map(/* Render a formatted comment rating. */ (rating) => (
               <span
                 key={rating.name}
                 className="bg-apple-gray-100 text-apple-gray-700 px-2 py-1 rounded-apple text-apple-footnote font-light"
