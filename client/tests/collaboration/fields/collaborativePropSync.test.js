@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { syncPropValue } from '../../../src/features/collaboration/syncPropValue.js';
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup(overrides = {}) {
     const changes = [];
     const options = {
@@ -11,6 +12,7 @@ function setup(overrides = {}) {
         processingRemoteOpRef: { current: false },
         pendingLocalChangeRef: { current: false },
         lastSentValueRef: { current: 'Local' },
+        // Record set local value calls for assertions.
         setLocalValue: (value) => changes.push(value),
         ...overrides,
     };
@@ -18,6 +20,7 @@ function setup(overrides = {}) {
 }
 
 test('remote processing blocks a simultaneous prop overwrite', () => {
+    // Verify remote processing blocks a simultaneous prop overwrite.
     const { changes, options } = setup({ processingRemoteOpRef: { current: true } });
     syncPropValue(options);
     assert.deepEqual(changes, []);
@@ -25,6 +28,7 @@ test('remote processing blocks a simultaneous prop overwrite', () => {
 });
 
 test('pending local typing waits for a matching parent echo', () => {
+    // Verify pending local typing waits for a matching parent echo.
     const pendingLocalChangeRef = { current: true };
     const { changes, options } = setup({ pendingLocalChangeRef });
     syncPropValue(options);
@@ -37,6 +41,7 @@ test('pending local typing waits for a matching parent echo', () => {
 });
 
 test('a later prop value updates local text and the last-sent reference', () => {
+    // Verify a later prop value updates local text and the last-sent reference.
     const { changes, options } = setup();
     syncPropValue(options);
     assert.deepEqual(changes, ['Parent']);

@@ -8,6 +8,7 @@ import {
 } from "../../../src/features/pis/collaborationProtocol.js";
 
 test("remote text updates ignore self and stale versions but advance legacy versions", () => {
+    // Verify remote text updates ignore self and stale versions but advance legacy versions.
     const known = { answer: 2 };
     const resending = new Set();
 
@@ -24,6 +25,7 @@ test("remote text updates ignore self and stale versions but advance legacy vers
 });
 
 test("acknowledgements only clear the matching pending update", () => {
+    // Verify acknowledgements only clear the matching pending update.
     const known = { answer: 1 };
     const pending = { answer: { clientUpdateId: "new", value: "local" } };
     const resending = new Set(["answer"]);
@@ -39,13 +41,14 @@ test("acknowledgements only clear the matching pending update", () => {
 });
 
 test("a matching rejection resends the local value on the server version", () => {
+    // Verify a matching rejection resends the local value on the server version.
     const known = {};
     const pending = { answer: { clientUpdateId: "old", value: "local" } };
     const resending = new Set();
     const result = rejectTextUpdate(
         { field: "answer", serverValue: "remote", serverVersion: 5, clientUpdateId: "old" },
         { id: "me", firstName: "Ada", lastName: "Lovelace" },
-        known, pending, resending, () => "new"
+        known, pending, resending, /* Return the fixed string fixture. */ () => "new"
     );
 
     assert.deepEqual(result, { resend: {
@@ -58,6 +61,7 @@ test("a matching rejection resends the local value on the server version", () =>
 });
 
 test("a rejection without a matching pending update accepts the server value", () => {
+    // Verify a rejection without a matching pending update accepts the server value.
     const known = {};
     const pending = { answer: { clientUpdateId: "new", value: "local" } };
     const resending = new Set();
@@ -72,6 +76,7 @@ test("a rejection without a matching pending update accepts the server value", (
 });
 
 test("document snapshots preserve legacy values and versioned empty values", () => {
+    // Verify document snapshots preserve legacy values and versioned empty values.
     assert.deepEqual(normalizeDocumentState({
         legacy: "old",
         empty: null,

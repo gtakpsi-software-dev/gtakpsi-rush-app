@@ -7,25 +7,30 @@ import { loadTsxModule } from '../helpers/loadTsxComponent.js';
 const hookPath = fileURLToPath(new URL('../../src/features/pis/usePisPageBootstrap.js', import.meta.url));
 
 test('PIS bootstrap retains its loading gate, request inputs, and effect dependencies', async () => {
+    // Verify PIS bootstrap retains its loading gate, request inputs, and effect dependencies.
     const effects = [];
     const calls = [];
+    // Provide an inert verify user stub for this test.
     const verifyUser = () => {};
+    // Provide an inert navigate stub for this test.
     const navigate = () => {};
     const auth = { currentUser: { id: 'brother' } };
-    const axios = { get: (...args) => calls.push(['get', ...args]) };
+    const axios = { get: /* Record get calls for assertions. */ (...args) => calls.push(['get', ...args]) };
     const setters = Object.fromEntries([
         'setCurrentUser', 'setRushee', 'setAnswers', 'setBrotherA', 'setBrotherB',
         'setQuestions', 'setQuestionsAvailable', 'setRevealAt', 'setLoading',
-    ].map((name) => [name, () => {}]));
+    ].map(/* Return the fixture for this scenario. */ (name) => [name, /* Leave this mocked callback inert. */ () => {}]));
     const { usePisPageBootstrap } = await loadTsxModule(hookPath, {
-        react: { useEffect: (effect, dependencies) => effects.push({ effect, dependencies }) },
+        react: { useEffect:
+            /* Capture effects so the test can run them explicitly. */
+            (effect, dependencies) => effects.push({ effect, dependencies }) },
         axios,
         '../auth/verifyUser': { verifyUser },
         '../../firebase': { auth },
-        './loadPisPageData': { loadPisPageData: (options) => calls.push(['load', options]) },
+        './loadPisPageData': { loadPisPageData: /* Record load pis page data calls for assertions. */ (options) => calls.push(['load', options]) },
     }, {
-        localStorage: { getItem: () => 'stored-user' },
-        console: { log: () => {} },
+        localStorage: { getItem: /* Return the fixed item fixture. */ () => 'stored-user' },
+        console: { log: /* Provide an inert log stub for this test. */ () => {} },
     });
     const options = {
         navigate, api: '/api', gtid: '123', currentUser: null, ...setters,

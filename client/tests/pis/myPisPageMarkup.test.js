@@ -24,20 +24,26 @@ const appointment = {
     pis_timeslot: { $date: { $numberLong: "123456789" } },
 };
 
+// Load page with injected dependencies for isolated tests.
 async function loadPage(state = {}, captured = new Map(), runtime = {}) {
+    // Create a lightweight component that captures props for assertions.
     const stub = (name) => function Stub(props) {
+        // Capture component props and render a placeholder element.
         captured.set(name, props);
         return React.createElement("span", { "data-stub": name });
     };
     const Card = await loadTsxComponent(cardPath, {
         "../../components/Badge": stub("badge"),
     });
+    // Capture appointment-card props before rendering the real card.
     const CardWithCapture = (props) => {
         captured.set("appointment-card", props);
         return React.createElement(Card, props);
     };
     const appointmentFormatting = {
+        // Return the fixed format pis appointment time fixture.
         formatPisAppointmentTime: () => "Wednesday at noon",
+        // Return the pis appointment relative time fixture for this scenario.
         getPisAppointmentRelativeTime: () => ({ text: "Completed", color: "text-green-600" }),
     };
     const View = await loadTsxComponent(viewPath, {
@@ -48,20 +54,25 @@ async function loadPage(state = {}, captured = new Map(), runtime = {}) {
         "./appointments": appointmentFormatting,
     });
     let stateIndex = 0;
+    // Supply an inert callback where this test does not exercise the handler.
     const noop = () => {};
     const dependencies = {
         react: {
             ...React,
+            // Expose controlled hook state and capture updates for assertions.
             useState(initial) {
                 const index = stateIndex++;
                 return [Object.hasOwn(state, index) ? state[index] : initial,
-                    (value) => runtime.updates?.push([index, value])];
+                    /* Capture state updates when the runtime supplies an update log. */ (value) => runtime.updates?.push([index, value])];
             },
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect) => runtime.effects?.push(effect),
+            // Provide a mutable ref without mounting a React component.
             useRef: (value) => ({ current: value }),
         },
         "react-router-dom": {
-            useNavigate: () => runtime.navigate ?? ((path) => captured.set("navigation", path)),
+            // Use the configured navigator or record navigation in the harness.
+            useNavigate: () => runtime.navigate ?? (/* Invoke captured.set with the test inputs. */ (path) => captured.set("navigation", path)),
         },
         "../components/Badge": stub("badge"),
         "../features/auth/verifyUser": { verifyUser: runtime.verify ?? noop },
@@ -83,8 +94,10 @@ async function loadPage(state = {}, captured = new Map(), runtime = {}) {
         module,
         exports: module.exports,
         localStorage: {
+            // Return the configured stored user or the default interview user.
             getItem: () => runtime.user ?? '{"firstname":"A","lastname":"B"}',
         },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             return requireFromPage(specifier);
@@ -95,6 +108,7 @@ async function loadPage(state = {}, captured = new Map(), runtime = {}) {
 }
 
 test("my PIS page retains error, loading, empty, and appointment markup", async () => {
+    // Verify my PIS page retains error, loading, empty, and appointment markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const scenarios = {
         error: { 2: true },
@@ -113,6 +127,7 @@ test("my PIS page retains error, loading, empty, and appointment markup", async 
 });
 
 test("appointment card receives its row and keeps profile navigation", async () => {
+    // Verify appointment card receives its row and keeps profile navigation.
     const captured = new Map();
     const Page = await loadPage({ 0: [appointment], 1: false }, captured);
     renderToStaticMarkup(React.createElement(Page));
@@ -128,14 +143,18 @@ test("appointment card receives its row and keeps profile navigation", async () 
 });
 
 test("my PIS page fetch uses its initial user and preserves update order", async () => {
+    // Verify my PIS page fetch uses its initial user and preserves update order.
     const calls = [];
     const runtime = {
         effects: [], updates: [],
+        // Record verification and allow appointment loading.
         verify: async () => { calls.push("verify"); return true; },
+        // Record appointment loading and return the fixture appointment.
         post: async (url, payload) => {
             calls.push([url, payload]);
             return { data: { status: "success", payload: [appointment] } };
         },
+        // Record sorting while preserving the supplied order.
         sort: (value) => { calls.push("sort"); return value; },
     };
     const Page = await loadPage({}, new Map(), runtime);

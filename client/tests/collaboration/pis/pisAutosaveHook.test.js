@@ -9,6 +9,7 @@ import { transformWithEsbuild } from 'vite';
 
 const hookPath = fileURLToPath(new URL('../../../src/features/pis/usePisAutosave.js', import.meta.url));
 
+// Load hook with injected dependencies for isolated tests.
 async function loadHook() {
     const effects = [];
     const timers = new Map();
@@ -22,22 +23,28 @@ async function loadHook() {
     const requireFromHook = createRequire(hookPath);
     const dependencies = {
         react: {
+            // Keep the callback callable without a React render cycle.
             useCallback: (callback) => callback,
+            // Capture effects so the test can run them explicitly.
             useEffect: (effect, dependencies) => effects.push({ effect, dependencies }),
         },
         './performPisAutosave': {
+            // Record perform pis autosave calls for assertions.
             performPisAutosave: (args) => calls.push(args),
         },
     };
     runInNewContext(code, {
         module,
         exports: module.exports,
+        // Store autosave callbacks and return deterministic timer IDs.
         setTimeout(callback, delay) {
             const id = ++nextTimerId;
             timers.set(id, { callback, delay });
             return id;
         },
+        // Invoke timers.delete with the test inputs.
         clearTimeout: (id) => timers.delete(id),
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             return Object.hasOwn(dependencies, specifier)
                 ? dependencies[specifier]
@@ -48,12 +55,15 @@ async function loadHook() {
 }
 
 test('PIS autosave waits for the initial load, then debounces changes and cleans up', async () => {
+    // Verify PIS autosave waits for the initial load, then debounces changes and cleans up.
     const { usePisAutosave, effects, timers, calls } = await loadHook();
     const initialLoad = { current: true };
     const timeout = { current: null };
     const questions = [{ question: 'Prompt' }];
     const answers = { Prompt: 'First' };
+    // Provide an inert set save status stub for this test.
     const setSaveStatus = () => {};
+    // Provide an inert set last saved stub for this test.
     const setLastSaved = () => {};
     const args = {
         questions, answers, brotherA: { firstName: 'Ada' }, brotherB: {},
@@ -72,7 +82,7 @@ test('PIS autosave waits for the initial load, then debounces changes and cleans
     effects[0].effect();
     assert.equal(timers.size, 0);
     effects[1].effect();
-    assert.deepEqual([...timers.values()].map(({ delay }) => delay), [1000]);
+    assert.deepEqual([...timers.values()].map(/* Return delay to the caller. */ ({ delay }) => delay), [1000]);
     [...timers.values()][0].callback();
     assert.equal(initialLoad.current, false);
 
@@ -81,7 +91,7 @@ test('PIS autosave waits for the initial load, then debounces changes and cleans
     const changedAnswers = { Prompt: 'Updated' };
     usePisAutosave({ ...args, loading: false, answers: changedAnswers });
     const cleanup = effects[0].effect();
-    assert.deepEqual([...timers.values()].map(({ delay }) => delay), [2000]);
+    assert.deepEqual([...timers.values()].map(/* Return delay to the caller. */ ({ delay }) => delay), [2000]);
     const saveTimer = timeout.current;
     cleanup();
     assert.equal(timers.has(saveTimer), false);

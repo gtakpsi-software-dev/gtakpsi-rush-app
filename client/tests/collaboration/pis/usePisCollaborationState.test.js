@@ -7,30 +7,42 @@ import { loadTsxModule } from '../../helpers/loadTsxComponent.js';
 const hookPath = fileURLToPath(new URL('../../../src/features/pis/usePisCollaborationState.js', import.meta.url));
 
 test('PIS collaboration retains room identity, connection request, and update effect order', async () => {
+    // Verify PIS collaboration retains room identity, connection request, and update effect order.
     const calls = [];
     const effects = [];
     const currentUser = { id: 'brother' };
     const documentState = { brotherA: 'Ada' };
     const remoteUpdates = [{ field: 'answer', value: 'Yes' }];
     const setters = {
-        setBrotherA: () => {}, setBrotherB: () => {}, setAnswers: () => {},
+        // Provide an inert set brother a stub for this test.
+        setBrotherA: () => {}, setBrotherB:
+            /* Provide an inert set brother b stub for this test. */
+            () => {}, setAnswers:
+            /* Provide an inert set answers stub for this test. */
+            () => {},
     };
     let collaboration = {
         isConnected: false,
         documentState,
         remoteUpdates,
+        // Record request document state calls for assertions.
         requestDocumentState: () => calls.push(['request']),
     };
     const { usePisCollaborationState } = await loadTsxModule(hookPath, {
-        react: { useEffect: (effect, dependencies) => effects.push({ effect, dependencies }) },
+        react: { useEffect:
+            /* Capture effects so the test can run them explicitly. */
+            (effect, dependencies) => effects.push({ effect, dependencies }) },
         './useCollaboration': {
+            // Record the collaboration room and user and return the fixture connection.
             useCollaboration: (roomId, user) => {
                 calls.push(['connect', roomId, user]);
                 return collaboration;
             },
         },
         './collaborationState': {
+            // Record apply document state calls for assertions.
             applyDocumentState: (state, inputs) => calls.push(['document', state, inputs]),
+            // Record apply remote updates calls for assertions.
             applyRemoteUpdates: (updates, inputs) => calls.push(['remote', updates, inputs]),
         },
     });

@@ -8,12 +8,14 @@ import { transformWithEsbuild } from "vite";
 
 const hookPath = fileURLToPath(new URL("../../../src/features/pis/useCollaborationCommands.js", import.meta.url));
 
+// Load hook with injected dependencies for isolated tests.
 async function loadHook(connected) {
     const source = await readFile(hookPath, "utf8");
     const { code } = await transformWithEsbuild(source, hookPath, { format: "cjs" });
     const module = { exports: {} };
     const events = [];
     const socket = {
+        // Record emit calls for assertions.
         emit(name, payload) {
             events.push([name, payload === undefined ? undefined : JSON.parse(JSON.stringify(payload))]);
         },
@@ -22,6 +24,7 @@ async function loadHook(connected) {
     const pendingUpdatesRef = { current: {} };
     const dependencies = {
         react: {
+            // Keep the callback callable without a React render cycle.
             useCallback: (callback) => callback,
         },
     };
@@ -29,8 +32,11 @@ async function loadHook(connected) {
     runInNewContext(code, {
         module,
         exports: module.exports,
-        Math: { random: () => 0.5 },
-        Date: class { static now() { return 123; } },
+        Math: { random: /* Return a fixed value to keep the test deterministic. */ () => 0.5 },
+        Date: class { static now() {
+            // Return a fixed value to keep the test deterministic.
+             return 123; } },
+        // Resolve injected test dependencies before falling back to real modules.
         require(specifier) {
             if (Object.hasOwn(dependencies, specifier)) return dependencies[specifier];
             throw new Error(`Unexpected import: ${specifier}`);
@@ -46,6 +52,7 @@ async function loadHook(connected) {
 }
 
 test("connected collaboration commands retain their emitted event names and payloads", async () => {
+    // Verify connected collaboration commands retain their emitted event names and payloads.
     const { commands, events, lastOperationRef, pendingUpdatesRef } = await loadHook(true);
     const operation = { type: "insert", field: "answer", content: "A" };
     commands.sendTextOperation(operation);
@@ -72,6 +79,7 @@ test("connected collaboration commands retain their emitted event names and payl
 });
 
 test("disconnected collaboration commands do not emit events", async () => {
+    // Verify disconnected collaboration commands do not emit events.
     const { commands, events, lastOperationRef, pendingUpdatesRef } = await loadHook(false);
     commands.sendTextOperation({ type: "insert" });
     commands.sendTextUpdate("answer", "Ada");

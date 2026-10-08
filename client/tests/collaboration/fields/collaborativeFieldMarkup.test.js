@@ -21,7 +21,7 @@ const views = {
 };
 const presencePath = fileURLToPath(new URL("../../../src/features/collaboration/useCollaborativeFieldPresence.ts", import.meta.url));
 
-const cursors = [1, 2, 3, 4].map((index) => ({
+const cursors = [1, 2, 3, 4].map(/* Return the fixture for this scenario. */ (index) => ({
     id: `user-${index}`, name: `Editor ${index}`, cursor: index,
 }));
 
@@ -34,6 +34,7 @@ const scenarios = [
 
 for (const [kind, state, connected, activeCursors, extra, expectedHash] of scenarios) {
     test(`${kind} ${state} markup retains its original structure`, async () => {
+        // Verify collaborative field markup against the scenario snapshot.
         const View = await loadTsxComponent(views[kind]);
         const presence = await loadTsxModule(presencePath, { react: React });
         const Component = await loadTsxComponent(components[kind], {
@@ -55,11 +56,13 @@ for (const [kind, state, connected, activeCursors, extra, expectedHash] of scena
             typingUsers: [],
             connectedUsers: [],
             remoteUpdates: [],
+            // Return active cursors to the caller.
             getActiveCursorsForField: () => activeCursors,
         };
         const html = renderToStaticMarkup(React.createElement(Component, {
             [kind === "input" ? "fieldKey" : "questionKey"]: "notes",
             value: "Initial",
+            // Provide an inert on change stub for this test.
             onChange() {},
             placeholder: "Write here",
             className: "test-class",

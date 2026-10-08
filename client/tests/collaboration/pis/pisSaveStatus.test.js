@@ -13,6 +13,7 @@ const componentPath = fileURLToPath(new URL("../../../src/features/pis/PisSaveSt
 const fixturePath = fileURLToPath(new URL("../../fixtures/pisSaveStatus.json", import.meta.url));
 
 test("PIS save states retain the original status markup", async () => {
+    // Verify PIS save states retain the original status markup.
     const expected = JSON.parse(await readFile(fixturePath, "utf8"));
     const PisSaveStatus = await loadTsxComponent(componentPath, { "./saveStatus": { SAVE_STATUS } });
     let timeCalls = 0;
@@ -23,7 +24,9 @@ test("PIS save states retain the original status markup", async () => {
         idle: { saveStatus: SAVE_STATUS.IDLE, lastSaved: null },
         idleAfterSave: {
             saveStatus: SAVE_STATUS.IDLE,
-            lastSaved: { toLocaleTimeString: () => { timeCalls += 1; return "10:30:00 AM"; } },
+            lastSaved: { toLocaleTimeString: () => {
+                // Count time formatting calls and return a fixed display time.
+                 timeCalls += 1; return "10:30:00 AM"; } },
         },
     };
     for (const [name, props] of Object.entries(scenarios)) {

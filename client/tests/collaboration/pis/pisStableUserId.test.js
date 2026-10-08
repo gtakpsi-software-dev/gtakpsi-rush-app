@@ -4,9 +4,12 @@ import test from "node:test";
 import { getStableUserId } from "../../../src/features/pis/stableUserId.js";
 
 test("backend collaborator ID takes precedence without touching tab storage", () => {
+    // Verify backend collaborator ID takes precedence without touching tab storage.
     const previousStorage = globalThis.sessionStorage;
     globalThis.sessionStorage = {
+        // Simulate a dependency failure for this scenario.
         getItem() { throw new Error("storage must not be read"); },
+        // Simulate a dependency failure for this scenario.
         setItem() { throw new Error("storage must not be written"); },
     };
     try {
@@ -18,10 +21,13 @@ test("backend collaborator ID takes precedence without touching tab storage", ()
 });
 
 test("existing tab collaborator ID is reused without generating another", () => {
+    // Verify existing tab collaborator ID is reused without generating another.
     const previousStorage = globalThis.sessionStorage;
     const calls = [];
     globalThis.sessionStorage = {
+        // Record storage lookup and return the existing user ID.
         getItem(key) { calls.push(["get", key]); return "stored-id"; },
+        // Simulate a dependency failure for this scenario.
         setItem() { throw new Error("existing ID must not be overwritten"); },
     };
     try {
@@ -34,16 +40,19 @@ test("existing tab collaborator ID is reused without generating another", () => 
 });
 
 test("missing tab ID is generated once and stored under the original key", () => {
+    // Verify missing tab ID is generated once and stored under the original key.
     const previousStorage = globalThis.sessionStorage;
     const previousNow = Date.now;
     const previousRandom = Math.random;
     const calls = [];
     globalThis.sessionStorage = {
+        // Record storage lookup and simulate a missing user ID.
         getItem(key) { calls.push(["get", key]); return null; },
+        // Record set item calls for assertions.
         setItem(key, value) { calls.push(["set", key, value]); },
     };
-    Date.now = () => 1700000000000;
-    Math.random = () => 0.125;
+    Date.now = /* Return a fixed value to keep the test deterministic. */ () => 1700000000000;
+    Math.random = /* Return a fixed value to keep the test deterministic. */ () => 0.125;
     try {
         const expected = `user_1700000000000_${(0.125).toString(36).substr(2, 9)}`;
         assert.equal(getStableUserId(undefined), expected);

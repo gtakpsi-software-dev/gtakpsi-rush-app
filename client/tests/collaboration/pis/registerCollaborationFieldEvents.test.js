@@ -3,10 +3,11 @@ import test from 'node:test';
 
 import { registerCollaborationFieldEvents } from '../../../src/features/pis/registerCollaborationFieldEvents.js';
 
+// Create isolated state, dependency fakes, and captured calls for this test.
 function setup() {
     const handlers = new Map();
     const updates = [];
-    const socket = { on: (name, handler) => handlers.set(name, handler) };
+    const socket = { on: /* Invoke handlers.set with the test inputs. */ (name, handler) => handlers.set(name, handler) };
     const knownVersionsRef = { current: {} };
     let connectedUsers = [
         { id: 'me', cursor: null, field: null },
@@ -20,22 +21,31 @@ function setup() {
         socket,
         currentUser: { id: 'me' },
         knownVersionsRef,
+        // Update connectedUsers in the test harness.
         setConnectedUsers: (update) => { connectedUsers = update(connectedUsers); },
+        // Update typingUsers in the test harness.
         setTypingUsers: (update) => { typingUsers = update(typingUsers); },
+        // Record document-value updates and store the new state.
         setDocumentState: (value) => { updates.push('values'); documentState = value; },
+        // Record version updates and store the new version map.
         setDocumentVersions: (value) => { updates.push('versions'); documentVersions = value; },
     });
 
     return {
         handlers, updates, knownVersionsRef,
+        // Return connected users to the caller.
         getConnectedUsers: () => connectedUsers,
+        // Return typing users to the caller.
         getTypingUsers: () => typingUsers,
+        // Return document state to the caller.
         getDocumentState: () => documentState,
+        // Return document versions to the caller.
         getDocumentVersions: () => documentVersions,
     };
 }
 
 test('field listeners ignore local presence echoes and apply remote cursor and typing state', () => {
+    // Verify field listeners ignore local presence echoes and apply remote cursor and typing state.
     const state = setup();
     assert.deepEqual([...state.handlers.keys()], [
         'cursor-position', 'typing-indicator', 'document-state',
@@ -70,6 +80,7 @@ test('field listeners ignore local presence echoes and apply remote cursor and t
 });
 
 test('document snapshots update values, versions, and the known-version ref in order', () => {
+    // Verify document snapshots update values, versions, and the known-version ref in order.
     const state = setup();
     state.handlers.get('document-state')({
         answer: { value: 'yes', version: 4 },

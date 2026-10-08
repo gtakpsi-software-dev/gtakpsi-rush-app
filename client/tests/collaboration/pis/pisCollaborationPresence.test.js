@@ -9,10 +9,11 @@ import {
 } from "../../../src/features/pis/collaborationPresence.js";
 
 test("cursor events update only the matching user and clear the field on blur", () => {
+    // Verify cursor events update only the matching user and clear the field on blur.
     const users = [{ id: "one", cursor: 2, field: "answer" }, { id: "two", cursor: 1 }];
     const moved = applyCursorPosition(users, {
         userId: "one", field: "other", position: 4, timestamp: 0,
-    }, () => 42);
+    }, /* Return a fixed value to keep the test deterministic. */ () => 42);
 
     assert.deepEqual(moved[0], { id: "one", cursor: 4, field: "other", cursorTimestamp: 42 });
     assert.equal(moved[1], users[1]);
@@ -22,10 +23,11 @@ test("cursor events update only the matching user and clear the field on blur", 
 });
 
 test("typing indicators replace and remove entries by user and field", () => {
+    // Verify typing indicators replace and remove entries by user and field.
     const original = new Map([["other-answer", { userId: "other", field: "answer", timestamp: 1 }]]);
     const active = applyTypingIndicator(original, {
         userId: "other", userName: "Ada", field: "answer", isTyping: true,
-    }, () => 10);
+    }, /* Return a fixed value to keep the test deterministic. */ () => 10);
 
     assert.notEqual(active, original);
     assert.deepEqual(active.get("other-answer"), {
@@ -38,6 +40,7 @@ test("typing indicators replace and remove entries by user and field", () => {
 });
 
 test("typing and cursor expiry keep their original strict boundaries", () => {
+    // Verify typing and cursor expiry keep their original strict boundaries.
     const typing = new Map([
         ["fresh", { timestamp: 7001 }],
         ["boundary", { timestamp: 7000 }],

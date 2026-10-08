@@ -4,9 +4,11 @@ import test from "node:test";
 import { activeCursorsForField } from "../../../src/features/collaboration/activeCursorsForField.js";
 
 test("active cursor API takes precedence and only textarea callers cap overlays", () => {
+    // Verify active cursor API takes precedence and only textarea callers cap overlays.
     const calls = [];
-    const cursors = [1, 2, 3, 4].map((cursor) => ({ cursor }));
+    const cursors = [1, 2, 3, 4].map(/* Return the fixture for this scenario. */ (cursor) => ({ cursor }));
     const collaboration = {
+        // Record the field lookup and return its cursor fixtures.
         getActiveCursorsForField(field) {
             calls.push(field);
             return cursors;
@@ -20,6 +22,7 @@ test("active cursor API takes precedence and only textarea callers cap overlays"
 });
 
 test("legacy cursor fallback keeps only matching fields with numeric positions", () => {
+    // Verify legacy cursor fallback keeps only matching fields with numeric positions.
     const users = [
         { id: "a", field: "notes", cursor: 0 },
         { id: "b", field: "other", cursor: 2 },
