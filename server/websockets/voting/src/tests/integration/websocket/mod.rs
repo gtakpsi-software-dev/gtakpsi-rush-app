@@ -7,6 +7,7 @@ mod duplicate_id;
 mod reconnect;
 mod snapshot_failures;
 
+// Exercises voting snapshots, Redis broadcasts, reconnects, and client cleanup.
 #[tokio::test]
 async fn voting_sockets_preserve_snapshots_live_updates_and_client_lifecycle() {
     // INVARIANT: never write fixtures unless this exact disposable Redis instance is marked.

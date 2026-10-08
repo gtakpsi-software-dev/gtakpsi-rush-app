@@ -19,6 +19,7 @@ struct TestServer {
 }
 
 impl TestServer {
+    // Starts a voting test server with separate admin and voter registries.
     fn start() -> Self {
         let admins = Arc::new(DashMap::new());
         let voters = Arc::new(DashMap::new());
@@ -43,11 +44,13 @@ impl TestServer {
 }
 
 impl Drop for TestServer {
+    // Stops the test server when its fixture leaves scope.
     fn drop(&mut self) {
         self.task.abort();
     }
 }
 
+// Connects only after verifying the disposable Redis instance’s run marker.
 async fn guarded_redis() -> redis::aio::Connection {
     let port = env::var("RUSH_TEST_REDIS_PORT").expect("use scripts/testing/voting-integration.py");
     let run_id = env::var("RUSH_TEST_REDIS_RUN_ID").expect("missing test instance marker");
@@ -60,6 +63,7 @@ async fn guarded_redis() -> redis::aio::Connection {
     conn
 }
 
+// Waits for both role listeners to subscribe before publishing test events.
 async fn wait_for_subscribers(conn: &mut redis::aio::Connection) {
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
@@ -84,6 +88,7 @@ async fn wait_for_subscribers(conn: &mut redis::aio::Connection) {
     .expect("voting subscribers did not connect");
 }
 
+// Waits up to five seconds for the next WebSocket frame.
 async fn receive_frame(socket: &mut TestSocket) -> Message {
     let message = tokio::time::timeout(Duration::from_secs(5), socket.next())
         .await
@@ -93,10 +98,12 @@ async fn receive_frame(socket: &mut TestSocket) -> Message {
     message
 }
 
+// Decodes the next text frame as a JSON event.
 async fn receive(socket: &mut TestSocket) -> Value {
     serde_json::from_str(receive_frame(socket).await.to_text().unwrap()).unwrap()
 }
 
+// Opens a test WebSocket connection to the supplied role URL.
 async fn connect(url: &str) -> TestSocket {
     connect_async(url).await.unwrap().0
 }

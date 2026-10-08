@@ -16,6 +16,7 @@ use tokio::sync::broadcast;
 
 mod drag_lifecycle;
 
+// Upgrades an HTTP request into a sorting WebSocket session.
 pub(crate) async fn ws_handler(
     ws: WebSocketUpgrade,
     State(state): State<Arc<AppState>>,
@@ -24,6 +25,7 @@ pub(crate) async fn ws_handler(
     ws.on_upgrade(move |socket| handle_socket(socket, state, addr))
 }
 
+// Registers a viewer, forwards board events, and releases owned drags on disconnect.
 async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr) {
     let client_id = uuid::Uuid::new_v4().to_string();
     let (mut sender, mut receiver) = socket.split();
@@ -84,6 +86,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>, addr: SocketAddr
     broadcast_viewer_count(&state).await;
 }
 
+// Broadcasts the total connected client count, including admins.
 pub(crate) async fn broadcast_viewer_count(state: &Arc<AppState>) {
     let count = state.clients.len();
     let msg = OutgoingMessage::ViewerCount { count };

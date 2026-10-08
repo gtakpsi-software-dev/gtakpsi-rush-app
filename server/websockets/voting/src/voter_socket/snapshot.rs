@@ -2,6 +2,7 @@ use crate::snapshot::load_field;
 use axum::extract::ws::Message;
 use redis::aio::ConnectionManager;
 
+// Loads the selected rushee and question for a newly connected voter.
 pub(super) async fn load_initial_messages(mut conn: ConnectionManager) -> Vec<Message> {
     let mut initial_messages = Vec::new();
 

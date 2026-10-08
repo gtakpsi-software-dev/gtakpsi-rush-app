@@ -5,6 +5,7 @@ use crate::{
 };
 use std::{sync::Arc, time::Instant};
 
+// Checks whether this client currently owns the requested card’s drag.
 async fn owns_drag(state: &AppState, client_id: &str, rushee_id: &str) -> bool {
     // A drag owner may finish moving after a role change; other clients cannot take it over.
     let drag = state.drag_state.read().await;
@@ -13,6 +14,7 @@ async fn owns_drag(state: &AppState, client_id: &str, rushee_id: &str) -> bool {
         .unwrap_or(false)
 }
 
+// Claims a card for an admin drag or tells a competing requester who owns it.
 pub(super) async fn start(
     state: &Arc<AppState>,
     client_id: &str,
@@ -71,6 +73,7 @@ pub(super) async fn start(
     send_outgoing_message(&state.broadcast_tx, msg);
 }
 
+// Updates and broadcasts the position of a card owned by this client.
 pub(super) async fn move_card(
     state: &Arc<AppState>,
     client_id: &str,
@@ -95,6 +98,7 @@ pub(super) async fn move_card(
     send_outgoing_message(&state.broadcast_tx, msg);
 }
 
+// Releases this client’s card drag and broadcasts its end.
 pub(super) async fn end(state: &Arc<AppState>, client_id: &str, rushee_id: String) {
     if !owns_drag(state, client_id, &rushee_id).await {
         return;

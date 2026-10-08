@@ -65,6 +65,7 @@ pub(crate) enum OutgoingMessage {
     },
 }
 
+// Serializes a sorting event and broadcasts it to the channel’s listeners.
 pub(crate) fn send_outgoing_message(tx: &broadcast::Sender<String>, message: OutgoingMessage) {
     // Delivery remains best-effort when a listener has already disconnected.
     if let Ok(json) = serde_json::to_string(&message) {

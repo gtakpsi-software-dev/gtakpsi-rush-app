@@ -5,10 +5,12 @@ use crate::pubsub_retry::spawn_reconnecting_listener;
 use futures_util::StreamExt;
 use redis::AsyncCommands;
 
+// Starts the background subscription loop for admin voting updates.
 pub async fn spawn_pubsub_listener(clients: ClientMap) {
     spawn_reconnecting_listener(clients, "Admin", run_admin_pubsub_listener);
 }
 
+// Broadcasts current votes and selected-rushee or question changes to admins.
 async fn run_admin_pubsub_listener(
     clients: ClientMap,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {

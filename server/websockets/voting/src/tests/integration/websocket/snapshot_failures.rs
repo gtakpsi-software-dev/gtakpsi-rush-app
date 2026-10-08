@@ -1,5 +1,6 @@
 use super::*;
 
+// Denies snapshot reads in test Redis and verifies that both sockets still receive live updates.
 pub(super) async fn assert_failed_reads_keep_sockets_live(
     server: &TestServer,
     conn: &mut redis::aio::Connection,

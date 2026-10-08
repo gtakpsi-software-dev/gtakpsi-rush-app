@@ -5,6 +5,7 @@ use tokio::sync::mpsc;
 
 pub type ClientMap = Arc<DashMap<usize, mpsc::UnboundedSender<Message>>>;
 
+// Queues a text event for every client and removes closed senders.
 pub fn broadcast_to_clients(clients: &ClientMap, msg_str: String) {
     let mut to_remove = Vec::new();
     for entry in clients.iter() {

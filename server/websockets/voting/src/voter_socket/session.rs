@@ -9,6 +9,7 @@ use std::{net::SocketAddr, sync::atomic::AtomicUsize};
 
 static NEXT_CLIENT_ID: AtomicUsize = AtomicUsize::new(1);
 
+// Upgrades a voter connection and supplies its rushee and question snapshots.
 pub async fn ws_handler(
     Path(id): Path<String>,
     ws: WebSocketUpgrade,

@@ -1,6 +1,7 @@
 use super::*;
 use futures_util::SinkExt;
 
+// Checks sender replacement and cleanup when two admin sockets share an ID.
 pub(super) async fn assert_duplicate_id_behavior(server: &TestServer) {
     let url = format!("{}/admin/42", server.url);
 

@@ -5,6 +5,7 @@ use dashmap::DashMap;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
+// Checks that broadcasts reach live clients and remove disconnected receivers.
 #[test]
 fn broadcasts_deliver_text_and_prune_closed_receivers() {
     let clients = Arc::new(DashMap::new());
@@ -24,6 +25,7 @@ fn broadcasts_deliver_text_and_prune_closed_receivers() {
     assert!(live_receiver.try_recv().is_err());
 }
 
+// Checks rushee and question event names and preserves their string payloads.
 #[test]
 fn shared_pubsub_channels_keep_string_payloads_and_wire_names() {
     assert_eq!(
@@ -37,6 +39,7 @@ fn shared_pubsub_channels_keep_string_payloads_and_wire_names() {
     assert_eq!(shared_update("vote_channel", "ignored"), None);
 }
 
+// Checks that malformed stored votes are omitted without losing valid entries.
 #[test]
 fn vote_events_keep_valid_json_values_and_skip_malformed_hash_entries() {
     assert_eq!(

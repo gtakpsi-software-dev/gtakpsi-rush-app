@@ -10,6 +10,7 @@ mod state;
 #[cfg(test)]
 mod tests;
 
+// Starts the sorting server and its periodic stale-drag cleanup task.
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
